@@ -108,7 +108,7 @@ analytics:
 # Site Author
 author:
   name             : "Wang Zhenlin"
-  avatar           : /assets/images/bio-photo.jpeg
+  avatar           : /assets/images/bio-photo.png
   bio              : "Data Science Blog"
   location         : "Singapore"
   email            :
