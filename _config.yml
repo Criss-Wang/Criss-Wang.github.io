@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Wang Zhenlin's Data Science Blog"
+title                    : "Data Science Blog"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Wang Zhenlin (Criss)"
@@ -108,7 +108,7 @@ analytics:
 # Site Author
 author:
   name             : "Wang Zhenlin"
-  avatar           : /assets/images/bio-image.jpg
+  avatar           : /assets/images/bio-photo.jpeg
   bio              : "Data Science Blog"
   location         : "Singapore"
   email            :
@@ -117,7 +117,7 @@ author:
       icon: "fas fa-fw fa-envelope-square"
       url: djj87018507@gmail.com
     - label: "LinkedIn"
-      icon: "fas fa-fw fa-linkedin"
+      icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/zhenlin-wang/"
     # - label: "Twitter"
     #   icon: "fab fa-fw fa-twitter-square"
