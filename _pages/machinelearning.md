@@ -1,4 +1,5 @@
 ---
+title: "Machine Learning"
 layout: archive
 permalink: /machine-learning/
 title: "Machine Learning Projects"
