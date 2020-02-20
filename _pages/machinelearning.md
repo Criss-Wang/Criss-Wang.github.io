@@ -5,7 +5,7 @@ permalink: /machine-learning/
 title: "Machine Learning Projects"
 arthor_profile: true
 header:
-    image: "/images/H1.jpg"
+    overlay_image: "/images/H1.jpg"
 ---
 
 {% include group-by-array collection=site.posts field="tags" %}
