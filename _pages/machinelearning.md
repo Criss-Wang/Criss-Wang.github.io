@@ -1,11 +1,11 @@
 ---
-title: "Machine Learning"
 layout: archive
 permalink: /machine-learning/
 title: "Machine Learning Projects"
 arthor_profile: true
 header:
     overlay_image: "/images/H1.jpg"
+classes: wide
 ---
 
 {% include group-by-array collection=site.posts field="tags" %}
