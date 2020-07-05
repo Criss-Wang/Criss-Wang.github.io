@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Boosted Drrrrrr"
+title                    : "Boosted Criss"
 title_separator          : "-"
 subtitle                 : "A Data Science Blog "
 name                     : "Wang Zhenlin (Criss)"
@@ -107,13 +107,13 @@ analytics:
 
 # Site Author
 author:
-  name             : "Wang Zhenlin"
+  name             : "Criss Wang"
   avatar           : "/assets/images/bio-photo.png"
   bio              : "Data Science Blog"
   location         : "Singapore"
   email            : "djj87018507@gmail.com"
   links:
-    - label: "Project links"
+    - label: "Portfolio"
       icon: "fas fa-fw fa-link"
       url: /portfolio
     - label: "LinkedIn"
@@ -271,10 +271,13 @@ collections:
   portfolio:
     output: true
     permalink: /:collection/:path/
-  academic:
+  data-engineering:
     output: true
     permalink: /:collection/:path/
   projects:
+    output: true
+    permalink: /:collection/:path/
+  machine-learning:
     output: true
     permalink: /:collection/:path/
 
@@ -288,7 +291,7 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: # true
+      comments: false # true
       share: true
       related: true
 
@@ -299,15 +302,15 @@ defaults:
     values:
       layout: single
       author_profile: true
-
-  # _academic
+  # _data-engineering
   - scope:
       path: ""
-      type: academic
+      type: data-engineering
     values:
       layout: single
       author_profile: true
-      share: true
+      read_time: true
+      comments: false # true
   # _projects
   - scope:
       path: ""
@@ -324,4 +327,13 @@ defaults:
       layout: single
       author_profile: false
       share: true
+  # _machine-learning
+  - scope:
+      path: ""
+      type: machine-learning
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: false # true
       

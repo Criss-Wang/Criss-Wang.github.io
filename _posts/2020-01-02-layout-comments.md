@@ -4,7 +4,7 @@ comments: true
 read_time: true
 related: true
 share: true
-search: false
+search: true
 excerpt_separator: <!--more-->
 categories:
   - Layout
