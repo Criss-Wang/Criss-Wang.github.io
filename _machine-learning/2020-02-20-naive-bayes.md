@@ -1,15 +1,17 @@
 ---
-title: "Supervised Learning"
+title: "Naive Bayes"
 title_separator: "|"
 subtitle: "Version 2.0"
 date: 2020-02-20
 layout: single
 categories:
-tags:
-  - Naive Bayes
+  - Supervised Learning
+tags: 
+  - Machine Learning
+  - Supervised Learning
 header:
     overlay_image: "/images/Intro/Naive-Bayes-Algorithm.jpg"
-excerpt: "Machine Learning, Naive Bayes, Data Science, Supervised Learning"
+excerpt: "A fundamental classifer model based on Bayes' Theorem"
 mathjax: "true"
 
 toc: true

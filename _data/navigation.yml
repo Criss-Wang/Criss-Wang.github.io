@@ -1,11 +1,11 @@
 # main links
 main:
-  - title: "About"
-    url: /about/
   - title: "Machine Learning"
     url: /machine-learning/
   - title: "Data Engineering"
     url: /data-engineering/
+  - title: "Computer Science"
+    url: /computer-science/
   - title: "Posts"
     url: /year-archive/
   - title: "Collections"
