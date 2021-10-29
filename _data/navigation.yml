@@ -9,7 +9,7 @@ main:
   # - title: "Posts"
   #   url: /year-archive/
   - title: "CV"
-    url: /wangzlCV/
+    url: https://criss-wang.github.io/pdf/Resume Wang Zhenlin For Research_ver 2.pdf
   - title: "About"
     url: /About/
   # - title: "Collections"

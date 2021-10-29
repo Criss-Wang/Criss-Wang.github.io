@@ -111,14 +111,13 @@ analytics:
 author:
   name             : "Wang Zhenlin (Criss)"
   avatar           : "/images/selfie.jpg"
-  bio              : Undergrad in Applied Mathematics and Computer Science at
-                     National Univeristy of Singapore
+  bio              : Undergrad in Applied Mathematics and Computer Science at National Univeristy of Singapore
   location         : "Singapore"
   email            : "djj87018507@gmail.com"
   links:
     - label: "CV"
       icon: "fas fa-fw fa-link"
-      url: /wangzlCV
+      url: https://criss-wang.github.io/pdf/Resume Wang Zhenlin For Research_ver 2.pdf
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/zhenlin-wang/"
