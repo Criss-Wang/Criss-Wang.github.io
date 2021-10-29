@@ -18,18 +18,18 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Boosted Criss"
+title                    : "Wang Zhenlin"
 title_separator          : "-"
-subtitle                 : "A Data Science Blog "
+subtitle                 : "Everything about DS/ML/AI"
 name                     : "Wang Zhenlin (Criss)"
-description              : "Record my data science learning journey"
+description              : "Undergrad student, \n Applied Mathematics and Computer Science, \n National Univeristy of Singapore"
 url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
-breadcrumbs              : true # true, false (default)
+breadcrumbs              : false # true, false (default)
 words_per_minute         : 200
 comments:
   provider               : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "custom"
@@ -109,15 +109,16 @@ analytics:
 
 # Site Author
 author:
-  name             : "Criss Wang"
-  avatar           : "/assets/images/bio-photo.png"
-  bio              : "Data Science Blog"
+  name             : "Wang Zhenlin (Criss)"
+  avatar           : "/images/selfie.jpg"
+  bio              : Undergrad in Applied Mathematics and Computer Science at
+                     National Univeristy of Singapore
   location         : "Singapore"
   email            : "djj87018507@gmail.com"
   links:
-    - label: "Portfolio"
+    - label: "CV"
       icon: "fas fa-fw fa-link"
-      url: /portfolio
+      url: /wangzlCV
     - label: "LinkedIn"
       icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/zhenlin-wang/"

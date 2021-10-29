@@ -1,15 +1,19 @@
 # main links
 main:
-  - title: "Machine Learning"
-    url: /machine-learning/
-  - title: "Data Engineering"
-    url: /data-engineering/
-  - title: "Computer Science"
-    url: /computer-science/
-  - title: "Posts"
+  - title: "Publications"
+    url: /publications/
+  - title: "Experiences"
+    url: /experiences/
+  - title: "Blog Posts"
     url: /year-archive/
-  - title: "Collections"
-    url: /collection-archive/
+  # - title: "Posts"
+  #   url: /year-archive/
+  - title: "CV"
+    url: /wangzlCV/
+  - title: "About"
+    url: /About/
+  # - title: "Collections"
+  #   url: /collection-archive/
   # - title: "Sitemap"
   #   url: /sitemap/
 

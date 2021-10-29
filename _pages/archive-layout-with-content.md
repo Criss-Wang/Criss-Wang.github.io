@@ -4,7 +4,7 @@ layout: archive
 permalink: /archive-layout-with-content/
 ---
 
-A variety of common markup showing how the theme styles them.
+A variety of common markup showing how the theme styles them. $\sigma^2 = \frac{1}{2}$
 
 # Header one
 

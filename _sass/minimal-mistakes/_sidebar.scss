@@ -19,7 +19,7 @@
   @include breakpoint($large) {
     float: left;
     width: calc(#{$right-sidebar-width-narrow} - 1em);
-    opacity: 0.75;
+    opacity: 1;
     -webkit-transition: opacity 0.2s ease-in-out;
     transition: opacity 0.2s ease-in-out;
 
@@ -94,7 +94,7 @@
 
   @include breakpoint($x-large) {
     width: $right-sidebar-width;
-    margin-right: -1 * $right-sidebar-width;
+    margin-right: 1 * $right-sidebar-width;
   }
 }
 
@@ -102,11 +102,11 @@
   @include breakpoint($large) {
     position: relative;
     float: right;
-    margin-right: 0;
+    margin-right: 2;
   }
 
   @include breakpoint($x-large) {
-    margin-right: 0;
+    margin-right: 2;
   }
 }
 
@@ -117,8 +117,8 @@
 .author__avatar {
   display: table-cell;
   vertical-align: top;
-  width: 36px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
 
   @include breakpoint($large) {
     display: block;
@@ -127,7 +127,7 @@
   }
 
   img {
-    max-width: 110px;
+    max-width: 160px;
     border-radius: 50%;
 
     @include breakpoint($large) {
@@ -167,12 +167,13 @@
 }
 .sidebar .author__name {
   font-family: $sans-serif;
-  font-size: $type-size-5;
+  font-size: 1em;
 }
 
 .author__bio {
   margin: 0;
-
+  font-size: 0.8em;
+  width: 70%;
   @include breakpoint($large) {
     margin-top: 10px;
     margin-bottom: 20px;

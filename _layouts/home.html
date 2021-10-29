@@ -3,8 +3,11 @@ layout: archive
 ---
 
 {{ content }}
-
-<h3 class="archive__subtitle">{{ site.data.ui-text[site.locale].recent_posts | default: "Recent Posts" }}</h3>
+<h1>Welcome to my personal page!</h1>
+<p class="description">I write blog posts about knowledge I learned in Data Science/Machine Learning/Artificial Intelligence from time to time. You can also find my porfolio here. Enjoy reading!</p>
+<p class="description"><b>Disclaimer:</b> I try my best to give credit for all sources I made referenecs to. 
+  If you found some parts in my post that are largely from your work, please kindly contact me so I can correct my mistakes.</p>
+<h2 class="archive__subtitle">{{ site.data.ui-text[site.locale].recent_posts | default: "Recent Posts" }}</h2>
 
 {% if paginator %}
   {% assign posts = paginator.posts %}
