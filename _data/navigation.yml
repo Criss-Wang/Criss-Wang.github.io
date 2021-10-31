@@ -1,16 +1,16 @@
 # main links
 main:
+  - title: "Blog Posts"
+    url: /collection-archive/
   - title: "Publications"
     url: /publications/
   - title: "Experiences"
     url: /experiences/
-  - title: "Blog Posts"
-    url: /year-archive/
   # - title: "Posts"
   #   url: /year-archive/
   - title: "CV"
     url: https://criss-wang.github.io/pdf/Resume Wang Zhenlin For Research_ver 2.pdf
-  - title: "About"
+  - title: "About Me"
     url: /About/
   # - title: "Collections"
   #   url: /collection-archive/

@@ -40,6 +40,7 @@
 
   + .list__item .archive__item-title {
     margin-top: 0.5em;
+    font-size: 1.1em;
   }
 }
 
@@ -52,10 +53,12 @@
 
 .archive__item-title {
   margin-bottom: 0.25em;
+  margin-top: 1em;
   font-family: $sans-serif-narrow;
   line-height: initial;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 1.1em;
 
   a[rel="permalink"]::before {
     content: '';
@@ -81,7 +84,7 @@
 
 .archive__item-excerpt {
   margin-top: 0;
-  font-size: $type-size-6;
+  font-size: $type-size-7;
 
   & + p {
     text-indent: 0;
@@ -210,15 +213,16 @@
 
   .archive__item-title {
     margin-top: 0.5em;
-    font-size: $type-size-5;
+    font-size: $type-size-6;
   }
 
   .archive__item-excerpt {
     display: none;
-
+    
     @include breakpoint($medium) {
       display: block;
-      font-size: $type-size-6;
+      font-size: $type-size-7;
+
     }
   }
 
@@ -424,8 +428,8 @@
 .archive {
   .feature__wrapper {
     .archive__item-title {
-      margin-top: 0.25em;
-      font-size: 1em;
+      margin-top: 0.25\em;
+      font-size: 0.8em;
     }
   }
 

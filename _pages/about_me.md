@@ -14,3 +14,4 @@ My Research Interests lie in Statistical Learning Theories of Machine Learning a
 ## Fun Facts
 - I enjoy Thai food a lot, especially its Mango sticky rice.
 - I'm a big fan of Japanese history and culture. I also like its dramas, TV shows and anime. I'm currently learning Japanese as well.
+- I used to play harmonica and violin. But in this day of Covid crisis, I could only stay home, so I restricted myself from playing them so as to not annoy my tenant friends. Instead, I started to appreciate classical music and modern classicals. I'm a big fan of *Ludovico Einaudi* recently. Listening to his pieces is soooo relaxing!

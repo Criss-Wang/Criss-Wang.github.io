@@ -2,6 +2,7 @@
 title: "Database: Intro"
 date: 2020-07-01
 layout: single
+author_profile: true
 categories:
   - Database System
 tags: 

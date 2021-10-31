@@ -274,16 +274,19 @@ compress_html:
     envs: development
 
 collections:
-  portfolio:
+  # portfolio:
+  #   output: true
+  #   permalink: /:collection/:path/
+  Data-Science:
     output: true
     permalink: /:collection/:path/
-  data-engineering:
+  Artificial-Intelligence:
     output: true
     permalink: /:collection/:path/
-  projects:
+  Machine-Learning:
     output: true
     permalink: /:collection/:path/
-  machine-learning:
+  Random-Thoughts:
     output: true
     permalink: /:collection/:path/
 
@@ -308,15 +311,15 @@ defaults:
     values:
       layout: single
       author_profile: true
-  # _data-engineering
-  - scope:
-      path: ""
-      type: data-engineering
-    values:
-      layout: single
-      author_profile: true
-      read_time: true
-      comments: false # true
+  # # _data-engineering
+  # - scope:
+  #     path: ""
+  #     type: data-engineering
+  #   values:
+  #     layout: single
+  #     author_profile: true
+  #     read_time: true
+  #     comments: false # true
   # _projects
   - scope:
       path: ""
