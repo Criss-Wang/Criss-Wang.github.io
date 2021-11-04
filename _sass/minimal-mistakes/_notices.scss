@@ -83,6 +83,7 @@
 
 .notice--info {
   @include notice($info-color);
+  font-size: 0.9em !important;
 }
 
 /* Warning notice */
