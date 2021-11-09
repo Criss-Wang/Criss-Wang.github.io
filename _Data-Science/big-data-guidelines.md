@@ -1,6 +1,6 @@
 ---
 title: "A fundamental course for Data Engineering"
-date: 2019-07-21
+date: 2020-05-21
 layout: single
 author_profile: true
 categories:

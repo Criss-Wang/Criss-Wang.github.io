@@ -1,6 +1,6 @@
 ---
 title: "An overview of Big Data Analytics"
-date: 2019-07-21
+date: 2021-01-08
 layout: single
 author_profile: true
 categories:

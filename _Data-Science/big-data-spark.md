@@ -1,6 +1,6 @@
 ---
 title: "Apache Spark: Only the simple answer"
-date: 2019-07-21
+date: 2020-04-11
 layout: single
 author_profile: true
 categories:
