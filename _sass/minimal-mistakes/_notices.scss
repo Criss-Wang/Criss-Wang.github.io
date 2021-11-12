@@ -71,12 +71,14 @@
 
 .notice {
   @include notice($light-gray);
+  font-size: 0.9em !important;
 }
 
 /* Primary notice */
 
 .notice--primary {
   @include notice($primary-color);
+  font-size: 0.9em !important;
 }
 
 /* Info notice */
@@ -90,16 +92,19 @@
 
 .notice--warning {
   @include notice($warning-color);
+  font-size: 0.9em !important;
 }
 
 /* Success notice */
 
 .notice--success {
   @include notice($success-color);
+  font-size: 0.9em !important;
 }
 
 /* Danger notice */
 
 .notice--danger {
-  @include notice($danger-color);
+@include notice($danger-color);
+font-size: 0.9em !important;
 }
