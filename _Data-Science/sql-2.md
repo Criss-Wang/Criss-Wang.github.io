@@ -52,3 +52,6 @@ For the full list of operations, you may refer to the official documentation of 
 - Only one clustered index can exists on one table
 - Clustered indexes are effective on columns that consistent of unique increasing integers (like identity_set)
 - When a primary key is created a unique clustered index is automatically created - this can be beneficial for queries that involve joins on this column.
+
+## TODO
+- Discuss B-Tree: geeksforgeeks.org/introduction-of-b-tree-2/?ref=leftbar-rightbar
