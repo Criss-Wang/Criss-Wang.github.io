@@ -1,7 +1,9 @@
 # main links
 main:
-  - title: "Blog Posts"
+  - title: "Posts by Topics"
     url: /collection-archive/
+  - title: "Posts by Keywords"
+    url: /tags/
   - title: "Publications"
     url: /publications/
   - title: "Experiences"
