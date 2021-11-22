@@ -13,7 +13,7 @@ mathjax: "true"
 ---
 ## Overview
 Very often, the data loaded into your notebooks are not entirely usable. There might be missing values, noisy data points, duplicates and outliers. Sometimes, data needs to be scaled up and down. Encoding and dimensionality reductions can be performed to make data cleaner and easier to operate on. Here we discuss about some essential ways to clean up the data
-## 1. Basic Cleaning
+## Basic Cleaning
 The first step involves
 1. Detecting and handling missing or noisy data; 
 2. Removal of outliers
@@ -129,6 +129,32 @@ This is done to replace the raw values of numeric attribute by interval levels o
 
 4. Concept Hierarchy Generation:
 Here attributes are converted from level to higher level in hierarchy. For example, the attribute “city” can be converted to “country” in some scenarios.
+
+5. Encode Data:
+Machine learning algorithms cannot work with categorical data directly, categorical data must be converted to number.
+   1. Label Encoding
+   2. One hot encoding
+   3. Dummy variable trap
+
+    **Label encoding** refers to transforming the word labels into numerical form so that the algorithms can understand how to operate on them.
+
+    A **One hot encoding** is a representation of categorical variable as binary vectors.It allows the representation of categorical data to be more expresive. This first requires that the categorical values be mapped to integer values, that is label encoding. Then, each integer value is represented as a binary vector that is all zero values except the index of the integer, which is marked with a 1.
+
+    The **Dummy variable trap** is a scenario in which the independent variable are multicollinear, a scenario in which two or more variables are highly correlated in simple term one variable can be predicted from the others.
+
+    By using `pandas get_dummies` function we can do all above three step in line of code. We will this fuction  to get dummy variable for sex, children,smoker,region features. By setting `drop_first =True` function will remove dummy variable trap by droping one variable and original variable.The pandas makes our life easy.
+
+1. Advanced: Box-Cox transformation
+A Box Cox transformation is a way to transform non-normal dependent variables into a normal shape. Normality is an important assumption for many statistical techniques; if your data isn’t normal, applying a Box-Cox means that you are able to run a broader number of tests. All that we need to perform this transformation is to find lambda value and apply the rule shown below to your variable. 
+```python 
+## The trick of Box-Cox transformation is to find lambda value, however in practice this is quite affordable. The following function returns the transformed variable, lambda value,confidence interval. See the sample code below:
+from scipy.stats import boxcox
+y_bc,lam, ci= boxcox(df_encode['charges'],alpha=0.05) 
+```
+
+![box-cox](/images/Machine%20learning/box-cox.png)
+{: style="text-align: center;"}
+  
 
 
 ### Data Scaling/Standardizing/Mean Removal (don't use all, only use selectively!!!)

@@ -18,11 +18,13 @@ This is a blog to note down some important concepts revolving MongoDB and MySQL,
 - Dynamic schemas: creating entries without prior restriction of the data structure
 - Represent data as of JSON documents and use JSON Query (JavaScript)
 - Supports sharding and replication: it partitions data across multiple servers
+
 ### Sharding
 The components of a Shard include:
 1. A Shard – A MongoDB instance which holds the subset of the data. In production environments, **ALL** shards need to be part of replica sets.
 2. Config server – A mongodb instance which holds **metadata** about the cluster, basically information about the various mongodb instances which will hold the shard data.
 3. A Router – A mongodb instance responsible to re-directing the commands send by the client to the right servers.
+
 ### The benefits of NoSQL in MongoDB
 - Schema Free: MongoDB has a pre-defined structure that can be defined and adhered to, but also, if you need different documents in a collection, it can have different structures.
 - Scaled both **Horizontal** and **Vertical**: Improve system's processing power via
