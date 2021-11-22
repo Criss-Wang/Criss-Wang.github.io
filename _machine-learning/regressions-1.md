@@ -4,12 +4,12 @@ date: 2019-07-21
 layout: single
 author_profile: true
 categories:
-  - Linear Regression
+  - Supervised Learning
 tags: 
   - Mathematical Modeling
   - Regression
   - Regularization
-excerpt: "some excerpt"
+excerpt: "Shallow and Deep Linear Regression"
 mathjax: "true"
 ---
 ## Outline
