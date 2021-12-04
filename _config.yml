@@ -283,7 +283,7 @@ collections:
   Artificial-Intelligence:
     output: true
     permalink: /:collection/:path/
-  machine-learning:
+  Machine-Learning:
     output: true
     permalink: /:collection/:path/
   Random-Thoughts:
