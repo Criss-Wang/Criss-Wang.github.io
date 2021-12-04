@@ -1,6 +1,6 @@
 ---
 title: "Regression Models: Logistic Regression"
-date: 2019-07-21
+date: 2019-05-13
 layout: single
 author_profile: true
 categories:

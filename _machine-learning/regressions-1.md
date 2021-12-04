@@ -1,6 +1,6 @@
 ---
 title: "Regression Models: Linear Regression and Regularization"
-date: 2019-07-21
+date: 2019-05-11
 layout: single
 author_profile: true
 categories:

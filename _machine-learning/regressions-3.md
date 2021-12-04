@@ -1,6 +1,6 @@
 ---
 title: "Regression Models: GAM, GLM and GLMM"
-date: 2019-07-21
+date: 2019-05-16
 layout: single
 author_profile: true
 categories:
