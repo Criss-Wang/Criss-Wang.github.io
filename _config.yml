@@ -283,7 +283,7 @@ collections:
   Artificial-Intelligence:
     output: true
     permalink: /:collection/:path/
-  Machine-Learning:
+  machine-learning:
     output: true
     permalink: /:collection/:path/
   Random-Thoughts:
@@ -337,12 +337,12 @@ defaults:
       author_profile: false
       share: true
   # _machine-learning
-  - scope:
-      path: ""
-      type: machine-learning
-    values:
-      layout: single
-      author_profile: true
-      read_time: true
-      comments: false # true
+  # - scope:
+  #     path: ""
+  #     type: machine-learning
+  #   values:
+  #     layout: single
+  #     author_profile: true
+  #     read_time: true
+  #     comments: false # true
       
