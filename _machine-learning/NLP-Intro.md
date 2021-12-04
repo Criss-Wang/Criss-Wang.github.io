@@ -12,7 +12,7 @@ excerpt: "Brief intro to natural language processing"
 mathjax: "true"
 ---
 
-# Overview
+## Overview
 Natural Language Processing (NLP) is a field in machine learning that aims to solve the following problems:
 - **N**atural **L**anguage **U**nderstanding
 - **N**atural **L**angauge **G**eneration
