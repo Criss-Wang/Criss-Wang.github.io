@@ -1,14 +1,13 @@
-# Criss Wang's Data Science Blogs
+# Criss Wang's Blogs
 
-This is currently a study-based blogs:
-- I will be using the blogs to keep track of my data science learning journey including:
-1. Kaggle Competitions/Learning activities
-2. Machine Learning fundamentals (theories behind the algorithms)
-3. Pure Mathematics: Optimization theory; Measure Theory; Stochastic Process;
-4. Technical workshop: To enlighten others (and my future self)
-5. AI-related work
+This is a study blog about my learning journey:
+- I've shifted my local copies of posts onto this blog to make it more accessible and convient.
+- It includes everything about Data Science / Machine Leaerning / Artificial Intelligence that I've learnt
+- I also use this as a homepage for myself. You may find my academic particulars here.
+- This is still an ongoing project, but you may dropby and give feedbacks.
+- Last but not least, hope everyone interested in DS/ML/AI will thrive with perseverence!
 
 
 ## Major Posts
 
-- Nothing so far (whoa you really need to pump it up man)
+- To be updated
