@@ -8,7 +8,7 @@ header:
     overlay_filter: 0.6
 ---
 
-{% capture written_label %}'None'{% endcapture %}
+<!-- {% capture written_label %}'None'{% endcapture %}
 
 {% include group-by-array collection=site.machine-learning field="categories"%}
 
@@ -18,4 +18,4 @@ header:
   {% for post in posts %}
     {% include archive-single.html %}
   {% endfor %}
-{% endfor %}
+{% endfor %} -->
