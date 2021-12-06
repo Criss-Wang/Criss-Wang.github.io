@@ -207,6 +207,40 @@ array([[1., 0., 1., 0., 0.],
 array([['Male', 1],
       [None, 2]], dtype=object)
 ```
+7. Scaler Comparison and choices
+   1. <kbd>MinMaxScaler</kbd>
+   	- **Definition**: Add or substract a constant. Then multiply or divide by another constant. MinMaxScaler subtracts the mimimum value in the column and then divides by the difference between the original maximum and original minimum. 
+   	- **Preprocessing Type**: Scale
+   	- **Range**: 0 to 1 default, can override
+   	- **Mean**: varies
+   	- **Distribution Characteristics**: Bounded
+   	- **When Use**: Use first unless have theoretical reason to need stronger scalers.
+   	- **Notes**: Preserves the shape of the original distribution. Doesn't reduce the importance of outliers. Least disruptive to the information in the original data. Default range for MinMaxScaler is 0 to 1.
+   2. <kbd>RobustScaler</kbd>
+   	- **Definition**: RobustScaler standardizes a feature by removing the median and dividing each feature by the interquartile range. 
+   	- **Preprocessing Type**: Standardize
+   	- **Range**: varies
+   	- **Mean**: varies
+   	- **Distribution Characteristics**: Unbounded
+   	- **When Use**: Use if have outliers and don't want them to have much influence.
+   	- **Notes**: Outliers have less influence than with MinMaxScaler. Range is larger than MinMaxScaler or Standard Scaler.
+   3. <kbd>StandardScaler</kbd>
+   	- **Definition**: StandardScaler standardizes a feature by removing the mean and dividing each value by the standard deviation. 
+   	- **Preprocessing Type**: Standardize
+   	- **Range**: varies
+   	- **Mean**: 0
+   	- **Distribution Characteristics**: Unbounded, Unit variance
+   	- **When Use**: When need to transform a feature so it is close to normally distributed.
+   	- **Notes**: Results in a distribution with a standard deviation equal to 1 (and variance equal to 1). If you have outliers in your feature (column), normalizing your data will scale most of
+   the data to a small interval.
+   4. <kbd>Normalizer</kbd>
+   	- **Definition**: An observation (row) is normalized by applying 12 (Euclidian) normalization. If each element were squared and summed, the total would equal 1. Could also specify 11 (Manhatten) normalization.
+   	- **Preprocessing Type**: Normalize
+   	- **Range**: varies
+   	- **Mean**: 0
+   	- **Distribution Characteristics**: Unit norm
+   	- **When Use**: Rarely
+   	- **Notes**: Normalizes each sample observation (row), not the feature (column)!
 
 
 ## Reduce Data
