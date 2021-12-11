@@ -4,7 +4,7 @@ date: 2020-10-20
 layout: single
 author_profile: true
 categories:
-  - 
+  - Optimization
 tags: 
   - Variational Inference
   - Bayesian Statistics
