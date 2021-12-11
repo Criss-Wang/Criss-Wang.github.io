@@ -1,7 +1,7 @@
 # main links
 main:
   - title: "Posts by Topics"
-    url: /collection-archive/
+    url: /topics-archive/
   - title: "Posts by Keywords"
     url: /tags/
   - title: "Publications"

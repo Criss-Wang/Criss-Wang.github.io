@@ -1,19 +1,14 @@
 ---
 title: "Variational Inference"
-date: 2019-07-21
+date: 2020-10-20
 layout: single
 author_profile: true
 categories:
-  - Data Mining
+  - 
 tags: 
-  - Data Imputation
-  - Feature Extraction
-excerpt: "some excerpt"
+  - Variational Inference
+  - Bayesian Statistics
+excerpt: "A useful inference method for distributional approximation"
 mathjax: "true"
 ---
 # Overview
-C:\Users\22333\Desktop\Archive\Year 3 Part 1\MA4270\A0187381W_Wang Zhenlin_Project.pdf
-
-## Kaggle Data Import
-
-## Some Major File Management packages
