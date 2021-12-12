@@ -1,0 +1,8 @@
+1. Reinforcement
+2. Regex
+3. Bandit
+4. Dirichlet
+5. Hidden Markov Model
+6. Torch/Tensorflow Usage
+7. Deep Learning Related
+8. NLP/Vision
