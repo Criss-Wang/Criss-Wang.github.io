@@ -50,7 +50,7 @@ The first step involves
 			The whole data divided into segments of equal size -->
 				Various methods are performed to complete the task. Each segmented is handled separately. 
 		
-	2. Regression:
+	2. [Regression](https://www.scaler.com/topics/linear-regression-in-machine-learning/):
    
 		Fitting data to a regression function: ML Regression Algorithm can be used for smoothing of data. Interpolate using the regression.
 	3. Clustering:
