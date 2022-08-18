@@ -1,0 +1,17 @@
+Homepage documentation
+-	Set up Hexo and Icarus (https://hexo.io/zh-cn/docs/ and https://ppoffice.github.io/hexo-theme-icarus/uncategorized/icarus%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/)
+	>> npm install -g hexo-cli
+	>> npm install
+	
+- 	Local build
+	>> hexo generate -w (open a cmd prompt and listen to local file changes)
+	>> hexo server (open another cmd prompt and start the website)
+	
+- 	To restyle components in icarus
+	>> locate node_modules/hexo-theme-icarus/layout for specific items' styles
+	>> the css files are in node_modules/hexo-theme-icarus/source/css
+	
+- Github Token
+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
+
+![Steins_Gate_Lab_Member_Badge](https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Member_Badge.webp)
