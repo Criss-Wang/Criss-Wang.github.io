@@ -3,11 +3,11 @@ version: 5.0.0
 # Icarus theme variant, can be "default" or "cyberpunk"
 variant: default
 # Path or URL to the website's logo
-logo: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
+logo: /img/logo.svg
 # Page metadata configurations
 head:
     # URL or path to the website's icon
-    favicon: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
+    favicon: /img/favicon.svg
     # Web application manifests configuration
     # https://developer.mozilla.org/en-US/docs/Web/Manifest
     manifest:
@@ -105,7 +105,7 @@ head:
 navbar:
     # Navigation menu items
     menu:
-        Criss's Blog: /
+        Home: /
         Archives: /archives
         Categories: /categories
         Tags: /tags
@@ -114,7 +114,7 @@ navbar:
     links:
         Download on GitHub:
             icon: fab fa-github
-            url: https://github.com/Criss-Wang/
+            url: https://github.com/ppoffice/hexo-theme-icarus
 # Page footer configurations
 footer:
     # Links to be shown on the right of the footer section
@@ -225,36 +225,36 @@ widgets:
         position: left
         type: profile
         # Author name
-        author: Zhenlin Wang (Criss)
+        author: Your name
         # Author title
-        author_title: |+
-            Software Development
-            Machine Learning
-            Artificial Intelligence
+        author_title: Your title
         # Author's current location
-        location: Pittsburgh, PA
+        location: Your location
         # URL or path to the avatar image
-        avatar: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp
+        avatar: 
         # Whether show the rounded avatar image
-        avatar_rounded: true
+        avatar_rounded: false
         # Email address for the Gravatar
         gravatar: 
         # URL or path for the follow button
-        follow_link: https://github.com/Criss-Wang/
+        follow_link: https://github.com/ppoffice
         # Links to be shown on the bottom of the profile widget
         social_links:
             Github:
                 icon: fab fa-github
-                url: https://github.com/Criss-Wang/
-            LinkedIn:
-                icon: fab fa-linkedin-in
-                url: https://www.linkedin.com/in/zhenlin-wang/
-            Email:
-                icon: fas fa-envelope
-                url: mailto:zhenlinw@cs.cmu.edu
-            CV:
-                icon: fas fa-fw fa-link
-                url: https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf
+                url: https://github.com/ppoffice
+            Facebook:
+                icon: fab fa-facebook
+                url: https://facebook.com
+            Twitter:
+                icon: fab fa-twitter
+                url: https://twitter.com
+            Dribbble:
+                icon: fab fa-dribbble
+                url: https://dribbble.com
+            RSS:
+                icon: fas fa-rss
+                url: /
     # Table of contents widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
@@ -267,14 +267,14 @@ widgets:
         # Maximum level of headings to show (1-6)
         depth: 3
     # Recommendation links widget configurations
-    # -
-    #     # Where should the widget be placed, left sidebar or right sidebar
-    #     position: left
-    #     type: links
-    #     # Names and URLs of the sites
-    #     links:
-    #         Hexo: https://hexo.io
-    #         Bulma: https://bulma.io
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: left
+        type: links
+        # Names and URLs of the sites
+        links:
+            Hexo: https://hexo.io
+            Bulma: https://bulma.io
     # Categories widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
@@ -283,53 +283,53 @@ widgets:
     # Recent posts widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
-        position: right
+        position: left
         type: recent_posts
     # Archives widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
-        position: right
+        position: left
         type: archives
     # Tags widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
-        position: right
+        position: left
         type: tags
         # How to order tags. For example 'name' to order by name in ascending order, and '-length' to order by number of posts in each tags in descending order
-        order_by: -length
+        order_by: name
         # Amount of tags to show. Will show all if not set.
-        amount: 15
+        amount: 
         # Whether to show tags count, i.e. number of posts in the tag.
         show_count: true
     # Google FeedBurner email subscription widget configurations
-    # -
-    #     # Where should the widget be placed, left sidebar or right sidebar
-    #     position: left
-    #     type: subscribe_email
-    #     # Hint text under the email input
-    #     description: 
-    #     # Feedburner ID
-    #     feedburner_id: ''
-    # # Google AdSense unit configurations
-    # -
-    #     # Where should the widget be placed, left sidebar or right sidebar
-    #     position: left
-    #     type: adsense
-    #     # AdSense client ID
-    #     client_id: ''
-    #     # AdSense AD unit ID
-    #     slot_id: ''
-    # # Follow.it email subscription widget configurations
-    # -
-    #     # Where should the widget be placed, left sidebar or right sidebar
-    #     position: left
-    #     type: followit
-    #     # Hint text under the email input
-    #     description: 
-    #     # Subscription form action URL
-    #     action_url: ''
-    #     # Feed claiming verification code
-    #     verification_code: ''
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: left
+        type: subscribe_email
+        # Hint text under the email input
+        description: 
+        # Feedburner ID
+        feedburner_id: ''
+    # Google AdSense unit configurations
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: left
+        type: adsense
+        # AdSense client ID
+        client_id: ''
+        # AdSense AD unit ID
+        slot_id: ''
+    # Follow.it email subscription widget configurations
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: left
+        type: followit
+        # Hint text under the email input
+        description: 
+        # Subscription form action URL
+        action_url: ''
+        # Feed claiming verification code
+        verification_code: ''
 # Plugin configurations
 # https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/
 plugins:
@@ -414,8 +414,3 @@ providers:
     fontcdn: google
     # Name or URL of the fontawesome icon font CDN provider
     iconcdn: fontawesome
-
-mathjax:
-  enable: true
-  per_page: false
-  cdn: //cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML

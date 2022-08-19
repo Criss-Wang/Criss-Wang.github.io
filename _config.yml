@@ -6,7 +6,7 @@ author: Zhenlin Wang
 language: en
 timezone: America/New_York
 url: https://criss-wang.github.io/
-permalink: '/post/:title/'
+permalink: /post/:title/
 permalink_defaults: null
 pretty_urls:
   trailing_index: true
@@ -28,7 +28,7 @@ external_link:
   exclude: ''
 filename_case: 0
 render_drafts: false
-post_asset_folder: false
+post_asset_folder: true
 relative_link: false
 future: true
 highlight:
@@ -59,8 +59,15 @@ pagination_dir: page
 include: null
 exclude: null
 ignore: null
-theme: icarus
+mathjax:
+  tags: none
+  single_dollars: true
+  cjk_width: 0.9
+  normal_width: 0.6
+  append_css: true
+  every_page: false
+  packages: null
+  extension_options: {}
+theme: icarus-new
 deploy:
   type: ''
-math:
-  engine: mathjax

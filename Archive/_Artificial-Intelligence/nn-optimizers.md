@@ -16,7 +16,7 @@ mathjax: "true"
 ### Background
 
 As one starts to use Neural Networks in their data models, he will inevitably encounter code of form like this:
-<figure style="width: 700px" class="align-center">
+<figure style="width: 700px;ext-align:center" class="align-center">
   <img src="/images/Machine%20learning/optimization.png" alt="">
 </figure> 
 

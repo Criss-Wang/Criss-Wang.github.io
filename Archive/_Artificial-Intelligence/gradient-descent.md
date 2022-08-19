@@ -10,7 +10,7 @@ tags:
 excerpt: "The most important technique in neural networks (as of now)"
 mathjax: "true"
 ---
-## Overview of Gradient Descent
+### Overview of Gradient Descent
 **Optimization** refers to the task of minimizing/maximizing an objective function $f(x)$ parameterized by $x$. In machine/deep learning terminology, it's the task of minimizing the cost/loss function $J(w)$ parameterized by the model's parameters $w \in \mathbb{R}^d$. Optimization algorithms (in case of minimization) have one of the following goals:
 - Find the global minimum of the objective function. This is feasible if the objective function is convex, i.e. any local minimum is a global minimum.
 - Find the lowest possible value of the objective function within its neighbor. That's usually the case if the objective function is not convex as the case in most deep learning problems.
