@@ -1,18 +1,18 @@
 sudo: false
 language: node_js
 node_js:
-  - 10 # use nodejs v10 LTS
+  - 16 # use nodejs v10 LTS
 cache: npm
 branches:
   only:
-    - hexo-icarus # build master branch only
+    - master # build master branch only
 script:
-  - hexo generate # generate static files
+  - hexo config theme icarus-new | hexo generate # generate static files
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GH_TOKEN
   keep-history: true
   on:
-    branch: hexo-icarus
+    branch: master
   local-dir: public
