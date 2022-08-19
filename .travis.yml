@@ -1,11 +1,18 @@
-language: ruby
-cache: bundler
-gemfile: docs/Gemfile
-script:
-  - bundle exec jekyll algolia --source docs --destination docs/_site --config docs/_config.yml
+sudo: false
+language: node_js
+node_js:
+  - 10 # use nodejs v10 LTS
+cache: npm
 branches:
   only:
-    # Change this to gh-pages if you're deploying using the gh-pages branch
-    - master
-rvm:
- - 2.4
+    - hexo-icarus # build master branch only
+script:
+  - hexo generate # generate static files
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GH_TOKEN
+  keep-history: true
+  on:
+    branch: hexo-icarus
+  local-dir: public

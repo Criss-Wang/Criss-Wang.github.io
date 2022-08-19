@@ -1,6 +1,0 @@
-
-3. Bandit
-5. Hidden Mark  ov Model
-6. Torch/Tensorflow Usage
-7. Deep Learning Related
-8. NLP/Vision

@@ -1,0 +1,22 @@
+/* ---------------------------------
+ *              Card
+ * --------------------------------- */
+.card
+    overflow: visible
+    border-radius: $card-radius
+    background-color: #f3f4efe6
+    &:hover
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)
+        background-color: #fafafae6
+
+    & + .card, & + .column-right-shadow
+        margin-top: 1.5rem
+
+    .card-image
+        overflow: hidden
+        border-top-left-radius: $card-radius
+        border-top-right-radius: $card-radius
+
+    .media + .media
+        border: none
+        margin-top: 0
