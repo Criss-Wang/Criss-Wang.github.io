@@ -4,6 +4,7 @@ Homepage documentation
 	>> npm install
 	
 - 	Local build
+	>> hexo config theme icarus
 	>> hexo generate -w (open a cmd prompt and listen to local file changes)
 	>> hexo server (open another cmd prompt and start the website)
 	
@@ -14,4 +15,8 @@ Homepage documentation
 - Github Token
 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
 
-![Steins_Gate_Lab_Member_Badge](https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Member_Badge.webp)
+- Deal with the failure to output multline string in .yaml
+	>> locate the js/jsx file
+	>> use the |+ style in yaml value:
+	>> use <span style="white-space:pre"></span>
+	
