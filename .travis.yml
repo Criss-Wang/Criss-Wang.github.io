@@ -7,7 +7,7 @@ branches:
   only:
     - master # build master branch only
 script:
-  - hexo generate # generate static files
+  - cd themes/icarus-new && npm ci && cd ../.. && hexo generate # generate static files
 deploy:
   target: gh-pages
   provider: pages
