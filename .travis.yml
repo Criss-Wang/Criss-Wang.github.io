@@ -9,6 +9,7 @@ branches:
 script:
   - hexo generate # generate static files
 deploy:
+  target: gh-pages
   provider: pages
   skip-cleanup: true
   github-token: $GH_TOKEN
