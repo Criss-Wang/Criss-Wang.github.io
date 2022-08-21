@@ -101,20 +101,6 @@ head:
         - ''
     # URL or path to the website's RSS atom.xml
     rss: 
-# Page top navigation bar configurations
-navbar:
-    # Navigation menu items
-    menu:
-        Criss's Blog: /
-        Archives: /archives
-        Categories: /categories
-        Tags: /tags
-        About: /about
-    # Links to be shown on the right of the navigation bar
-    links:
-        Download on GitHub:
-            icon: fab fa-github
-            url: https://github.com/Criss-Wang/
 # Page footer configurations
 footer:
     # Links to be shown on the right of the footer section

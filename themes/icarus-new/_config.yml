@@ -110,6 +110,8 @@ navbar:
         Categories: /categories
         Tags: /tags
         About: /about
+        Publications: /tags
+        Projects: /
     # Links to be shown on the right of the navigation bar
     links:
         Download on GitHub:
