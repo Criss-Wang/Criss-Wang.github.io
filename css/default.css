@@ -11928,6 +11928,7 @@ body.night {
 .night .title,
 .night .footer,
 .night .card,
+.night .card.is-active,
 .night .content h1,
 .night .content h2,
 .night .content h3,
@@ -11958,6 +11959,9 @@ body.night {
 }
 .night a:hover {
   color: #fff;
+}
+.night .subtags {
+  color: rgba(192,192,192,0.8);
 }
 .night .content blockquote,
 .night .article-licensing {
