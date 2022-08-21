@@ -27,3 +27,9 @@ Pengyuan Li http://www.pyli.tk/2021/02/03/icarus%E9%BC%93%E6%8D%A3%E5%A4%9C%E9%9
 
 
 Find your deployment on the gh-pages branch
+
+TODO
+- images relative path
+- pdf relative path issue
+- Modify Tag entry style in dark mode (click on Tag on navbar to see)
+- Add first page (Self-introduction page)

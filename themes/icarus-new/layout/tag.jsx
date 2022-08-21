@@ -12,7 +12,7 @@ module.exports = class extends Component {
                     <nav class="breadcrumb" aria-label="breadcrumbs">
                         <ul>
                             <li><a href={url_for('/tags')}>{_p('common.tag', Infinity)}</a></li>
-                            <li class="is-active"><a href="#" aria-current="page">{page.tag}</a></li>
+                            <li class="is-active"><a href="#" aria-current="page"><span class="subtags">{page.tag}</span></a></li>
                         </ul>
                     </nav>
                 </div>
