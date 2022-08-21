@@ -68,6 +68,7 @@ module.exports = class extends Component {
                             {page.author ? <span class="level-item"> {page.author} </span> : null}
                             {/* Categories */}
                             {page.categories && page.categories.length ? <span class="level-item">
+                                <i class="far fa-folder-open">&nbsp;</i>
                                 {(() => {
                                     const categories = [];
                                     page.categories.forEach((category, i) => {
@@ -84,6 +85,7 @@ module.exports = class extends Component {
                             </span> : null}
                             {/* Read time */}
                             {article && article.readtime && article.readtime === true ? <span class="level-item">
+                                <i class="far fa-clock">&nbsp;</i>
                                 {(() => {
                                     const words = getWordCount(page._content);
                                     const time = moment.duration((words / 150.0) * 60, 'seconds');
