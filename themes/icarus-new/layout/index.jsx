@@ -8,8 +8,11 @@ module.exports = class extends Component {
         const { __, url_for } = helper;
 
         return <Fragment>
-            {page.posts.map(post => <Article config={config} page={post} helper={helper} index={true} />)}
-            {page.total > 1 ? <Paginator
+            {page.posts.map(post => {
+                return page.current_url !== '/' || post.title.includes("Zhenlin Wang") ? <Article config={config} page={post} helper={helper} index={true} /> : null
+            })}
+            
+            {page.total > 1 && page.current_url !== '/' ? <Paginator
                 current={page.current}
                 total={page.total}
                 baseUrl={page.base}

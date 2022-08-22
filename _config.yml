@@ -31,6 +31,10 @@ render_drafts: false
 post_asset_folder: true
 relative_link: false
 future: true
+index_generator:
+  path: '/'
+  per_page: 0
+  order_by: '-date'
 highlight:
   enable: true
   line_number: true
@@ -43,10 +47,6 @@ prismjs:
   preprocess: true
   line_number: true
   tab_replace: ''
-index_generator:
-  path: ''
-  per_page: 20
-  order_by: '-date'
 default_category: uncategorized
 category_map: null
 tag_map: null

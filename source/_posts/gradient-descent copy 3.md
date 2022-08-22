@@ -4,7 +4,7 @@ title: "Gradient Descent Algorithm and Its Variants!"
 date: 2020/11/13
 updated: 2022/8/19
 categories:
-  - Blogs
+  - Enlightenment
 tags: 
   - Gradient Descent
 excerpt: "The most important technique in neural networks (as of now)"

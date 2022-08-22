@@ -11,8 +11,8 @@ module.exports = class extends Component {
                 <div class="card-content">
                     <nav class="breadcrumb" aria-label="breadcrumbs">
                         <ul>
-                            <li><a href={url_for('/tags')}>{_p('common.tag', Infinity)}</a></li>
-                            <li class="is-active"><a href="#" aria-current="page"><span class="subtags">{page.tag}</span></a></li>
+                            {/* <li><a href={url_for('/tags')}>{_p('common.tag', Infinity)}</a></li> */}
+                            <li class="is-active"><a href="#" aria-current="page"><span class="subtags" style="font-weight: bold; font-size: 20px">{page.tag}</span></a></li>
                         </ul>
                     </nav>
                 </div>

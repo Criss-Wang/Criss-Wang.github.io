@@ -11,11 +11,11 @@ module.exports = class extends Component {
                 <div class="card-content">
                     <nav class="breadcrumb" aria-label="breadcrumbs">
                         <ul>
-                            <li><a href={url_for('/categories')}>{_p('common.category', Infinity)}</a></li>
+                            {/* <li><a href={url_for('/categories')}>{_p('common.category', Infinity)}</a></li> */}
                             {page.parents.map(category => {
                                 return <li><a href={url_for(category.path)}>{category.name}</a></li>;
                             })}
-                            <li class="is-active"><a href="#" aria-current="page">{page.category}</a></li>
+                            <li class="is-active"><a href="#" aria-current="page"><h2 class="subtags" style="font-weight: bold; font-size: 20px">{page.category}</h2></a></li>
                         </ul>
                     </nav>
                 </div>

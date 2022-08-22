@@ -103,7 +103,7 @@ module.exports = class extends Component {
                         {index ? <a class="link-muted" href={url_for(page.link || page.path)}>{page.title}</a> : page.title}
                     </h1> : null} */}
                     {/* Content/Excerpt */}
-                    <hr style="background-color:grey"></hr>
+                    {!page.title.includes("Zhenlin Wang") ? <hr style="background-color:grey"></hr> : null}
                     <div style="padding-bottom:5px"></div>
                     <div class="content" dangerouslySetInnerHTML={{ __html: index && page.excerpt ? page.excerpt : page.content }}></div>
                     

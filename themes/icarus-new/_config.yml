@@ -105,13 +105,15 @@ head:
 navbar:
     # Navigation menu items
     menu:
-        Criss's Blog: /
+        Criss's Time Machine: /
+        Tech Blogs: /categories/Blogs
+        Projects: /categories/Projects
+        Anime: /categories/Anime
+        Enlightenment: /categories/Enlightenment
+        Publications: /publication
         Archives: /archives
-        Categories: /categories
-        Tags: /tags
-        About: /about
-        Publications: /tags
-        Projects: /
+        About: /intro
+
     # Links to be shown on the right of the navigation bar
     links:
         Download on GitHub:
