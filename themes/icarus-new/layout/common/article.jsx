@@ -44,7 +44,7 @@ module.exports = class extends Component {
                 <article class={`card-content article${'direction' in page ? ' ' + page.direction : ''}`} role="article">
                     {/* Metadata */}
                     {/* Title */}
-                        <h1 className="title is-size-3 is-size-4-mobile has-text-weight-normal">
+                        <h1 className="title is-size-4 is-size-5-mobile has-text-weight-normal">
                         {index ?
                             <a className="has-link-black-ter" href={url_for(page.link || page.path)}>
                                 {page.title}
