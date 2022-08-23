@@ -112,7 +112,7 @@ navbar:
         Enlightenment: /categories/Enlightenment
         Publications: /publication
         Archives: /archives
-        About: /intro
+        About Me: /intro
 
     # Links to be shown on the right of the navigation bar
     links:
