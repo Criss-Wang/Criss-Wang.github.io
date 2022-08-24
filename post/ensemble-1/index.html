@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Ensemble Models: Bagging Techniques - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Gather all we have!"><meta property="og:type" content="blog"><meta property="og:title" content="Ensemble Models: Bagging Techniques"><meta property="og:url" content="https://criss-wang.github.io/post/ensemble-1/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="Gather all we have!"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/img/og_image.png"><meta property="article:published_time" content="2021-02-01T05:00:00.000Z"><meta property="article:modified_time" content="2021-08-19T04:00:00.000Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Supervised Learning"><meta property="article:tag" content="Bagging"><meta property="article:tag" content="Random Forest"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/ensemble-1/"},"headline":"Ensemble Models: Bagging Techniques","image":["https://criss-wang.github.io/img/og_image.png"],"datePublished":"2021-02-01T05:00:00.000Z","dateModified":"2021-08-19T04:00:00.000Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"Gather all we have!"}</script><link rel="canonical" href="https://criss-wang.github.io/post/ensemble-1/"><link rel="icon" href="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Tech Blogs</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/categories/Anime">Anime</a><a class="navbar-item" style="font-weight: bold" href="/categories/Enlightenment">Enlightenment</a><a class="navbar-item" style="font-weight: bold" href="/publication">Publications</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a><a class="navbar-item" style="font-weight: bold" href="/intro">About Me</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">Ensemble Models: Bagging Techniques</h1><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-alt"> </i><time dateTime="2021-02-01T05:00:00.000Z" title="2021-02-01T05:00:00.000Z">2021-02-01</time></span><span class="level-item is-hidden-mobile"><i class="far fa-calendar-check"> </i><time dateTime="2021-08-19T04:00:00.000Z" title="2021-08-19T04:00:00.000Z">2021-08-19</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span><span class="level-item"><i class="far fa-clock"> </i>8 minutes read (About 1161 words)</span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><p>We have learnt about what bagging is in <em>Ensemble Models: Overview</em>, to recap, bagging is:</p>
+<ul>
+<li>In bagging (Bootstrap Aggregating), a set of weak learners are combined to create a strong learner that obtains better performance than a single one.</li>
+<li>Bagging helps to decrease the model’s variance.</li>
+<li>Combinations of multiple classifiers decrease variance, especially in the case of unstable classifiers, and may produce a more reliable classification than a single classifier.<br>In this blog, we will use random forest as an example to illustrate how bagging works<br><strong>Bagging</strong> works as follows:</li>
+</ul>
+<ol>
+<li>Multiple subsets are created from the original dataset, selecting observations with replacement.</li>
+<li>A base model (weak model) is created on each of these subsets.</li>
+<li>The models run in parallel and are independent of each other.</li>
+<li>The final predictions are determined by combining the predictions from all the models.</li>
+</ol>
+<p>Next let's consider random forest, a model that fully utilized the idea of bagging in its procedure.</p>
+<h3 id="Random-Forest"><a href="#Random-Forest" class="headerlink" title="Random Forest"></a>Random Forest</h3><h4 id="1-Definition"><a href="#1-Definition" class="headerlink" title="1. Definition"></a>1. Definition</h4><ul>
+<li>A random forest consists of multiple random decision trees. Two types of randomnesses are built into the trees. <ul>
+<li>First, each tree is built on a random sample from the original data. </li>
+<li>Second, at each tree node, a subset of features are randomly selected to generate the best split. (Key difference from Bagging algorithms)</li>
+</ul>
+</li>
+<li>An ensemble model that is widely applied (as it can be parallelized)</li>
+<li>Designed to solve the overfitting issue in Decision Tree. The idea is that by training each tree on different samples, although each tree might have high variance with respect to a particular set of the training data, overall, the entire forest will have lower variance but not at the cost of increasing the bias.</li>
+<li><strong>Procedure</strong><br>  Execute until every last combination is exhausted <ol>
+<li>Bootstrapping: Create a bootstraped dataset: randomly select samples from the dataset until it reaches the same size as the original sample (we're allowed to pick the same sample more than once);</li>
+<li>Decision Tree Construction: Create a decision tree using the bootstraped dataset, but only use a random subset of variables/features at each step (i.e each decision node selection);</li>
+<li><strong>Bagging</strong>: defined as bootstrapping the data plus using the aggregation to make a decision<ul>
+<li>given a new instance, run through all the decision trees (the enitre random forest) and obtain the sum of votes for y = 1 and y = 0; (this step is called “aggregation”)</li>
+<li>decide on result of aggregation <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.054ex;" xmlns="http://www.w3.org/2000/svg" width="4.964ex" height="1.242ex" role="img" focusable="false" viewBox="0 -525 2194 549"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mstyle"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(278,0)"><path data-c="27F9" d="M1218 514Q1218 525 1234 525Q1239 525 1242 525T1247 525T1251 524T1253 523T1255 520T1257 517T1260 512Q1297 438 1358 381T1469 300T1565 263Q1582 258 1582 250T1573 239T1536 228T1478 204Q1334 134 1260 -12Q1256 -21 1253 -22T1238 -24Q1218 -24 1218 -17Q1218 -13 1223 0Q1258 69 1309 123L1319 133H70Q56 140 56 153Q56 168 72 173H1363L1373 181Q1412 211 1490 250Q1489 251 1472 259T1427 283T1373 319L1363 327H710L707 328L390 327H72Q56 332 56 347Q56 360 70 367H1319L1309 377Q1276 412 1247 458T1218 514Z"></path></g><g data-mml-node="mstyle" transform="translate(1916,0)"><g data-mml-node="mspace"></g></g></g></g></svg></mjx-container> using the result with higher vote;</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Choose the most accurate random forest:<ol>
+<li>Measure Accuracy based on the Out-of-Bag samples (CV) <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.054ex;" xmlns="http://www.w3.org/2000/svg" width="4.964ex" height="1.242ex" role="img" focusable="false" viewBox="0 -525 2194 549"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mstyle"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(278,0)"><path data-c="27F9" d="M1218 514Q1218 525 1234 525Q1239 525 1242 525T1247 525T1251 524T1253 523T1255 520T1257 517T1260 512Q1297 438 1358 381T1469 300T1565 263Q1582 258 1582 250T1573 239T1536 228T1478 204Q1334 134 1260 -12Q1256 -21 1253 -22T1238 -24Q1218 -24 1218 -17Q1218 -13 1223 0Q1258 69 1309 123L1319 133H70Q56 140 56 153Q56 168 72 173H1363L1373 181Q1412 211 1490 250Q1489 251 1472 259T1427 283T1373 319L1363 327H710L707 328L390 327H72Q56 332 56 347Q56 360 70 367H1319L1309 377Q1276 412 1247 458T1218 514Z"></path></g><g data-mml-node="mstyle" transform="translate(1916,0)"><g data-mml-node="mspace"></g></g></g></g></svg></mjx-container> compute the Out-of-Bag Error as the # of samples which Bagging classifies wrongly</li>
+<li>Choice of number of variable used per step affects accuracy (optimized during CV): Usually choose the square root of the # of total variables and try a few settings above and below that value</li>
+</ol>
+</li>
+<li>The low correlation between models is the key<blockquote>
+<p><strong>WARNING</strong>: RF is often considered as <strong>Bagging</strong> model while it is <strong>not always true</strong>, <a target="_blank" rel="noopener" href="https://stats.stackexchange.com/questions/264129/what-is-the-difference-between-bagging-and-random-forest-if-only-one-explanatory">see this link</a></p>
+</blockquote>
+</li>
+</ul>
+<h4 id="2-Pros-amp-Cons"><a href="#2-Pros-amp-Cons" class="headerlink" title="2. Pros & Cons"></a>2. Pros &amp; Cons</h4><p><strong>Pros</strong></p>
+<ul>
+<li>The power of handle large data sets with higher dimensionality (as each tree select much less features in its construction)</li>
+<li>The model outputs importance of variable, which can be a very handy feature (<code>rf.feature_importance_</code>)</li>
+<li>Balancing errors in data sets where classes are imbalanced.</li>
+<li>It has an effective method for estimating missing data and maintains accuracy when large proportion of the data are missing.</li>
+<li>Using the out of bag error estimate for selection the most accurate random forest removes the need for a set aside test set.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>It has very poor interpretability</li>
+<li>Does not work well for extrapolation to predict for data that is outside of the bounds of your original training data</li>
+<li>Random forest can feel like a black box approach for a statistical modelers we have very little control on what the model does. You can at best try different parameters and random seeds.</li>
+</ul>
+<h4 id="3-Simple-Implementation"><a href="#3-Simple-Implementation" class="headerlink" title="3. Simple Implementation"></a>3. Simple Implementation</h4><p>This is a template inspired by the Kaggle notebooks. I shall thank those writers whose code I borrowed from. </p>
+<p>Also note that here an aws s3 connection is made, which automatically makes the process parallelized.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier</span><br><span class="line"></span><br><span class="line">RSEED = <span class="number">50</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Load in data</span></span><br><span class="line">df = pd.read_csv(<span class="string">'https://s3.amazonaws.com/projects-rf/clean_data.csv'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Full dataset: https://www.kaggle.com/cdc/behavioral-risk-factor-surveillance-system</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Extract the labels</span></span><br><span class="line">labels = np.array(df.pop(<span class="string">'label'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 30% examples in test data</span></span><br><span class="line">train, test, train_labels, test_labels = train_test_split(df,</span><br><span class="line">                                         labels, </span><br><span class="line">                                         stratify = labels,</span><br><span class="line">                                         test_size = <span class="number">0.3</span>, </span><br><span class="line">                                         random_state = RSEED)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Imputation of missing values</span></span><br><span class="line">train = train.fillna(train.mean())</span><br><span class="line">test = test.fillna(test.mean())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Features for feature importances</span></span><br><span class="line">features = <span class="built_in">list</span>(train.columns)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create the model with 100 trees</span></span><br><span class="line">model = RandomForestClassifier(n_estimators=<span class="number">100</span>, </span><br><span class="line">                               random_state=RSEED, </span><br><span class="line">                               max_features = <span class="string">'sqrt'</span>,</span><br><span class="line">                               n_jobs=-<span class="number">1</span>, verbose = <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Fit on training data</span></span><br><span class="line">model.fit(train, train_labels)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">n_nodes = []</span><br><span class="line">max_depths = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># Stats about the trees in random forest</span></span><br><span class="line"><span class="keyword">for</span> ind_tree <span class="keyword">in</span> model.estimators_:</span><br><span class="line">    n_nodes.append(ind_tree.tree_.node_count)</span><br><span class="line">    max_depths.append(ind_tree.tree_.max_depth)</span><br><span class="line">    </span><br><span class="line"><span class="built_in">print</span>(<span class="string">f'Average number of nodes <span class="subst">{<span class="built_in">int</span>(np.mean(n_nodes))}</span>'</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f'Average maximum depth <span class="subst">{<span class="built_in">int</span>(np.mean(max_depths))}</span>'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Training predictions (to demonstrate overfitting)</span></span><br><span class="line">train_rf_predictions = model.predict(train)</span><br><span class="line">train_rf_probs = model.predict_proba(train)[:, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># Testing predictions (to determine performance)</span></span><br><span class="line">rf_predictions = model.predict(test)</span><br><span class="line">rf_probs = model.predict_proba(test)[:, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> precision_score, recall_score, roc_auc_score, roc_curve</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Plot formatting</span></span><br><span class="line">plt.style.use(<span class="string">'fivethirtyeight'</span>)</span><br><span class="line">plt.rcParams[<span class="string">'font.size'</span>] = <span class="number">18</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate_model</span>(<span class="params">predictions, probs, train_predictions, train_probs</span>):</span><br><span class="line">    <span class="string">"""Compare machine learning model to baseline performance.</span></span><br><span class="line"><span class="string">    Computes statistics and shows ROC curve."""</span></span><br><span class="line">    </span><br><span class="line">    baseline = {}</span><br><span class="line">    </span><br><span class="line">    baseline[<span class="string">'recall'</span>] = recall_score(test_labels, </span><br><span class="line">                                     [<span class="number">1</span> <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(test_labels))])</span><br><span class="line">    baseline[<span class="string">'precision'</span>] = precision_score(test_labels, </span><br><span class="line">                                      [<span class="number">1</span> <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(test_labels))])</span><br><span class="line">    baseline[<span class="string">'roc'</span>] = <span class="number">0.5</span></span><br><span class="line">    </span><br><span class="line">    results = {}</span><br><span class="line">    </span><br><span class="line">    results[<span class="string">'recall'</span>] = recall_score(test_labels, predictions)</span><br><span class="line">    results[<span class="string">'precision'</span>] = precision_score(test_labels, predictions)</span><br><span class="line">    results[<span class="string">'roc'</span>] = roc_auc_score(test_labels, probs)</span><br><span class="line">    </span><br><span class="line">    train_results = {}</span><br><span class="line">    train_results[<span class="string">'recall'</span>] = recall_score(train_labels, train_predictions)</span><br><span class="line">    train_results[<span class="string">'precision'</span>] = precision_score(train_labels, train_predictions)</span><br><span class="line">    train_results[<span class="string">'roc'</span>] = roc_auc_score(train_labels, train_probs)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> metric <span class="keyword">in</span> [<span class="string">'recall'</span>, <span class="string">'precision'</span>, <span class="string">'roc'</span>]:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f'<span class="subst">{metric.capitalize()}</span> Baseline: <span class="subst">{<span class="built_in">round</span>(baseline[metric], <span class="number">2</span>)}</span> Test: <span class="subst">{<span class="built_in">round</span>(results[metric], <span class="number">2</span>)}</span> Train: <span class="subst">{<span class="built_in">round</span>(train_results[metric], <span class="number">2</span>)}</span>'</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Calculate false positive rates and true positive rates</span></span><br><span class="line">    base_fpr, base_tpr, _ = roc_curve(test_labels, [<span class="number">1</span> <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(test_labels))])</span><br><span class="line">    model_fpr, model_tpr, _ = roc_curve(test_labels, probs)</span><br><span class="line"></span><br><span class="line">    plt.figure(figsize = (<span class="number">8</span>, <span class="number">6</span>))</span><br><span class="line">    plt.rcParams[<span class="string">'font.size'</span>] = <span class="number">16</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Plot both curves</span></span><br><span class="line">    plt.plot(base_fpr, base_tpr, <span class="string">'b'</span>, label = <span class="string">'baseline'</span>)</span><br><span class="line">    plt.plot(model_fpr, model_tpr, <span class="string">'r'</span>, label = <span class="string">'model'</span>)</span><br><span class="line">    plt.legend();</span><br><span class="line">    plt.xlabel(<span class="string">'False Positive Rate'</span>); </span><br><span class="line">    plt.ylabel(<span class="string">'True Positive Rate'</span>); plt.title(<span class="string">'ROC Curves'</span>);</span><br><span class="line">    plt.show();</span><br><span class="line"></span><br><span class="line">evaluate_model(rf_predictions, rf_probs, train_rf_predictions, train_rf_probs)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div><div class="article-licensing box"><div class="licensing-title"><p>Ensemble Models: Bagging Techniques</p><p><a href="https://criss-wang.github.io/post/ensemble-1/">https://criss-wang.github.io/post/ensemble-1/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-02-01</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2021-08-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"><div class="level is-mobile is-flex"><div class="article-tags is-size-7 is-uppercase"><i class="fas fa-tags has-text-grey"></i> <a class="link-muted" rel="tag" href="/tags/Supervised-Learning/">Supervised Learning, </a><a class="link-muted" rel="tag" href="/tags/Bagging/">Bagging, </a><a class="link-muted" rel="tag" href="/tags/Random-Forest/">Random Forest </a></div></div></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/ensemble-2/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Ensemble Models: Boosting Techniques</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/ensemble-0/"><span class="level-item">Ensemble Models: Overview</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">25</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">26</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf"><i class="fas fa-fw fa-link"></i></a></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Anime/"><span class="level-start"><span class="level-item">Anime</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Blogs/"><span class="level-start"><span class="level-item">Blogs</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/categories/Enlightenment/"><span class="level-start"><span class="level-item">Enlightenment</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Gradient-Descent/"><span class="tag">Gradient Descent</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hexo/"><span class="tag">hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icarus/"><span class="tag">icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/front-end/"><span class="tag">front-end</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog-building/"><span class="tag">blog-building</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Topic-Modeling/"><span class="tag">Topic Modeling</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Overview"><span class="level-left"><span class="level-item">1</span><span class="level-item">Overview</span></span></a></li><li><a class="level is-mobile" href="#Random-Forest"><span class="level-left"><span class="level-item">2</span><span class="level-item">Random Forest</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-Definition"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">1. Definition</span></span></a></li><li><a class="level is-mobile" href="#2-Pros-amp-Cons"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">2. Pros &amp; Cons</span></span></a></li><li><a class="level is-mobile" href="#3-Simple-Implementation"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">3. Simple Implementation</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2022 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
