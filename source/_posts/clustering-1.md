@@ -1,5 +1,6 @@
 ---
 title: "Clustering: K Means and Gaussian Mixture Models"
+excerpt: "The basic models for clustering"
 layout: post
 date: 2020/02/01
 updated: 2021/8/19
@@ -9,7 +10,6 @@ tags:
   - Machine Learning
   - Clustering
   - Unsupervised Learning
-excerpt: "The basic models for clustering"
 mathjax: true
 toc: true
 ---
