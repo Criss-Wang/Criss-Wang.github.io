@@ -298,7 +298,6 @@ widgets:
         # How to order tags. For example 'name' to order by name in ascending order, and '-length' to order by number of posts in each tags in descending order
         order_by: -length
         # Amount of tags to show. Will show all if not set.
-        amount: 15
         # Whether to show tags count, i.e. number of posts in the tag.
         show_count: true
     # Google FeedBurner email subscription widget configurations

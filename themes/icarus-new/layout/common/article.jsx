@@ -103,14 +103,16 @@ module.exports = class extends Component {
                         {index ? <a class="link-muted" href={url_for(page.link || page.path)}>{page.title}</a> : page.title}
                     </h1> : null} */}
                     {/* Content/Excerpt */}
-                    {!page.title.includes("Zhenlin Wang") ? <hr style="background-color:grey"></hr> : null}
+                    {!page.title.includes("Zhenlin Wang") ? <div>{index && page.excerpt ? <hr style="background-color:grey;height:1px;margin:1rem 0"></hr> : <hr style="background-color:grey"></hr>}</div> : null}
                     <div style="padding-bottom:5px"></div>
-                    <div class="content" dangerouslySetInnerHTML={{ __html: index && page.excerpt ? page.excerpt : page.content }}></div>
+                    {index && page.excerpt ? <div class="content" style="margin-bottom: 0px !important" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div> 
+                    : 
+                    <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>}
                     
                     {/* Licensing block */}
                     {!index && article && article.licenses && Object.keys(article.licenses)
                         ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
-                    <hr style="height:1px;margin:1rem 0"/>
+                    {index && page.excerpt ? <hr style="height:0.5px;margin:0.5rem 0"/> : <hr style="height:1px;margin:1rem 0"/>}
                     <div className="level is-mobile is-flex">
                     {/* Post navigation */}
                     
