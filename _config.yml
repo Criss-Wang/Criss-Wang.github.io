@@ -47,6 +47,13 @@ prismjs:
   preprocess: true
   line_number: true
   tab_replace: ''
+archive_generator:
+  enabled: true
+  per_page: 30
+  yearly: true
+  monthly: true
+  daily: false
+  order_by: -date
 default_category: uncategorized
 category_map: null
 tag_map: null
