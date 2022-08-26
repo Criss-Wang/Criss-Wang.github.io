@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>The Data Mining Triology: II. Cleaning - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="The first step when you get some data: clean it up!"><meta property="og:type" content="blog"><meta property="og:title" content="The Data Mining Triology: II. Cleaning"><meta property="og:url" content="https://criss-wang.github.io/post/data-cleaning/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="The first step when you get some data: clean it up!"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/images/Machine%20learning/box-cox.png"><meta property="article:published_time" content="2019-09-01T04:00:00.000Z"><meta property="article:modified_time" content="2021-09-22T04:00:00.000Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Data Mining/Data Engineering"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/images/Machine%20learning/box-cox.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/data-cleaning/"},"headline":"The Data Mining Triology: II. Cleaning","image":["https://criss-wang.github.io/images/Machine%20learning/box-cox.png"],"datePublished":"2019-09-01T04:00:00.000Z","dateModified":"2021-09-22T04:00:00.000Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"The first step when you get some data: clean it up!"}</script><link rel="canonical" href="https://criss-wang.github.io/post/data-cleaning/"><link rel="icon" href="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Tech Blogs</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/categories/Anime">Anime</a><a class="navbar-item" style="font-weight: bold" href="/categories/Enlightenment">Enlightenment</a><a class="navbar-item" style="font-weight: bold" href="/publication">Publications</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a><a class="navbar-item" style="font-weight: bold" href="/intro">About Me</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">The Data Mining Triology: II. Cleaning</h1><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-alt"> </i><time dateTime="2019-09-01T04:00:00.000Z" title="2019-09-01T04:00:00.000Z">2019-09-01</time></span><span class="level-item is-hidden-mobile"><i class="far fa-calendar-check"> </i><time dateTime="2021-09-22T04:00:00.000Z" title="2021-09-22T04:00:00.000Z">2021-09-22</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span><span class="level-item"><i class="far fa-clock"> </i>13 minutes read (About 1900 words)</span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><p>Very often, the data loaded into your notebooks are not entirely usable. There might be missing values, noisy data points, duplicates and outliers. Sometimes, data needs to be scaled up and down. Encoding and dimensionality reductions can be performed to make data cleaner and easier to operate on. Here we discuss about some essential ways to clean up the data</p>
+<h3 id="Basic-Cleaning"><a href="#Basic-Cleaning" class="headerlink" title="Basic Cleaning"></a>Basic Cleaning</h3><p>The first step involves</p>
+<ol>
+<li>Detecting and handling missing or noisy data; </li>
+<li>Removal of outliers</li>
+<li>Minimizing duplication and computed biases within the data</li>
+</ol>
+<hr>
+<ul>
+<li><p>Missing Data</p>
+<p>Missing data is the entries with empty input or Null input. It can be handled in following ways:</p>
+<ol>
+<li><p>Ignore the Tuple</p>
+<p> <strong>Note</strong>: Suitable only when the dataset is quite large and multiple values are missing within a tuple</p>
+</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df2 = df[[column <span class="keyword">for</span> column <span class="keyword">in</span> df <span class="keyword">if</span> df[column].count() / <span class="built_in">len</span>(df) &gt;= <span class="number">0.3</span>]] <span class="comment"># Drops columns with &gt;70% of rows missing value;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">"List of dropped columns:"</span>, end=<span class="string">" "</span>)</span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> df.columns:</span><br><span class="line">	<span class="keyword">if</span> c <span class="keyword">not</span> <span class="keyword">in</span> df2.columns:</span><br><span class="line">		<span class="built_in">print</span>(c, end=<span class="string">", "</span>) <span class="comment"># list out the dropped columns</span></span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>Fill the Missing Values using<ul>
+<li>Manual imputation (via inspection &amp; domain knowledge)</li>
+<li>Mean value imputation</li>
+<li>Most Probable Value (Mode) imputation</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>Noisy Data</p>
+<p>Noisy data is meaningless data that can't be interpreted by machines. It can be generated due to faulty data collection, data entry errors etc. It can be handled in following ways :</p>
+<ol>
+<li><p><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/python-binning-method-for-data-smoothing">Binning Method</a>:</p>
+<p> [Sorted data in order to smooth it] <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.054ex;" xmlns="http://www.w3.org/2000/svg" width="4.964ex" height="1.242ex" role="img" focusable="false" viewBox="0 -525 2194 549"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mstyle"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(278,0)"><path data-c="27F9" d="M1218 514Q1218 525 1234 525Q1239 525 1242 525T1247 525T1251 524T1253 523T1255 520T1257 517T1260 512Q1297 438 1358 381T1469 300T1565 263Q1582 258 1582 250T1573 239T1536 228T1478 204Q1334 134 1260 -12Q1256 -21 1253 -22T1238 -24Q1218 -24 1218 -17Q1218 -13 1223 0Q1258 69 1309 123L1319 133H70Q56 140 56 153Q56 168 72 173H1363L1373 181Q1412 211 1490 250Q1489 251 1472 259T1427 283T1373 319L1363 327H710L707 328L390 327H72Q56 332 56 347Q56 360 70 367H1319L1309 377Q1276 412 1247 458T1218 514Z"></path></g><g data-mml-node="mstyle" transform="translate(1916,0)"><g data-mml-node="mspace"></g></g></g></g></svg></mjx-container> [The whole data divided into segments of equal size]  <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.054ex;" xmlns="http://www.w3.org/2000/svg" width="4.964ex" height="1.242ex" role="img" focusable="false" viewBox="0 -525 2194 549"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mstyle"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(278,0)"><path data-c="27F9" d="M1218 514Q1218 525 1234 525Q1239 525 1242 525T1247 525T1251 524T1253 523T1255 520T1257 517T1260 512Q1297 438 1358 381T1469 300T1565 263Q1582 258 1582 250T1573 239T1536 228T1478 204Q1334 134 1260 -12Q1256 -21 1253 -22T1238 -24Q1218 -24 1218 -17Q1218 -13 1223 0Q1258 69 1309 123L1319 133H70Q56 140 56 153Q56 168 72 173H1363L1373 181Q1412 211 1490 250Q1489 251 1472 259T1427 283T1373 319L1363 327H710L707 328L390 327H72Q56 332 56 347Q56 360 70 367H1319L1309 377Q1276 412 1247 458T1218 514Z"></path></g><g data-mml-node="mstyle" transform="translate(1916,0)"><g data-mml-node="mspace"></g></g></g></g></svg></mjx-container> [Various methods are performed to complete the task. Each segmented is handled separately.]</p>
+</li>
+<li><p>Regression:</p>
+<p> Fitting data to a regression function: ML Regression Algorithm can be used for smoothing of data. Interpolate using the regression.</p>
+</li>
+<li><p>Clustering:</p>
+</li>
+</ol>
+<p>  Groups the similar data in a cluster and apply unsupervised learning.
+      </p>
+</li>
+<li><p>Detect and Remove Outliers:</p>
+<ul>
+<li>Detect Outliers (Some simple methods outlined below)</li>
+</ul>
+<h4 id="1-Using-Boxplot"><a href="#1-Using-Boxplot" class="headerlink" title="1. Using Boxplot"></a>1. Using Boxplot</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line">sns.boxplot(...)</span><br></pre></td></tr></table></figure>
+<h4 id="2-Using-Scatterplot"><a href="#2-Using-Scatterplot" class="headerlink" title="2. Using Scatterplot"></a>2. Using Scatterplot</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">%matplotlib inline</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line">fig, ax = plt.subplots(figsize=(<span class="number">16</span>,<span class="number">8</span>))</span><br><span class="line">ax.scatter(...)</span><br><span class="line">plot.show()</span><br></pre></td></tr></table></figure>
+<h4 id="3-Using-z-score"><a href="#3-Using-z-score" class="headerlink" title="3. Using z score"></a>3. Using z score</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> stats</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">z = np.<span class="built_in">abs</span>(stats.zscore(boston_df))</span><br><span class="line">threshold = <span class="number">3</span></span><br><span class="line"><span class="built_in">print</span>(np.where(z &gt; threshold))</span><br></pre></td></tr></table></figure>
+<h4 id="4-Using-interquartile-range-IQR-score"><a href="#4-Using-interquartile-range-IQR-score" class="headerlink" title="4. Using interquartile range (IQR) score"></a>4. Using interquartile range (IQR) score</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Q1 = boston_df_o1.quantile(<span class="number">0.25</span>)</span><br><span class="line">Q3 = boston_df_o1.quantile(<span class="number">0.75</span>)</span><br><span class="line">IQR = Q3 - Q1</span><br><span class="line"><span class="built_in">print</span>(boston_df_o1 &lt; (Q1 - <span class="number">1.5</span> * IQR)) |(boston_df_o1 &gt; (Q3 + <span class="number">1.5</span> * IQR))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Remove Outliers (Fixed value or interval methods)</li>
+</ul>
+<h4 id="5-Using-column-specific-value-threshold"><a href="#5-Using-column-specific-value-threshold" class="headerlink" title="5. Using column specific value threshold"></a>5. Using column specific value threshold</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">boston_df_o = boston_df_o[(z &lt; <span class="number">3</span>).<span class="built_in">all</span>(axis=<span class="number">1</span>)]</span><br></pre></td></tr></table></figure>
+<h4 id="6-Using-value-range-IQR-in-this-case"><a href="#6-Using-value-range-IQR-in-this-case" class="headerlink" title="6. Using value range (IQR in this case)"></a>6. Using value range (IQR in this case)</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">boston_df_out = boston_df_o1[~((boston_df_o1 &lt; (Q1 - <span class="number">1.5</span> * IQR)) |(boston_df_o1 &gt; (Q3 + <span class="number">1.5</span> * IQR))).<span class="built_in">any</span>(axis=<span class="number">1</span>)]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Remove Duplicates</p>
+<p>Sometimes, there may exist duplicate data entries. Most of the time, this is undesirable. You may want to remove those entries (after carefully examine the problem setups)</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> s1_dup = s1_trans[s1_trans.duplicated()] <span class="comment"># Identify Duplicates</span></span><br><span class="line"><span class="built_in">print</span>(s1_dup.shape)</span><br><span class="line">s1_trans.drop_duplicates(subset = <span class="literal">None</span>, keep = <span class="string">'first'</span>, inplace = <span class="literal">True</span>) <span class="comment"># Remove Duplicates</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Transforming-data"><a href="#Transforming-data" class="headerlink" title="Transforming data"></a>Transforming data</h3><p>We transform datasets in some situations to :</p>
+<ol>
+<li>Convert the raw data into a specified format according to the need of the model.</li>
+<li>Remove redundancy within the data (not duplicates, but unnecessary bytes that occupy the storage for no meaning)</li>
+<li>Efficiently organize the data</li>
+</ol>
+<p>Here we just present the method using sci-kit laern's <code>preprocessing</code> module. </p>
+<h3 id="Data-Conversion"><a href="#Data-Conversion" class="headerlink" title="Data Conversion"></a>Data Conversion</h3><ol>
+<li><p>Normalization (Basically Data rescaling/mean removal):<br>It is done in order to scale the data values in a specified range (-1.0 to 1.0 or 0.0 to 1.0)</p>
+</li>
+<li><p>Attribute Selection (Usually for Aggregation purpose):<br>In this strategy, new attributes are constructed from the given set of attributes to help the mining process.</p>
+</li>
+<li><p>Discretization: (<strong>IMPT!!!</strong>)<br>This is done to replace the raw values of numeric attribute by interval levels or conceptual levels.</p>
+<ul>
+<li>Using classes/ranges/bands mapping (given or need to design)</li>
+<li>Using Top-down approaches: <a target="_blank" rel="noopener" href="https://natmeurer.com/a-simple-guide-to-entropy-based-discretization/">Entropy-based Discretization</a></li>
+</ul>
+</li>
+<li><p>Concept Hierarchy Generation:<br>Here attributes are converted from level to higher level in hierarchy. For example, the attribute "city" can be converted to "country" in some scenarios.</p>
+</li>
+<li><p>Encode Data:<br>Machine learning algorithms cannot work with categorical data directly, categorical data must be converted to number.</p>
+<ol>
+<li>Label Encoding</li>
+<li>One hot encoding</li>
+<li>Dummy variable trap</li>
+</ol>
+<p> <strong>Label encoding</strong> refers to transforming the word labels into numerical form so that the algorithms can understand how to operate on them.</p>
+<p> A <strong>One hot encoding</strong> is a representation of categorical variable as binary vectors.It allows the representation of categorical data to be more expresive. This first requires that the categorical values be mapped to integer values, that is label encoding. Then, each integer value is represented as a binary vector that is all zero values except the index of the integer, which is marked with a 1.</p>
+<p> The <strong>Dummy variable trap</strong> is a scenario in which the independent variable are multicollinear, a scenario in which two or more variables are highly correlated in simple term one variable can be predicted from the others.</p>
+<p> By using <code>pandas get_dummies</code> function we can do all above three step in line of code. We will this fuction  to get dummy variable for sex, children,smoker,region features. By setting <code>drop_first =True</code> function will remove dummy variable trap by droping one variable and original variable.The pandas makes our life easy.</p>
+</li>
+<li><p>Advanced: Box-Cox transformation<br>A Box Cox transformation is a way to transform non-normal dependent variables into a normal shape. Normality is an important assumption for many statistical techniques; if your data isn't normal, applying a Box-Cox means that you are able to run a broader number of tests. All that we need to perform this transformation is to find lambda value and apply the rule shown below to your variable. </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## The trick of Box-Cox transformation is to find lambda value, however in practice this is quite affordable. The following function returns the transformed variable, lambda value,confidence interval. See the sample code below:</span></span><br><span class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> boxcox</span><br><span class="line">y_bc,lam, ci= boxcox(df_encode[<span class="string">'charges'</span>],alpha=<span class="number">0.05</span>) </span><br></pre></td></tr></table></figure></li>
+</ol>
+  <figure align="center">
+    <img src="/images/Machine%20learning/box-cox.png" width="300px">
+    <figcaption>box-cox</figcaption>
+  </figure>
+
+
+<h3 id="Data-Scaling-x2F-Standardizing-x2F-Mean-Removal"><a href="#Data-Scaling-x2F-Standardizing-x2F-Mean-Removal" class="headerlink" title="Data Scaling / Standardizing / Mean Removal"></a>Data Scaling / Standardizing / Mean Removal</h3><p><strong>Note</strong>: Don't use all of them, only use some selectively when you need to (which is usually the case after EDA)!!!</p>
+<ol>
+<li>Rescaling Data: scaled between the given range<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data_scaler = preprocessing.MinMaxScaler(feature_range = (<span class="number">0</span>, <span class="number">1</span>))</span><br><span class="line">data_scaled = data_scaler.fit_transform(input_data)</span><br></pre></td></tr></table></figure></li>
+<li>Mean Removal: standardize input_data into mean = 0 and std = 1<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">data_standardized = preprocessing.scale(input_data)</span><br><span class="line">data_standardized.mean(axis = <span class="number">0</span>)</span><br><span class="line">data_standardized.std(axis = <span class="number">0</span>)</span><br></pre></td></tr></table></figure></li>
+<li>Normalizing Data: values of a feature vector are adjusted so that they sum up to 1<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_normalized = preprocessing.normalize(input_data, norm  = <span class="string">'l1'</span>)</span><br></pre></td></tr></table></figure></li>
+<li>Binarizing Data: convert a numerical feature vector into a Boolean vector<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_binarized = preprocessing.Binarizer(threshold=<span class="number">1.4</span>).transform(input_data)</span><br></pre></td></tr></table></figure></li>
+<li>Label Encoding: changing the word labels into numbers <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### Encode:</span></span><br><span class="line">label_encoder = preprocessing.LabelEncoder()</span><br><span class="line">input_classes = [<span class="string">'suzuki'</span>, <span class="string">'ford'</span>, <span class="string">'suzuki'</span>, <span class="string">'toyota'</span>, <span class="string">'ford'</span>, <span class="string">'bmw'</span>]</span><br><span class="line">label_encoder.fit(input_classes) <span class="comment">#Generate Mapping</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">"\nClass mapping:"</span>)</span><br><span class="line"><span class="keyword">for</span> i, item <span class="keyword">in</span> <span class="built_in">enumerate</span>(label_encoder.classes_):</span><br><span class="line">  <span class="built_in">print</span>(item, <span class="string">'--&gt;'</span>, i)</span><br><span class="line">labels = [<span class="string">'toyota'</span>, <span class="string">'ford'</span>, <span class="string">'suzuki'</span>]</span><br><span class="line">encoded_labels = label_encoder.transform(labels) <span class="comment"># Actual Encoding</span></span><br><span class="line"><span class="comment">### Decode:</span></span><br><span class="line">decoded_labels = label_encoder.inverse_transform(encoded_labels) <span class="comment"># Actual Decoding</span></span><br></pre></td></tr></table></figure>
+<strong>Warning</strong>: it assumes higher the categorical value, better the category (solved by one hot encoding)</li>
+<li>One Hot Encoding (often used together with argmax function): <a target="_blank" rel="noopener" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html">Dummy Variable Encoding</a><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>enc = OneHotEncoder(handle_unknown=<span class="string">'ignore'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>X = [[<span class="string">'Male'</span>, <span class="number">1</span>], [<span class="string">'Female'</span>, <span class="number">3</span>], [<span class="string">'Female'</span>, <span class="number">2</span>]]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>enc.fit(X)</span><br><span class="line">OneHotEncoder(handle_unknown=<span class="string">'ignore'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>enc.categories_</span><br><span class="line">[array([<span class="string">'Female'</span>, <span class="string">'Male'</span>], dtype=<span class="built_in">object</span>), array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], dtype=<span class="built_in">object</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>enc.transform([[<span class="string">'Female'</span>, <span class="number">1</span>], [<span class="string">'Male'</span>, <span class="number">4</span>]]).toarray()</span><br><span class="line">array([[<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>],</span><br><span class="line">      [<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>enc.inverse_transform([[<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>]])</span><br><span class="line">array([[<span class="string">'Male'</span>, <span class="number">1</span>],</span><br><span class="line">      [<span class="literal">None</span>, <span class="number">2</span>]], dtype=<span class="built_in">object</span>)</span><br></pre></td></tr></table></figure></li>
+<li>Scaler Comparison and choices<ol>
+<li><kbd>MinMaxScaler</kbd><ul>
+<li><strong>Definition</strong>: Add or substract a constant. Then multiply or divide by another constant. MinMaxScaler subtracts the mimimum value in the column and then divides by the difference between the original maximum and original minimum. </li>
+<li><strong>Preprocessing Type</strong>: Scale</li>
+<li><strong>Range</strong>: 0 to 1 default, can override</li>
+<li><strong>Mean</strong>: varies</li>
+<li><strong>Distribution Characteristics</strong>: Bounded</li>
+<li><strong>When Use</strong>: Use first unless have theoretical reason to need stronger scalers.</li>
+<li><strong>Notes</strong>: Preserves the shape of the original distribution. Doesn't reduce the importance of outliers. Least disruptive to the information in the original data. Default range for MinMaxScaler is 0 to 1.</li>
+</ul>
+</li>
+<li><kbd>RobustScaler</kbd><ul>
+<li><strong>Definition</strong>: RobustScaler standardizes a feature by removing the median and dividing each feature by the interquartile range. </li>
+<li><strong>Preprocessing Type</strong>: Standardize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: varies</li>
+<li><strong>Distribution Characteristics</strong>: Unbounded</li>
+<li><strong>When Use</strong>: Use if have outliers and don't want them to have much influence.</li>
+<li><strong>Notes</strong>: Outliers have less influence than with MinMaxScaler. Range is larger than MinMaxScaler or Standard Scaler.</li>
+</ul>
+</li>
+<li><kbd>StandardScaler</kbd><ul>
+<li><strong>Definition</strong>: StandardScaler standardizes a feature by removing the mean and dividing each value by the standard deviation. </li>
+<li><strong>Preprocessing Type</strong>: Standardize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: 0</li>
+<li><strong>Distribution Characteristics</strong>: Unbounded, Unit variance</li>
+<li><strong>When Use</strong>: When need to transform a feature so it is close to normally distributed.</li>
+<li><strong>Notes</strong>: Results in a distribution with a standard deviation equal to 1 (and variance equal to 1). If you have outliers in your feature (column), normalizing your data will scale most of<br>the data to a small interval.</li>
+</ul>
+</li>
+<li><kbd>Normalizer</kbd><ul>
+<li><strong>Definition</strong>: An observation (row) is normalized by applying 12 (Euclidian) normalization. If each element were squared and summed, the total would equal 1. Could also specify 11 (Manhatten) normalization.</li>
+<li><strong>Preprocessing Type</strong>: Normalize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: 0</li>
+<li><strong>Distribution Characteristics</strong>: Unit norm</li>
+<li><strong>When Use</strong>: Rarely</li>
+<li><strong>Notes</strong>: Normalizes each sample observation (row), not the feature (column)!</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="Reduce-Data"><a href="#Reduce-Data" class="headerlink" title="Reduce Data"></a>Reduce Data</h3><p>The aim of data reduction is to fit the data size to the question/make model more efficient. Usually there are 4 major methods as outlined below:</p>
+<h4 id="1-Data-Cube-Aggregation"><a href="#1-Data-Cube-Aggregation" class="headerlink" title="1. Data Cube Aggregation:"></a>1. Data Cube Aggregation:</h4><p>Aggregation operation is applied to data for the construction of the data cube.</p>
+<ul>
+<li>The cube stores multidimensional aggregated information</li>
+<li>Ensures a smallest representation which is enough for the Task</li>
+<li>Base cuboid: individual entity of interest (e.g customers)</li>
+<li>Apex cuboid: total of all branches (e.g total sales for all item types)</li>
+</ul>
+<h4 id="2-Attribute-Subset-Selection"><a href="#2-Attribute-Subset-Selection" class="headerlink" title="2. Attribute Subset Selection:"></a>2. Attribute Subset Selection:</h4><p>The highly relevant attributes should be used, rest all can be discarded.<br>Significance Level and p-value of the attribute comparison:</p>
+<ul>
+<li>The attribute having p-value greater than significance level can be discarded.</li>
+</ul>
+<h4 id="3-Numerosity-Reduction"><a href="#3-Numerosity-Reduction" class="headerlink" title="3. Numerosity Reduction:"></a>3. Numerosity Reduction:</h4><p>This enable to store the model of data instead of whole data, for example: Regression Models.</p>
+<ul>
+<li><p>Parametric Method<br>Regression<br>log-linear models</p>
+</li>
+<li><p>Non-parametri Method<br>histograms (for supervised learning binning)<br>clustering (for unsupervised learning binning)<br>sampling (best is simple random sampling without replacement)<br>data cube aggregation (move from lowest level to highest level, data reduces when moving up the cube)</p>
+</li>
+</ul>
+<h4 id="4-Dimensionality-Reduction"><a href="#4-Dimensionality-Reduction" class="headerlink" title="4. Dimensionality Reduction:"></a>4. Dimensionality Reduction:</h4><ul>
+<li>This reduce the size of data by encoding mechanisms.</li>
+<li>lossy vs lossless:<br>If after reconstruction from compressed data, original data can be retrieved, such reduction are called lossless reduction </li>
+<li>Methods:<ol>
+<li>Wavelet transforms: decompose a signal based on special bases (or basis functions), which have certain mathematical properties; Works well for image description</li>
+<li>PCA (Identify the components contributing to the most of the variances in the data)</li>
+<li>ICA (identify independent components that extract individual signals from a mixture)</li>
+</ol>
+</li>
+</ul>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>The above methods really focused a lot on numerical data and basic variables. There are tones of details I neglected (like errors in entries, how to detect them and how to fix them). Also, there are special treatments on words or images (like regex processing and image transformations). These are widely applied in the field of natural language processing and computer visions. We encourage interested readers to explore these ideas by reading the regex tutorials (I’ve also written a blog on it) and CV tutorials.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>The Data Mining Triology: II. Cleaning</p><p><a href="https://criss-wang.github.io/post/data-cleaning/">https://criss-wang.github.io/post/data-cleaning/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2019-09-01</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2021-09-22</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"><div class="level is-mobile is-flex"><div class="article-tags is-size-7 is-uppercase"><i class="fas fa-tags has-text-grey"></i> <a class="link-muted" rel="tag" href="/tags/Data-Mining-Data-Engineering/">Data Mining/Data Engineering </a></div></div></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/AB-testing/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">A brief Intro to A/B Testing</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/data-preparation/"><span class="level-item">The Data Mining Triology: I. Preparation</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">49</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">41</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf"><i class="fas fa-fw fa-link"></i></a></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Anime/"><span class="level-start"><span class="level-item">Anime</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Blogs/"><span class="level-start"><span class="level-item">Blogs</span></span><span class="level-end"><span class="level-item tag">45</span></span></a></li><li><a class="level is-mobile" href="/categories/Enlightenment/"><span class="level-start"><span class="level-item">Enlightenment</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Gradient-Descent/"><span class="tag">Gradient Descent</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hexo/"><span class="tag">hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icarus/"><span class="tag">icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/front-end/"><span class="tag">front-end</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog-building/"><span class="tag">blog-building</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Overview"><span class="level-left"><span class="level-item">1</span><span class="level-item">Overview</span></span></a></li><li><a class="level is-mobile" href="#Basic-Cleaning"><span class="level-left"><span class="level-item">2</span><span class="level-item">Basic Cleaning</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-Using-Boxplot"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">1. Using Boxplot</span></span></a></li><li><a class="level is-mobile" href="#2-Using-Scatterplot"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">2. Using Scatterplot</span></span></a></li><li><a class="level is-mobile" href="#3-Using-z-score"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">3. Using z score</span></span></a></li><li><a class="level is-mobile" href="#4-Using-interquartile-range-IQR-score"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">4. Using interquartile range (IQR) score</span></span></a></li><li><a class="level is-mobile" href="#5-Using-column-specific-value-threshold"><span class="level-left"><span class="level-item">2.5</span><span class="level-item">5. Using column specific value threshold</span></span></a></li><li><a class="level is-mobile" href="#6-Using-value-range-IQR-in-this-case"><span class="level-left"><span class="level-item">2.6</span><span class="level-item">6. Using value range (IQR in this case)</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Transforming-data"><span class="level-left"><span class="level-item">3</span><span class="level-item">Transforming data</span></span></a></li><li><a class="level is-mobile" href="#Data-Conversion"><span class="level-left"><span class="level-item">4</span><span class="level-item">Data Conversion</span></span></a></li><li><a class="level is-mobile" href="#Data-Scaling-x2F-Standardizing-x2F-Mean-Removal"><span class="level-left"><span class="level-item">5</span><span class="level-item">Data Scaling / Standardizing / Mean Removal</span></span></a></li><li><a class="level is-mobile" href="#Reduce-Data"><span class="level-left"><span class="level-item">6</span><span class="level-item">Reduce Data</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-Data-Cube-Aggregation"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">1. Data Cube Aggregation:</span></span></a></li><li><a class="level is-mobile" href="#2-Attribute-Subset-Selection"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">2. Attribute Subset Selection:</span></span></a></li><li><a class="level is-mobile" href="#3-Numerosity-Reduction"><span class="level-left"><span class="level-item">6.3</span><span class="level-item">3. Numerosity Reduction:</span></span></a></li><li><a class="level is-mobile" href="#4-Dimensionality-Reduction"><span class="level-left"><span class="level-item">6.4</span><span class="level-item">4. Dimensionality Reduction:</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Conclusion"><span class="level-left"><span class="level-item">7</span><span class="level-item">Conclusion</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2022 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
