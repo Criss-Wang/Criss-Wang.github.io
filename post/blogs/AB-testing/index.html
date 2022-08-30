@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>A brief Intro to A/B Testing - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="A Recap of Fundamental Concept: A&amp;#x2F;B Testing"><meta property="og:type" content="blog"><meta property="og:title" content="A brief Intro to A/B Testing"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/AB-testing/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="A Recap of Fundamental Concept: A&amp;#x2F;B Testing"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/images/Data%20Science%20Concept/funnel.png"><meta property="article:published_time" content="2019-12-20T05:00:00.000Z"><meta property="article:modified_time" content="2022-08-19T04:00:00.000Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Statistics"><meta property="article:tag" content="A/B testing"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/images/Data%20Science%20Concept/funnel.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/AB-testing/"},"headline":"A brief Intro to A/B Testing","image":["https://criss-wang.github.io/images/Data%20Science%20Concept/funnel.png"],"datePublished":"2019-12-20T05:00:00.000Z","dateModified":"2022-08-19T04:00:00.000Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"A Recap of Fundamental Concept: A&#x2F;B Testing"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/AB-testing/"><link rel="icon" href="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Tech Blogs</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/categories/Anime">Anime</a><a class="navbar-item" style="font-weight: bold" href="/categories/Enlightenment">Enlightenment</a><a class="navbar-item" style="font-weight: bold" href="/publication">Publications</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a><a class="navbar-item" style="font-weight: bold" href="/intro">About Me</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">A brief Intro to A/B Testing</h1><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-alt"> </i><time dateTime="2019-12-20T05:00:00.000Z" title="2019-12-20T05:00:00.000Z">2019-12-20</time></span><span class="level-item is-hidden-mobile"><i class="far fa-calendar-check"> </i><time dateTime="2022-08-19T04:00:00.000Z" title="2022-08-19T04:00:00.000Z">2022-08-19</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span><span class="level-item"><i class="far fa-clock"> </i>8 minutes read (About 1127 words)</span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>A/B testing is a type of hypothesis testing commonly used in business. It is mainly useful on for products that are mature and is suitable for fast iterative product development. The main idea is to assume a new modification is useful and take trials/experiments upon the modified product. Next, using the old version as a reference, see how significant is the improvement brought by the new modification. </p>
+<p><strong>Note:</strong> When we say <em>new modification</em>, it must be warned that the change should contain only <strong>one</strong> factor, otherwise the influence can be compounded.</p>
+<h3 id="10-Steps-in-A-x2F-B-Testing"><a href="#10-Steps-in-A-x2F-B-Testing" class="headerlink" title="10 Steps in A/B Testing"></a>10 Steps in A/B Testing</h3><ol>
+<li>First time trying something new: run an A/A testing simultaneously to check for <code>systematic biases</code></li>
+</ol>
+<ul>
+<li><code>Systematic Bias</code>: is sampling error that stems from the way in which the research is conducted. There are three types: <br><br>a.  Selection bias: Biased way to select the factors/samples. <br><br>b.  Non-response bias: the participants/customers involved in your tests are different in their behavioral patterns from the people that are not involved in your study (other general public) <br><br>c.  Response bias: The result/inference that are given does not follow the truth/real observations.</li>
+</ul>
+<ol start="2">
+<li>Define the goal and form <strong>hypothesis</strong></li>
+</ol>
+<ul>
+<li><code>Null hypothesis</code> <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.375ex;" xmlns="http://www.w3.org/2000/svg" width="2.868ex" height="1.92ex" role="img" focusable="false" viewBox="0 -683 1267.6 848.6"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D43B" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"></path></g><g data-mml-node="mn" transform="translate(864,-150) scale(0.707)"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path></g></g></g></g></svg></mjx-container>: a general statement or default position that there is <strong>no relationship</strong> between <strong>two measured phenomena</strong>. Often claimed to be the case when there is no association between the performance of product and the a feature change of the product. If we believe otherwise, then we are arguing for a <code>Alternative hypothesis</code>  <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.355ex;" xmlns="http://www.w3.org/2000/svg" width="2.914ex" height="1.901ex" role="img" focusable="false" viewBox="0 -683 1288.1 840.1"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D43B" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"></path></g><g data-mml-node="mi" transform="translate(864,-150) scale(0.707)"><path data-c="1D44E" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"></path></g></g></g></g></svg></mjx-container>.</li>
+</ul>
+<ol start="3">
+<li>Identify <strong>control</strong> and <strong>treatment</strong> groups</li>
+<li>Identify <strong>KPI/metrics</strong> to measure</li>
+</ol>
+<ul>
+<li>e.g: <em>click through rate</em>, <em>conversion rate</em>, <em>renewal rate</em>, <em>bounce rate</em>, <em>average retention</em>, etc…</li>
+</ul>
+<ol start="5">
+<li>Identify what data needs to be collected</li>
+</ol>
+<ul>
+<li>Sometime people use the <strong>Customer Funnel analysis</strong>:  <figure align="center">
+<img src="/images/Data Science Concept/funnel.png" width="300px">
+<figcaption>credit: https://clevertap.com/blog/funnel-analysis.</figcaption>
+  </figure></li>
+<li>Example: [<strong>Netflix - Funnel Description</strong>] Customer will enter the home page, which invites customer to further enter via the button <code>free trial for one month</code>, then customer will try and then register and pay </li>
+<li>Example: [<strong>Netflix - Funnel Analysis</strong>]Funnel analysis: here the funnel will be how the product will affect each steps like <code>improving converted customer size</code> or <code>improving returning customer size</code>, during the procedure to reach <strong>click through/subscription</strong>, what side-effects/main effects are triggered  <br></li>
+</ul>
+<ol start="6">
+<li>Make sure that appropriate <strong>logging</strong> is in place to collect all necessary data</li>
+<li>Determine how small of a difference can be (<strong>define significance level</strong> and thus <strong>power</strong> of the experiment)</li>
+</ol>
+<ul>
+<li><code>Significance Level</code>: or <em>p</em>-value, is the probability that we reject the null hypothesis while it is true (type I error). </li>
+<li><code>Power</code>: is the probability of rejecting the null hypothesis while it is false (type II error).</li>
+</ul>
+<ol start="8">
+<li>Determine what fraction of visitors should be in the treatment group (<strong>control/treatment split ratio</strong>)</li>
+<li>Run a <a target="_blank" rel="noopener" href="https://stats.idre.ucla.edu/other/mult-pkg/seminars/intro-power/">power analysis</a> to decie how much data is needed to collet and how long to run the test</li>
+</ol>
+<ul>
+<li>compute <strong>running time</strong> given customer flow</li>
+<li>Run the test for <strong>AT LEAST</strong> this <strong>running time</strong> long</li>
+</ul>
+<h3 id="Before-you-run-A-x2F-B-testing…"><a href="#Before-you-run-A-x2F-B-testing…" class="headerlink" title="Before you run A/B testing…"></a>Before you run A/B testing…</h3><h4 id="1-Why-should-you-run-a-A-x2F-B-test"><a href="#1-Why-should-you-run-a-A-x2F-B-test" class="headerlink" title="1. Why should you run a A/B test?"></a>1. Why should you run a A/B test?</h4><ul>
+<li>A/B testing is the key to understand what drives your business and make data-informed business decisions</li>
+<li>To understand the <strong>causal relationship</strong> and not simply the correlations</li>
+</ul>
+<h4 id="2-When-to-run-experiments"><a href="#2-When-to-run-experiments" class="headerlink" title="2. When to run experiments"></a>2. When to run experiments</h4><ul>
+<li>Deciding whether or not to launch a new product or feature</li>
+<li>To quantify the impact of a feature or product</li>
+<li>Compare data with intuition (Understand how users respond to certain parts of a product)</li>
+</ul>
+<h4 id="3-When-not-to-run-experiments"><a href="#3-When-not-to-run-experiments" class="headerlink" title="3. When not to run experiments"></a>3. When not to run experiments</h4><ul>
+<li>No clear comparison between the control and experimental group</li>
+<li>Emotional changes need time: Logo/Brand name</li>
+<li>Response data hard to obtain</li>
+<li>Too time consuming/costly</li>
+</ul>
+<h3 id="A-closer-look-at-Type-I-and-Type-II-errors"><a href="#A-closer-look-at-Type-I-and-Type-II-errors" class="headerlink" title="A closer look at Type I and Type II errors"></a>A closer look at Type I and Type II errors</h3><h4 id="1-Terminology"><a href="#1-Terminology" class="headerlink" title="1. Terminology"></a>1. Terminology</h4><ul>
+<li><code>significance level</code>: The significance level for a given hypothesis test is <strong>a value for which a <em>p</em>-value less than or equal to</strong> is considered <strong>statistically significant</strong>. Often denoted by <strong>α</strong></li>
+<li><code>region of acceptance</code>: The <strong>range of values</strong> that leads the researcher to <strong>accept the null hypothesis</strong>. [<code>significance level</code>↓ <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.054ex;" xmlns="http://www.w3.org/2000/svg" width="4.964ex" height="1.242ex" role="img" focusable="false" viewBox="0 -525 2194 549"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mstyle"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(278,0)"><path data-c="27F9" d="M1218 514Q1218 525 1234 525Q1239 525 1242 525T1247 525T1251 524T1253 523T1255 520T1257 517T1260 512Q1297 438 1358 381T1469 300T1565 263Q1582 258 1582 250T1573 239T1536 228T1478 204Q1334 134 1260 -12Q1256 -21 1253 -22T1238 -24Q1218 -24 1218 -17Q1218 -13 1223 0Q1258 69 1309 123L1319 133H70Q56 140 56 153Q56 168 72 173H1363L1373 181Q1412 211 1490 250Q1489 251 1472 259T1427 283T1373 319L1363 327H710L707 328L390 327H72Q56 332 56 347Q56 360 70 367H1319L1309 377Q1276 412 1247 458T1218 514Z"></path></g><g data-mml-node="mstyle" transform="translate(1916,0)"><g data-mml-node="mspace"></g></g></g></g></svg></mjx-container> <code>region of acceptance</code>↑ : harsher condition to produce a winner]</li>
+<li><code>effective size</code>: The <strong>difference between the true value and the value specified in the null hypothesis</strong>. [Effect size = True value - Hypothesized value]</li>
+</ul>
+<h4 id="2-Type-1-Error"><a href="#2-Type-1-Error" class="headerlink" title="2. Type 1 Error"></a>2. Type 1 Error</h4><ul>
+<li>When the <code>Null Hypothesis</code> is true but rejected</li>
+<li>'false positive' - happen when the tester validates a <strong>statistically significant difference</strong>  even though there isn’t one <strong>(no winner situation)</strong>. <code>positive</code> here means a <strong>valid winner</strong> concluded</li>
+<li>Type 1 errors have a probability of <strong>"α"</strong> correlated to the level of confidence that you set. A test with a 95% confidence level (<strong>α = 0.05</strong>) means that there is a <strong>5% chance of getting a type 1 error</strong>. </li>
+<li><strong>[In business sense]</strong> This means that you will wrongfully assume that your hypothesis testing has worked even though it hasn’t.</li>
+<li><strong>[The business consequence]</strong> Potential loss of money after adjustment is made, because <strong>your variation didn’t actually beat your control version in the long run</strong>.</li>
+</ul>
+<h4 id="3-Type-2-Error"><a href="#3-Type-2-Error" class="headerlink" title="3. Type 2 Error"></a>3. Type 2 Error</h4><ul>
+<li>When the <code>Null Hypothesis</code> is false but accepted</li>
+<li>'false negative' - Happens when you inaccurately assume that no winner has been declared between a control version and a variation <strong>although there actually is a winner (can be either)</strong></li>
+<li>The probability of a type 2 error is <strong>"β"</strong>. <strong>β</strong> depends on the <strong>power</strong> of the test (i.e the probability of not committing a type 2 error, which is equal to <strong>1-β</strong>).</li>
+<li>There are 3 parameters that can affect the power of a test:<ul>
+<li><code>Sample size (n)</code>: Other things being equal, the <em>greater the sample size</em>, <em>the greater the power of the test</em> (but also <em>the more expensive of the test</em>).</li>
+<li><code>Significance level of test (α)</code>: The lower the <code>significance level</code>, the lower the power of the test.<ul>
+<li>If you reduce the <code>significance level</code> (e.g., from 0.05 to 0.01), the <code>region of acceptance</code> gets bigger. As a result, you are less likely to reject the null hypothesis. This means you are less likely to reject the null hypothesis when it is false, so you are more likely to make a Type II error. In short, the power of the test is reduced when you reduce the significance level; and vice versa.</li>
+</ul>
+</li>
+<li>The "true" value of your tested parameter or <code>effective size</code>:  The greater the difference between the "true" value of a parameter and the value specified in the null hypothesis, the greater the power of the test.</li>
+</ul>
+</li>
+<li><strong>[The business consequence]</strong> Potential loss of money after adjustment is made, because <strong>your variation didn't actually beat your control version in the long run</strong></li>
+</ul>
+<h3 id="Toolkits"><a href="#Toolkits" class="headerlink" title="Toolkits"></a>Toolkits</h3><ol>
+<li>Usually the test plan/create variation step can be executed with company's own techpack, or using some popular tools</li>
+</ol>
+<ul>
+<li><strong>Google optimize</strong></li>
+<li><strong>optimizely</strong></li>
+</ul>
+<ol start="2">
+<li>For hypo testing and result analysis: online resources of excel's A/B testing macro are widely available</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>A brief Intro to A/B Testing</p><p><a href="https://criss-wang.github.io/post/blogs/AB-testing/">https://criss-wang.github.io/post/blogs/AB-testing/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2019-12-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-08-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"><div class="level is-mobile is-flex"><div class="article-tags is-size-7 is-uppercase"><i class="fas fa-tags has-text-grey"></i> <a class="link-muted" rel="tag" href="/tags/Statistics/">Statistics, </a><a class="link-muted" rel="tag" href="/tags/A-B-testing/">A/B testing </a></div></div></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/data-analytics/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">An overview of Big Data Analytics</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/data-cleaning/"><span class="level-item">The Data Mining Triology: II. Cleaning</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">50</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">40</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf"><i class="fas fa-fw fa-link"></i></a></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Anime/"><span class="level-start"><span class="level-item">Anime</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Blogs/"><span class="level-start"><span class="level-item">Blogs</span></span><span class="level-end"><span class="level-item tag">45</span></span></a></li><li><a class="level is-mobile" href="/categories/Enlightenment/"><span class="level-start"><span class="level-item">Enlightenment</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hexo/"><span class="tag">hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icarus/"><span class="tag">icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/front-end/"><span class="tag">front-end</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog-building/"><span class="tag">blog-building</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Introduction"><span class="level-left"><span class="level-item">1</span><span class="level-item">Introduction</span></span></a></li><li><a class="level is-mobile" href="#10-Steps-in-A-x2F-B-Testing"><span class="level-left"><span class="level-item">2</span><span class="level-item">10 Steps in A/B Testing</span></span></a></li><li><a class="level is-mobile" href="#Before-you-run-A-x2F-B-testing…"><span class="level-left"><span class="level-item">3</span><span class="level-item">Before you run A/B testing…</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-Why-should-you-run-a-A-x2F-B-test"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">1. Why should you run a A/B test?</span></span></a></li><li><a class="level is-mobile" href="#2-When-to-run-experiments"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">2. When to run experiments</span></span></a></li><li><a class="level is-mobile" href="#3-When-not-to-run-experiments"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">3. When not to run experiments</span></span></a></li></ul></li><li><a class="level is-mobile" href="#A-closer-look-at-Type-I-and-Type-II-errors"><span class="level-left"><span class="level-item">4</span><span class="level-item">A closer look at Type I and Type II errors</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#1-Terminology"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">1. Terminology</span></span></a></li><li><a class="level is-mobile" href="#2-Type-1-Error"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">2. Type 1 Error</span></span></a></li><li><a class="level is-mobile" href="#3-Type-2-Error"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">3. Type 2 Error</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Toolkits"><span class="level-left"><span class="level-item">5</span><span class="level-item">Toolkits</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2022 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

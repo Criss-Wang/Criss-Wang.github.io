@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>The Data Mining Triology: I. Preparation - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Know how to get data from various sources and load them successfully"><meta property="og:type" content="blog"><meta property="og:title" content="The Data Mining Triology: I. Preparation"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/data-preparation/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="Know how to get data from various sources and load them successfully"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/img/og_image.png"><meta property="article:published_time" content="2019-08-25T04:00:00.000Z"><meta property="article:modified_time" content="2022-08-19T04:00:00.000Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Data Mining/Data Engineering"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/data-preparation/"},"headline":"The Data Mining Triology: I. Preparation","image":["https://criss-wang.github.io/img/og_image.png"],"datePublished":"2019-08-25T04:00:00.000Z","dateModified":"2022-08-19T04:00:00.000Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"Know how to get data from various sources and load them successfully"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/data-preparation/"><link rel="icon" href="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Tech Blogs</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/categories/Anime">Anime</a><a class="navbar-item" style="font-weight: bold" href="/categories/Enlightenment">Enlightenment</a><a class="navbar-item" style="font-weight: bold" href="/publication">Publications</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a><a class="navbar-item" style="font-weight: bold" href="/intro">About Me</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">The Data Mining Triology: I. Preparation</h1><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-alt"> </i><time dateTime="2019-08-25T04:00:00.000Z" title="2019-08-25T04:00:00.000Z">2019-08-25</time></span><span class="level-item is-hidden-mobile"><i class="far fa-calendar-check"> </i><time dateTime="2022-08-19T04:00:00.000Z" title="2022-08-19T04:00:00.000Z">2022-08-19</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span><span class="level-item"><i class="far fa-clock"> </i>6 minutes read (About 862 words)</span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><p>In this Data Mining triology, I'm going to present the following critical steps each scientist should perform when handling the data:</p>
+<ol>
+<li>Data Preparation<br>  Load and integrate data sources</li>
+<li>Data Cleaning<br>  Prepocessing the data to make them meaningful and usable</li>
+<li>Exploratory Data Analysis<br>  Analyze the data and understand its pattern. Make corresponding adjustments to data along the way</li>
+</ol>
+<p>In this blog, let's talk about the first one – Data Preparation.</p>
+<h3 id="Sources-of-data"><a href="#Sources-of-data" class="headerlink" title="Sources of data"></a>Sources of data</h3><p>There are indeed a great variety of data sources since the age of machine learning started. While we may come across a wide variety of data types (image, video, text, sheet, signal… you name it), we often can get these data from some popular website:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://toolbox.google.com/datasetsearch">Google Datasets Search</a><ul>
+<li>Pros:<ul>
+<li>Wide coverage, can find whatever dataset you want</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>Some datasets are not actually accessible, and the website does not indicate that at all!</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Government Datasets<ul>
+<li>Pros:<ul>
+<li>Most of them are publically available, which is good</li>
+<li>Most of these data are well preprocessed, so you don't have to worry about it</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>Sometimes, the size of the dataset is not large enough for meaningful projects</li>
+<li>Governments may not release the most up-to-date datasets. Hence the effectiveness of prediction models may be questionable</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://www.kaggle.com/datasets">Kaggle Datasets</a><ul>
+<li>Pros:<ul>
+<li>Really easy to get the data: via command line. This often preferred by professional engineers. See <a target="_blank" rel="noopener" href="https://www.kaggle.com/docs/api">tutorial</a> on kaggle api</li>
+<li>Aside from the datasets themselves, you can often find a bunch of enthusiasts on machine learning in Kaggle and excellent tutorials on the datasets you found.</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>It takes a bit of practice to get along with Kaggle. Passion and drive are the key to success in Kaggle</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://archive.ics.uci.edu/ml/index.php">UCI Machine Learning Repository</a><ul>
+<li>Pros:<ul>
+<li>One of the most widely used repository for machine learning datasets</li>
+<li>Very Often, the datasets are related to academic/industrial research projects, so it is extremely helpful to researchers</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>As a well-aged repo, the datasetes there certainly have been studied extensively. So it may not be so useful for new breakthroughs (but still, it should be very helpful for beginners)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="Code-for-loading-the-data"><a href="#Code-for-loading-the-data" class="headerlink" title="Code for loading the data"></a>Code for loading the data</h3><p>The most common format for machine learning data is CSV files, and we are using python 3.x here for actual code.<br>This step should mark the start of your notebook (after <code>np/pd/sklearn/plt</code>). </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">train = pd.read_csv(<span class="string">'../input/train.csv'</span>)</span><br><span class="line">test = pd.read_csv(<span class="string">'../input/test.csv'</span>)</span><br></pre></td></tr></table></figure>
+<p>Note that this is too widely abused that people forget about other ways to load data:</p>
+<h4 id="Load-CSV-with-Python-Standard-Library"><a href="#Load-CSV-with-Python-Standard-Library" class="headerlink" title="Load CSV with Python Standard Library"></a>Load CSV with Python Standard Library</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">raw_data = <span class="built_in">open</span>(<span class="string">"your filename here"</span>, <span class="string">'rt'</span>)</span><br><span class="line">reader = csv.reader(raw_data, delimiter=<span class="string">','</span>)</span><br><span class="line">x = <span class="built_in">list</span>(reader)</span><br><span class="line">data = np.array(x).astype(<span class="string">'float'</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Load-CSV-with-Numpy"><a href="#Load-CSV-with-Numpy" class="headerlink" title="Load CSV with Numpy"></a>Load CSV with Numpy</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy</span><br><span class="line">raw_data = <span class="built_in">open</span>(<span class="string">"your filename here"</span>, <span class="string">'rt'</span>)</span><br><span class="line">reader = numpy.loadtxt(raw_data, delimiter=<span class="string">","</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Load-CSV-with-URL"><a href="#Load-CSV-with-URL" class="headerlink" title="Load CSV with URL"></a>Load CSV with URL</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> loadtxt</span><br><span class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> urlopen</span><br><span class="line">url = <span class="string">'URL to a dataset'</span></span><br><span class="line">raw_data = urlopen(url)</span><br><span class="line">dataset = loadtxt(raw_data, delimiter=<span class="string">","</span>)</span><br></pre></td></tr></table></figure>
+<p>Now be cautioned that this is just for CSV files. There are a lot of other data formats, and Google is always your best friend in finding methods to load datasets.<br>{: .notice–info .notice–x-large}</p>
+<h3 id="That-was-input-how-about-output"><a href="#That-was-input-how-about-output" class="headerlink" title="That was input, how about output?"></a>That was input, how about output?</h3><p>Converting data from python objects into byte streams is known as Pickling or Serialization. This allows your own data to be passed around efficiently. Very often, they are stored as <code>.pkl</code> or <code>.json</code> files. </p>
+<h4 id="Python-Pickle-and-JSON"><a href="#Python-Pickle-and-JSON" class="headerlink" title="Python Pickle and JSON"></a>Python Pickle and JSON</h4><p>The following table is inspired by <a target="_blank" rel="noopener" href="https://www.educba.com/python-pickle-vs-json/">this tutorial</a></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Python Pickle</th>
+<th>JSON</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Definition</td>
+<td>Python Pickle is the process of converting python objects (list, dict, tuples, etc.) into byte streams which can be saved to disks or can be transferred over the network. The byte streams saved on the file contains the necessary information to reconstruct the original python object. The process of converting byte streams back to python objects is called de-serialization.</td>
+<td>JSON stands for JavaScript Object Notation. Data Stored can be loaded without having the need to recreate the data again.</td>
+</tr>
+<tr>
+<td>Storage format</td>
+<td>Binary serialization format</td>
+<td>Simple text serialization format, human-readable</td>
+</tr>
+<tr>
+<td>Storage Versatility</td>
+<td>Not only data entries, but classes and methods can be serialized and de-serialized</td>
+<td>JSON is limited to certain python objects, and it cannot serialize every python object, such as classes and functions</td>
+</tr>
+<tr>
+<td>Language dependency</td>
+<td>Very reliant on the language (Python specific) and versions (2.x pickle files may not be compatible in 3.x env)</td>
+<td>JSON is supported by almost all programming languages.</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Slower serialization and de-serialization in pickle</td>
+<td>Lightweights, much faster than pickle</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>There is always security risks with pickle files</td>
+<td>JSON is generally secure</td>
+</tr>
+</tbody></table>
+<br>
+With the above table in mind, one can choose their outputs accordingly.
+
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>Loading data is merely the first step and people can quickly learn to apply them. However, I/O choices does matter, and one should be cautious about them. Now, lets step into the second step in data mining: cleaning data.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>The Data Mining Triology: I. Preparation</p><p><a href="https://criss-wang.github.io/post/blogs/data-preparation/">https://criss-wang.github.io/post/blogs/data-preparation/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2019-08-25</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2022-08-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"><div class="level is-mobile is-flex"><div class="article-tags is-size-7 is-uppercase"><i class="fas fa-tags has-text-grey"></i> <a class="link-muted" rel="tag" href="/tags/Data-Mining-Data-Engineering/">Data Mining/Data Engineering </a></div></div></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/data-cleaning/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">The Data Mining Triology: II. Cleaning</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/topic-modeling/"><span class="level-item">Topic Modeling with Latent Dirichlet Allocation</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">50</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">40</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf"><i class="fas fa-fw fa-link"></i></a></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/Anime/"><span class="level-start"><span class="level-item">Anime</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Blogs/"><span class="level-start"><span class="level-item">Blogs</span></span><span class="level-end"><span class="level-item tag">45</span></span></a></li><li><a class="level is-mobile" href="/categories/Enlightenment/"><span class="level-start"><span class="level-item">Enlightenment</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/Projects/"><span class="level-start"><span class="level-item">Projects</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/hexo/"><span class="tag">hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/icarus/"><span class="tag">icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/front-end/"><span class="tag">front-end</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/blog-building/"><span class="tag">blog-building</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Overview"><span class="level-left"><span class="level-item">1</span><span class="level-item">Overview</span></span></a></li><li><a class="level is-mobile" href="#Sources-of-data"><span class="level-left"><span class="level-item">2</span><span class="level-item">Sources of data</span></span></a></li><li><a class="level is-mobile" href="#Code-for-loading-the-data"><span class="level-left"><span class="level-item">3</span><span class="level-item">Code for loading the data</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Load-CSV-with-Python-Standard-Library"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">Load CSV with Python Standard Library</span></span></a></li><li><a class="level is-mobile" href="#Load-CSV-with-Numpy"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">Load CSV with Numpy</span></span></a></li><li><a class="level is-mobile" href="#Load-CSV-with-URL"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">Load CSV with URL</span></span></a></li></ul></li><li><a class="level is-mobile" href="#That-was-input-how-about-output"><span class="level-left"><span class="level-item">4</span><span class="level-item">That was input, how about output?</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Python-Pickle-and-JSON"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">Python Pickle and JSON</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Conclusion"><span class="level-left"><span class="level-item">5</span><span class="level-item">Conclusion</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2022 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
