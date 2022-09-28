@@ -24,7 +24,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Build
-        run: cd themes/icarus-new && npm ci && cd ../.. && hexo generate
+        run: npm ci && cd themes/icarus-new && npm ci && cd ../.. && hexo generate
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
