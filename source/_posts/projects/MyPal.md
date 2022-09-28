@@ -10,7 +10,7 @@ toc: true
 ---
 
 ### Introduction
-hots t[MyPal](https://github.com/Criss-Wang/MyPal-App) is a web application for students in campus to manage the interpersonal connections online. It was built by me and Ren Hao from National University of Singapore (who is now also my school mate at CMU). Our initiative for building this app was to give college students the power to conveniently create, manage and safely store important details about the people they want to keep connected with in their ever-expanding social circle during their college life. 
+[MyPal](https://github.com/Criss-Wang/MyPal-App) is a web application for students in campus to manage the interpersonal connections online. It was built by me and Ren Hao from National University of Singapore (who is now also my school mate at CMU). Our initiative for building this app was to give college students the power to conveniently create, manage and safely store important details about the people they want to keep connected with in their ever-expanding social circle during their college life. 
 
 ### Tech stack
 Our app used MERN stack (MongoDB, Express.js, ReactJS, Node.js) for development. 
