@@ -258,7 +258,7 @@ widgets:
                 url: mailto:zhenlinw@cs.cmu.edu
             CV:
                 icon: fas fa-fw fa-link
-                url: https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf
+                url: https://criss-wang.github.io/pdf/Resume_Zhenlin Wang.pdf
     # Table of contents widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar

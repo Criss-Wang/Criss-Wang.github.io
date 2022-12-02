@@ -1,10 +1,10 @@
 ---
 date: 2022-08-20
 layout: post
-title: "MyPal - A Relationship Management System"
+title: "MyPal"
 categories:
   - Projects
-excerpt: "My First Journey in Full-stack Web Development"
+excerpt: "A Relationship Management System"
 mathjax: true
 toc: true
 ---
