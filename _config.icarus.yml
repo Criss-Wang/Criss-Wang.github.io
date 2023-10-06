@@ -285,11 +285,6 @@ widgets:
         # Where should the widget be placed, left sidebar or right sidebar
         position: left
         type: recent_posts
-    # Archives widget configurations
-    -
-        # Where should the widget be placed, left sidebar or right sidebar
-        position: left
-        type: archives
     # Tags widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
@@ -301,6 +296,11 @@ widgets:
         amount: 
         # Whether to show tags count, i.e. number of posts in the tag.
         show_count: true
+    # Archives widget configurations
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: left
+        type: archives
     # Google FeedBurner email subscription widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar

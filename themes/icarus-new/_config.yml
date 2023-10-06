@@ -106,13 +106,12 @@ navbar:
     # Navigation menu items
     menu:
         Criss's Time Machine: /
-        Tech Blogs: /categories/Blogs
+        Machine Learning: /categories/Blogs
+        Software Engineering: /categories/Blogs_SWE
         Projects: /categories/Projects
-        Anime: /categories/Anime
-        Enlightenment: /categories/Enlightenment
-        Publications: /publication
+        Research: /research
         Archives: /archives
-        About Me: /intro
+
 
     # Links to be shown on the right of the navigation bar
     links:
@@ -289,12 +288,6 @@ widgets:
         # Where should the widget be placed, left sidebar or right sidebar
         position: right
         type: recent_posts
-    # Archives widget configurations
-    -
-        # Where should the widget be placed, left sidebar or right sidebar
-        position: right
-        type: archives
-    # Tags widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
         position: right
@@ -304,6 +297,12 @@ widgets:
         # Amount of tags to show. Will show all if not set.
         # Whether to show tags count, i.e. number of posts in the tag.
         show_count: true
+    # Archives widget configurations
+    -
+        # Where should the widget be placed, left sidebar or right sidebar
+        position: right
+        type: archives
+    # Tags widget configurations
     # Google FeedBurner email subscription widget configurations
     # -
     #     # Where should the widget be placed, left sidebar or right sidebar
