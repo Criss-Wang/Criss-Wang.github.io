@@ -7,7 +7,7 @@
 }
 body.night {
   background: #0e1225;
-  background: url("https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/alps-mountain.webp");
+  background: url("https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/alps-mountain.webp");
   box-shadow: inset 20000px 0 0 0 rgba(0,0,0,0.5);
   background-repeat: no-repeat;
   background-attachment: fixed;
