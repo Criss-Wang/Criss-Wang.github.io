@@ -8,3 +8,4 @@ public/
 _multiconfig.yml
 *.txt
 resources/
+*/node_modules/

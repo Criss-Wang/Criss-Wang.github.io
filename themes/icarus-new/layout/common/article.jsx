@@ -118,7 +118,7 @@ module.exports = class extends Component {
                     
                     {/* Tags */}
                     {page.tags && page.tags.length ? <div class="article-tags is-size-7 is-uppercase">
-                        <i class="fas fa-tags has-text-grey"></i>&nbsp;
+                        <i class="fab fa-tags has-text-grey"></i>&nbsp;
                         {page.tags.map((tag, index) => {
                             return <a class="link-muted" rel="tag" href={url_for(tag.path)}>{tag.name}{index !== page.tags.length-1? ', ':''}</a>;
                         })}

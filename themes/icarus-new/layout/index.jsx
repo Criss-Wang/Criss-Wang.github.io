@@ -9,9 +9,9 @@ module.exports = class extends Component {
 
         return <Fragment>
             {page.posts.map(post => {
-                return page.current_url !== '/' || post.title.includes("Zhenlin Wang") ? <Article config={config} page={post} helper={helper} index={true} /> : null
+                return page.current_url !== '/' || post.title.includes("About") ? <Article config={config} page={post} helper={helper} index={true} /> : null
             })}
-            
+
             {page.total > 1 && page.current_url !== '/' ? <Paginator
                 current={page.current}
                 total={page.total}

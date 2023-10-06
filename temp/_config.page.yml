@@ -14,7 +14,7 @@ widgets:
         # Author's current location
         location: Pittsburgh, PA
         # URL or path to the avatar image
-        avatar: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp
+        avatar: https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/selfie.webp
         # Whether show the rounded avatar image
         avatar_rounded: true
         # Email address for the Gravatar
@@ -33,8 +33,8 @@ widgets:
                 icon: fas fa-envelope
                 url: mailto:zhenlinw@cs.cmu.edu
             CV:
-                icon: fas fa-fw fa-link
-                url: https://criss-wang.github.io/pdf/CV_Wang_Zhenlin.pdf
+                icon: fab fa-twitter
+                url: https://twitter.com/CrissWang4
     # Table of contents widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar

@@ -3,11 +3,11 @@ version: 5.0.0
 # Icarus theme variant, can be "default" or "cyberpunk"
 variant: default
 # Path or URL to the website's logo
-logo: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
+logo: https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
 # Page metadata configurations
 head:
     # URL or path to the website's icon
-    favicon: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
+    favicon: https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp
     # Web application manifests configuration
     # https://developer.mozilla.org/en-US/docs/Web/Manifest
     manifest:
@@ -238,7 +238,7 @@ widgets:
         # Author's current location
         location: Pittsburgh, PA
         # URL or path to the avatar image
-        avatar: https://cdn.staticaly.com/gh/Criss-Wang/image-host@master/Blog/Selfie.webp
+        avatar: https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp
         # Whether show the rounded avatar image
         avatar_rounded: true
         # Email address for the Gravatar
@@ -257,8 +257,8 @@ widgets:
                 icon: fas fa-envelope
                 url: mailto:zhenlinw@cs.cmu.edu
             CV:
-                icon: fas fa-fw fa-link
-                url: https://criss-wang.github.io/pdf/Resume_Zhenlin Wang.pdf
+                icon: fab fa-twitter
+                url: https://twitter.com/CrissWang4
     # Table of contents widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
