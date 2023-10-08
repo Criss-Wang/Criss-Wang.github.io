@@ -35,7 +35,7 @@ module.exports = class extends Component {
             <div class="card">
                 {/* Thumbnail */}
                 {cover ? <div class="card-image">
-                    {index ? <a href={url_for(page.link || page.path)} class="image is-7by3">
+                    {index ? <a href={url_for(page.path)} class="image is-7by3">
                         <img class="fill" src={cover} alt={page.title || cover} />
                     </a> : <span class="image is-7by3">
                         <img class="fill" src={cover} alt={page.title || cover} />
@@ -48,7 +48,7 @@ module.exports = class extends Component {
                     {!page.title.includes("About") ? (
                         <h1 className="title is-size-4 is-size-5-mobile has-text-weight-normal">
                             {index ? (
-                                <a className="has-link-black-ter" href={url_for(page.link || page.path)}>
+                                <a className="has-link-black-ter" href={url_for(page.path)}>
                                     {page.title}
                                 </a>
                             ) : (
@@ -73,13 +73,16 @@ module.exports = class extends Component {
                                 <i class="far fa-folder-open">&nbsp;</i>
                                 {(() => {
                                     const categories = [];
-                                    page.categories.forEach((category, i) => {
-                                        if (i > 3) {
-                                            return;
-                                        }
-                                        categories.push(<a class="link-muted" href={url_for(category.path)}>{category.name}</a>);
-                                        if (i < page.categories.length - 1) {
-                                            categories.push(<span>&nbsp;, &nbsp;</span>);
+                                    const max_categories = 4;
+                                    page.categories.forEach((category, j) => {
+                                        if (category !== "Projects") {
+                                            if (j > max_categories) {
+                                                return;
+                                            }
+                                            categories.push(<a class="link-muted" href={url_for(category.path)}>{category.name}</a>);
+                                            if (j < Math.min(page.categories.length - 1, max_categories)) {
+                                                categories.push(<span>&nbsp;,&nbsp;</span>);
+                                            }
                                         }
                                     });
                                     return categories;
@@ -97,7 +100,7 @@ module.exports = class extends Component {
                         {index ? <a class="link-muted" href={url_for(page.link || page.path)}>{page.title}</a> : page.title}
                     </h1> : null} */}
                     {
-                        page.link ? <div><img src={page.link} /></div> : null
+                        index && page.link ? <div><img src={page.link} /></div> : null
                     }
                     {/* Content/Excerpt */}
                     {!page.title.includes("About") ? <div>{index && page.excerpt ? <hr style="background-color:grey;height:1px;margin:1rem 0"></hr> : <hr style="background-color:grey"></hr>}</div> : null}

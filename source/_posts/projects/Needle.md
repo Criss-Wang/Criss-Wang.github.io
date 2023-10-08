@@ -4,9 +4,10 @@ layout: post
 title: "Needle: High-performance DL System"
 categories:
   - Projects
-  - Deep Learning
-  - System Programming
-  - CUDA Programming
+  - C++
+  - Python
+  - CUDA
+  - Deep Learning System
 excerpt: "A Deep Learning framework with customized GPU and CPU backend in C++ and Python"
 link: "https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Needle2.50se01grtxw0.webp"
 mathjax: true

@@ -1,17 +1,25 @@
 ---
-date: 2022-08-20
+date: 2019-05-08
+updated: 2019-08-02
 layout: post
 title: "MyPal"
 categories:
   - Projects
+  - Node.js
+  - React
+  - MongoDB
+  - Fullstack Web Dev
 excerpt: "A Relationship Management System"
+link: "/../../images/Projects/mypal1.png"
 mathjax: true
 toc: true
 ---
 
 ### **Introduction**
 
-[MyPal](https://github.com/Criss-Wang/MyPal-App) is a web application for students in campus to manage the interpersonal connections online. It was built by me and Ren Hao from National University of Singapore (who is now also my school mate at CMU). Our initiative for building this app was to give college students the power to conveniently create, manage and safely store important details about the people they want to keep connected with in their ever-expanding social circle during their college life. Here is a glimpse of our application](https://mypal-app.heroku.com)
+[MyPal](https://github.com/Criss-Wang/MyPal-App) is a web application for students in campus to manage the interpersonal connections online. It was built by me and [Ren Hao](https://github.com/mononokehime14) from National University of Singapore as part of the [Orbital Program](https://orbital.comp.nus.edu.sg/). We managed to design, implement, deploy and iterate our app during the summer of 2019 to improve our product\'s rating from Gemini (intermediate) to Apollo 11 (Advanced). [[**Certificate**](https://github.com/Criss-Wang/TeamRichardoMLu/blob/master/Orbital_Certificate.pdf)]  
+
+Our initiative for building this app was to give college students the power to conveniently create, manage and safely store important details about the people they want to keep connected with in their ever-expanding social circle during their college life. Here is a glimpse of our [application](<https://mypal-app.heroku.com>)
 
 <figure align="center">
     <img src="/../../images/Projects/mypal1.png" width="400px">
@@ -35,7 +43,7 @@ toc: true
 
 3. **Social Network Visualization**
 
-- Using network diagram to display various social circles the user is in （built with `d3.js`)
+- Using network diagram to display various social circles the user is in （built with `D3.js`)
 - Using Timeline to help the user recollect the events he/she had with certain people/group
 
 4. **Weekly/Monthly Report**
