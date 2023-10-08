@@ -107,7 +107,6 @@ navbar:
     menu:
         Home: /
         Archives: /archives
-        Categories: /categories
         Tags: /tags
         About: /about
     # Links to be shown on the right of the navigation bar
@@ -275,11 +274,6 @@ widgets:
         links:
             Hexo: https://hexo.io
             Bulma: https://bulma.io
-    # Categories widget configurations
-    -
-        # Where should the widget be placed, left sidebar or right sidebar
-        position: left
-        type: categories
     # Recent posts widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar

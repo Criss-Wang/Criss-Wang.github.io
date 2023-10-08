@@ -44,26 +44,28 @@ module.exports = class extends Component {
                 <article class={`card-content article${'direction' in page ? ' ' + page.direction : ''}`} role="article">
                     {/* Metadata */}
                     {/* Title */}
+
+                    {!page.title.includes("About") ? (
                         <h1 className="title is-size-4 is-size-5-mobile has-text-weight-normal">
-                        {index ?
-                            <a className="has-link-black-ter" href={url_for(page.link || page.path)}>
-                                {page.title}
-                            </a> :
-                            [page.title]
-                        }
-                    </h1>
-                    {page.layout !== 'page' ? <div class="article-meta is-size-7 is-uppercase level is-mobile">
+                            {index ? (
+                                <a className="has-link-black-ter" href={url_for(page.link || page.path)}>
+                                    {page.title}
+                                </a>
+                            ) : (
+                                page.title
+                            )}
+                        </h1>
+                    ) : null}
+                    {page.layout !== 'page' ? <div class="article-meta is-size-7 level is-mobile">
                         <div class="level-left">
                             {/* Creation Date */}
                             {page.date && <span class="level-item">
-                                <i className="far fa-calendar-alt">&nbsp;</i>
+                                <i className="far fa-calendar-check">&nbsp;</i>
                                 <time dateTime={date_xml(page.date)} title={date_xml(page.date)}>{date(page.date)}</time>
-                            </span>}
-                            {/* Last Update Date */}
-                            {shouldShowUpdated && <span class="level-item is-hidden-mobile">
-                                <i class="far fa-calendar-check">&nbsp;</i>
+                                &nbsp; to &nbsp;
                                 <time dateTime={date_xml(page.updated)} title={date_xml(page.updated)}>{date(page.updated)}</time>
                             </span>}
+
                             {/* author */}
                             {page.author ? <span class="level-item"> {page.author} </span> : null}
                             {/* Categories */}
@@ -77,21 +79,13 @@ module.exports = class extends Component {
                                         }
                                         categories.push(<a class="link-muted" href={url_for(category.path)}>{category.name}</a>);
                                         if (i < page.categories.length - 1) {
-                                            categories.push(<span>&nbsp;/&nbsp;</span>);
+                                            categories.push(<span>&nbsp;, &nbsp;</span>);
                                         }
                                     });
                                     return categories;
                                 })()}
                             </span> : null}
-                            {/* Read time */}
-                            {article && article.readtime && article.readtime === true ? <span class="level-item">
-                                <i class="far fa-clock">&nbsp;</i>
-                                {(() => {
-                                    const words = getWordCount(page._content);
-                                    const time = moment.duration((words / 150.0) * 60, 'seconds');
-                                    return `${_p('article.read_time', time.locale(index ? indexLaunguage : language).humanize())} (${_p('article.word_count', words)})`;
-                                })()}
-                            </span> : null}
+
                             {/* Visitor counter */}
                             {!index && plugins && plugins.busuanzi === true ? <span class="level-item" id="busuanzi_container_page_pv" dangerouslySetInnerHTML={{
                                 __html: _p('plugin.visit_count', '<span id="busuanzi_value_page_pv">0</span>')
@@ -102,30 +96,21 @@ module.exports = class extends Component {
                     {/* {page.title !== '' ? <h1 class="title is-3 is-size-4-mobile">
                         {index ? <a class="link-muted" href={url_for(page.link || page.path)}>{page.title}</a> : page.title}
                     </h1> : null} */}
+                    {
+                        page.link ? <div><img src={page.link} /></div> : null
+                    }
                     {/* Content/Excerpt */}
-                    {!page.title.includes("Zhenlin Wang") ? <div>{index && page.excerpt ? <hr style="background-color:grey;height:1px;margin:1rem 0"></hr> : <hr style="background-color:grey"></hr>}</div> : null}
+                    {!page.title.includes("About") ? <div>{index && page.excerpt ? <hr style="background-color:grey;height:1px;margin:1rem 0"></hr> : <hr style="background-color:grey"></hr>}</div> : null}
                     <div style="padding-bottom:5px"></div>
-                    {index && page.excerpt ? <div class="content" style="margin-bottom: 0px !important" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div> 
-                    : 
-                    <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>}
-                    
+                    {index && page.excerpt ? <div class="content" style="margin-bottom: 0px !important" dangerouslySetInnerHTML={{ __html: page.excerpt }}></div>
+                        :
+                        <div class="content" dangerouslySetInnerHTML={{ __html: page.content }}></div>}
+
                     {/* Licensing block */}
                     {!index && article && article.licenses && Object.keys(article.licenses)
                         ? <ArticleLicensing.Cacheable page={page} config={config} helper={helper} /> : null}
-                    {index && page.excerpt ? <hr style="height:0.5px;margin:0.5rem 0"/> : <hr style="height:1px;margin:1rem 0"/>}
-                    <div className="level is-mobile is-flex">
-                    {/* Post navigation */}
-                    
-                    {/* Tags */}
-                    {page.tags && page.tags.length ? <div class="article-tags is-size-7 is-uppercase">
-                        <i class="fab fa-tags has-text-grey"></i>&nbsp;
-                        {page.tags.map((tag, index) => {
-                            return <a class="link-muted" rel="tag" href={url_for(tag.path)}>{tag.name}{index !== page.tags.length-1? ', ':''}</a>;
-                        })}
-                    </div> : null}
-                    {/* "Read more" button */}
-                    {index && page.excerpt ? <a class="article-more button is-small is-size-7" href={`${url_for(page.link || page.path)}#more`}><i class="fas fa-book-reader has-text-grey"></i>&nbsp;&nbsp;{__('article.more')}</a> : null}
-                    </div>
+                    {index && page.excerpt ? <hr style="height:0.5px;margin:0.5rem 0" /> : <hr style="height:1px;margin:1rem 0" />}
+
                     {/* Share button */}
                     {/* {!index ? <Share config={config} page={page} helper={helper} /> : null} */}
                 </article>
@@ -134,19 +119,19 @@ module.exports = class extends Component {
             {!index ? <Donates config={config} helper={helper} /> : null} */}
             {/* Post navigation */}
             {!index && (page.prev || page.next) ? <nav class="post-navigation mt-4 level is-mobile">
-                        {page.prev ? <div class="level-start">
-                            <a class={`article-nav-prev level level-item${!page.prev ? ' is-hidden-mobile' : ''} link-muted`} href={url_for(page.prev.path)}>
-                                <i class="level-item fas fa-chevron-left"></i>
-                                <span class="level-item">{page.prev.title}</span>
-                            </a>
-                        </div> : null}
-                        {page.next ? <div class="level-end">
-                            <a class={`article-nav-next level level-item${!page.next ? ' is-hidden-mobile' : ''} link-muted`} href={url_for(page.next.path)}>
-                                <span class="level-item">{page.next.title}</span>
-                                <i class="level-item fas fa-chevron-right"></i>
-                            </a>
-                        </div> : null}
-                    </nav> : null}
+                {page.prev ? <div class="level-start">
+                    <a class={`article-nav-prev level level-item${!page.prev ? ' is-hidden-mobile' : ''} link-muted`} href={url_for(page.prev.path)}>
+                        <i class="level-item fas fa-chevron-left"></i>
+                        <span class="level-item">{page.prev.title}</span>
+                    </a>
+                </div> : null}
+                {page.next ? <div class="level-end">
+                    <a class={`article-nav-next level level-item${!page.next ? ' is-hidden-mobile' : ''} link-muted`} href={url_for(page.next.path)}>
+                        <span class="level-item">{page.next.title}</span>
+                        <i class="level-item fas fa-chevron-right"></i>
+                    </a>
+                </div> : null}
+            </nav> : null}
             {/* Comment */}
             {/* {!index ? <Comment config={config} page={page} helper={helper} /> : null} */}
         </Fragment>;
