@@ -5,10 +5,10 @@ layout: post
 title: "MyPal"
 categories:
   - Projects
+  - Full Stack Web Dev
   - Node.js
   - React
   - MongoDB
-  - Fullstack Web Dev
 excerpt: "A Relationship Management System"
 link: "/../../images/Projects/mypal1.png"
 mathjax: true
