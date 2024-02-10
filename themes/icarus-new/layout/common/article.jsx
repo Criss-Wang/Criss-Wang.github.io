@@ -29,6 +29,8 @@ module.exports = class extends Component {
         const updateTime = article && article.update_time !== undefined ? article.update_time : true;
         const isUpdated = page.updated && !moment(page.date).isSame(moment(page.updated));
         const shouldShowUpdated = page.updated && ((updateTime === 'auto' && isUpdated) || updateTime === true);
+        const isProject = page.categories.findOne({name: "Projects"}) !== undefined
+        
 
         return <Fragment>
             {/* Main content */}
@@ -62,8 +64,9 @@ module.exports = class extends Component {
                             {page.date && <span class="level-item">
                                 <i className="far fa-calendar-check">&nbsp;</i>
                                 <time dateTime={date_xml(page.date)} title={date_xml(page.date)}>{date(page.date)}</time>
-                                &nbsp; to &nbsp;
-                                <time dateTime={date_xml(page.updated)} title={date_xml(page.updated)}>{date(page.updated)}</time>
+                                {isProject ? <span>&nbsp; to &nbsp;
+                                <time dateTime={date_xml(page.updated)} title={date_xml(page.updated)}>{date(page.updated)}</time></span> : null}
+                                
                             </span>}
 
                             {/* author */}
