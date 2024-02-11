@@ -1,7 +1,7 @@
 ---
 title: "Deep Learning System Design - A Checklist (Part I)"
 excerpt: "An Overview of how to design a full-stack Deep Learning System"
-date: 2024/02/10
+date: 2024/02/09
 categories:
   - Blogs
 tags:
@@ -59,7 +59,7 @@ I\'ll walk through each step and provide checklists for each of them, detailing 
   - Tranactional: OLTP
     1. low latency (often for streaming service)
     2. high availability
-    3. transaction won't go through if system cannot process it
+    3. transaction won\'t go through if system cannot process it
     4. Often row-major
     5. Eventual consistency
   - Analytical: OLAP
@@ -183,7 +183,7 @@ liko_data_schema.validate(data_sample)
             <li>Micro/Macro/Average F1 Score</li>
             <li>Confusion Matrix</li>
             <li>Multi-class Log Loss</li>
-            <li>Cohen's Kappa</li>
+            <li>Cohen\'s Kappa</li>
             <li>Jaccard Similarity Score</li>
         </ul>
     </details>
@@ -304,7 +304,7 @@ liko_data_schema.validate(data_sample)
 1. When drawing conclusion about model performance, consider **Students t-test**
 2. Perturbation test (corruption, adversarial attack)
 3. Invariance test (Bias removal)
-4. Directional Expectation test (Common sense directions. E.g.: rainy season shouldn't have much higher temperature than dry season)
+4. Directional Expectation test (Common sense directions. E.g.: rainy season shouldn\'t have much higher temperature than dry season)
 5. Model calibration (when standalone probability in the output matters) [see page 10](https://docs.google.com/document/d/1_kxf0xRAushBEepKh57mHubWCkVuS37iAqwmJcYFoJE/edit)
 6. Confidence Evaluation (usefulness threshold for each individual prediction)
 7. Slice-based Evaluation (model performance on subgroups)
@@ -323,7 +323,7 @@ liko_data_schema.validate(data_sample)
   7.  vanishing/exploding gradients
 - How to do debugging
   1.  Start simple and gradually add more components
-  2.  (\*)Overfit a single batch: If model can't overfit a small amount of data, there's something wrong with your implementation.
+  2.  (\*)Overfit a single batch: If model can\'t overfit a small amount of data, there\'s something wrong with your implementation.
   3.  Set seed properly
 - Is hyperparameter tuning needed? Setup routine for tuning?
 - How to optimize the training to make it feasible/efficient/fault tolerant?
@@ -344,12 +344,75 @@ liko_data_schema.validate(data_sample)
 
 ### Step 4: Experiments
 
-### Step 5: Packaging and Deployment
+Experiment tracking are important, especially when the scale of training is large, and teamwork is involved. There are a lot of tracking tools available out there. `kubeflow`, `mlflow`, `wandb`, `neptune.ai`... you name it. When using these tools, what\'s critical is to consider things to keep track of.
 
-### Step 6: Serving
+#### Must-have\'s
 
-### Step 7: Monitoring
+- **Code**:
+  - Preprocessing + training + evaluation scripts,
+  - Notebooks for feature engineering
+  - Other util codes
+- **Environment**:
+  - Save the environment configuration files like `Dockerfile` (Docker), `requirements.txt` (pip), `pyproject.toml` (e.g., hatch and poetry), or `conda.yml` (conda).
+  - (IMPT) Save Docker images on Docker Hub or your own container repository is always a good practice before running experiment
+- **Data**:
+  - Saving data versions (as a hash or locations of immutable data resources)
+  - You can also use modern data versioning tools like DVC (and save the .dvc files to your experiment tracking tool).
+- **Parameters**:
+  - Experiment run’s configuration
+  - Save parameters used via the command line (e.g., through argparse, click, or hydra)
+- **Metrics**:
+  - Logging evaluation metrics on train, validation, and test sets for every run.
 
-### Conclusion
+#### Task-specific
 
-While a deep learning system can "almost" be always built following the checklist I made here, we must stay close to our business objective for the system to be truly useful. In that sense, a close connection to our user would be very important, and things like defensive programming, friendly UI and user feedbacks play super important roles. In future posts, I\'ll talk about some of them. Stay tuned ~
+1. Traditional ML
+
+- Model weights
+- Evaluation charts (ROC curves, Confusion matrix)
+- Prediction distributions
+
+2. Deep Learning
+
+- Model checkpoints (both during and after training, but beware of the cost)
+- Gradient norms (to control for vanishing or exploding gradient problems)
+- Best/worst predictions on the validation and test set after training
+- Hardware resources: CPU/GPU Utility, Memory Utility, Disk I/O, Network Utility, throughput
+
+3. Computer Vision
+
+- Model predictions after every epoch (labels, overlayed masks or bounding boxes)
+
+4. NLP, LLM
+
+- Inference time
+- Prompts (in the case of generative LLMs)
+- Specific evaluation metrics (e.g., ROUGE for text summarization or BLEU for translation between languages)
+- Embedding size and dimensions, type of tokenizer, and number of attention heads (when training transformer models from scratch)
+- Feature importance, attention-based, or example-based explanations (see this [overview](https://arxiv.org/pdf/2309.01029.pdf) for specific algorithms and more ideas)
+
+5. Structure Data
+
+- Input data snapshot ( `.head()` on DataFrames if you are using pandas)
+- Feature importance (e.g., permutation importance)
+- Prediction explanations like SHAP or partial dependence plots (they are all available in DALEX)
+
+6. RL
+
+- Episode info: return, length, intermediate states
+- Total environment steps, wall time, steps per second
+- Value and police function losses
+- Aggregate statistics over multiple environments and/or runs
+
+7. Hyper Optim
+
+- Run score: the metric you are optimizing after every iteration
+- Run parameters: parameter configuration tried at each iteration
+- Best parameters: best parameters so far and overall best parameters after all runs have concluded
+- Parameter comparison charts: there are various visualizations that you may want to log during or after training, like parallel coordinates plot or slice plot (they are all available in Optuna, by the way)
+
+### To be continued...
+
+Usually this is where the school-based projects will end. However, to fully develop a system based on the model and the idea you derive, you still need some engineering skills in building the pipeline for deployment, serving and performance monitoring. Luckily we have a lot of tools for these that do the dirty works for us. Nonetheless, not paying attention to some details in these steps could lead to serious bugs or even cost you thousands of dollars!
+
+Hence to both remind myself and give some suggestions for the readers, I\'ve created a part II for the checklist for these steps. Please check it out if you are interested!
