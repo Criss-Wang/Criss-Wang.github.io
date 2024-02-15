@@ -45,7 +45,7 @@ As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU
    In contrary to AMP, true low-precision training is needed when size of parameters are still too big. This is one of the last resorts to sacrifice accuracy for training completeness. In this process, all parameters and gradients are in lower precision and are converted back to higher precision after training.
 
 3. **Reduce Batch Size**
-   One of the easiest strategies to adopt when OOM appears is to use a smaller batch size. By doing so, we have much less data saved in cache, as the matrix used to compute gradient is much smaller (a scale of O(N) where N is number of parameters). However, the risk of slower convergence and lower accuracy is closely related to a small batch size as well. When mini-batch SGD is "too close" to SGD, the benefits brought by it will also diminsh. So be careful when using it.
+   One of the easiest strategies to adopt when OOM appears is to use a smaller batch size. By doing so, we have much less data saved in cache, as the matrix used to compute gradient is much smaller (a scale of O(N) where N is number of parameters). However, the risk of slower convergence, unstable training and lower accuracy is closely related to a small batch size as well. When mini-batch SGD is "too close" to SGD, the benefits brought multicore processing will also diminsh. So be careful when using it.
 
 4. **Gradient Accumulation**
    When reducing batch size leads to severely poorer performance, and increasing it causes infeasible training, we have a work-around, gradient accumulation, which virtually increase the batch size during training. This is easily achievable (see following code):
@@ -88,8 +88,69 @@ As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU
    Each of them aims to fix some inefficiencies in the training pipeline. Many packages have been developed to implement these strategies for the benefits of DL researchers and engineers. I provide a more in-depth discussion in a different [post](http://www.criss-wang.com/post/blogs/distributed-training), together with discussion about the common errors people face during distributing training.
 
 7. **Gradient Checkpointing**
-   [TODO] review gradeint checkpointing
-   Gradient Checkpointing is an ingenious method to reduce memory usage by repeated discard . The implementation is quite convoluted, but revolves around
+   
+   Gradient Checkpointing is an ingenious method to reduce memory usage by repeated discard . It comes from the observation that tnhe most memory intensive part of training deep neural networks is computing the gradient of the loss by backpropagation. By checkpointing nodes in the computation graph defined by your model, and recomputing the parts of the graph in between those nodes during backpropagation, it is possible to calculate this gradient at reduced memory cost. THe selected checkpoint nodes in the computational graph are kept in memory after the forward pass, while the remaining nodes are recomputed at most once. After being recomputed, the non-checkpoint nodes are kept in memory until they are no longer required. It does slow down training, but the benefit is a reduction to square-root scale of memory.
+
+   You may resort to PyTorch's `autograd` library to easily craft a simple Checkpoint feature (note how the `ctx` has enable saving of function and args from `forward` method to be applied in `backward` later):
+   ```python
+   import torch
+   import torch.nn as nn
+   import torch.autograd as autograd
+
+   class CheckpointFunction(autograd.Function):
+      @staticmethod
+      def forward(ctx, func, *args):
+         ctx.func = func
+         ctx.args = args
+         with torch.no_grad():
+               ctx.save_for_backward(*args)
+               result = func(*args)
+         return result
+
+      @staticmethod
+      def backward(ctx, grad_output):
+         args = ctx.saved_tensors
+         func = ctx.func
+         f_args = tuple(args)
+         f_args += (grad_output,)
+         with torch.enable_grad():
+               grad_input = torch.autograd.grad(func(*f_args), f_args, allow_unused=True)
+         return (None,) + grad_input[1:]
+
+   class CheckpointModule(nn.Module):
+      def __init__(self, module):
+         super(CheckpointModule, self).__init__()
+         self.module = module
+
+      def forward(self, *args):
+         return CheckpointFunction.apply(self.module, *args)
+
+   # Define a simple feed-forward network
+   class SimpleNet(nn.Module):
+      def __init__(self):
+         super(SimpleNet, self).__init__()
+         self.fc1 = nn.Linear(1000, 500)
+         self.fc2 = nn.Linear(500, 200)
+         self.fc3 = nn.Linear(200, 10)
+
+      def forward(self, x):
+         x = torch.relu(self.fc1(x))
+         x = torch.relu(self.fc2(x))
+         x = self.fc3(x)
+         return x
+
+   # Wrap the network with checkpointing
+   checkpointed_net = CheckpointModule(SimpleNet())
+
+   # Example usage
+   input_data = torch.randn(1, 1000, requires_grad=True)
+   output = checkpointed_net(input_data)
+   loss = output.sum()
+   loss.backward()
+
+   print("Gradients w.r.t input_data:", input_data.grad)
+
+   ```
 
    A simple example using Hugging Face\'s `transformer` library looks like this:
 
@@ -118,13 +179,12 @@ As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU
     Sometimes, it is just easier to reduce the model size when memory constraint is hit. This had long been a success aside from techiniques such as model pruning from the invention of Jeffery Hinton. Model Distillation, or knowledge distillation, transfers knowledge from a larger and more complex model to a smaller and simpler one. Intuitively, the larger model is trained on a given dataset. Then it will act as a "teacher" to generate output representations that can be interpreted by the smaller model. These output representations are often in the form of probability distributions over the original input data, which allows for easier interpretation and use in downstream tasks. On the other hand, the smaller "student" model will try to predict outputs based on these probability distributions. Distillation is an enormous field of study in DL, and people often use existing libraries and distilled models made available by thousands of generous researchers who willingly release their trained model weights to the public.
 
 11. **Quantization**
-    [TODO] blog post about quantization
     Another way to directly reduce model size is via quantization. Quantization typically involves mapping each value in the input to a range of possible output values, using techniques like thresholding or rounding. This is done by defining a set of bins that cover the entire range of possible outputs for a given input, and then assigning each output to its corresponding bin based on some threshold value.
 
     During training, the weights and activations are typically quantized before being stored on disk or transmitted over networks in order to reduce their size without sacrificing too much accuracy. Additionally, the gradients of the loss function can be computed using an approximate gradient method called stochastic gradient descent with quantization
     (SGD-Q), which allows for faster convergence and improved performance compared to standard SGD methods.
 
-    Do note that this method is slightly different from the low-precision or mixed precision strategy, as the former often recovers the precision after training, but this method allows the model trained to stay in the same precision during inference, which effecitvely reduced persistent model storage requirement as well. To learn more about quantization, checkout [this blog](todo_link)
+    Do note that this method is slightly different from the low-precision or mixed precision strategy, as the former often recovers the precision after training, but this method allows the model trained to stay in the same precision during inference, which effecitvely reduced persistent model storage requirement as well. To learn more about quantization, checkout [this blog](http://www.criss-wang.com/post/blogs/quantization)
 
     A sample code implementation looks like this:
 
@@ -228,14 +288,243 @@ trainer = L.Trainer(
 
 ## A more challenging code using native PyTorch
 
-If you are interested in building it from scratch with PyTorch directly, checkout this (if you don't understand the syntax, please DIY)
+If you are interested in building it from scratch with PyTorch directly, checkout the following code (if you don't understand the syntax, please DIY)
 
-<details>
-<summary>more challenging code</summary>
 ```python
-import PyTorch
+"""A demo on how to setup custom trainer with efficient training"""
+import os
+import argparse
+import apex.amp as amp
+import torch
+import torch.nn as nn
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.distributed import DistributedSampler
+
+class ConvNet(nn.Module):
+   def __init__(self, num_classes=10):
+      super(ConvNet, self).__init__()
+      self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+      self.layer2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+      self.fc = nn.Linear(7*7*32, num_classes)
+
+   def forward(self, x):
+      out = self.layer1(x)
+      out = self.layer2(out)
+      out = out.reshape(out.size(0), -1)
+      out = self.fc(out)
+      return out
+
+def ddp_setup()  #(rank: int, world_size: int):
+   """
+   Args:
+      rank: Unique ID of each 
+      world_size: Total number of processes
+   """
+   # multi-gpu setup
+   # os.environ['MASTER_ADDR'] = 'your master node ip'
+   # os.environ['MASTER_PORT'] = '8888'
+   # dist.init_process_group(
+   #     backend='nccl',
+   #     init_method='env://',
+   #     world_size=world_size,
+   #     rank=rank
+   # )
+   dist.init_process_group(backend="nccl")
+
+class Trainer:
+   def __init__(
+      self,
+      model: torch.nn.Module,
+      train_data: DataLoader,
+      optimizer: torch.optim.Optimizer,
+      criterion: torch.nn.Module,
+      # gpu_id: int,
+      save_every: int,
+      snapshot_path: str,
+   ) -> None:
+      # self.gpu_id = gpu_id
+      self.local_rank = int(os.environ["LOCAL_RANK"])
+      self.global_rank = int(os.environ["RANK"])
+      self.model = model.to(self.local_rank)
+      self.train_data = train_data
+      self.optimizer = optimizer
+      self.criterion = criterion
+      self.epochs_run = 0
+      self.save_every = save_every
+
+      self.model, self.optimizer = amp.initialize(
+            self.model, self.optimizer, opt_level='O1')
+      if os.path.exists(snapshot_path):
+            print("Loading Snapshot")
+            self._load_snapshot(snapshot_path)
+      self.model = DDP(self.model, device_ids=[self.local_rank])
+
+   def _load_snapshot(self, snapshot_path):
+      """Resume training from previous checkpoint"""
+      snapshot = torch.load(snapshot_path)
+      self.model.load_state_dict(snapshot['model'])
+      self.optimizer.load_state_dict(snapshot['optimizer'])
+      self.epochs_run = snapshot["epochs_resume"]
+      amp.load_state_dict(snapshot['amp'])
+      print(f"Resuming training from snapshot at Epoch {self.epochs_run}")
+
+   def _run_batch(self, source, targets):
+      self.optimizer.zero_grad()
+      output = self.model(source)
+      loss = self.criterion(output, targets)
+      loss.backward()
+      with amp.scale_loss(loss, self.optimizer) as scaled_loss:
+            scaled_loss.backward()
+      self.optimizer.step()
+      return loss.item()
+
+   def _run_epoch(self, epoch: int, total_epochs: int):
+      self.model.train()  
+      for i, (source, targets) in enumerate(self.train_data):
+            source = source.to(self.local_rank)
+            targets = targets.to(self.local_rank)
+            loss = self._run_batch(source, targets)
+            if (i + 1) % 100 == 0 and self.local_rank == 0:
+               print(
+                  f'[GPU{self.global_rank}] Epoch [{epoch + 1}/{total_epochs}], Step [{i + 1}/{len(self.train_data)}], Loss: {loss:.4f}')
+      
+      self.model.eval()
+      with torch.no_grad():
+            for i, (source, targets) in enumerate(self.val_data):
+               source = source.
+               targets = targets.
+               loss = ...
+
+   def _save_snapshot(self, save_dir, epoch, model_seed):
+      path = f"{save_dir}/base_model_seed={model_seed}_epoch={epoch}.pt"
+      torch.save({
+            'model': self.model,  # if saving state_dict, use .module.state_dict()
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'scheduler_state_dict': self.scheduler.state_dict(),
+            'amp': amp.state_dict(),
+            'epochs_resume': self.epochs_run
+      }, path)
+      print(f"Epoch {epoch} | Training snapshot saved at {path}")
+
+   def train(self, total_epochs: int, model_seed: int, save_dir: str):
+      """Training script"""
+      for epoch in range(self.epochs_run, total_epochs):
+            self._run_epoch(epoch, total_epochs)
+            if self.local_rank == 0 and epoch % self.save_every == 0:
+               self._save_snapshot(save_dir, epoch, model_seed)
+
+
+def load_train_params():
+   train_set = MyTrainDataset(2048)
+   model = ConvNet()
+   optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+   criterion = torch.nn.CrossEntropyLoss()
+   return train_set, model, optimizer, criterion
+
+
+def prepare_dataloader(dataset: Dataset, batch_size: int, num_workers: int, sampler: DistributedSampler):
+   return DataLoader(
+      dataset,
+      batch_size=batch_size,
+      pin_memory=True,
+      shuffle=True,
+      num_workers=num_workers,
+      sampler=sampler
+   )
+
+
+def run(args):
+   """Run entire pipeline"""
+   torch.manual_seed(args.seed)
+   # rank = args.nr * args.gpus + gpu
+   # ddp_setup(rank, args.world_size)
+   ddp_setup()
+   dataset, model, optimizer, criterion = load_train_params()
+   # sampler = DistributedSampler(
+   #     dataset, num_replicas=args.world_size, rank=rank)
+   sampler = DistributedSampler(dataset)
+   train_data = prepare_dataloader(
+      dataset, batch_size=32, num_workers=0, sampler=sampler)
+   trainer = Trainer(model, train_data, optimizer,
+                     criterion, args.save_every, args.snapshot_path)
+   trainer.train(args.total_epochs, args.seed, args.save_dir)
+   dist.destroy_process_group()
+
+
+def main():
+   """Entry point
+   
+   to call the script using torchrun (which manages the )
+
+   e.g: 4 GPU per machine, 50 epochs, saving every 10 epoch
+   torchrun \
+   --nproc_per_node=4 \
+   --nnodes=2 \
+   --node_rank=0 \
+   --rdzv_id=456 \
+   --rdzv_backend=c10d \
+   --rdzv_endpoint=HOST_MACHINE:PORT \
+   FILE_NAME.py --epochs=50 --save_every=10 
+
+   nproc_per_node: usually num of GPUs per machine
+   nnodes: num of machines
+   node_rank: ID: 0/1/2/.... for each machine
+   Notes on endpoint: choose endpoint whose machine has high network bandwidth
+   Note: Multi-GPU on single machine is much faster than Multi-node each with single GPU due to bandwidth limit over TCP
+   """
+   parser = argparse.ArgumentParser()
+   # parser.add_argument('-n', '--nodes', default=1,
+   #                     type=int, metavar='N')
+   # parser.add_argument('-g', '--gpus', default=1, type=int,
+   #                     help='number of gpus per node')
+   # parser.add_argument('-nr', '--nr', default=0, type=int,
+   #                     help='ranking within the nodes')
+   parser.add_argument('--epochs', default=2, type=int,
+                        metavar='N',
+                        help='number of total epochs to run')
+   parser.add_argument('-s', '--seed', default=42,
+                        type=int, metavar='N')
+   parser.add_argument('--save_every', default=5, type=int,
+                        help='interval to save the snapshot')
+   parser.add_argument('--save_dir', default='.', type=str,
+                        help='directory to save the snapshot')
+   parser.add_argument('--snapshot_path', default='.', type=str,
+                        help='path of the snapshot to restore training from')
+   args = parser.parse_args()
+   #########################################################
+   args.world_size = args.gpus * \
+      args.nodes if args.gpus >= 0 else torch.cuda.device_count()
+   args.total_epochs = args.epochs
+
+   # mp.spawn(main, nprocs=args.world_size, args=(args,))
+   run(args)
+   #########################################################
+
+
+
+########## POST MORTEM ###################
+"""
+Common Troubleshooting
+1. Check nodes can communicate through **TCP**
+2. Check inbound rules on a security group (on AWS)
+3. export NCCL_DEBUG=INFO to set verbose logs
+4. export NCCL_SOCKET_IFNAME to ensure TCP connection is correct
+
+SLURM work scheduler setup TODO
+
+"""
 ```
-</details>
 
 ## Manage your training process
 
