@@ -24,7 +24,7 @@ Let\'s go through each of the step one by one.
 
 ### Step 5: Packaging and Deployment
 
-Technically speaking, **packaging** a model isn\'t really the right word to describe the process of saving a trained model for usage. When people talk about **packaging** a model, they usually mean storing the trained model somewhere to deploy it for future usage. Thus it is closely related to deployments. Hence, when it comes to saving the model, here's the things to look out for:
+Technically speaking, **packaging** a model isn\'t really the right word to describe the process of saving a trained model for usage. When people talk about **packaging** a model, they usually mean storing the trained model somewhere to deploy it for future usage. Thus it is closely related to deployments. Hence, when it comes to saving the model, here\'s the things to look out for:
 
 1. What platform do you use to store the model: local? cloud? edge?
 2. What metadata do you need?
@@ -32,7 +32,7 @@ Technically speaking, **packaging** a model isn\'t really the right word to desc
    - dependencies (this can be tricky a lot of times)
    - model json files? (example: hugging face models)
 3. how do you do the
-4. what's the size requirement?
+4. what\'s the size requirement?
 5. can we containerize it? (i.e. building an environment easy for deployment and serving)
 6. Is model-versioning done effectively?
 7. Does the saved model work perfectly in the infrastructure? (GPU? Memory? Network?)
@@ -65,7 +65,7 @@ This is where the endpoint becomes crucial, you need to consider several compone
 
 ### Step 7: Monitoring
 
-Don't forget to do logging as it is super important. Make it structured with time stamps and severity levels. Some of the objects for the data and model components you should log include:
+Don\'t forget to do logging as it is super important. Make it structured with time stamps and severity levels. Some of the objects for the data and model components you should log include:
 
 - Data pipeline events,
 - Production data (if possible, include the metadata alongside),

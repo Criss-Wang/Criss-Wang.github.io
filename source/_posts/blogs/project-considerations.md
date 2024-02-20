@@ -14,13 +14,13 @@ toc: true
 
 Welcome to the world of AI and ML engineering! While the realms of research and academia provide a solid foundation, transitioning your knowledge into practical applications demands a comprehensive understanding of the various components and considerations specific to the industry.
 
-In this guide, we'll navigate through crucial aspects you need to address before embarking on a real-world AI/ML project. From data handling to project management and system scalability, we'll delve into the high-level overview and major concerns that accompany the shift from research to production.
+In this guide, we\'ll navigate through crucial aspects you need to address before embarking on a real-world AI/ML project. From data handling to project management and system scalability, we\'ll delve into the high-level overview and major concerns that accompany the shift from research to production.
 
 ## High level overview
 
 ### Project details
 
-When moving from research-based project to a real-world engineering project, the first thing is alwasy to make sure there's impact. The outcome should be beneficial to some stakeholders, or there's no real difference between your work at school and the carefully crafted results from the community's point of view, and your work will become a simple self-absorbed show. Hence consider the following steps before you even start the project:
+When moving from research-based project to a real-world engineering project, the first thing is alwasy to make sure there\'s impact. The outcome should be beneficial to some stakeholders, or there\'s no real difference between your work at school and the carefully crafted results from the community\'s point of view, and your work will become a simple self-absorbed show. Hence consider the following steps before you even start the project:
 
 1. Goals: Clearly Outlining Objectives
    Establishing clear goals is foundational to project success. Define the primary objectives that the project aims to achieve.
@@ -68,7 +68,7 @@ When moving from research-based project to a real-world engineering project, the
    - Balance personalization with privacy considerations.
 
 6. Project Constraints: Identifying Limiting Factors
-   Every project operates within constraints. Identify and understand the constraints that may impact project execution. This include cost, manpower, time, regulation, infrastructure and even locations. Carefully review potential constraints are of paramount importance as you grow the project in the long run, something you won't even plan ahead based on research, where the inherent constraints are already given and fixed.
+   Every project operates within constraints. Identify and understand the constraints that may impact project execution. This include cost, manpower, time, regulation, infrastructure and even locations. Carefully review potential constraints are of paramount importance as you grow the project in the long run, something you won\'t even plan ahead based on research, where the inherent constraints are already given and fixed.
 
 ### Key Components
 
@@ -114,7 +114,7 @@ In general, it is beneficial to consider the following aspects when starting you
      Choosing the right computational resources is essential for executing complex algorithms efficiently. This includes selecting the appropriate hardware, such as Central Processing Units (CPUs) or Graphics Processing Units (GPUs), based on the nature of the computations involved. Specialized accelerators, like Tensor Processing Units (TPUs), can further enhance performance for specific tasks.
 
   2. Scalability: Adapting to Growing Demands
-     Scalability is a critical aspect of infrastructure planning. An effective AI/ML system should be able to handle increasing workloads gracefully. Whether it's accommodating a growing user base, handling larger datasets, or managing more complex models, a scalable infrastructure ensures that your system remains responsive and performs optimally as demands evolve.
+     Scalability is a critical aspect of infrastructure planning. An effective AI/ML system should be able to handle increasing workloads gracefully. Whether it\'s accommodating a growing user base, handling larger datasets, or managing more complex models, a scalable infrastructure ensures that your system remains responsive and performs optimally as demands evolve.
 
   3. Data Storage: Managing the Lifeblood of Intelligence
      Efficient data storage is fundamental to an AI/ML project. The infrastructure must provide reliable and scalable storage solutions for the vast amounts of data that machine learning models rely on. This includes considerations for data retrieval speed, redundancy for fault tolerance, and mechanisms for secure and compliant data handling.
@@ -143,7 +143,7 @@ In general, it is beneficial to consider the following aspects when starting you
      Interactivity in the interface allows users to actively engage with the machine learning system. This can include features such as real-time feedback, interactive visualizations, and responsive elements that facilitate a dynamic and collaborative interaction between users and the AI system.
 
   3. Integration: Cohesiveness in Functionality
-     Seamless integration with existing systems and workflows is essential. The interface should complement the user's existing tools and processes, ensuring a cohesive experience. Compatibility with various devices and screen sizes enhances the versatility of the interface.
+     Seamless integration with existing systems and workflows is essential. The interface should complement the user\'s existing tools and processes, ensuring a cohesive experience. Compatibility with various devices and screen sizes enhances the versatility of the interface.
 
   4. Feedback Mechanisms: Informing and Guiding Users
      Incorporating effective feedback mechanisms is crucial for user understanding and trust. The interface should provide clear feedback on user actions, system responses, and any relevant information. This transparency fosters user confidence in interacting with the machine learning system.
@@ -189,14 +189,14 @@ Transitioning from research-oriented machine learning projects to production-rea
 
 ### Requirements for MLsys
 
-Finally let's talk about when should be considered to gauge the quality of a ML system, the backbone of your real-world project's outcome. Here are five critical requirements for ML systems:
+Finally let\'s talk about when should be considered to gauge the quality of a ML system, the backbone of your real-world project\'s outcome. Here are five critical requirements for ML systems:
 
 1. Scalability:
-   The system's ability to handle an increasing amount of data, workload, or user requests while maintaining performance.
+   The system\'s ability to handle an increasing amount of data, workload, or user requests while maintaining performance.
 
    Considerations:
 
-   - Evaluate the system's scalability under varying workloads and data volumes.
+   - Evaluate the system\'s scalability under varying workloads and data volumes.
    - Assess the capability to efficiently scale both training and inference processes.
    - Consider distributed computing for parallel processing and efficient resource utilization.
 
@@ -221,7 +221,7 @@ Finally let's talk about when should be considered to gauge the quality of a ML 
    - Ensure flexibility in feature engineering and model configurations.
 
 4. Reliability:
-   The consistency and accuracy of the ML system's predictions or outcomes over time.
+   The consistency and accuracy of the ML system\'s predictions or outcomes over time.
 
    Considerations:
 
