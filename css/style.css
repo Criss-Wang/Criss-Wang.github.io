@@ -10858,6 +10858,7 @@ article.article .article-more {
 article.article .content {
   word-wrap: break-word;
   font-size: 1.1rem;
+  font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
 }
 article.article .content h1 {
   font-size: 1.75em;

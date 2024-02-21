@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="FSDP What is in the GPU memory (x params, FP16) Params: 2x (fp16 with 2 bytes) Gradients: 2x Optimizer (AdamW) Param copy: 4x (float32) Momentum: 4x Variance: 4x     How DDP works NCCL: multi-GPU, mul"><meta property="og:type" content="blog"><meta property="og:title" content="Criss Wang&#039;s Log Book"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/temp/distributed-training/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="FSDP What is in the GPU memory (x params, FP16) Params: 2x (fp16 with 2 bytes) Gradients: 2x Optimizer (AdamW) Param copy: 4x (float32) Momentum: 4x Variance: 4x     How DDP works NCCL: multi-GPU, mul"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/img/og_image.png"><meta property="article:published_time" content="2024-02-21T03:55:10.710Z"><meta property="article:modified_time" content="2024-02-21T03:55:10.710Z"><meta property="article:author" content="Zhenlin Wang"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/temp/distributed-training/"},"headline":"Criss Wang's Log Book","image":["https://criss-wang.github.io/img/og_image.png"],"datePublished":"2024-02-21T03:55:10.710Z","dateModified":"2024-02-21T03:55:10.710Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"FSDP What is in the GPU memory (x params, FP16) Params: 2x (fp16 with 2 bytes) Gradients: 2x Optimizer (AdamW) Param copy: 4x (float32) Momentum: 4x Variance: 4x     How DDP works NCCL: multi-GPU, mul"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/temp/distributed-training/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs_SWE">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal"> </h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-02-21T03:55:10.710Z" title="2024-02-21T03:55:10.710Z">2024-02-20</time></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h2 id="FSDP"><a href="#FSDP" class="headerlink" title="FSDP"></a>FSDP</h2><ol>
+<li>What is in the GPU memory (x params, FP16)<ol>
+<li>Params: 2x (fp16 with 2 bytes)</li>
+<li>Gradients: 2x</li>
+<li>Optimizer (AdamW)<ul>
+<li>Param copy: 4x (float32)</li>
+<li>Momentum: 4x</li>
+<li>Variance: 4x</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>How DDP works<ul>
+<li>NCCL: multi-GPU, multi-node <strong>communication</strong> primitives. all-gather, all-reduce, broadcast, reduce-scatter, reduce routines, point-to-point send&#x2F;receive. High bandwidth, low latency on PCIe and NVLink interconnects</li>
+<li>All GPUs share same initial weights. Aggregate all gradients in different GPUs and update the weight collectively.</li>
+<li>Update optimizer state and weights after AllReduce</li>
+</ul>
+</li>
+<li>Other methods:<ol>
+<li>Model Parallelism (split horizontally -&gt; Inefficient: GPU 2 idle if layer 2 is not run)<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">model_parallel</span>(nn.Module):</span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">		<span class="built_in">super</span>().__init__()</span><br><span class="line">		self.layer_1 = nn.Sequential(...)</span><br><span class="line">		self.layer_2 = nn.Sequential(...)</span><br><span class="line">		self.layer_1.cuda(<span class="number">0</span>)</span><br><span class="line">		self.layer_2.cude(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">		x = x.cuda(<span class="number">0</span>)</span><br><span class="line">		x = self.layer_1(x)</span><br><span class="line">		x = x.cuda(<span class="number">1</span>)</span><br><span class="line">		x = self.layer_2(x)</span><br><span class="line">		x = ...</span><br><span class="line">		<span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></li>
+<li>Tensor parallelism (split vertically)</li>
+<li>Pipeline Parallelism (Mixed data and model parallelism, involves scheduling of data flow)</li>
+</ol>
+</li>
+<li>How FSDP works<ol>
+<li>FSDP unit (vertical splitting), can be:<ul>
+<li>A layer splitted</li>
+<li>A stage splitted</li>
+<li>A group of layers splitted</li>
+</ul>
+</li>
+<li>Sharding<ul>
+<li>Storing the FSDP unit on <code>FlatParameter</code></li>
+<li>Split <code>FlatParameter</code> on multiple nodes (after zero padding for divisible property)</li>
+</ul>
+</li>
+<li>All-Gather<ul>
+<li>performed by NCCL</li>
+<li>gather all parts and sync across all nodes</li>
+<li>Done before both forward and backwards</li>
+<li>discard peer parts after forward&#x2F;backward</li>
+</ul>
+</li>
+<li>Reduce-scatter<ul>
+<li>performed via NCCL</li>
+<li>Each node gets part of the result of gradient (backward only)</li>
+<li>Note that All-Reduce is not used coz it broadcast same results to all nodes</li>
+<li>E.g. Each node <code>i</code> has all gradients <code>G_i1, G_i2, ..., G_in</code>, after reduce-scatter, each node will have gradient redistributed, with node <code>i</code> getting <code>sum of G_ki</code>, where k spans from 1 to n</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Reason to use&#x2F;not to use FSDP<ol>
+<li>When to use<ul>
+<li>Model size is too large (not data size)</li>
+<li>More communication between GPUs</li>
+<li>Hence trade memory for speed: more GPU memory cost due to communication, however, communication overhead reduced via NCCL acceleration</li>
+<li>If want to trade speed for memory, see <strong>activation checkpointing</strong></li>
+</ul>
+</li>
+<li>When not to use<ul>
+<li>For models &lt; 100 million params, consider activation-checkpointing and reversible layers</li>
+<li>Recommend to use BFloat16 instead of Float16 (Float16 requires ShardedGradScaler)</li>
+<li>Mixed Precision Training Concern (Package compatibility)</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>PyTorch Implementation</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.distributed.fsdp <span class="keyword">import</span> (</span><br><span class="line">   FullyShardedDataParallel,</span><br><span class="line">   CPUOffload,</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> torch.distributed.fsdp.wrap <span class="keyword">import</span> (</span><br><span class="line">   default_auto_wrap_policy,</span><br><span class="line">   enable_wrap,</span><br><span class="line">   wrap</span><br><span class="line">)</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">model</span>(nn.Module):</span><br><span class="line">   <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">       <span class="built_in">super</span>().__init__()</span><br><span class="line">       self.layer1 = nn.Linear(<span class="number">8</span>, <span class="number">4</span>)</span><br><span class="line">       self.layer2 = nn.Linear(<span class="number">4</span>, <span class="number">16</span>)</span><br><span class="line">       self.layer3 = nn.Linear(<span class="number">16</span>, <span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">model = DistributedDataParallel(model())</span><br><span class="line">fsdp_model = FullyShardedDataParallel(</span><br><span class="line">   model(),</span><br><span class="line">   fsdp_auto_wrap_policy=default_auto_wrap_policy,</span><br><span class="line">   cpu_offload=CPUOffload(offload_params=<span class="literal">True</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Custom wrap</span></span><br><span class="line">wrapper_kwargs = <span class="type">Dict</span>(cpu_offload=CPUOffload(offload_params=<span class="literal">True</span>))</span><br><span class="line"><span class="keyword">with</span> enable_wrap(wrapper_cls=FullyShardedDataParallel, **wrapper_kwargs):</span><br><span class="line">   fsdp_model = wrap(model())</span><br></pre></td></tr></table></figure>
+
+<h2 id="Distributed-Training-Common-Errors"><a href="#Distributed-Training-Common-Errors" class="headerlink" title="Distributed Training Common Errors"></a>Distributed Training Common Errors</h2><h4 id="Not-pipelining"><a href="#Not-pipelining" class="headerlink" title="Not pipelining"></a>Not pipelining</h4><ul>
+<li>Pipeline Parallelism is always something to include. Notice the use of ZeRO-3 also uses pipeline parallelism</li>
+</ul>
+<h4 id="Not-balancing-pipeline-stages"><a href="#Not-balancing-pipeline-stages" class="headerlink" title="Not balancing pipeline stages"></a>Not balancing pipeline stages</h4><ul>
+<li>There will be some brief periods where either a machine is idle and waiting on the next minibatch from the previous machine or takes longer than other machines to execute its computation, thus slowing down the pipeline.</li>
+<li>You should ideally construct your pipeline such that each machine does as close to the same amount of computation as possible. This means timing how long it takes data to get through different layers in the model, timing how long forward and backward propagation takes for each model partition, and ensuring roughly equivalent data sizes across mini-batches. This is critical for optimizing pipeline efficiency.</li>
+<li>To achieve this, setting up profiler like PyTorch Profiler is critical for evaluation of computations done during model training</li>
+</ul>
+<h4 id="Weight-staleness"><a href="#Weight-staleness" class="headerlink" title="Weight staleness"></a>Weight staleness</h4><ul>
+<li>When model training is pipelined across multiple machines, there is a delay that happens between when the forward computation on data occurs and when the gradients based on that computation are backpropagated to update the model weights. As a result, forward propagation are calculated using weights that aren&#39;t updated with the latest gradients.</li>
+<li>Solution: <strong>weight stashing</strong><br>A system “maintains multiple versions of a model’s weights, one for each minibatch.” After the completion of each forward pass, the system can store a model’s weights as part of the state associated with that minibatch. When the time comes for backpropagation, the weights associated with that minibatch are retrieved from the stash and used for the gradient computation. This ensures that the same version of weights are used for the forward and backward pass over a single minibatch of data within a pipelined stage, and statistical convergence is improved.</li>
+</ul>
+<h4 id="Driver-and-library-inconsistencies-between-machines"><a href="#Driver-and-library-inconsistencies-between-machines" class="headerlink" title="Driver and library inconsistencies between machines"></a>Driver and library inconsistencies between machines</h4><ul>
+<li>Containerization &#x2F; Virtualization using tools like Docker solves the problem</li>
+</ul>
+<h4 id="Wrong-type-of-Optimizer-Update"><a href="#Wrong-type-of-Optimizer-Update" class="headerlink" title="Wrong type of Optimizer Update"></a>Wrong type of Optimizer Update</h4><ul>
+<li>Example: Synchronous vs Asynchronous SGD</li>
+<li>Asynchronous SGD (<a target="_blank" rel="noopener" href="https://people.eecs.berkeley.edu/~brecht/papers/hogwildTR.pdf">HogWild</a> as a popular choice) which showed that SGD could be run in parallel, without locks, and without too much effect on algorithm convergence. Asynchronous SGD allows weight updates to proceed without each machine waiting for the other to send their gradients.</li>
+</ul>
+<h4 id="Network-issues-firewalls-ports-and-communication-errors"><a href="#Network-issues-firewalls-ports-and-communication-errors" class="headerlink" title="Network issues, firewalls, ports, and communication errors"></a><strong>Network issues, firewalls, ports, and communication errors</strong></h4><ul>
+<li>Solutions:<ul>
+<li>Relying less on network for communication</li>
+<li>If necessary to communicate, a process must specify the IP address and port number across which to transmit this information</li>
+<li>Backup Frequently</li>
+<li>Better logging</li>
+</ul>
+</li>
+</ul>
+<h4 id="Slow-data-transmission"><a href="#Slow-data-transmission" class="headerlink" title="Slow data transmission"></a>Slow data transmission</h4><ul>
+<li>Solutions:<ul>
+<li>Avoid making RPC calls</li>
+<li>Try higher bandwidth interconnects like NVLink and Infini-band</li>
+<li>FP32 -&gt; FP16 &#x2F; Mixed precision</li>
+<li>transmit a subset of gradients as soon as they are calculated (i.e. sending the gradients of a single layer) while at the same time, backpropagation is being performed on subsequent layers.</li>
+</ul>
+</li>
+</ul>
+<p>Reference: <a target="_blank" rel="noopener" href="https://neptune.ai/blog/distributed-training-errors">https://neptune.ai/blog/distributed-training-errors</a></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p><a href="https://criss-wang.github.io/post/blogs/temp/distributed-training/">https://criss-wang.github.io/post/blogs/temp/distributed-training/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-02-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-02-20</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/temp/fine-tuning-in-llm/"><i class="level-item fas fa-chevron-left"></i><span class="level-item"> </span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/ml-training/"><span class="level-item">DL Training: An in-depth discussion</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">66</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">37</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">39</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MLOps/"><span class="tag">MLOps</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div></div></div></div></div><!--!--></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

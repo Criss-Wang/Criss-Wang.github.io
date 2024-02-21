@@ -412,7 +412,7 @@ button,
 input,
 select,
 textarea {
-  font-family: 'Oxanium', Ubuntu, Roboto, 'Open Sans', 'Microsoft YaHei', sans-serif;
+  font-family: Georgia serif;
 }
 code,
 pre {
@@ -1063,13 +1063,13 @@ a.has-text-grey-lightest:focus {
   font-weight: 700 !important;
 }
 .is-family-primary {
-  font-family: 'Oxanium', Ubuntu, Roboto, 'Open Sans', 'Microsoft YaHei', sans-serif !important;
+  font-family: Georgia serif !important;
 }
 .is-family-secondary {
-  font-family: 'Oxanium', Ubuntu, Roboto, 'Open Sans', 'Microsoft YaHei', sans-serif !important;
+  font-family: Georgia serif !important;
 }
 .is-family-sans-serif {
-  font-family: 'Oxanium', Ubuntu, Roboto, 'Open Sans', 'Microsoft YaHei', sans-serif !important;
+  font-family: Georgia serif !important;
 }
 .is-family-monospace {
   font-family: monospace !important;
@@ -10859,6 +10859,7 @@ article.article .article-more {
 article.article .content {
   word-wrap: break-word;
   font-size: 1.1rem;
+  font-family: BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
 }
 article.article .content h1 {
   font-size: 1.75em;
@@ -11657,7 +11658,7 @@ figure.highlight.foldable div.level-left {
 .cc-window,
 .cc-revoke {
   font-size: 1.1rem !important;
-  font-family: 'Oxanium', Ubuntu, Roboto, 'Open Sans', 'Microsoft YaHei', sans-serif !important;
+  font-family: Georgia serif !important;
 }
 .cc-window {
   color: #cdcdcd !important;
