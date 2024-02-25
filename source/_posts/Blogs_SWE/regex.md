@@ -5,40 +5,44 @@ date: 2020/06/13
 updated: 2021/06/19
 categories:
   - Blogs
-tags: 
+tags:
   - Software Engineering
 layout: post
 mathjax: true
 toc: true
 ---
+
 ### Introduction
+
 Recently I\'ve been working on software developement projects and learning some NLP algorithms. Then regex came to my attention as a powerful string processing tool. It is so useful that I have to utilize the techniques almost everyday in my learning and work. Nonetheless, I think I might have a chance of leaving it to rot after some time. To maintain good memory of the syntax, I decided to create this blog, to both teach my future self and all of you interested readers. Without further a do, let\'s begin.
 
 ### Regex
+
 - Full name: regular expression
 - Create/search for a specific pattern in a string
 - Very useful for text editing/file searching/phrase grouping/etc
 - terminalogies
-    - `raw string`: a raw string in python is just string prefixed with \'r\', it tells python not to handle back slashes in any special way
-    - `MetaCharacters`: symbols in the search pattern to create variated pattern
+  - `raw string`: a raw string in python is just string prefixed with \'r\', it tells python not to handle back slashes in any special way
+  - `MetaCharacters`: symbols in the search pattern to create variated pattern
 - Useful website: [1] [Regex101](https://regex101.com)<br>
 - In the following, I\'ll outline all keywords used in the expression
 
 #### 1. Special sequences with backslash
+
 - `\d`: digit(0-9)
 - `\D`: Not a Digit(0-9)
-- `\w`: Word character (a-z, A-Z, 0-9 _)
+- `\w`: Word character (a-z, A-Z, 0-9 \_)
 - `\W`: Not a word character
 - `\s`: Whitespace(space, tab, blank line)
 
-
 - `\b`: Word boundary
 - `\B`: Not a word boundary
-- `\A`: Start of string, __alternative representation__: `^`
-- `\Z`: End of string, __alternative representation__: `$`
+- `\A`: Start of string, **alternative representation**: `^`
+- `\Z`: End of string, **alternative representation**: `$`
 - `\g<id>`: Matches a previously defined group
 
 #### 2. MetaCharacters:
+
 - `\`: Escape special characters
 - `.`: Matches any character
 - `$`: Matches end of string
@@ -49,6 +53,7 @@ Recently I\'ve been working on software developement projects and learning some 
 - `()`: Group
 
 #### 3. Quantifiers:
+
 - `*`: 0 or more
 - `+`: 1 or more
 - `?`: 0 or 1
@@ -68,6 +73,7 @@ print(r'\tTab')
 ```
 
 Let\'s try out some regex usage by initializing the following strings
+
 ```python
 import re
 
@@ -113,7 +119,9 @@ http://baidu.com
 sentence = 'Start a sentence and then bring it to an end'
 
 ```
+
 Next let\'s apply 2 functions <kbd>test</kbd> and <kbd>test2</kbd> that we use to apply regex on `text_to_search` and `sentence` respectively:
+
 ```python
 def test(s):
     pattern = re.compile(s)
@@ -133,6 +141,7 @@ def test2(s):
 ```
 
 Then we can try the following code and play around with it
+
 ```python
 # use of \
 test(r'ms\.com')
@@ -212,7 +221,8 @@ test(r'\d{3}[-.]\d{3}[-.]\d{4}')
 ```
 
 ### Substitution
-To substitute existing characters in a string, we need to specify a pattern directly, and we then use the `.sub`  method.
+
+To substitute existing characters in a string, we need to specify a pattern directly, and we then use the `.sub` method.
 
 ```python
 pattern = re.compile(r'https?://(www\.)?(\w+)(\.\w+)')
@@ -227,7 +237,7 @@ pattern = re.compile(r'(\w+)-(\w+)-(\w+)')
 matches1 = pattern.findall(text_to_search)
 for match in matches1:
     print(match)
-    
+
 pattern2 = re.compile(r'\d{3}-\d{3}-\d{4}')
 matches2 = pattern2.findall(text_to_search)
 for match in matches2:
