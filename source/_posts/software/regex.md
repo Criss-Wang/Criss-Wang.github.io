@@ -4,7 +4,7 @@ excerpt: "Learn to process string operations in an efficient way"
 date: 2020/06/13
 updated: 2021/06/19
 categories:
-  - Blogs
+  - Software
 tags:
   - Software Engineering
 layout: post
