@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Deep Learning System Design - A Checklist (Part I) - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:type" content="blog"><meta property="og:title" content="Deep Learning System Design - A Checklist (Part I)"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/mlops/deep-learning-system-design-1/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/img/og_image.png"><meta property="article:published_time" content="2024-02-09T05:00:00.000Z"><meta property="article:modified_time" content="2024-02-25T21:12:09.388Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Deep Learning"><meta property="article:tag" content="System Design"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/mlops/deep-learning-system-design-1/"},"headline":"Deep Learning System Design - A Checklist (Part I)","image":["https://criss-wang.github.io/img/og_image.png"],"datePublished":"2024-02-09T05:00:00.000Z","dateModified":"2024-02-25T21:12:09.388Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"An Overview of how to design a full-stack Deep Learning System"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/mlops/deep-learning-system-design-1/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Software">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">Deep Learning System Design - A Checklist (Part I)</h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-02-09T05:00:00.000Z" title="2024-02-09T05:00:00.000Z">2024-02-09</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>After reviewing many blog posts and working on several DL-based projects myself, I've compiled a list of must-do's for a robust, complete Deep Learning System. In general, when we consider a DL system to be “complete”, it needs to have the following components:</p>
+<ol>
+<li>Data</li>
+<li>Modeling</li>
+<li>Training &amp; Optimization</li>
+<li>Experiments</li>
+<li>Packaging and Deployment</li>
+<li>Serving</li>
+<li>Monitoring</li>
+</ol>
+<p>I'll walk through each step and provide checklists for each of them, detailing rationales and provide examples wherever possible.</p>
+<h3 id="Step-1-Data"><a href="#Step-1-Data" class="headerlink" title="Step 1: Data"></a>Step 1: Data</h3><h4 id="Data-Source"><a href="#Data-Source" class="headerlink" title="Data Source"></a>Data Source</h4><ul>
+<li>What is the availability of data?</li>
+<li>What is the size/scale of data?</li>
+<li>Do we have user feedback data?</li>
+<li>Do we use system/operation data (logs? API req/resp?)</li>
+<li>Are there privacy issues?</li>
+<li>A note about logs: Store logs for as long as they are useful, and can discard them when they are no longer relevant for you to debug your current system</li>
+</ul>
+<h4 id="Data-ETL"><a href="#Data-ETL" class="headerlink" title="Data ETL"></a>Data ETL</h4><ul>
+<li>What is the data size before/after transformation, this often involves granularity</li>
+<li>What is the data format?<ul>
+<li>JSON</li>
+<li>CSV (Row-format)</li>
+<li>Parquet (Column format, Hadoop, AWS Redshift)</li>
+<li>Row-major vs Column-major<ul>
+<li>Overall, row-major formats are better when you have to do a lot of writes, whereas column-major ones are better when you have to do a lot of column-based reads.</li>
+<li>Note: <code>Pandas</code> is column-major, <code>NumPy</code> is row-major by default (if not specified). Access <code>Pandas DataFrame</code> rows are faster after we do <code>df.to_numpy()</code></li>
+</ul>
+</li>
+<li>Model related:<ul>
+<li>Metadata</li>
+<li>Training data</li>
+<li>Monitoring data (sometimes for iterative deployment with model updates)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Where is the data stored (Cloud? Local? Edge?)<ul>
+<li>Most of the time, it is cloud. Afterall, it costs little for school-level project to store data in AWS S3.</li>
+<li>Consider spliting app-related dat from model-related data (e.g. WandB vs MongoDB)</li>
+</ul>
+</li>
+<li>Processing<ul>
+<li>Recall <strong>ACID</strong> and <strong>BASE</strong></li>
+<li>Tranactional: OLTP<ol>
+<li>low latency (often for streaming service)</li>
+<li>high availability</li>
+<li>transaction won't go through if system cannot process it</li>
+<li>Often row-major</li>
+<li>Eventual consistency</li>
+</ol>
+</li>
+<li>Analytical: OLAP<ol>
+<li>Tolerant to higher query latency (often require trasnformation)</li>
+<li>less available: can afford some downtime</li>
+<li>delayed operation, but will go through during system overload</li>
+<li>Often uses a columnar storage format for better query performance.</li>
+<li>Strong consistency</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="Data-Routine"><a href="#Data-Routine" class="headerlink" title="Data Routine"></a>Data Routine</h4><ul>
+<li>ETL daily routine</li>
+<li>Example: using Airflow</li>
+</ul>
+<h4 id="Data-Quality-amp-Data-Validation"><a href="#Data-Quality-amp-Data-Validation" class="headerlink" title="Data Quality & Data Validation"></a>Data Quality &amp; Data Validation</h4><ul>
+<li>Are the feature information complete? Any missing data?</li>
+<li>Is the training/testing data fully labeled? (can we use self-supervised to do ML-based annotation?)</li>
+<li>Are there data drifts? Are there bias in the data? Packages to detect them?</li>
+<li>Routine to validate data?</li>
+<li>Example: use <code>pandera</code> package</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandera <span class="keyword">as</span> pa</span><br><span class="line"><span class="keyword">from</span> azureml.core <span class="keyword">import</span> Run</span><br><span class="line"></span><br><span class="line">run = Run.get_context(allow_offline=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> run.<span class="built_in">id</span>.startswith(<span class="string">"OfflineRun"</span>):</span><br><span class="line">    <span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">    <span class="keyword">from</span> azureml.core.dataset <span class="keyword">import</span> Dataset</span><br><span class="line">    <span class="keyword">from</span> azureml.core.workspace <span class="keyword">import</span> Workspace</span><br><span class="line">    <span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv</span><br><span class="line"></span><br><span class="line">    load_dotenv()</span><br><span class="line"></span><br><span class="line">    ws = Workspace.from_config(path=os.getenv(<span class="string">"AML_CONFIG_PATH"</span>))</span><br><span class="line"></span><br><span class="line">    liko_data = Dataset.get_by_name(<span class="string">"liko_data"</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    liko_data = run.input_datasets[<span class="string">"liko_data"</span>]</span><br><span class="line"></span><br><span class="line">df = liko_data.to_pandas_dataframe()</span><br><span class="line"></span><br><span class="line"><span class="comment"># ---------------------------------</span></span><br><span class="line"><span class="comment"># Include code to prepare data here</span></span><br><span class="line"><span class="comment"># ---------------------------------</span></span><br><span class="line"></span><br><span class="line">liko_data_schema = pa.DataFrameSchema({</span><br><span class="line">    <span class="string">"Id"</span>: pa.Column(pa.Int, nullable=<span class="literal">False</span>),</span><br><span class="line">    <span class="string">"AccountNo"</span>: pa.Column(pa.Bool, nullable=<span class="literal">False</span>),</span><br><span class="line">    <span class="string">"BVN"</span>: pa.Column(pa.Bool, nullable=<span class="literal">True</span>, required=<span class="literal">False</span>),</span><br><span class="line">    <span class="string">"IdentificationType"</span>: pa.Column(pa.String checks=pa.Check.isin([</span><br><span class="line">        <span class="string">"NIN"</span>, <span class="string">"Passport"</span>, <span class="string">"Driver's license"</span></span><br><span class="line">    ]),</span><br><span class="line">    <span class="string">"Nationality"</span>: pa.Column(pa.String, pa.Check.isin([</span><br><span class="line">        <span class="string">"NG"</span>, <span class="string">"GH"</span>, <span class="string">"UG"</span>, <span class="string">"SA"</span></span><br><span class="line">    ]),</span><br><span class="line">    <span class="string">"DateOfBirth"</span>: pa.Column(</span><br><span class="line">        pa.DateTime,</span><br><span class="line">        nullable=<span class="literal">True</span>,</span><br><span class="line">        checks=pa.Check.less_than_or_equal_to(<span class="string">'2000-01-01'</span>)</span><br><span class="line">    ),</span><br><span class="line">    <span class="string">"*_Risk"</span>: pa.Column(</span><br><span class="line">        pa.Float,</span><br><span class="line">        coerce=<span class="literal">True</span>,</span><br><span class="line">        regex=<span class="literal">True</span></span><br><span class="line">    )</span><br><span class="line">}, ordered=<span class="literal">True</span>, strict=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">run.log_table(<span class="string">"liko_data_schema"</span>, liko_data_schema)</span><br><span class="line">run.parent.log_table(<span class="string">"liko_data_schema"</span>, liko_data_schema)</span><br><span class="line"></span><br><span class="line"><span class="comment"># -----------------------------------------------</span></span><br><span class="line"><span class="comment"># Include code to save dataframe to output folder</span></span><br><span class="line"><span class="comment"># -----------------------------------------------</span></span><br><span class="line"></span><br><span class="line"><span class="comment">##### Downstream task</span></span><br><span class="line">liko_data_schema.validate(data_sample)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Step-2-Modeling"><a href="#Step-2-Modeling" class="headerlink" title="Step 2: Modeling"></a>Step 2: Modeling</h3><h4 id="Model-selection"><a href="#Model-selection" class="headerlink" title="Model selection"></a>Model selection</h4><ul>
+<li>Start with model suitable for the task -&gt; task categorization<ol>
+<li>with/without label/partial label</li>
+<li>numeric/categorical output</li>
+<li>generation/prediction (for generation you need to learn the latent space)</li>
+</ol>
+</li>
+<li>Baseline selection<ol>
+<li>Random Baseline</li>
+<li>Human Heuristic</li>
+<li>Simplest ML model</li>
+</ol>
+</li>
+</ul>
+<h4 id="Metric-Selection"><a href="#Metric-Selection" class="headerlink" title="Metric Selection"></a>Metric Selection</h4><ul>
+<li><p>What is the task type</p>
+  <details>
+    <summary>Classification Metrics: Binary Classification</summary>
+    <ul>
+        <li>Accuracy</li>
+        <li>Precision</li>
+        <li>Recall</li>
+        <li>F1 Score</li>
+        <li>Area Under the Receiver Operating Characteristic curve (AUC-ROC)</li>
+        <li>Area Under the Precision-Recall curve (AUC-PR)</li>
+        <li>True Positive Rate (Sensitivity or Recall)</li>
+        <li>True Negative Rate (Specificity)</li>
+        <li>False Positive Rate</li>
+        <li>False Negative Rate</li>
+    </ul>
+</details>
+
+  <details>
+      <summary>Classification Metrics: Multi-Class Classification</summary>
+      <ul>
+          <li>Micro/Macro/Average Precision</li>
+          <li>Micro/Macro/Average Recall</li>
+          <li>Micro/Macro/Average F1 Score</li>
+          <li>Confusion Matrix</li>
+          <li>Multi-class Log Loss</li>
+          <li>Cohen\'s Kappa</li>
+          <li>Jaccard Similarity Score</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Regression Metrics</summary>
+      <ul>
+          <li>Mean Squared Error (MSE)</li>
+          <li>Root Mean Squared Error (RMSE)</li>
+          <li>Mean Absolute Error (MAE)</li>
+          <li>R-squared (Coefficient of Determination)</li>
+          <li>Mean Squared Logarithmic Error (MSLE)</li>
+          <li>Mean Absolute Percentage Error (MAPE)</li>
+          <li>Huber Loss</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Clustering Metrics</summary>
+      <ul>
+          <li>Silhouette Score</li>
+          <li>Davies-Bouldin Index</li>
+          <li>Calinski-Harabasz Index</li>
+          <li>Inertia (within-cluster sum of squares)</li>
+          <li>Adjusted Rand Index</li>
+          <li>Normalized Mutual Information (NMI)</li>
+          <li>Homogeneity, Completeness, and V-Measure</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Anomaly Detection Metrics</summary>
+      <ul>
+          <li>Precision at a given recall</li>
+          <li>Area Under the Precision-Recall curve (AUC-PR)</li>
+          <li>F1 Score</li>
+          <li>Receiver Operating Characteristic curve (ROC)</li>
+          <li>Area Under the Receiver Operating Characteristic curve (AUC-ROC)</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Natural Language Processing (NLP) Metrics</summary>
+      <ul>
+          <li>BLEU Score</li>
+          <li>ROUGE Score</li>
+          <li>METEOR Score</li>
+          <li>CIDEr Score</li>
+          <li>Perplexity</li>
+          <li>Accuracy, Precision, Recall for NER tasks</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Ranking Metrics</summary>
+      <ul>
+          <li>Mean Reciprocal Rank (MRR)</li>
+          <li>Normalized Discounted Cumulative Gain (NDCG)</li>
+          <li>Mean Average Precision</li>
+          <li>Precision at K</li>
+          <li>Recall at K</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Recommender System Metrics</summary>
+      <ul>
+          <li>Precision at K</li>
+          <li>Recall at K</li>
+          <li>Mean Average Precision (MAP)</li>
+          <li>Bayesian Personalized Ranking (BPR)</li>
+          <li>Root Mean Squared Error (RMSE) for collaborative filtering</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Image Segmentation Metrics</summary>
+      <ul>
+          <li>Intersection over Union (IoU)</li>
+          <li>Dice Coefficient</li>
+          <li>Pixel Accuracy</li>
+          <li>Mean Intersection over Union (mIoU)</li>
+          <li>F1 Score</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Time Series Forecasting Metrics</summary>
+      <ul>
+          <li>Mean Absolute Error (MAE)</li>
+          <li>Mean Squared Error (MSE)</li>
+          <li>Root Mean Squared Error (RMSE)</li>
+          <li>Mean Absolute Percentage Error (MAPE)</li>
+          <li>Symmetric Mean Absolute Percentage Error (SMAPE)</li>
+          <li>Mean Directional Accuracy (MDA)</li>
+      </ul>
+  </details>
+
+  <details>
+      <summary>Reinforcement Learning Metrics</summary>
+      <ul>
+          <li>Average Reward</li>
+          <li>Discounted Sum of Rewards</li>
+          <li>Entropy of Policy</li>
+          <li>Exploration-Exploitation Tradeoff Metrics</li>
+      </ul>
+  </details>
+</li>
+<li><p>What is the business objective</p>
+</li>
+<li><p>Imbalance and Cost Sensitivtiy</p>
+</li>
+<li><p>Threshold Selection</p>
+</li>
+<li><p>Data Type</p>
+</li>
+<li><p>Interpretability</p>
+</li>
+<li><p>Robustness</p>
+</li>
+</ul>
+<h4 id="IMPT-Evaluation-methods-for-Model-comparison-amp-Model-quality-control"><a href="#IMPT-Evaluation-methods-for-Model-comparison-amp-Model-quality-control" class="headerlink" title="(IMPT!) Evaluation methods for Model comparison & Model quality control"></a>(IMPT!) Evaluation methods for Model comparison &amp; Model quality control</h4><ol>
+<li>When drawing conclusion about model performance, consider <strong>Students t-test</strong></li>
+<li>Perturbation test (corruption, adversarial attack)</li>
+<li>Invariance test (Bias removal)</li>
+<li>Directional Expectation test (Common sense directions. E.g.: rainy season shouldn't have much higher temperature than dry season)</li>
+<li>Model calibration (when standalone probability in the output matters) <a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1_kxf0xRAushBEepKh57mHubWCkVuS37iAqwmJcYFoJE/edit">see page 10</a></li>
+<li>Confidence Evaluation (usefulness threshold for each individual prediction)</li>
+<li>Slice-based Evaluation (model performance on subgroups)</li>
+</ol>
+<h3 id="Step-3-Training-amp-Optimization"><a href="#Step-3-Training-amp-Optimization" class="headerlink" title="Step 3: Training & Optimization"></a>Step 3: Training &amp; Optimization</h3><ul>
+<li>On what platform is the model trained?</li>
+<li>Do we use distribtued training?</li>
+<li>What are the potential issues<ol>
+<li>Hardware (GPU memory, inter-GPU communication speed)</li>
+<li>Overfitting/underfitting</li>
+<li>Concept Drift</li>
+<li>training stability (less fluctuations)</li>
+<li>dead neuron</li>
+<li>Local minima</li>
+<li>vanishing/exploding gradients</li>
+</ol>
+</li>
+<li>How to do debugging<ol>
+<li>Start simple and gradually add more components</li>
+<li>(*)Overfit a single batch: If model can't overfit a small amount of data, there's something wrong with your implementation.</li>
+<li>Set seed properly</li>
+</ol>
+</li>
+<li>Is hyperparameter tuning needed? Setup routine for tuning?</li>
+<li>How to optimize the training to make it feasible/efficient/fault tolerant?<ol>
+<li>Mixed Precision</li>
+<li>Quantization</li>
+<li>FSDP/DDP/Tensor/Model/Pipeline</li>
+<li>Checkpointing</li>
+<li>Accumulation</li>
+<li>Knowledge Distillation</li>
+<li>PEFT? (LoRA, Prefix Tuning)</li>
+</ol>
+</li>
+<li>What optimizer do we use? its scheduler?</li>
+<li>What loss do we use?<ul>
+<li>Most of the time it is just same as metrics</li>
+<li>other scenarios include:<ul>
+<li>Reconstruction loss: mean squared error (MSE) for continuous data or binary cross-entropy for binary data</li>
+<li>KL Divergence</li>
+<li>Contrastive Loss: Encourages similarity between augmented versions of the same sample and dissimilarity between different samples. (Siamese Networks / Triplet Loss / SimCLR / Contrastive Divergence Loss (restricted boltzmann machine))</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Step-4-Experiments"><a href="#Step-4-Experiments" class="headerlink" title="Step 4: Experiments"></a>Step 4: Experiments</h3><p>Experiment tracking are important, especially when the scale of training is large, and teamwork is involved. There are a lot of tracking tools available out there. <code>kubeflow</code>, <code>mlflow</code>, <code>wandb</code>, <code>neptune.ai</code>… you name it. When using these tools, what's critical is to consider things to keep track of.</p>
+<h4 id="Must-have-39-s"><a href="#Must-have-39-s" class="headerlink" title="Must-have's"></a>Must-have's</h4><ul>
+<li><strong>Code</strong>:<ul>
+<li>Preprocessing + training + evaluation scripts,</li>
+<li>Notebooks for feature engineering</li>
+<li>Other util codes</li>
+</ul>
+</li>
+<li><strong>Environment</strong>:<ul>
+<li>Save the environment configuration files like <code>Dockerfile</code> (Docker), <code>requirements.txt</code> (pip), <code>pyproject.toml</code> (e.g., hatch and poetry), or <code>conda.yml</code> (conda).</li>
+<li>(IMPT) Save Docker images on Docker Hub or your own container repository is always a good practice before running experiment</li>
+</ul>
+</li>
+<li><strong>Data</strong>:<ul>
+<li>Saving data versions (as a hash or locations of immutable data resources)</li>
+<li>You can also use modern data versioning tools like DVC (and save the .dvc files to your experiment tracking tool).</li>
+</ul>
+</li>
+<li><strong>Parameters</strong>:<ul>
+<li>Experiment run’s configuration</li>
+<li>Save parameters used via the command line (e.g., through argparse, click, or hydra)</li>
+</ul>
+</li>
+<li><strong>Metrics</strong>:<ul>
+<li>Logging evaluation metrics on train, validation, and test sets for every run.</li>
+</ul>
+</li>
+</ul>
+<h4 id="Task-specific"><a href="#Task-specific" class="headerlink" title="Task-specific"></a>Task-specific</h4><ol>
+<li>Traditional ML</li>
+</ol>
+<ul>
+<li>Model weights</li>
+<li>Evaluation charts (ROC curves, Confusion matrix)</li>
+<li>Prediction distributions</li>
+</ul>
+<ol start="2">
+<li>Deep Learning</li>
+</ol>
+<ul>
+<li>Model checkpoints (both during and after training, but beware of the cost)</li>
+<li>Gradient norms (to control for vanishing or exploding gradient problems)</li>
+<li>Best/worst predictions on the validation and test set after training</li>
+<li>Hardware resources: CPU/GPU Utility, Memory Utility, Disk I/O, Network Utility, throughput</li>
+</ul>
+<ol start="3">
+<li>Computer Vision</li>
+</ol>
+<ul>
+<li>Model predictions after every epoch (labels, overlayed masks or bounding boxes)</li>
+</ul>
+<ol start="4">
+<li>NLP, LLM</li>
+</ol>
+<ul>
+<li>Inference time</li>
+<li>Prompts (in the case of generative LLMs)</li>
+<li>Specific evaluation metrics (e.g., ROUGE for text summarization or BLEU for translation between languages)</li>
+<li>Embedding size and dimensions, type of tokenizer, and number of attention heads (when training transformer models from scratch)</li>
+<li>Feature importance, attention-based, or example-based explanations (see this <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2309.01029.pdf">overview</a> for specific algorithms and more ideas)</li>
+</ul>
+<ol start="5">
+<li>Structure Data</li>
+</ol>
+<ul>
+<li>Input data snapshot ( <code>.head()</code> on DataFrames if you are using pandas)</li>
+<li>Feature importance (e.g., permutation importance)</li>
+<li>Prediction explanations like SHAP or partial dependence plots (they are all available in DALEX)</li>
+</ul>
+<ol start="6">
+<li>RL</li>
+</ol>
+<ul>
+<li>Episode info: return, length, intermediate states</li>
+<li>Total environment steps, wall time, steps per second</li>
+<li>Value and police function losses</li>
+<li>Aggregate statistics over multiple environments and/or runs</li>
+</ul>
+<ol start="7">
+<li>Hyper Optim</li>
+</ol>
+<ul>
+<li>Run score: the metric you are optimizing after every iteration</li>
+<li>Run parameters: parameter configuration tried at each iteration</li>
+<li>Best parameters: best parameters so far and overall best parameters after all runs have concluded</li>
+<li>Parameter comparison charts: there are various visualizations that you may want to log during or after training, like parallel coordinates plot or slice plot (they are all available in Optuna, by the way)</li>
+</ul>
+<h3 id="To-be-continued…"><a href="#To-be-continued…" class="headerlink" title="To be continued…"></a>To be continued…</h3><p>Usually this is where the school-based projects will end. However, to fully develop a system based on the model and the idea you derive, you still need some engineering skills in building the pipeline for deployment, serving and performance monitoring. Luckily we have a lot of tools for these that do the dirty works for us. Nonetheless, not paying attention to some details in these steps could lead to serious bugs or even cost you thousands of dollars!</p>
+<p>Hence to both remind myself and give some suggestions for the readers, I've created a part II for the checklist for these steps. Please check it out if you are interested!</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Deep Learning System Design - A Checklist (Part I)</p><p><a href="https://criss-wang.github.io/post/blogs/mlops/deep-learning-system-design-1/">https://criss-wang.github.io/post/blogs/mlops/deep-learning-system-design-1/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-02-09</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-02-25</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/mlops/deep-learning-system-design-2/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Deep Learning System Design - A Checklist (Part II)</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/mlops/nn-optimizers/"><span class="level-item">Neural Network Applied: Optimizer Selection</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Pittsburgh, PA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">66</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">38</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">39</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">7</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Training/"><span class="tag">Distributed Training</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Introduction"><span class="level-left"><span class="level-item">1</span><span class="level-item">Introduction</span></span></a></li><li><a class="level is-mobile" href="#Step-1-Data"><span class="level-left"><span class="level-item">2</span><span class="level-item">Step 1: Data</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Data-Source"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">Data Source</span></span></a></li><li><a class="level is-mobile" href="#Data-ETL"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">Data ETL</span></span></a></li><li><a class="level is-mobile" href="#Data-Routine"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">Data Routine</span></span></a></li><li><a class="level is-mobile" href="#Data-Quality-amp-Data-Validation"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">Data Quality &amp; Data Validation</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Step-2-Modeling"><span class="level-left"><span class="level-item">3</span><span class="level-item">Step 2: Modeling</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Model-selection"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">Model selection</span></span></a></li><li><a class="level is-mobile" href="#Metric-Selection"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">Metric Selection</span></span></a></li><li><a class="level is-mobile" href="#IMPT-Evaluation-methods-for-Model-comparison-amp-Model-quality-control"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">(IMPT!) Evaluation methods for Model comparison &amp; Model quality control</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Step-3-Training-amp-Optimization"><span class="level-left"><span class="level-item">4</span><span class="level-item">Step 3: Training &amp; Optimization</span></span></a></li><li><a class="level is-mobile" href="#Step-4-Experiments"><span class="level-left"><span class="level-item">5</span><span class="level-item">Step 4: Experiments</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Must-have-39-s"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">Must-have&#039;s</span></span></a></li><li><a class="level is-mobile" href="#Task-specific"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">Task-specific</span></span></a></li></ul></li><li><a class="level is-mobile" href="#To-be-continued…"><span class="level-left"><span class="level-item">6</span><span class="level-item">To be continued…</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
