@@ -18,7 +18,7 @@ Training in the field of Deep Learning has been a well-studied component which c
 
 ## Assumptions
 
-This blog assumes the mastery of basic training pipeline and will only focus on advanced training techniques. We would also assume that data is clean and preprocessed. So anything related to data quality, feature transformation, tokenization or data loader definitions will be out of the scope of this blog. Instead, we focus on a training of a single (usually large scale) model with a given set of hyperparameters. In the meantime, we also have a fixed loss/evaluation metric for a given task during training. To learn more about these components. Checkout my post on [designing a large-scale deep learning system](http://www.criss-wang.com/post/blogs/deep-learning-system-design-1/)
+This blog assumes the mastery of basic training pipeline and will only focus on advanced training techniques. We would also assume that data is clean and preprocessed. So anything related to data quality, feature transformation, tokenization or data loader definitions will be out of the scope of this blog. Instead, we focus on a training of a single (usually large scale) model with a given set of hyperparameters. In the meantime, we also have a fixed loss/evaluation metric for a given task during training. To learn more about these components. Checkout my post on [designing a large-scale deep learning system](http://www.criss-wang.com/post/blogs/mlops/deep-learning-system-design-1/)
 
 ## Optimization
 
@@ -26,7 +26,7 @@ This blog assumes the mastery of basic training pipeline and will only focus on 
 
 The basic form of an optimizer is often basic gradient descent (GD) and its variants stochastic gradient descent and mini-batch gradient descent. They are often considered to be rooted from convex optimization, but adapt to nonconvex cases greatly. Both from a theoretical and practical aspects, I'd recommend spending several hours studying the first few lectures of [**Convex Optimization** course from CMU](https://www.stat.cmu.edu/~siva/teaching/725/) to have a deep understanding of this canonical optimization technique.
 
-On the other hand, there are several key optimizers need to be further mentioned with their motivations, pros and cons and update formulas. I've listed them below for your convenient references, if you are interested in more details, please refer to a dedicated [post about optimizer selections](http://www.criss-wang.com/post/blogs/nn-optimizers/).
+On the other hand, there are several key optimizers need to be further mentioned with their motivations, pros and cons and update formulas. I've listed them below for your convenient references, if you are interested in more details, please refer to a dedicated [post about optimizer selections](http://www.criss-wang.com/post/blogs/mlops/nn-optimizers/).
 
 #### AdaGrad (Adaptive Gradient Algorithm):
 
@@ -148,7 +148,7 @@ As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU
     - Tensor Parallelism
     - Pipeline Parallelism
 
-    Each of them aims to fix some inefficiencies in the training pipeline. Many packages have been developed to implement these strategies for the benefits of DL researchers and engineers. I provide a more in-depth discussion in a different [post](http://www.criss-wang.com/post/blogs/distributed-training), together with discussion about the common errors people face during distributing training.
+    Each of them aims to fix some inefficiencies in the training pipeline. Many packages have been developed to implement these strategies for the benefits of DL researchers and engineers. I provide a more in-depth discussion in a different [post](http://www.criss-wang.com/post/blogs/mlops/distributed-training), together with discussion about the common errors people face during distributing training.
 
 7.  **Gradient Checkpointing**
 
@@ -300,7 +300,7 @@ As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU
     During training, the weights and activations are typically quantized before being stored on disk or transmitted over networks in order to reduce their size without sacrificing too much accuracy. Additionally, the gradients of the loss function can be computed using an approximate gradient method called stochastic gradient descent with quantization
     (SGD-Q), which allows for faster convergence and improved performance compared to standard SGD methods.
 
-    Do note that this method is slightly different from the low-precision or mixed precision strategy, as the former often recovers the precision after training, but this method allows the model trained to stay in the same precision during inference, which effecitvely reduced persistent model storage requirement as well. To learn more about quantization, checkout [this blog](http://www.criss-wang.com/post/blogs/quantization)
+    Do note that this method is slightly different from the low-precision or mixed precision strategy, as the former often recovers the precision after training, but this method allows the model trained to stay in the same precision during inference, which effecitvely reduced persistent model storage requirement as well. To learn more about quantization, checkout [this blog](http://www.criss-wang.com/post/blogs/mlops/quantization)
 
     A sample code implementation looks like this:
 
@@ -651,7 +651,7 @@ After all these training optimizations, it would be wasteful not to save your ex
 - Logging: error logging is not an easy thing when it comes to model training. Problems often can only be found from a parameter/matrix level, and the fact that training is distributed accross servers make it even harder to achieve.
 - Model Checkpointing: saving you model half way during the training is critical to achieve fault-tolerant training. PyTorch maintainers has developed a thorough set of tools like `dcp`, `elastic`, `rendezvous` and `torchrun` in collaboration with deepspeed to help achieve that.
 
-If you are really into completing the full training cycle and squeezing every last sip of the resources you\'ve paid for, I would urge you to check out [my other post](https://criss-wang.com/post/blogs/ml-post-training) to learn more about it.
+If you are really into completing the full training cycle and squeezing every last sip of the resources you\'ve paid for, I would urge you to check out [my other post](https://criss-wang.com/post/blogs/mlops/ml-post-training) to learn more about it.
 
 ## To conclude...
 
