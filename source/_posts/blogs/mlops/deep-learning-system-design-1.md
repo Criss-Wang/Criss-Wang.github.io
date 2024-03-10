@@ -411,6 +411,27 @@ Experiment tracking are important, especially when the scale of training is larg
 - Best parameters: best parameters so far and overall best parameters after all runs have concluded
 - Parameter comparison charts: there are various visualizations that you may want to log during or after training, like parallel coordinates plot or slice plot (they are all available in Optuna, by the way)
 
+#### Final thoughts on ML training (aka model exploration)
+
+when developing ML models with exploratory experiments, I've always enjoyed the pseudocode from this [blog post](https://neptune.ai/blog/experiment-management). This is really what it means to do ML in a real industrial setup.
+
+```python
+time, budget, business_goal = business_specification()
+
+creative_idea = initial_research(business_goal)
+
+while time and budget and not business_goal:
+   solution = develop(creative_idea)
+   metrics = evaluate(solution, validation_data)
+   if metrics > best_metrics:
+      best_metrics = metrics
+      best_solution = solution
+   creative_idea = explore_results(best_solution)
+
+   time.update()
+   budget.update()
+```
+
 ### To be continued...
 
 Usually this is where the school-based projects will end. However, to fully develop a system based on the model and the idea you derive, you still need some engineering skills in building the pipeline for deployment, serving and performance monitoring. Luckily we have a lot of tools for these that do the dirty works for us. Nonetheless, not paying attention to some details in these steps could lead to serious bugs or even cost you thousands of dollars!

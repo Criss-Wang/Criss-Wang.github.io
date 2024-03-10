@@ -1,5 +1,12 @@
 ## Feature Engineering
 
+## easy conversion of jupyter notebook
+
+### 1. Jupyter Notebook based-development
+
+Intuition, develop and test all logic in `.ipynb` file, then run
+`jupyter nbconvert --to script train_model.ipynb` to convert `.ipynb` file to `.py` file directly. This is an amazing trick!!!
+
 ### Handling Missing Values
 
 1. Cause of missing
