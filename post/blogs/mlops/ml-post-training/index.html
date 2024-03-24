@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>MLOps Post Training Considerations - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:type" content="blog"><meta property="og:title" content="MLOps Post Training Considerations"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/mlops/ml-post-training/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/images/AI/ML-workflow.png"><meta property="og:image" content="https://www.mlflow.org/docs/2.7.1/_images/tracking-chart.png"><meta property="og:image" content="https://www.jeremyjordan.me/content/images/2021/01/model_drift_evaluation_workflow-1024x281.png"><meta property="article:published_time" content="2024-03-08T05:00:00.000Z"><meta property="article:modified_time" content="2024-03-24T06:16:07.720Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Deep Learning"><meta property="article:tag" content="System Design"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/images/AI/ML-workflow.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/mlops/ml-post-training/"},"headline":"MLOps Post Training Considerations","image":["https://criss-wang.github.io/images/AI/ML-workflow.png","https://www.mlflow.org/docs/2.7.1/_images/tracking-chart.png","https://www.jeremyjordan.me/content/images/2021/01/model_drift_evaluation_workflow-1024x281.png"],"datePublished":"2024-03-08T05:00:00.000Z","dateModified":"2024-03-24T06:16:07.720Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"An Overview of how to design a full-stack Deep Learning System"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/mlops/ml-post-training/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Software">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">MLOps Post Training Considerations</h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-03-08T05:00:00.000Z" title="2024-03-08T05:00:00.000Z">2024-03-08</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Several years before, since I started working on ML projects, I've had traumatizing experiences conducting post-training operations. So many years later, I still found the mistakes and lessons I learnt from those projects valuable. Therefore, I've decided to share my thoughts here, for my own references (remember the do's and don'ts!!!) and for anyone interested to take their piece of gem home.</p>
+<p>So what should be done after model training? Many university-level courses touched the surface of the topic, but in essence, it contains the handling of your model artifacts and training results, applying appropriate logging/monitoring and deployment to a server for actual usage. A great workflow chart I learned from <a href="">Jeremy Jordan</a> has demonstrated it well.</p>
+<figure align="center">
+<img src="/images/AI/ML-workflow.png" width="600px">
+<br>
+<caption>Credit: Jeremy Jordan</caption>
+</figure>
+
+<p>As you can see from the workflow:</p>
+<ul>
+<li>Experiment tracking is performed immediately after model training to persist the experiment results.</li>
+<li>Finetuned models are saved to a model registry (a form of database for model) to allow easy retrieval of this model</li>
+<li>Once we want to perform inference using this model, we set up a server which interacts with the registry and payload processed from backend to produce inference results</li>
+<li>A event stream (online or offline) service is need to enable drift detection and manage data flows. It should interact with inference server and your feature store actively, on a event-driven or scheduled manner</li>
+<li>Additional metric monitoring and backend logging are needed for issue recovery, model performance evaluation and reliability testing.</li>
+</ul>
+<p>In this blog, I'll focus on experiment tracking, model registry, serving and monitoring. Note that I would not go through every detail in one blog, as you and I will both get tired reading a lengthy blog. I'll put some relevant links at places for people intereted to explore further. In the future, I'll also come up with blogs discussing each component in full detail as well. So stay tuned for that if you like my style XD.</p>
+<h2 id="Experiment-Tracking"><a href="#Experiment-Tracking" class="headerlink" title="Experiment Tracking"></a>Experiment Tracking</h2><p>Every mature data scientist and ml engineer/researcher should appreciate the important of experiment tracking:</p>
+<ul>
+<li><strong>Reproducibility</strong>: ML experiments often involve multiple dependencies and configurations. Tracking every experiment ensures reproducibility, allowing researchers to revisit and replicate results.</li>
+<li><strong>Collaboration</strong>: In team environments, multiple researchers may contribute to a project. Clear experiment tracking facilitates collaboration by providing a shared understanding of the progress and results.</li>
+<li><strong>Model Iteration</strong>: Continuous improvement is a core aspect of deep learning. Experiment tracking helps monitor model iterations, enabling researchers to identify what works and what doesn't.</li>
+</ul>
+<p>There are a few components in experiment tracking:</p>
+<ol>
+<li>Logging: Maintain a log for each experiment and save it in a unified place. Log your model hyperparameters, experiment metrics, and any other relevant information. This aids in easy retrieval and comparison.</li>
+<li>Version Control: this include tagging and versioning of your training data, your model, metadata and experiments. This significantly reduces the chance of redoing experiments which may result in significant waste of resources (Yes I did this once…)</li>
+<li>Metadata Annotation: Annotate experiments with metadata such as project name, researcher name, and experiment purpose. This contextual information proves invaluable in understanding the context of each experiment.</li>
+<li>Visualization: Use visualization tools to track and compare metrics across experiments. This aids in identifying trends, outliers, and areas for improvement. In many cases, inputs and outputs stored are visualized as well.</li>
+</ol>
+<h1 id="Platforms-to-use"><a href="#Platforms-to-use" class="headerlink" title="Platforms to use"></a>Platforms to use</h1><p>Nowadays, tracking experiments are much easier than 5, 10 years ago with the help of well-developed tracking tools. A few powerful ones I've used and would recommend are</p>
+<ul>
+<li>MLflow</li>
+<li>Weights &amp; Biases (WandB)</li>
+<li>Neptune.ai</li>
+</ul>
+<p>These tools have api's directly embedded in your training scripts. For example, for mlflow, all you need to do is run <code>mlflow ui</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mlflow</span><br><span class="line"></span><br><span class="line">experiment_name = <span class="string">"YOUR_EXPERIMENT_NAME"</span></span><br><span class="line">run_name = datetime.now().strftime(<span class="string">"%Y%m%d-%H%M"</span>)</span><br><span class="line">mlflow.set_tracking_url(<span class="string">"http://localhost:5000"</span>) <span class="comment"># replace it if you have a dedicated tracking server url</span></span><br><span class="line">mlflow.set_experiment(experiment_name=experiment_name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> mlflow.start_run(experiment_id=experiment_id, run_name=run_name):</span><br><span class="line">    <span class="comment"># Start your model training</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment"># logging metrics</span></span><br><span class="line">    metrics = YOUR_METRICS_GETTER</span><br><span class="line">    mlflow.log_metric(...)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># logging artifact</span></span><br><span class="line">    mlflow.log_artifact(...)</span><br></pre></td></tr></table></figure>
+
+<p>and you will get a beautiful ui that looks like this:<br><img src="https://www.mlflow.org/docs/2.7.1/_images/tracking-chart.png"></p>
+<h3 id="Tracking-individual-components"><a href="#Tracking-individual-components" class="headerlink" title="Tracking individual components"></a>Tracking individual components</h3><h4 id="Tracking-Errors"><a href="#Tracking-Errors" class="headerlink" title="Tracking Errors"></a>Tracking Errors</h4><p>To enable logging errors, one can use the default python logger, and save the log history as text/artifacts into these platforms. Otherwise, tools like <code>WandB</code> also has its integrated logger that directs the std outputs into its db and saves the log conveniently.</p>
+<h4 id="Tracking-Hyperparameters"><a href="#Tracking-Hyperparameters" class="headerlink" title="Tracking Hyperparameters"></a>Tracking Hyperparameters</h4><ul>
+<li>Method 1: config yaml file<br>in a yaml file</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">project:</span> <span class="string">ORGANIZATION/home-credit</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">home-credit-default-risk</span></span><br><span class="line"></span><br><span class="line"><span class="attr">parameters:</span></span><br><span class="line">  <span class="comment"># Data preparation</span></span><br><span class="line">  <span class="attr">n_cv_splits:</span> <span class="number">5</span></span><br><span class="line">  <span class="attr">validation_size:</span> <span class="number">0.2</span></span><br><span class="line">  <span class="attr">stratified_cv:</span> <span class="literal">True</span></span><br><span class="line">  <span class="attr">shuffle:</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Random forest</span></span><br><span class="line">  <span class="attr">rf__n_estimators:</span> <span class="number">2000</span></span><br><span class="line">  <span class="attr">rf__criterion:</span> <span class="string">gini</span></span><br><span class="line">  <span class="attr">rf__max_features:</span> <span class="number">0.2</span></span><br><span class="line">  <span class="attr">rf__max_depth:</span> <span class="number">40</span></span><br><span class="line">  <span class="attr">rf__min_samples_split:</span> <span class="number">50</span></span><br><span class="line">  <span class="attr">rf__min_samples_leaf:</span> <span class="number">20</span></span><br><span class="line">  <span class="attr">rf__max_leaf_nodes:</span> <span class="number">60</span></span><br><span class="line">  <span class="attr">rf__class_weight:</span> <span class="string">balanced</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># Post Processing</span></span><br><span class="line">  <span class="attr">aggregation_method:</span> <span class="string">rank_mean</span></span><br></pre></td></tr></table></figure>
+
+<p>then in your python file you can do:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(config_path) <span class="keyword">as</span> f:</span><br><span class="line">	<span class="comment"># note that you should choose loader wisely as some values (e.g. int) may be parsed wrongly if you use the wrong loader</span></span><br><span class="line">    config = yaml.load(f, Loader=yaml.SafeLoader)  <span class="comment"># config is dict</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(config[<span class="string">'parameters'</span>][<span class="string">'n_cv_splits'</span>])  <span class="comment"># 5</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>Method 2: command line + argparse<br>The most common choice in ML community (and the most convoluted one)</p>
+</li>
+<li><p>Method 3: Hydra<br>using the same yaml file, do the folloing</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hydra</span><br><span class="line"><span class="keyword">from</span> omegaconf <span class="keyword">import</span> DictConfig</span><br><span class="line"></span><br><span class="line"><span class="meta">@hydra.main(<span class="params">config_path=<span class="string">'hydra-config.yaml'</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">train</span>(<span class="params">cfg</span>):</span><br><span class="line">    <span class="built_in">print</span>(cfg.pretty())  <span class="comment"># this prints config in a reader friendly way</span></span><br><span class="line">    <span class="built_in">print</span>(cfg.parameters.rf__n_estimators)  <span class="comment"># this is how to access single value from the config</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    train()</span><br></pre></td></tr></table></figure>
+
+<h4 id="Tracking-Data"><a href="#Tracking-Data" class="headerlink" title="Tracking Data"></a>Tracking Data</h4><p>Ensure your data source is coherent and versioned consistently requires the use of data registry sometimes. One example is using DVC. You may refer to this <a target="_blank" rel="noopener" href="https://aws.amazon.com/blogs/machine-learning/track-your-ml-experiments-end-to-end-with-data-version-control-and-amazon-sagemaker-experiments/">AWS Tutorial on DVC usage</a> to setup your data registry. Due to the versatile nature of data sources, we cannot always rely on a SQL DB (e.g. MySQL) or NoSQL DB (e.g MongoDB, InfluxDB) to manage our experiment training data, hence the usage of DVC.</p>
+<h4 id="Tracking-Metrics"><a href="#Tracking-Metrics" class="headerlink" title="Tracking Metrics"></a>Tracking Metrics</h4><p>Normally metrics are easily to track directly with the tools I mentioned above. Very often they come with the set of visualizations as well. In case you need to produce your own visualizations, especially when evaluting the impact of model configurations on the metric values, libraries like <code>optuna</code>, <code>hyperopt</code> and <code>scikit-optimize</code> will have support for visualizations.</p>
+<h4 id="Tracking-Model-Environment"><a href="#Tracking-Model-Environment" class="headerlink" title="Tracking Model Environment"></a>Tracking Model Environment</h4><ul>
+<li>Solution 1: Docker images (preferred)</li>
+<li>Create a Dockerfile</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># Use a miniconda3 as base image</span><br><span class="line">FROM continuumio/miniconda3</span><br><span class="line"></span><br><span class="line"># Installation of jupyterlab</span><br><span class="line">RUN pip install jupyterlab==<span class="number">0.35</span><span class="number">.6</span> &amp;&amp;</span><br><span class="line">pip install jupyterlab-server==<span class="number">0.2</span><span class="number">.0</span> &amp;&amp;</span><br><span class="line">conda install -c conda-forge nodejs</span><br><span class="line"></span><br><span class="line"># Installation of Neptune and enabling neptune extension</span><br><span class="line">RUN pip install neptune &amp;&amp;</span><br><span class="line">pip install neptune-notebooks &amp;&amp;</span><br><span class="line">jupyter labextension install neptune-notebooks</span><br><span class="line"></span><br><span class="line"># Setting up Neptune API token as env variable</span><br><span class="line">ARG NEPTUNE_API_TOKEN</span><br><span class="line">ENV NEPTUNE_API_TOKEN=$NEPTUNE_API_TOKEN</span><br><span class="line"></span><br><span class="line"># Adding current directory to container</span><br><span class="line">ADD . /mnt/workdir</span><br><span class="line">WORKDIR /mnt/workdir</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>run <code>docker build -t YOUR_TAG --build-arg NEPTUNE_API_TOKEN=$NEPTUNE_API_TOKEN .</code></li>
+<li>finally start the image by (example below)</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run</span><br><span class="line">    -p 8888:8888</span><br><span class="line">    IMAGE_TAG:latest</span><br><span class="line">    /opt/conda/bin/jupyter lab</span><br><span class="line">    --allow-root</span><br><span class="line">    --ip=0.0.0.0</span><br><span class="line">    --port=8888</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Solution 2: <code>conda</code><ul>
+<li>Usually  <em>.yaml</em> configuration file</li>
+<li>create conda environment by running: <code>conda env create -f environment.yaml</code></li>
+<li>update yaml fle by <code>conda env export &gt; environment.yaml</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="Tracking-Models"><a href="#Tracking-Models" class="headerlink" title="Tracking Models"></a>Tracking Models</h4><p>Model needs to be versioned and the artifacts stored in model registry, which I'll talk about in the next section.</p>
+<h2 id="Model-Registry"><a href="#Model-Registry" class="headerlink" title="Model Registry"></a>Model Registry</h2><p>Saving and versioning a model can be done at experiment tracking stage, or isolated out as a single stage in the workflow. This is because we usually have it as an output of the experiment runs, and it involves several more intricate details. A few aspects include:</p>
+<ul>
+<li>Different environment the registry (dev/stage/prod)</li>
+<li>Different forms of registering models (save/package/store)</li>
+</ul>
+<h3 id="Dev-vs-Prod-Registry"><a href="#Dev-vs-Prod-Registry" class="headerlink" title="Dev vs Prod Registry"></a>Dev vs Prod Registry</h3><ul>
+<li>Purpose:<ul>
+<li>Dev Environment: where data scientists and machine learning engineers work on creating, experimenting, and refining<ul>
+<li>rapid iterations</li>
+<li>multiple experiments</li>
+<li>exploratory models</li>
+</ul>
+</li>
+<li>Prod Environment: where the finalized, stable, and optimized models are deployed to serve predictions in a real-world setting. Production models are expected to be reliable, scalable, and performant<ul>
+<li>mainly consist of champion models and challenger models</li>
+<li>both should be well-tested and verified before saved in this registry</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Access and Permissions:<ul>
+<li>Dev Environment: access might be more open to facilitate collaboration and experimentation.<ul>
+<li>Data scientists/MLEs often have broader access to try out different ideas and approaches.</li>
+</ul>
+</li>
+<li>Prod Environment: access to the model registry in the production environment is typically more restricted<ul>
+<li>Authorized personnel, such as DevOps or IT administrators, should have the ability to deploy or update models in the production registry to maintain stability and security</li>
+<li>Less of a concern from data scientist perspective</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Model Versions:<ul>
+<li>Dev Environment: usually a large number of model versions as different experiments and iterations are conducted.</li>
+<li>Prod Environment: have fewer, well-tested, and validated model versions. The focus is on deploying stable models that meet performance and reliability requirements.</li>
+</ul>
+</li>
+<li>Logging and Monitoring:<ul>
+<li>Dev Environment: more focused on tracking experiment results, understanding model behavior, and debugging</li>
+<li>Prod Environment: critical for tracking the performance of deployed models, identifying issues in <em>real-time</em>, and ensuring that the system meets service-level objectives.</li>
+</ul>
+</li>
+<li>Security Considerations:<ul>
+<li>Dev Environment: Security measures in the development environment may be more relaxed to enable faster experimentation<ul>
+<li>Model is within internal control, less exposed to external uses.</li>
+<li>Major concern is actually training/testing data leakage</li>
+</ul>
+</li>
+<li>Prod Environment: Strict security measures are implemented in the production environment to safeguard against unauthorized access, data breaches, or other security threats<ul>
+<li>Prevent leakage of model information (metadata, weights, architectures, etc) as they are important company properties</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Save-vs-package-vs-store-ML-models"><a href="#Save-vs-package-vs-store-ML-models" class="headerlink" title="Save vs package vs store ML models"></a>Save vs package vs store ML models</h3><ol>
+<li>Save Model<ul>
+<li>Save params to disk</li>
+<li>Mainly for local operations on a single model(save/load model state dict, optim state dict, etc)</li>
+<li>Tools: Pickle, HDFS, JSON, etc</li>
+</ul>
+</li>
+<li>Package Model<ul>
+<li>Bundle model with additional resources (model file, dependencies, configuration files, etc)</li>
+<li>Enable easy distribute and deploy the ML model in a production environment</li>
+<li>Tools: Docker Image, Python Packages</li>
+</ul>
+</li>
+<li>Store Model<ul>
+<li>Mainly for centralized model storage (model artifact)</li>
+<li>To facilitate model sharing across team</li>
+<li>Tools: MLFlow</li>
+</ul>
+</li>
+</ol>
+<h2 id="Save"><a href="#Save" class="headerlink" title="Save"></a>Save</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the model and optimizer</span></span><br><span class="line">model = ...</span><br><span class="line">optimizer = ...</span><br><span class="line"></span><br><span class="line"><span class="comment"># Save the model and optimizer states in a single file</span></span><br><span class="line">torch.save(</span><br><span class="line">	{<span class="string">'model'</span>: model.state_dict(),</span><br><span class="line">	 <span class="string">'optimizer'</span>: optimizer.state_dict()}, <span class="string">'saved_states.pt'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the saved states from the file</span></span><br><span class="line">saved_states = torch.load(<span class="string">'saved_states.pt'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Restore the model and optimizer states from the dictionary</span></span><br><span class="line">model.load_state_dict(saved_states[<span class="string">'model'</span>])</span><br><span class="line">optimizer.load_state_dict(saved_states[<span class="string">'optimizer'</span>])</span><br></pre></td></tr></table></figure>
+
+<h2 id="Package"><a href="#Package" class="headerlink" title="Package"></a>Package</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># load dependencies</span></span><br><span class="line"><span class="keyword">import</span> onnx</span><br><span class="line"><span class="keyword">import</span> onnxruntime</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Load your trained model (e.g., PyTorch or TensorFlow)</span></span><br><span class="line">model = ...</span><br><span class="line"></span><br><span class="line"><span class="comment"># Convert the model to ONNX format</span></span><br><span class="line">onnx_model = onnx.convert(model, <span class="string">'my_model'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Save the ONNX model to a file</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">'my_model.onnx'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(onnx_model.SerializeToString())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load the ONNX model from the file</span></span><br><span class="line">onnx_model = onnx.load(<span class="string">'my_model.onnx'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a new session for the model</span></span><br><span class="line">session = onnxruntime.InferenceSession(onnx_model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use the session to perform inference or deployment</span></span><br><span class="line">inputs = ...  <span class="comment"># Get input data (e.g., images, audio samples, etc.)</span></span><br><span class="line">outputs = session.run(<span class="literal">None</span>, inputs)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Store"><a href="#Store" class="headerlink" title="Store"></a>Store</h2><ul>
+<li>Either use Database to store model versions, or consider using a model registry</li>
+<li>Example of MLFlow</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mlflow</span><br><span class="line"></span><br><span class="line"><span class="comment"># Load your trained model (e.g., PyTorch or TensorFlow)</span></span><br><span class="line">model = ...</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a new experiment for the model in the Model Registry</span></span><br><span class="line">experiment_id =</span><br><span class="line">mlflow.get_experiment(experiment_name=<span class="string">"MyModelExperiment"</span>).experiment_id</span><br><span class="line"></span><br><span class="line"><span class="comment"># Set up the artifact for the model</span></span><br><span class="line">artifact_path = <span class="string">"models/my_model"</span></span><br><span class="line">artifact_uri = <span class="string">f"runs:/<span class="subst">{experiment_id}</span>/<span class="subst">{artifact_path}</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Log the artifact to the Model Registry</span></span><br><span class="line">mlflow.log_artifact(model, artifact_uri)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Model-Serving"><a href="#Model-Serving" class="headerlink" title="Model Serving"></a>Model Serving</h2><p>Model serving is actually a fairly complicated process, as it involves deep understanding of backend engineering and data engineering, as well as more infrastructure management. There are several methods to serve/deploy a model:</p>
+<ul>
+<li>Online</li>
+<li>Offline</li>
+<li>Streaming</li>
+<li>Batch</li>
+<li>Serverless</li>
+</ul>
+<p>For the simplest part, all you'll need is to parse the data from the request, feed it as input (after feature engineering) into the model you loaded, and get the result. However, in order to make model serving efficient and powerful, many parts of the process need to be optimized:</p>
+<h3 id="API-architecture"><a href="#API-architecture" class="headerlink" title="API architecture"></a>API architecture</h3><p>A few strong candidates to build the request/response formatting for data communication when deploying model are Remote Procedure Call (RPC), WebSocket, and RESTful APIs. Let's discuss the trade-offs associated with each approach:</p>
+<ol>
+<li>Remote Procedure Call (RPC):</li>
+</ol>
+<ul>
+<li>Pros:<ul>
+<li>Efficiency: RPC protocols (e.g., gRPC) are known for their efficiency, making them suitable for scenarios where low-latency communication is crucial.</li>
+<li>Streaming: Some RPC frameworks support bidirectional streaming, allowing continuous communication between clients and servers, which can be beneficial for real-time updates.</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>Complexity: Implementing and managing RPC services can be more complex than other approaches, especially when dealing with advanced features like bidirectional streaming.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>WebSocket:</li>
+</ol>
+<ul>
+<li>Pros:<ul>
+<li>Low Latency: WebSockets provide low-latency, full-duplex communication, making them suitable for applications requiring real-time updates.</li>
+<li>Bidirectional Communication: WebSockets enable bidirectional communication, allowing the server to push updates to clients efficiently.</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>Connection Management: Managing WebSocket connections can be more challenging than REST APIs, especially when dealing with issues like connection drops and reconnections.</li>
+<li>Standardization: WebSockets lack a standardized way to describe APIs compared to RESTful APIs.</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>RESTful API:</li>
+</ol>
+<ul>
+<li>Pros:<ul>
+<li>Simplicity: RESTful APIs are simple and easy to understand, making them accessible to a wide range of developers.</li>
+<li>Widespread Adoption: RESTful APIs are widely adopted and supported by a vast ecosystem of tools and libraries.<br>Statelessness: RESTful APIs are inherently stateless, simplifying scalability and fault tolerance.</li>
+</ul>
+</li>
+<li>Cons:<ul>
+<li>Latency: For real-time applications, RESTful APIs might introduce higher latency due to the request-response nature of communication.</li>
+<li>Limited Push Mechanism: Traditional REST APIs lack a built-in mechanism for the server to push updates to clients in real-time.</li>
+</ul>
+</li>
+</ul>
+<h3 id="Online-vs-Offline"><a href="#Online-vs-Offline" class="headerlink" title="Online vs Offline"></a>Online vs Offline</h3><p>Notice that while some part of the inference may require online models, other parts of the system may be done offline. Take a recommendation system for example:</p>
+<ul>
+<li>The latest recommended feeds should be generated in real-time/online. However, some of the embedding/coarse search may be done offline in fixed duration. The results of these offline inferences are then used as embeddings/context for the refined search/ranking during the real-time inference stage.</li>
+</ul>
+<h3 id="ETL-based-Deployment"><a href="#ETL-based-Deployment" class="headerlink" title="ETL-based Deployment"></a>ETL-based Deployment</h3><p>ETL (Extract, Transform, Load) jobs copy and process data from a source to a destination, commonly used in data warehousing. In machine learning model deployment, ETL involves extracting features, predicting, and saving results. Unlike real-time systems, ETL jobs don't provide quick predictions but process many records at once, contrasting with web apps. You may use ETL structure for serving the model when your app is monolith and the pipeline is less convoluted. Tools like Apache Beam, MapReduce or Airflow are perfect tools for performing ETL-driven model serving.</p>
+<h3 id="Model-service-as-part-of-Microservices"><a href="#Model-service-as-part-of-Microservices" class="headerlink" title="Model service as part of Microservices"></a>Model service as part of Microservices</h3><p>If you are serving model on a larger distributed system with many microservices, you would likely need to consider inter-service communication, and push your inference task into an event queue if necessary. Tools like Kafka, RabbitMQ and Celery are designed to achieve this by ways of pub-sub or message brokers. Further discussion will cause it to divert into the field of backend system design, and I shall stop here for interested people to learn more on themselves.</p>
+<h3 id="Serverless-Architecture"><a href="#Serverless-Architecture" class="headerlink" title="Serverless Architecture"></a>Serverless Architecture</h3><p>If you don't want to setup a server yourself (managing the infra can be a huge pain) and would like an endpoint that is fault-tolerant, scalable and ready-to-use, many cloud service companies have it available. Examples include Azure ML, AWS Lambda and GCP AI Studio. You can find tutorials on respective tools to setup your inference endpoint with the model you've developed.</p>
+<h2 id="Model-Monitoring"><a href="#Model-Monitoring" class="headerlink" title="Model Monitoring"></a>Model Monitoring</h2><h3 id="Metrics-to-monitor"><a href="#Metrics-to-monitor" class="headerlink" title="Metrics to monitor"></a>Metrics to monitor</h3><p><strong>Model metrics</strong></p>
+<ul>
+<li>Prediction distributions</li>
+<li>Feature distributions</li>
+<li>Evaluation metrics (when ground truth is available)</li>
+</ul>
+<p><strong>System metrics</strong></p>
+<ul>
+<li>Request throughput</li>
+<li>Error rate</li>
+<li>Request latencies</li>
+<li>Request body size</li>
+<li>Response body size</li>
+</ul>
+<p><strong>Resource metrics</strong></p>
+<ul>
+<li>CPU utilization</li>
+<li>Memory utilization</li>
+<li>Network data transfer</li>
+<li>Disk I/O</li>
+</ul>
+<h3 id="Sample-procedure-for-ML-app-monitoring"><a href="#Sample-procedure-for-ML-app-monitoring" class="headerlink" title="Sample procedure for ML app monitoring"></a>Sample procedure for ML app monitoring</h3><ol>
+<li><p>Create a containerized REST service to expose the model via a prediction endpoint.</p>
+</li>
+<li><p>Setup Instrumentor to collect metrics which are exposed via a separate metrics endpoint</p>
+<ul>
+<li>In the repo from JJ, it is <code>instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)</code></li>
+<li>After deploying our model service on the Kubernetes cluster, we can port forward to a pod running the server and check out the metrics endpoint running at <code>127.0.0.1:3000/metrics</code>:</li>
+<li><code>kubectl port-forward service/wine-quality-model-service 3000:80</code></li>
+</ul>
+</li>
+<li><p>Deploy <strong>Prometheus</strong> (PULL-based mechanism) to collect and store metrics.</p>
+<ul>
+<li>Prometheus refers to endpoints containing metric data as <strong>targets</strong> which can be discovered either through service discovery or static configuration.</li>
+<li>Usually service discovery would be a good choice as it enable Prometheus to discover which targets should be scraped</li>
+<li>This can be simply done by configuring the endpoints to monitor in a separate service</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">endpoints:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">metrics</span></span><br><span class="line">    <span class="attr">port:</span> <span class="string">app</span></span><br><span class="line">    <span class="attr">interval:</span> <span class="string">15s</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Deploy <strong>Grafana</strong> to visualize the collected metrics.</p>
+</li>
+<li><p>Finally, we'll simulate production traffic using <strong>Locust</strong> so that we have some data to see in our dashboards. Some of the standard tests to include are:</p>
+<ol>
+<li>Make a request to our health check endpoint</li>
+<li>choose a random example from the dataset and make a request to prediction service</li>
+<li>choose a random example, corrupt the data, and make a bad request to our prediction service</li>
+</ol>
+</li>
+</ol>
+<h3 id="Other-things-to-consider"><a href="#Other-things-to-consider" class="headerlink" title="Other things to consider"></a>Other things to consider</h3><ol>
+<li>Drift Detection Service<ul>
+<li>Strategies<ul>
+<li>deploy a <strong>drift-detection service</strong></li>
+<li>log a <strong>statistical profile</strong></li>
+<li><strong>log the full feature payload</strong></li>
+</ul>
+</li>
+<li><img src="https://www.jeremyjordan.me/content/images/2021/01/model_drift_evaluation_workflow-1024x281.png"></li>
+</ul>
+</li>
+</ol>
+<h3 id="Best-Practices"><a href="#Best-Practices" class="headerlink" title="Best Practices"></a>Best Practices</h3><p><strong>Prometheus</strong></p>
+<ul>
+<li>Avoid storing high-cardinality data in labels. Every unique set of labels for is treated as a distinct time series, high-cardinality data in labels can drastically increase the amount of data being stored. As a general rule, try to keep the cardinality for a given metric (number of unique label-sets) under 10.</li>
+<li>Metric names should have a suffix describing the unit (e.g. <code>http_request_duration_****seconds****</code>)</li>
+<li>Use base units when recording values (e.g. seconds instead of milliseconds).</li>
+<li>Use standard <a target="_blank" rel="noopener" href="https://prometheus.io/docs/instrumenting/exporters/?ref=jeremyjordan.me">Prometheus exporters</a> when available.</li>
+</ul>
+<p><strong>Grafana</strong></p>
+<ul>
+<li>Ensure your dashboards are easily discoverable and consistent by design.</li>
+<li>Use template variables instead of hardcoding values or duplicating charts.</li>
+<li>Provide appropriate context next to important charts.</li>
+<li>Keep your dashboards in source control.</li>
+<li>Avoid duplicating dashboards.</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://towardsdatascience.com/testing-features-with-pytest-82765a13a0e7">https://towardsdatascience.com/testing-features-with-pytest-82765a13a0e7</a></p>
+<h2 id="Last-words"><a href="#Last-words" class="headerlink" title="Last words"></a>Last words</h2><p>While this blog covers a lot of topics and provide several examples in the processing of post-training tasks, they are far to complete. In order to truly master each component, I would recommend play around with each part for a few times and make mistakes. This was the path I took, but without any preliminary guide like this. Nonetheless, it was fruitful and really helped me understand the nitty gritty of post-training tasks. Hence, review this blog when you feel like setting up a new project, and make it part of the process!</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>MLOps Post Training Considerations</p><p><a href="https://criss-wang.github.io/post/blogs/mlops/ml-post-training/">https://criss-wang.github.io/post/blogs/mlops/ml-post-training/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-03-08</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-03-24</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/software/build-a-complete-python-project/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">A good Python projecttemplate to use as starting point</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/mlops/distributed-training/"><span class="level-item">Understanding Distributed Training in Deep Learning</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Sunnyvale, CA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">68</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">38</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">42</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">9</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Training/"><span class="tag">Distributed Training</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Python-Project/"><span class="tag">Python Project</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Systems/"><span class="tag">Distributed Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#Introduction"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">Introduction</span></span></a></li><li><a class="level is-mobile" href="#Experiment-Tracking"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">Experiment Tracking</span></span></a></li></ul><li><a class="level is-mobile" href="#Platforms-to-use"><span class="level-left"><span class="level-item">2</span><span class="level-item">Platforms to use</span></span></a><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#Tracking-individual-components"><span class="level-left"><span class="level-item">2.1.1</span><span class="level-item">Tracking individual components</span></span></a></li></ul><li><a class="level is-mobile" href="#Model-Registry"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">Model Registry</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Dev-vs-Prod-Registry"><span class="level-left"><span class="level-item">2.2.1</span><span class="level-item">Dev vs Prod Registry</span></span></a></li><li><a class="level is-mobile" href="#Save-vs-package-vs-store-ML-models"><span class="level-left"><span class="level-item">2.2.2</span><span class="level-item">Save vs package vs store ML models</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Save"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">Save</span></span></a></li><li><a class="level is-mobile" href="#Package"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">Package</span></span></a></li><li><a class="level is-mobile" href="#Store"><span class="level-left"><span class="level-item">2.5</span><span class="level-item">Store</span></span></a></li><li><a class="level is-mobile" href="#Model-Serving"><span class="level-left"><span class="level-item">2.6</span><span class="level-item">Model Serving</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#API-architecture"><span class="level-left"><span class="level-item">2.6.1</span><span class="level-item">API architecture</span></span></a></li><li><a class="level is-mobile" href="#Online-vs-Offline"><span class="level-left"><span class="level-item">2.6.2</span><span class="level-item">Online vs Offline</span></span></a></li><li><a class="level is-mobile" href="#ETL-based-Deployment"><span class="level-left"><span class="level-item">2.6.3</span><span class="level-item">ETL-based Deployment</span></span></a></li><li><a class="level is-mobile" href="#Model-service-as-part-of-Microservices"><span class="level-left"><span class="level-item">2.6.4</span><span class="level-item">Model service as part of Microservices</span></span></a></li><li><a class="level is-mobile" href="#Serverless-Architecture"><span class="level-left"><span class="level-item">2.6.5</span><span class="level-item">Serverless Architecture</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Model-Monitoring"><span class="level-left"><span class="level-item">2.7</span><span class="level-item">Model Monitoring</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Metrics-to-monitor"><span class="level-left"><span class="level-item">2.7.1</span><span class="level-item">Metrics to monitor</span></span></a></li><li><a class="level is-mobile" href="#Sample-procedure-for-ML-app-monitoring"><span class="level-left"><span class="level-item">2.7.2</span><span class="level-item">Sample procedure for ML app monitoring</span></span></a></li><li><a class="level is-mobile" href="#Other-things-to-consider"><span class="level-left"><span class="level-item">2.7.3</span><span class="level-item">Other things to consider</span></span></a></li><li><a class="level is-mobile" href="#Best-Practices"><span class="level-left"><span class="level-item">2.7.4</span><span class="level-item">Best Practices</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Last-words"><span class="level-left"><span class="level-item">2.8</span><span class="level-item">Last words</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

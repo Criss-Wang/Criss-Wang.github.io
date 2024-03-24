@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Prompt Engineering Whitebook - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="A copy of what I learned and gathered about prompting, both from online and from work"><meta property="og:type" content="blog"><meta property="og:title" content="Prompt Engineering Whitebook"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/llm/prompt-engineering/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="A copy of what I learned and gathered about prompting, both from online and from work"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/img/og_image.png"><meta property="article:published_time" content="2024-03-20T04:00:00.000Z"><meta property="article:modified_time" content="2024-03-24T06:16:07.720Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="LLM"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/llm/prompt-engineering/"},"headline":"Prompt Engineering Whitebook","image":["https://criss-wang.github.io/img/og_image.png"],"datePublished":"2024-03-20T04:00:00.000Z","dateModified":"2024-03-24T06:16:07.720Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"A copy of what I learned and gathered about prompting, both from online and from work"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/llm/prompt-engineering/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Software">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">Prompt Engineering Whitebook</h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-03-20T04:00:00.000Z" title="2024-03-20T04:00:00.000Z">2024-03-20</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h2 id="Why-prompting"><a href="#Why-prompting" class="headerlink" title="Why prompting"></a>Why prompting</h2><p>When working with LLMs, the rule number one is: <strong>Don't touch the model</strong>. Very often, people (especially students with more experience in model tuning and less industrial-level prompt engineering experiences) will opt for finetuning when they have a new problem at hand. However, the harsh reality is that most real-world problems are either simple enough to handle with a good prompt, or complex enough that fine-tuning on available large datasets become less effective.</p>
+<p>In my opinion, prompting should ideally be your first approach. Complex tasks can often be decomposed into smaller, easier tasks and solved with pretrained models. Yuo should only go changing model architecture once your prompts are as good as they can be. No company would want to burn money at start, only to realize that easy solution with prompt engineering is there lying on the table.</p>
+<p>Major benefits of prompt engineering include:</p>
+<ol>
+<li>Reduce costs by moving to a smaller model</li>
+<li>Eliminate finetuning costs</li>
+<li>Enable lower-latency communication by changing the general format</li>
+</ol>
+<h2 id="Assumptions"><a href="#Assumptions" class="headerlink" title="Assumptions"></a>Assumptions</h2><p>This blog assumes basic understanding of prompting, such as what forms a prompt, what are different components of a prompt, and how prompts are transformed into tokens for model inferences. You may check online resources for it if you don't now about them.</p>
+<h2 id="Techniques"><a href="#Techniques" class="headerlink" title="Techniques"></a>Techniques</h2><h3 id="Use-Templates"><a href="#Use-Templates" class="headerlink" title="Use Templates"></a>Use Templates</h3><p>Most open source model have their specific prompt tempaltes. You can refer to their website, or find it on Hugging Face. Some basic ones include</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/CarperAI/stable-vicuna-13b-delta">Vicuna-13B</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">### <span class="title class_">Human</span>: your prompt here</span><br><span class="line">### <span class="title class_">Assistant</span>:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/TheBloke/Llama-2-13B-chat-GGML">Llama-2-chat</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="variable constant_">INST</span>] &lt;&lt;<span class="variable constant_">SYS</span>&gt;&gt;</span><br><span class="line"><span class="title class_">You</span> are a helpful, respectful and honest assistant. <span class="title class_">Always</span> answer <span class="keyword">as</span> helpfully <span class="keyword">as</span> possible, <span class="keyword">while</span> being safe.  <span class="title class_">Your</span> answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. <span class="title class_">Please</span> ensure that your responses are socially unbiased and positive <span class="keyword">in</span> nature. <span class="title class_">If</span> a question does not make any sense, or is not factually coherent, explain why instead <span class="keyword">of</span> answering something not correct. <span class="title class_">If</span> you don\<span class="string">'t know the answer to a question, please don\'t share false information.</span></span><br><span class="line"><span class="string">&lt;&lt;/SYS&gt;&gt;</span></span><br><span class="line"><span class="string">{prompt}[/INST]</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://huggingface.co/TheBloke/EverythingLM-13b-V2-16K-GGML">EverythingLM-13B-16K</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">You</span> are a helpful <span class="variable constant_">AI</span> assistant.</span><br><span class="line"></span><br><span class="line"><span class="attr">USER</span>: {prompt}</span><br><span class="line"><span class="attr">ASSISTANT</span>:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://claude.ai/">Claude</a></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Human</span>: <span class="title class_">Human</span> things</span><br><span class="line"><span class="title class_">Assistant</span>: {{<span class="title class_">Response</span>}}</span><br></pre></td></tr></table></figure>
+
+<p>Things to take note of:</p>
+<ul>
+<li>Some models don't have system prompts</li>
+<li>Some models will prefer alternating between <code>user</code> prompt and <code>assistant</code> prompts</li>
+<li>When choosing models, you should often look out for instruction-finetuned models, as they are the most prevalent ones for chat completion/streaming chat tasks.</li>
+</ul>
+<h3 id="Few-shot-learning"><a href="#Few-shot-learning" class="headerlink" title="Few-shot learning"></a>Few-shot learning</h3><p>To put it in a user-friendly text, <em>few-shot learning</em> in the context of llm prompting is simply providing example into the prompt. You may raise a question or instruction for the llm/chatbot to answer. But sometimes they don't know the answer format or they hallucinate without suffcient context. Giving some examples often helps models to understand the instructions better, thus providng a more cohesive and relevant answer. As an example, suppose one wants LLM to output a JSON, but on the first try, the JSON was malformed. To fix this issue, one can either pass the output to LLM and ask it to fix it by itself, or he can retry using a better prompt with few-shot learning:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">### <span class="title class_">Human</span>: <span class="title class_">Given</span> a sentence <span class="string">"This place is horrible"</span> <span class="keyword">from</span> <span class="title class_">Wall</span> <span class="title class_">Street</span> <span class="title class_">Journel</span>, determine <span class="keyword">if</span> it has positive/negative/neutral sentiment. <span class="title class_">Output</span> the result <span class="keyword">in</span> <span class="title class_">JSON</span> format. <span class="title class_">Here</span> are a few <span class="attr">examples</span>:</span><br><span class="line">{<span class="string">"sentence"</span>: <span class="string">"The food is enjoyable"</span>, <span class="string">"sentiment"</span>: <span class="string">"positive"</span>}</span><br><span class="line">{<span class="string">"sentence"</span>: <span class="string">"Princess Kate was diagnosed with cancer"</span>, <span class="string">"sentiment"</span>: <span class="string">"netural"</span>}</span><br><span class="line">{<span class="string">"sentence"</span>: <span class="string">"War criminials need to be punished heavily"</span>, <span class="string">"sentiment"</span>: <span class="string">"negative"</span>}</span><br><span class="line">### <span class="title class_">Assistant</span>:</span><br></pre></td></tr></table></figure>
+
+<p>If we want the model to learn to merge queries from past responses and better the answer, we can improve the prompt above by splitting in into conversations</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">### <span class="title class_">System</span>: <span class="title class_">Given</span> a sentence <span class="keyword">from</span> <span class="title class_">Wall</span> <span class="title class_">Street</span> <span class="title class_">Journel</span>, determine <span class="keyword">if</span> it has positive/negative/neutral sentiment. <span class="title class_">Output</span> the result <span class="keyword">in</span> <span class="title class_">JSON</span> format.</span><br><span class="line">### <span class="title class_">Human</span>: <span class="title class_">The</span> sentence is <span class="string">"The food is enjoyable"</span>, the output <span class="title class_">JSON</span> <span class="attr">is</span>:</span><br><span class="line">### <span class="title class_">Assistant</span>: {<span class="string">"sentence"</span>: <span class="string">"The food is enjoyable"</span>, <span class="string">"sentiment"</span>: <span class="string">"positive"</span>}</span><br><span class="line">### <span class="title class_">Human</span>: <span class="title class_">The</span> sentence is <span class="string">"Princess Kate was diagnosed with cancer"</span>, the output <span class="title class_">JSON</span> <span class="attr">is</span>:</span><br><span class="line">### <span class="title class_">Assistant</span>: {<span class="string">"sentence"</span>: <span class="string">"Princess Kate was diagnosed with cancer"</span>, <span class="string">"sentiment"</span>: <span class="string">"netural"</span>}</span><br><span class="line">### <span class="title class_">Human</span>: <span class="title class_">The</span> sentence is <span class="string">"War criminials need to be punished heavily"</span>, the output <span class="title class_">JSON</span> <span class="attr">is</span>:</span><br><span class="line">### <span class="title class_">Assistant</span>: {<span class="string">"sentence"</span>: <span class="string">"War criminials need to be punished heavily"</span>, <span class="string">"sentiment"</span>: <span class="string">"negative"</span>}</span><br><span class="line">### <span class="title class_">Human</span>: <span class="title class_">The</span> sentence is <span class="string">"The place is horrible"</span>, the output <span class="title class_">JSON</span> <span class="attr">is</span>:</span><br><span class="line">### <span class="title class_">Assistant</span>:</span><br></pre></td></tr></table></figure>
+
+<p>You can also teach multi-turn behavior - like adding together queries, and cleaning them out when requested via this few-shot learning technique.</p>
+<p>With all these benefits, we must not ignore its potential <strong>problems</strong>:</p>
+<ul>
+<li>Model often struggles to move away from pre-training knowledge</li>
+<li>It significantly uses up the token budget of your prompts, which can be expensive</li>
+<li>Sometimes giving examples is counter-effective. For example, providing a single positive example can cause the model to always output positive label. Providing two positive and one negative can cause the model to think the next one must be negative. Sometimes this pattern happen because the label distribution is very skewed. Sometimes it could be domain knowledge issue as well. Be sure to check it out and eliminate potential hallucination issues when applying this technique.</li>
+</ul>
+<h3 id="Manage-prompt-complexity"><a href="#Manage-prompt-complexity" class="headerlink" title="Manage prompt complexity"></a>Manage prompt complexity</h3><p>Suppose you are talking to a human and providing instruction to them. If you provide a long, complex set of instructions in one shot and expects the human to follow it, how confident are you in him/her completing the instruciton as you wanted? Most cases it achieves nothing but anger in that person's mind. Now think about the case when you talk to a chatbot, the sheer complexity of prompt can also be countereffective from time to time. Hence, managing the complexity of your prompt is a really important part of prompt engineering. Here are a list of things I recommend checking to achieve a good balance when managing your prompts for your tasks. Most prompts have three primary types of complexity and we will handle them one by one.</p>
+<p><strong>Task Complexity</strong></p>
+<ul>
+<li>Definition: Difficulty of the major task</li>
+<li>Example: <code>Who are the characters in this text</code> is significantly simpler than <code>Identify the key antagonists</code></li>
+<li>How to reduce it:<ul>
+<li>Break it down to smaller, simpler tasks</li>
+<li>Insert a chain of thought before asking for an answer. <code>Think step-by-step</code> is an easy addition</li>
+<li>Pointing out which part of the problem to solve first. Models need to know where to start and start the right way.</li>
+<li>Sometimes you can debug model's thought process by asking it to print it out</li>
+</ul>
+</li>
+</ul>
+<p><strong>Inference Complexity</strong></p>
+<ul>
+<li>Definition: The amount of inference the model needs to <em>understand</em> your task.</li>
+<li>Counterintuitively, this is something that affects small, seemingly simple prompts.</li>
+<li>Example: understanding what is an <em>intent</em> can be tough, as it can mean general objectives in research, or enquiry in customer service.</li>
+<li>How to reduce it:<ul>
+<li>Provide explanation/definition to those keywords</li>
+<li>Switch to a simpler/general words if possible</li>
+<li>Often requires prompt size to grow</li>
+<li>Ask the model to define it himeselve to achieve implicit chain-of-thought</li>
+</ul>
+</li>
+</ul>
+<p><strong>Ancillary Functions</strong></p>
+<ul>
+<li>Definition: smaller tasks you are explicitly (or implicitly) asking the model to perform</li>
+<li>Examples: transformations to the JSON; retrieving and merging things from previous messages.</li>
+<li>How to reduce it:<ul>
+<li>Prompt Switching: essentially keeping the context and vary the instructions<ul>
+<li>Note: Conversationally tuned models (like llama-2) will prefer this, but other instruction-following models might find it hard to retrieve intermittent context (hiding in between human instructions) when it comes to answering the final, big question.</li>
+</ul>
+</li>
+<li>Self-consistency: You can test if the complexity is removed by turn the temperature up if your task permits it, and see if the results are aligned</li>
+<li>If your prompt works well across multiple models, it's a good sign that it's well-spelled out</li>
+</ul>
+</li>
+</ul>
+<p><strong>A checklist for reducing prompt comlexity</strong></p>
+<ol>
+<li>Primary task</li>
+<li>The most valuable thing I need the model to do</li>
+<li>Key terms in the task: are they very, very well defined, or so simple that there's no ambiguity?</li>
+<li>Any explicit/implicit additional tasks aside from primary task: are they integral to the performance of my primary task? Can I split them into other prompts or find ways to reduce their complexity?</li>
+<li>Any domain knowledge or things that require domain expertise: can model infer or learn these eccentricities about this domain?</li>
+<li>Any instruction requirements: is my task a question? does it need instructions (like this list you're reading) on how to start towards a solution?</li>
+</ol>
+<h3 id="Spoon-Feeding"><a href="#Spoon-Feeding" class="headerlink" title="Spoon-Feeding"></a>Spoon-Feeding</h3><p>Intuition: LLMs are next-token probability predictors, and the sooner you can get them going in the right direction, the more likely that they'll follow it.</p>
+<p>Example:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Human</span>: <span class="title class_">Please</span> help <span class="variable language_">this</span> user <span class="keyword">with</span> his questions, by providing a list <span class="keyword">of</span> ingredients <span class="keyword">for</span> his recipe.</span><br><span class="line"></span><br><span class="line"><span class="title class_">Human</span>: I<span class="string">'m making a mud pie!</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Assistant: Cool! The ingredients you'</span>ll need are</span><br></pre></td></tr></table></figure>
+
+<p>Notice in <code>Assistant</code> , the tokens all the way up to <code>are</code> are fixed, and the next token is our required word.</p>
+<p>Note that OpenAI GPTs don't support this strategy (but you can still leave uncompleted text at the end for a workaround), but almost every other model and provider does.</p>
+<h3 id="Proper-usage-of-System-prompts"><a href="#Proper-usage-of-System-prompts" class="headerlink" title="Proper usage of System prompts"></a>Proper usage of System prompts</h3><p>Attention to system prompts have always been a potential weakness of GPT models (but may be fixed in later versions). However, Llama-2 class of models actually handle system prompts well, as they use special mechanisms in training (like <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2307.09288">Ghost Attention</a>) to increase the effectiveness of a system prompt to influence a conversation, even after many messages.</p>
+<p>Some useful things you can use your system prompts for:</p>
+<ol>
+<li>Hold Facts, Rules (see below) or other general purpose information that don't change as the conversation proceeds.</li>
+<li>Set the personality of the assistant. A strong personality (e.g. <code>You are a chess grandmaster</code>) may lead to better quality of the task completed in some cases.</li>
+<li>Set (or reinforce) an output format (.e.g <code>You can only output SQL.</code>)</li>
+<li>Move repeated bits of user messages out so you can do better few-shot learning.</li>
+<li>Make changing the task for this prompt easier without editing the conversation history.</li>
+</ol>
+<h3 id="Meaningfully-distinct-keywords"><a href="#Meaningfully-distinct-keywords" class="headerlink" title="Meaningfully distinct keywords"></a>Meaningfully distinct keywords</h3><p>For some keywords that you want the model to put close attention to, convert the normal natural language to a special format. It is recommended to use <code>CAPITAL_UNDERSCORED_HEADINGS</code>. As an example:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">The</span> travel <span class="variable language_">document</span> I want you to <span class="attr">read</span>:</span><br><span class="line"><span class="title class_">Lorem</span> <span class="title class_">Ipsum</span> is simply dummy text <span class="keyword">of</span> the printing and typesetting industry. <span class="title class_">Lorem</span> <span class="title class_">Ipsum</span> has been the industry<span class="string">'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Use the travel document provided to extract the key destinations the user is travelling to.</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<p>Can be transformed into:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">USER_TRAVEL_DOCUMENT</span>:</span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Extract</span> the key destinations <span class="keyword">from</span> <span class="variable constant_">USER_TRAVEL_DOCUMENT</span>.</span><br></pre></td></tr></table></figure>
+
+<h3 id="Proper-escaping"><a href="#Proper-escaping" class="headerlink" title="Proper escaping"></a>Proper escaping</h3><p>In most cases, the information provided (documents, emails, etc) will be in the same language and follow similar formats to your instructions.</p>
+<ul>
+<li>Use escaped (and Meaningfully distinct keywords) to help the model separate which is which.</li>
+<li>Use backticks (`) or triple quotes (”””) to escape your data sections.</li>
+<li>Use a few recommended formatting options for input/output<ul>
+<li><strong>Multi-line strings</strong>: pretty easy, use this for unstructured data.</li>
+<li><strong>Bulleted lists</strong>: easy way to mark something as a list. Save your tokens unless your experience differs.</li>
+<li><strong>Markdown tables</strong>: pretty token heavy. Use these if your data comes in markdown tables, or you need it for easy output formatting.</li>
+<li><strong>Typescript</strong>: The significantly better choice for expressing a typespec, especially with comments mixed in.</li>
+<li><strong>JSON</strong>: Uses more token than many of the above. But may become the new standard in the long term (OpenAI funciton has JSON formatted output support).</li>
+<li><strong>YAML</strong>: Close to natural language. Also pretty conservative on tokens. Not having random curly braces helps the BPE better break up your characters into larger token chunks.</li>
+</ul>
+</li>
+<li>A <em>rule of thumb</em>: If you want support, use JSON. If you want brevity, use YAML. If you have a typespec, use Typescript. If it's simple, just separate with newlines.</li>
+</ul>
+<h3 id="Content-structuring-with-Facts-and-Rules"><a href="#Content-structuring-with-Facts-and-Rules" class="headerlink" title="Content structuring with Facts and Rules"></a>Content structuring with Facts and Rules</h3><p>Sometimes structuring your prompt may make your prompts easier to read for both you and the model. Aside from proper escaping, we often use facts and rules to guide models to complete the task:</p>
+<ul>
+<li><strong>Facts</strong> list what the model should presume before working on the task. Organizing your prompts this way helps you better understand and modify them later on (and prevent prompt-rot)</li>
+<li><strong>Rules</strong> are specific instruction to follow when executing on a task<br>An example can be:</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">FACTS</span>:</span><br><span class="line"><span class="number">1.</span> <span class="title class_">Today</span><span class="string">'s date is 6 September 2023.</span></span><br><span class="line"><span class="string">2. Pax, pp, per person all mean the same thing.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">RULES:</span></span><br><span class="line"><span class="string">1. You need to outline your logical premise in Prolog before each sentence.</span></span><br><span class="line"><span class="string">2. Write the text as the user, not on behalf of them.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Chain-of-Thought"><a href="#Chain-of-Thought" class="headerlink" title="Chain-of-Thought"></a>Chain-of-Thought</h3><p>This is a well-known method, I'll just pass two examples with different tasks for inspiration</p>
+<ol>
+<li>Cliff-summarising a story</li>
+</ol>
+<p>Let's say you want to take a story and summarise the key story beats. You keep trying but the LLM keeps missing things. Here’s one approach.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">STORY</span>:</span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Just wakin' up in the mornin', gotta thank God</span></span><br><span class="line"><span class="string">I don't know but today seems kinda odd</span></span><br><span class="line"><span class="string">No barkin' from the dog, no smog</span></span><br><span class="line"><span class="string">And momma cooked a breakfast with no hog</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Summarise</span> <span class="variable language_">this</span> story into the key plot points.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>One way to improve effectiveness is to work out how you would do it.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Summarise</span> <span class="variable language_">this</span> <span class="variable constant_">STORY</span> into key plot points.</span><br><span class="line"></span><br><span class="line"><span class="attr">STORY</span>:</span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Just wakin' up in the mornin', gotta thank God</span></span><br><span class="line"><span class="string">I don't know but today seems kinda odd</span></span><br><span class="line"><span class="string">No barkin' from the dog, no smog</span></span><br><span class="line"><span class="string">And momma cooked a breakfast with no hog</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Go</span> step by step to get the plot <span class="attr">points</span>:</span><br><span class="line"><span class="number">1.</span> <span class="title class_">Outline</span> the key players <span class="keyword">in</span> the story. <span class="title class_">Who</span> are the characters?</span><br><span class="line"><span class="number">2.</span> <span class="title class_">List</span> the major plot points and who was involved.</span><br><span class="line"><span class="number">3.</span> <span class="title class_">For</span> each plot point, list the consequences <span class="keyword">of</span> <span class="variable language_">this</span> happening.</span><br><span class="line"><span class="number">4.</span> <span class="title class_">For</span> each consequence, see <span class="keyword">if</span> there are any story beats missing <span class="keyword">from</span> the first list, and list them.</span><br><span class="line"><span class="number">5.</span> <span class="title class_">Resummarise</span> the story <span class="keyword">in</span> terms <span class="keyword">of</span> beats, labelling each point <span class="keyword">as</span> positive or negative and it<span class="string">'s contribution to the story.</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<p>This kind of prompting also produces responses that are far easier to debug.</p>
+<ol start="2">
+<li>Continuing a story</li>
+</ol>
+<p>Now say we wanted to write the next chapter for the same story - a far more creative endeavor. Here's a naive prompt:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">STORY</span>:</span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Just wakin' up in the mornin', gotta thank God</span></span><br><span class="line"><span class="string">I don't know but today seems kinda odd</span></span><br><span class="line"><span class="string">No barkin' from the dog, no smog</span></span><br><span class="line"><span class="string">And momma cooked a breakfast with no hog</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Write</span> the next chapter <span class="keyword">of</span> the <span class="variable constant_">STORY</span>.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Here's a better one.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">STORY</span>:</span><br><span class="line"><span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">Just wakin' up in the mornin', gotta thank God</span></span><br><span class="line"><span class="string">I don't know but today seems kinda odd</span></span><br><span class="line"><span class="string">No barkin' from the dog, no smog</span></span><br><span class="line"><span class="string">And momma cooked a breakfast with no hog</span></span><br><span class="line"><span class="string">"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">We</span> need to write the next chapter <span class="keyword">of</span> <span class="variable constant_">STORY</span>, but <span class="keyword">let</span><span class="string">'s go through the steps:</span></span><br><span class="line"><span class="string">1. List the main characters in the STORY, and what their personalities are.</span></span><br><span class="line"><span class="string">2. What are their arcs so far? Label each one on a scale of 1-10 for how interesting it is, and how important it is to the main story.</span></span><br><span class="line"><span class="string">3. List which arcs are unfinished.</span></span><br><span class="line"><span class="string">4. List 5 new characters that could be introduced in the next chapter.</span></span><br><span class="line"><span class="string">5. List 5 potential, fantastical things that could happen - major story beats - in the next chapter.</span></span><br><span class="line"><span class="string">6. Grade the new characters and the new occurrences 1-10 on how fun they would be, and how much they fit within the theme of the existing story.</span></span><br><span class="line"><span class="string">7. Write the next chapter.</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Chain-of-Thought-but-multi-path-automation-validation"><a href="#Chain-of-Thought-but-multi-path-automation-validation" class="headerlink" title="Chain-of-Thought but multi-path automation + validation"></a>Chain-of-Thought but multi-path automation + validation</h3><p>When designing chain-of-thought prompt, or any set of facts + rules to better structure your prompt content, consider consulting GPT-4 or other expensive models to get suggestions. The pseudocode is</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">For each COT path (rules/facts):</span><br><span class="line">	Build prompt with these context</span><br><span class="line">	Run inference to get results</span><br><span class="line">	Perform debugging step and generate a score</span><br><span class="line">Select the candidate with the highest score</span><br></pre></td></tr></table></figure>
+
+<h3 id="Some-other-tricks-To-be-expanded"><a href="#Some-other-tricks-To-be-expanded" class="headerlink" title="Some other tricks (To be expanded)"></a>Some other tricks (To be expanded)</h3><ul>
+<li>Pretended that some of our provided context came from the AI and not us. Language models will critique their own outputs much more readily than your inputs</li>
+<li>For each model, use delimiters and keywords that look and feel similar to the original template/dataset used for the model, even if they're not directly part of the dataset</li>
+<li>In some cases, asking the model to annotate its own responses with a probability of acceptance, and thresholding this value to remove the worst candidates can improve results.</li>
+<li>Using structured text like pseudocode may improve results</li>
+<li>Replace negation statements with assertions (e.g., instead of “don't be stereotyped,” say, “please ensure your answer does not rely on stereotypes”)</li>
+<li>If budget allows, find a way to express the output in structured format where it can be auto-verified (in polynomial time ideally). Then turn the temperature up and take a few passes through the same prompt. Pick the majority winner.</li>
+</ul>
+<h2 id="How-to-debug-your-prompt"><a href="#How-to-debug-your-prompt" class="headerlink" title="How to debug your prompt"></a>How to debug your prompt</h2><ul>
+<li>Never pass user input (more specificly, raw customer input) directly to model for output</li>
+<li>Never invent custom formats. Use and modify what's already in the lexicon of the model.</li>
+<li>Remove syntax and semantic errors. Sometimes this cause models to output wrong things. Example: saying <code>output characters</code> in an instruction may direct model to prefer outputing multiple characters when there should be only one valid character.</li>
+<li>When dealing with specific output format, don't put trailing fullstop/coma/semicolon as they may break the output structure.</li>
+<li>Vary the order of your instructions and data to make a prompt work</li>
+<li>Vary where the information is placed (user prompt vs system prompt vs assistant prompt)</li>
+<li>Change the wording, sometimes the keywords/phrases that are domain-specific or abstract are understood by different models differently. check if changing some keywords to its variants or make them clearer can be helpful- When performances of output among different models using the same prompt are similar (sometimes can be done using an LLM evaluator), and you are happy with the results, your prompt is probably ready to use.</li>
+</ul>
+<h2 id="When-to-modify-the-model-itself"><a href="#When-to-modify-the-model-itself" class="headerlink" title="When to modify the model itself"></a>When to modify the model itself</h2><ol>
+<li>You've tried extensive prompt optimization, and you're nowhere near your required success rate.</li>
+<li>You need to move to a smaller model, for privacy or cost reasons.</li>
+<li>You have a large enough dataset, and the time and money to finetune a model.</li>
+<li>Your problem space sits far outside the pretraining dataset - maybe you work in Swift, or you need to train a DSL.</li>
+<li>You have a particular style of interaction that you need to “bake in”, even at the cost of potentially overfitting.</li>
+<li>You need to reverse some prior finetuned behavior.</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://olickel.com/everything-i-know-about-prompting-llms#properescaping">Everything I know about Prompting</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Prompt Engineering Whitebook</p><p><a href="https://criss-wang.github.io/post/blogs/llm/prompt-engineering/">https://criss-wang.github.io/post/blogs/llm/prompt-engineering/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-03-20</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-03-24</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/temp/write-quality-code-for-ml/"><i class="level-item fas fa-chevron-left"></i><span class="level-item"> </span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/software/build-a-complete-python-project/"><span class="level-item">A good Python projecttemplate to use as starting point</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Sunnyvale, CA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">68</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">38</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">42</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">9</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Training/"><span class="tag">Distributed Training</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Python-Project/"><span class="tag">Python Project</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Systems/"><span class="tag">Distributed Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#Why-prompting"><span class="level-left"><span class="level-item">1</span><span class="level-item">Why prompting</span></span></a></li><li><a class="level is-mobile" href="#Assumptions"><span class="level-left"><span class="level-item">2</span><span class="level-item">Assumptions</span></span></a></li><li><a class="level is-mobile" href="#Techniques"><span class="level-left"><span class="level-item">3</span><span class="level-item">Techniques</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Use-Templates"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">Use Templates</span></span></a></li><li><a class="level is-mobile" href="#Few-shot-learning"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">Few-shot learning</span></span></a></li><li><a class="level is-mobile" href="#Manage-prompt-complexity"><span class="level-left"><span class="level-item">3.3</span><span class="level-item">Manage prompt complexity</span></span></a></li><li><a class="level is-mobile" href="#Spoon-Feeding"><span class="level-left"><span class="level-item">3.4</span><span class="level-item">Spoon-Feeding</span></span></a></li><li><a class="level is-mobile" href="#Proper-usage-of-System-prompts"><span class="level-left"><span class="level-item">3.5</span><span class="level-item">Proper usage of System prompts</span></span></a></li><li><a class="level is-mobile" href="#Meaningfully-distinct-keywords"><span class="level-left"><span class="level-item">3.6</span><span class="level-item">Meaningfully distinct keywords</span></span></a></li><li><a class="level is-mobile" href="#Proper-escaping"><span class="level-left"><span class="level-item">3.7</span><span class="level-item">Proper escaping</span></span></a></li><li><a class="level is-mobile" href="#Content-structuring-with-Facts-and-Rules"><span class="level-left"><span class="level-item">3.8</span><span class="level-item">Content structuring with Facts and Rules</span></span></a></li><li><a class="level is-mobile" href="#Chain-of-Thought"><span class="level-left"><span class="level-item">3.9</span><span class="level-item">Chain-of-Thought</span></span></a></li><li><a class="level is-mobile" href="#Chain-of-Thought-but-multi-path-automation-validation"><span class="level-left"><span class="level-item">3.10</span><span class="level-item">Chain-of-Thought but multi-path automation + validation</span></span></a></li><li><a class="level is-mobile" href="#Some-other-tricks-To-be-expanded"><span class="level-left"><span class="level-item">3.11</span><span class="level-item">Some other tricks (To be expanded)</span></span></a></li></ul></li><li><a class="level is-mobile" href="#How-to-debug-your-prompt"><span class="level-left"><span class="level-item">4</span><span class="level-item">How to debug your prompt</span></span></a></li><li><a class="level is-mobile" href="#When-to-modify-the-model-itself"><span class="level-left"><span class="level-item">5</span><span class="level-item">When to modify the model itself</span></span></a></li><li><a class="level is-mobile" href="#References"><span class="level-left"><span class="level-item">6</span><span class="level-item">References</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
