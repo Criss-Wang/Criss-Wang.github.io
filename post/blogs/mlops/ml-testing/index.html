@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Testing in Machine Learning - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="A holistic approach to evaluate machine learning code"><meta property="og:type" content="blog"><meta property="og:title" content="Testing in Machine Learning"><meta property="og:url" content="https://criss-wang.github.io/post/blogs/mlops/ml-testing/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="A holistic approach to evaluate machine learning code"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://www.jeremyjordan.me/content/images/2020/08/Group-7.png"><meta property="article:published_time" content="2024-04-19T04:00:00.000Z"><meta property="article:modified_time" content="2024-04-20T02:58:51.370Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="Evaluation"><meta property="article:tag" content="MLOps"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://www.jeremyjordan.me/content/images/2020/08/Group-7.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/blogs/mlops/ml-testing/"},"headline":"Testing in Machine Learning","image":["https://www.jeremyjordan.me/content/images/2020/08/Group-7.png"],"datePublished":"2024-04-19T04:00:00.000Z","dateModified":"2024-04-20T02:58:51.370Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"A holistic approach to evaluate machine learning code"}</script><link rel="canonical" href="https://criss-wang.github.io/post/blogs/mlops/ml-testing/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Software">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">Testing in Machine Learning</h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-04-19T04:00:00.000Z" title="2024-04-19T04:00:00.000Z">2024-04-19</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Blogs/">Blogs</a></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h1 id="ML-Testing"><a href="#ML-Testing" class="headerlink" title="ML Testing"></a>ML Testing</h1><p>The complexity of ML models and the iterative nature of their development pose unique challenges in ensuring their reliability, robustness, and performance. In this blog post, we delve into the critical aspect of ML testing in MLOps, exploring various strategies, tools, and best practices to ensure the quality and effectiveness of ML models in production environments.</p>
+<h2 id="Data-quality-and-diversity"><a href="#Data-quality-and-diversity" class="headerlink" title="Data quality and diversity"></a>Data quality and diversity</h2><p>Data quality and diversity are critical factors in ML testing, ensuring that models perform reliably across different scenarios and datasets. This means the following aspects need to be tested thoroughly:</p>
+<ol>
+<li><p><strong>Data Consistency</strong>:<br>Ensuring data consistency involves validating the integrity, accuracy, and completeness of datasets used for training and testing ML models. Techniques such as data profiling, schema validation, and anomaly detection help identify inconsistencies and errors in the data.</p>
+<p>As a baseline, we shall always check for:</p>
+<ul>
+<li><strong>Implementation errors</strong> (i.e., written logic, error handling) during ETL of data<ul>
+<li><em>Encoding</em> is often something people forget to check. However this is extremely important in the ML domain.</li>
+</ul>
+</li>
+<li><strong>Input/Ouput Shape and Range</strong> misalignment from the model</li>
+<li><strong>Potential Train/Test/Validation Split issue</strong> (e.g. class imbalance among the split) and <strong>Potential data leakages</strong> (e.g. from train set to test set)</li>
+<li>UNEXPECTED <strong>Feature correlation</strong> and <strong>Temporal dependencies</strong> within dataset</li>
+</ul>
+</li>
+<li><p><strong>Data Drift</strong>:<br>Data drift refers to changes in the underlying data distribution over time, leading to performance degradation in ML models. Monitoring data drift involves comparing model predictions with ground truth labels and detecting deviations from expected behavior. Techniques like drift detection and concept drift detection are employed to locate data drift issues.</p>
+<p>As a baseline, we shall always check for:</p>
+<ul>
+<li><strong>Distribution drift</strong><ul>
+<li><em>Kolmogorov-Smirnov Test</em> for numerical CDF drift testing</li>
+<li><em>Chi-square Test</em> for categorical drift testing</li>
+</ul>
+</li>
+<li><strong>Performance drift</strong> caused by domain shifts or concept shifts. Typically conducted during production stage and can be in the form of supervised/unsupervised/semi-supervised</li>
+</ul>
+</li>
+</ol>
+<h2 id="Model-quality"><a href="#Model-quality" class="headerlink" title="Model quality"></a>Model quality</h2><p>Model quality encompasses various aspects such as regression, robustness, and domain adaptation, ensuring that ML models generalize well and exhibit reliable performance across diverse datasets.</p>
+<ol>
+<li><p><strong>Metrics definition &amp; evaluation framework</strong><br>Before stepping into regression testing or robustness testing, you MUST ensure the correct implementation of your evaluation framework. It will a huge waste of time if you spend tons of time trying to improving upon a problematic metric results. Make sure all the custom implementation of evaluation pipeline and metrics are thoroughly tested.</p>
+</li>
+<li><p><strong>Regression testing</strong><br>Regression testing involves validating model outputs against expected outcomes to detect regression bugs and ensure model correctness. Regression can happen during training time and inference time, so it is critical to provide robust UAT testing and Prod testing, and set up alarms carefully. This is a major task in many of the industry-level ML projects, as it significantly affects the product’s quality.</p>
+<p>As a baseline, we shall always check for :</p>
+<ul>
+<li>[Training] Convergence</li>
+<li>[Training] Overfitting / Underfitting</li>
+<li>[Training + Inference] Directional expectation (e.g. snow shouldn’t be expected under high temperature)</li>
+<li>[Inference] Server testing (batch/streaming features)</li>
+</ul>
+</li>
+<li><p><strong>Robustness</strong><br>Model robustness refers to the ability of ML models to perform consistently in the presence of perturbations, adversarial attacks, and out-of-distribution data.</p>
+<p>As a baseline we should always consider the following methods:</p>
+<ul>
+<li>adversarial training with input perturbation</li>
+<li>robust optimization over model with surrogate functions / loss that accounts for perturbation</li>
+</ul>
+</li>
+</ol>
+<h2 id="Fairness-amp-Bias"><a href="#Fairness-amp-Bias" class="headerlink" title="Fairness & Bias"></a>Fairness &amp; Bias</h2><p>Ensuring fairness and mitigating bias in ML models are essential for ethical AI and preventing discriminatory outcomes. This includes identifying and mitigating biases related to race, gender, age, and other demographic factors. Techniques such as fairness-aware training, bias detection, and algorithmic auditing help address ethical concerns and promote fairness and transparency in ML systems. In post-GPT area, this often means <code>alignment</code> for LLMs. However, many explicit components like <strong>Diverse Representation</strong>, <strong>Transparency and Explainability</strong> and <strong>Bias Monitoring</strong> (preprocessing/data, discriminatory inference, evaluation framework, etc) need to be considered. The focus also differ from business to business. Hence, I would not provide a generic baseline here. Instead, I’d recommend taking a deep dive into the <a target="_blank" rel="noopener" href="https://aif360.res.ibm.com/">IBM’s AI Fairness 360 (AIF360)</a> for the specific biases you’d like to mitigate and the relevant metrics used. On the other hand, you may also resort to LLM evaluators to complete the task for you (at a risk of evaluation bias).</p>
+<h2 id="System-Testing"><a href="#System-Testing" class="headerlink" title="System Testing"></a>System Testing</h2><p>Ensuring robust system is another critical part of the MLOps workflow. The context may diverge based on inference or training pipeline. However, both have the target of maintaining model correctness, scalability and fault tolerance.</p>
+<p>From a training-based aspect, we need to consider</p>
+<ul>
+<li>If multi-node or multi-server (or both) setup is secured with failure recovery mechanisms like model checkpointing and replica syncing</li>
+<li>If CPU/GPU bandwidth is fully utilized and memory is fully utilized</li>
+<li>If storage is causing a issue</li>
+<li>If network congestions / latencies can be addressed as desired</li>
+</ul>
+<p>From an inference-based aspect, we need to consider</p>
+<ul>
+<li>If model can serve streaming/batch/real-time functionalities</li>
+<li>If model can have low latency, even under heavy traffic, i.e. load testing or stress testing (*note: this may be addressed by devop team, but we should also pay attention to the processing time change due to heated servers)</li>
+</ul>
+<h2 id="ML-Testing-but-SWE"><a href="#ML-Testing-but-SWE" class="headerlink" title="ML Testing but SWE"></a>ML Testing but SWE</h2><p>To write high quality ML code doesn’t just mean we need to consider all the data science and ML research perspective, but also the basic software engineering principles need to be highly respected. Towards this end, we have to write robust unit tests. However, the guideline may differ from the traditional swe practices. Here we have the following suggestions when performing unit testing in ML:</p>
+<ul>
+<li><strong>Use small, simple data samples</strong>: Avoid loading data files as sample data. Use one or two data entries defined directly in the test files if possible.</li>
+<li><strong>When viable, test against random or empty weights</strong> to get rid of any assumption about model weights and ensure the architecture’s robustness on any embedding layers</li>
+<li><strong>Write critical tests against the actual model</strong>: If they take a while to run, you may choose to mark <code>@slow</code> on the test and run only when needed (e.g., pre-commit and pre-merge).</li>
+<li><strong>Check post-processing logics</strong> such as diversification or filtering recommendations to ensure business logic runs correctly after the ML part</li>
+</ul>
+<h2 id="ML-Testing-CI-x2F-CD"><a href="#ML-Testing-CI-x2F-CD" class="headerlink" title="ML Testing CI/CD"></a>ML Testing CI/CD</h2><p>ML testing, just like SWE testing, is a continuous effort. We can often automate it via CI/CD. However, unlike SWE testing, some of the efforts are destined to give non-deterministic outcomes, and consequently requires human-in-the-loop. Towards this end, CI/CD in ml is a more challenging task, and have less of a standardized way to follow. Nonetheless, there are still guidelines we can follow. I really like how <a target="_blank" rel="noopener" href="https://www.jeremyjordan.me/testing-ml/">Jeremy Jordan</a> depicts a canonical model development pipeline would look like as follows:</p>
+<p><img src="https://www.jeremyjordan.me/content/images/2020/08/Group-7.png" alt="A complete flow"></p>
+<p>If you are interested in more detailed descriptions, for e.g. how dev/uat/prod testing would differ in a ml-driven project in big companies, I’d recommend <a target="_blank" rel="noopener" href="https://www.databricks.com/resources/ebook/the-big-book-of-mlops?scid=7018Y000001Fi1CQAS&utm_medium=paid+search&utm_source=google&utm_campaign=17107065832&utm_adgroup=145252855846&utm_content=ebook&utm_offer=the-big-book-of-mlops&utm_ad=678157791283&utm_term=databricks%20the%20big%20book%20of%20mlops&gad_source=1&gclid=CjwKCAjwoPOwBhAeEiwAJuXRh97QqZgy1288RwSefteCmvWr9EwD11wvIe6kZNVzC35pDP6u492j2RoC7UkQAvD_BwE">this book</a> from Databricks. It contains tons of great lessons on how to build a robust system, which includes testings in CI/CD on ML models.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jeremyjordan.me/testing-ml/">https://www.jeremyjordan.me/testing-ml/</a></li>
+<li><a target="_blank" rel="noopener" href="https://eugeneyan.com/writing/testing-ml/">https://eugeneyan.com/writing/testing-ml/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.tekhnoal.com/load-tests-for-ml-models">https://www.tekhnoal.com/load-tests-for-ml-models</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Testing in Machine Learning</p><p><a href="https://criss-wang.github.io/post/blogs/mlops/ml-testing/">https://criss-wang.github.io/post/blogs/mlops/ml-testing/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-04-19</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-04-19</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/temp/write-quality-code-for-ml/"><i class="level-item fas fa-chevron-left"></i><span class="level-item"> </span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/llm/prompt-engineering/"><span class="level-item">Prompt Engineering Whitebook</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Sunnyvale, CA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">69</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">38</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">44</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">9</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Training/"><span class="tag">Distributed Training</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Python-Project/"><span class="tag">Python Project</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Systems/"><span class="tag">Distributed Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation/"><span class="tag">Evaluation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MLOps/"><span class="tag">MLOps</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#ML-Testing"><span class="level-left"><span class="level-item">1</span><span class="level-item">ML Testing</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Data-quality-and-diversity"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">Data quality and diversity</span></span></a></li><li><a class="level is-mobile" href="#Model-quality"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">Model quality</span></span></a></li><li><a class="level is-mobile" href="#Fairness-amp-Bias"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">Fairness &amp; Bias</span></span></a></li><li><a class="level is-mobile" href="#System-Testing"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">System Testing</span></span></a></li><li><a class="level is-mobile" href="#ML-Testing-but-SWE"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">ML Testing but SWE</span></span></a></li><li><a class="level is-mobile" href="#ML-Testing-CI-x2F-CD"><span class="level-left"><span class="level-item">1.6</span><span class="level-item">ML Testing CI/CD</span></span></a></li><li><a class="level is-mobile" href="#References"><span class="level-left"><span class="level-item">1.7</span><span class="level-item">References</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
