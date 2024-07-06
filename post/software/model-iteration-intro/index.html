@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Model Iteration Series: Intro - Criss Wang&#039;s Log Book</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Criss Wang&#039;s Log Book"><meta name="msapplication-TileImage" content="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Criss Wang&#039;s Log Book"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="An overview of industry-level model iteration procedure"><meta property="og:type" content="blog"><meta property="og:title" content="Model Iteration Series: Intro"><meta property="og:url" content="https://criss-wang.github.io/post/software/model-iteration-intro/"><meta property="og:site_name" content="Criss Wang&#039;s Log Book"><meta property="og:description" content="An overview of industry-level model iteration procedure"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/Model-Iteration-Flow.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_1.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_2.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_3.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_4.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_5.png"><meta property="og:image" content="https://criss-wang.github.io/source/images/SWE/model_iteration_6.png"><meta property="article:published_time" content="2024-06-01T04:00:00.000Z"><meta property="article:modified_time" content="2024-07-06T05:32:32.034Z"><meta property="article:author" content="Zhenlin Wang"><meta property="article:tag" content="ML Infrastructure"><meta property="article:tag" content="Model Development"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://criss-wang.github.io/source/images/SWE/Model-Iteration-Flow.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://criss-wang.github.io/post/software/model-iteration-intro/"},"headline":"Model Iteration Series: Intro","image":["https://criss-wang.github.io/source/images/SWE/Model-Iteration-Flow.png","https://criss-wang.github.io/source/images/SWE/model_iteration_1.png","https://criss-wang.github.io/source/images/SWE/model_iteration_2.png","https://criss-wang.github.io/source/images/SWE/model_iteration_3.png","https://criss-wang.github.io/source/images/SWE/model_iteration_4.png","https://criss-wang.github.io/source/images/SWE/model_iteration_5.png","https://criss-wang.github.io/source/images/SWE/model_iteration_6.png"],"datePublished":"2024-06-01T04:00:00.000Z","dateModified":"2024-07-06T05:32:32.034Z","author":{"@type":"Person","name":"Zhenlin Wang"},"publisher":{"@type":"Organization","name":"Criss Wang's Log Book","logo":{"@type":"ImageObject","url":"https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"}},"description":"An overview of industry-level model iteration procedure"}</script><link rel="canonical" href="https://criss-wang.github.io/post/software/model-iteration-intro/"><link rel="icon" href="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto Slab:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+          Array
+              .from(document.querySelectorAll('.tab-content'))
+              .forEach($tab => {
+                  $tab.classList.add('is-hidden');
+              });
+          Array
+              .from(document.querySelectorAll('.tabs li'))
+              .forEach($tab => {
+                  $tab.classList.remove('is-active');
+              });
+          const $activeTab = document.querySelector(location.hash);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+          const $tabMenu = document.querySelector(`a[href="${location.hash}"]`);
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" style="font-weight: bold" href="/">Criss&#039;s Time Machine</a><a class="navbar-item" style="font-weight: bold" href="/categories/Blogs">Machine Learning</a><a class="navbar-item" style="font-weight: bold" href="/categories/Software">Software Engineering</a><a class="navbar-item" style="font-weight: bold" href="/categories/Projects">Projects</a><a class="navbar-item" style="font-weight: bold" href="/research">Research</a><a class="navbar-item" style="font-weight: bold" href="/archives">Archives</a></div><div class="navbar-end"><a class="navbar-item night" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-size-4 is-size-5-mobile has-text-weight-normal">Model Iteration Series: Intro</h1><div class="article-meta is-size-7 level is-mobile"><div class="level-left"><span class="level-item"><i class="far fa-calendar-check"> </i><time dateTime="2024-06-01T04:00:00.000Z" title="2024-06-01T04:00:00.000Z">2024-06-01</time></span><span class="level-item"><i class="far fa-folder-open"> </i><a class="link-muted" href="/categories/Software/">Software</a></span></div></div><div><hr style="background-color:grey"></div><div style="padding-bottom:5px"></div><div class="content"><h3 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h3><p>After pausing the blog updates for a few months in order to fully focus on my LLM iteration work and my personal LLM project, I think it is about time to stop by and share my thoughts on an important topic for LLM - Model iteration.</p>
+<p>Model iteration refers to the update of models used in produciton-level services. When it comes to personal projects, model iteration can also be the attempt to include additional models into the pool of engines that supports the application logic. As we enter the era of AI boom, we are bound to be inundated by lots of new models, many claiming to be the SOTA and beating each other from time to time. Hence, rapid prototyping with the latest models become extremely important.</p>
+<p>Here I'll give a practical guide on model iteration process in tremendous depth based on my current experience with LLMs. It'll come in a series of blogs in Software Engineering sections, as it is more of an engineering architectural design rather than algorithmic details. This blog will just be an introductory guide, laying out the full pipeline step by step. For details on each step, stay tuned for future updates.</p>
+<h3 id="Model-Iteration-Workflow"><a href="#Model-Iteration-Workflow" class="headerlink" title="Model Iteration Workflow"></a>Model Iteration Workflow</h3><p><img src="/source/images/SWE/Model-Iteration-Flow.png"></p>
+<p>Like any SWE project’s CICD, the entire iteration flow can be split into <code>Dev</code>/<code>Staging</code>/<code>Prod</code> sections. In <strong>Development</strong> section, engineers and scientists will collaborate to validate new models proposed, with a goal of satisfying the <strong>CLASS</strong> objective: <em>Cost, Latency, Accuracy, Security and Stability</em>. This entire process will include identifying the best model configurations, inference engines and optimizing the prompts for different tasks. Once these setups are finalized, we enter into the <code>Staging</code> section, where DevOp engineers or ML Infra engineers will be responsible for integration testing and E2E testing on various services, queries and tasks. More rigorous tests and more critical tests are required in this stage. Detailed reviews from leadership are also required to endorse the adoption of the model. Finally as we enter <code>prod</code> section for deployment, many operational tasks recently captured the attection of the LLM industry, and will be highlighted as we go through them in depth.</p>
+<p>For reference purpose, I've drafted a simple workflow. You may use it at your discretion, and change any part as you deem necessary. In the upcoming sections, I will follow this chart and explain each component and their purposes.</p>
+<h3 id="Development"><a href="#Development" class="headerlink" title="Development"></a>Development</h3><h4 id="Model-Investigation"><a href="#Model-Investigation" class="headerlink" title="Model Investigation"></a>Model Investigation</h4><p><img src="/source/images/SWE/model_iteration_1.png"></p>
+<p>To kickstart the process, data scientists and machine learning engineers in the team will keep themselves updated with the latest model progress in the field, and run model investigations periodically. This can come in the form of:</p>
+<ol>
+<li>Third Party API providers<br>This is often the most convenient and least secure option. Companies like <a target="_blank" rel="noopener" href="https://www.together.xyz/">Together AI</a>, <a target="_blank" rel="noopener" href="https://www.anyscale.com/">Anyscale AI</a>, <a target="_blank" rel="noopener" href="https://aws.amazon.com/bedrock/">AWS Bedrock</a>, <a target="_blank" rel="noopener" href="https://cloud.google.com/vertex-ai">Vertex AI</a> often collaborate with model providers to offer the cheapest and most efficient inference options that beats many in-house models. Nonetheless, they often fall short when it comes to finetuned models.</li>
+<li>Finetuning Models<br>Finetuning models on production-level datasets are often the best options to improve model performance for specific services the company provides. However, this often requires much more dedicated efforts and costs a lot. Small startups may have less ability to conduct researches on a large scale over an extended period of time for any significant effects to be observed.</li>
+<li>Quantization and Inference Optimization<br>When it comes to in-house models serving with cloud GPU/in-house GPU servers, the right choice of model quantization, model architecture design and inference engine are of paramount importance. The ability to choose the most cost-effective options will save the company millions and even win more customers (via the latency reduction) over time.</li>
+</ol>
+<h4 id="Model-Configuration-Optimization"><a href="#Model-Configuration-Optimization" class="headerlink" title="Model Configuration Optimization"></a>Model Configuration Optimization</h4><p><img src="/source/images/SWE/model_iteration_2.png"></p>
+<p>Once ML/DS identified a new candidate model setup, they should immediately explore the right configurations for the setup, such as model temperature, maximum tokens and any pre/post-processing logic required. During the optimization process, two major tests are ran on some golden/sliver production-level datasets (golden: human-labeled, silver: AI-generated):</p>
+<ul>
+<li>Accuracy Tests<br>The results generated from new model setup are evaluated against ground truth or baseline models (often the champion model in production). A configuration passes the tests only if it produces statistically significant improvement through A/B testing or some internal evaluation criteria. Some prompt engineering is required in this step during tests, but in my opinion, we should setup an automated prompt optimization step after all tests pass to further escalate the performance of the model. Based on past experiences, many attempts actually fail at stability tests or latency tests even with the optimized prompts.</li>
+<li>Stability Tests<br>Stable results are often required in products and tasks like chatbot, classification model and data analysis. This is, however, a frequently ignored aspect for personal projects. Developers tend to encourage variations by not setting temperatures to a high value like <code>0.8</code> or <code>1</code>. There can be pros and cons in this side of story, but we will leave the discussion in the in-depth blogs.</li>
+</ul>
+<h4 id="Moder-Serving-Tests"><a href="#Moder-Serving-Tests" class="headerlink" title="Moder Serving Tests"></a>Moder Serving Tests</h4><p><img src="/source/images/SWE/model_iteration_3.png"></p>
+<p>Latency tests will start once the team finalize on the model configurations. This is the phase where ML Infra engineers will run load tests on various use cases and with varying input/output size. Usually it will be a systematic process and easily extensible.</p>
+<p>After the latency tests, the team should also consider the economic impact the model update will create. Usually it comes in the form of switching to cheaper vendor, reduced token usage, more efficient development cycle or model deals won due to better features.</p>
+<h4 id="Prompt-Optimization"><a href="#Prompt-Optimization" class="headerlink" title="Prompt Optimization"></a>Prompt Optimization</h4><p><img src="/source/images/SWE/model_iteration_4.png"></p>
+<p>As a final step before staging, we try to further improve the prompts for the specific tasks the proposed model will work on. There are many ways this process can take place. We can setup a model-based optimizer, or improve the prompt via some UI-based prompt iteration strategy, or even come up with customized prompts with right in-context learning methods. We will go through this part with code afterwards.</p>
+<h3 id="Staging"><a href="#Staging" class="headerlink" title="Staging"></a>Staging</h3><p><img src="/source/images/SWE/model_iteration_5.png"></p>
+<p>When it comes to UAT environment, the DevOps or ML Infra engineers need to get the full model setup ready, and update these info in the right DB/Cluster/LLM-gateway. Some additional configuration may also be needed for middlewares like streaming tools (e.g. Kafka) or caching (e.g Redis). Once the model is ready to be deployed on UAT environment, the engineers need to conduct end-to-end tests to ensure no security issues are found. This often happens at the request level, where guardrails take place at various checkpoints. Red teaming becomes important at this stage, and engineers may need to work with customer service engineers or product managers to detect additional model-specific loopholes. Any additional potential model/prompt/data drifts can also be identified during the tests to ensure model robustness. Therefore, data curation and engineering can play a critical role at this point. This will be a potential topic I'll share my experience on in the future as well.</p>
+<h3 id="Production"><a href="#Production" class="headerlink" title="Production"></a>Production</h3><p><img src="/source/images/SWE/model_iteration_6.png"></p>
+<p>After the UAT tests are done and the model passes screening in staging environment, the code and the model are ready to be deployed. When it comes to deployment, there are two different strategies: static and dynamic. You can refer to my other post on ML deployment for more details. Otherwise, I would suggest starting with static deployment like canary deployment to iteratively route the requests to services utilizing the new model and observe its performance before full deployment. In the meantime, a complete stack of LLM performance monitoring + tracing + alert system should be setup. I I cannot stress more the importance of this part, and will definitely give a full guideline to this section in the future. One major point to mention here is that, once we have detected potential errors that cause any performance degradations, we need to carefully store these errors and augment them if possible. They will be used as valuable data points with negative labels for future finetuning and QA testing. The identified degradation will trigger model fallback or quickly roll back to MLE/DS for further prompt enhancement or configuratio adjustment.</p>
+<h2 id="To-be-Continued…"><a href="#To-be-Continued…" class="headerlink" title="To be Continued…"></a>To be Continued…</h2><p>That wrappes up the first and the most important section of model iterations. Once we delve into details together with some coding exercises, we will find out how intricate the process can become, and there will be several major tradeoff you must make along the way. But before that, let's take a break, digest the content above well, and continue to build great products with great features.</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Model Iteration Series: Intro</p><p><a href="https://criss-wang.github.io/post/software/model-iteration-intro/">https://criss-wang.github.io/post/software/model-iteration-intro/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Zhenlin Wang</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2024-06-01</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2024-07-06</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"></article></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/post/blogs/temp/write-quality-code-for-ml/"><i class="level-item fas fa-chevron-left"></i><span class="level-item"> </span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/post/blogs/mlops/ml-testing/"><span class="level-item">Testing in Machine Learning</span><i class="level-item fas fa-chevron-right"></i></a></div></nav></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Selfie.webp" alt="Zhenlin Wang (Criss)"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Zhenlin Wang (Criss)</p><div class="is-size-7 multiline is-block justify-content-center" style="white-space:pre;font-style: italic">Software Development
+Machine Learning
+Artificial Intelligence
+</div><div style="padding-top: 10px;"></div><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Sunnyvale, CA</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">70</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">38</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">46</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Criss-Wang/" target="_blank" rel="noopener"><i class="fab fa-github"></i>   Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Criss-Wang/"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/in/zhenlin-wang/"><i class="fab fa-linkedin-in"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:zhenlinw@cs.cmu.edu"><i class="fas fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="CV" href="https://twitter.com/CrissWang4"><i class="fab fa-twitter"></i></a></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/Deep-Learning/"><span class="tag">Deep Learning</span><span class="tag">9</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Mining-Data-Engineering/"><span class="tag">Data Mining/Data Engineering</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Unsupervised-Learning/"><span class="tag">Unsupervised Learning</span><span class="tag">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Optimization/"><span class="tag">Optimization</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Machine-Learning/"><span class="tag">Machine Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Reinforcement-Learning/"><span class="tag">Reinforcement Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Supervised-Learning/"><span class="tag">Supervised Learning</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Clustering/"><span class="tag">Clustering</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Database-System/"><span class="tag">Database System</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Big-Data/"><span class="tag">Big Data</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistics/"><span class="tag">Statistics</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/System-Design/"><span class="tag">System Design</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Recommender-Systems/"><span class="tag">Recommender Systems</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/SQL/"><span class="tag">SQL</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regression/"><span class="tag">Regression</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Software-Engineering/"><span class="tag">Software Engineering</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Data-Analytics/"><span class="tag">Data Analytics</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Training/"><span class="tag">Distributed Training</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Boosting/"><span class="tag">Boosting</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Python-Project/"><span class="tag">Python Project</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/ML-Infrastructure/"><span class="tag">ML Infrastructure</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Model-Development/"><span class="tag">Model Development</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-System/"><span class="tag">Distributed System</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Cloud-Computing/"><span class="tag">Cloud Computing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/A-B-testing/"><span class="tag">A/B testing</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Matrix-Computation/"><span class="tag">Matrix Computation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dimensionality-Reduction/"><span class="tag">Dimensionality Reduction</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Distributed-Systems/"><span class="tag">Distributed Systems</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation/"><span class="tag">Evaluation</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MLOps/"><span class="tag">MLOps</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Project-Management/"><span class="tag">Project Management</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Hidden-Markov-Models/"><span class="tag">Hidden Markov Models</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Dynamic-Programming/"><span class="tag">Dynamic Programming</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Statistical-Inference/"><span class="tag">Statistical Inference</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Representaiton-Learning/"><span class="tag">Representaiton Learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bayesian-Statistics/"><span class="tag">Bayesian Statistics</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Linear-Algebra/"><span class="tag">Linear Algebra</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Deep-learning/"><span class="tag">Deep learning</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Control-Theory/"><span class="tag">Control Theory</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Ensemble/"><span class="tag">Ensemble</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Bagging/"><span class="tag">Bagging</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Random-Forest/"><span class="tag">Random Forest</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Regularization/"><span class="tag">Regularization</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Classification/"><span class="tag">Classification</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Evaluation-Methods/"><span class="tag">Evaluation Methods</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><ul class="menu-list"><li><a class="level is-mobile" href="#Intro"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">Intro</span></span></a></li><li><a class="level is-mobile" href="#Model-Iteration-Workflow"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">Model Iteration Workflow</span></span></a></li><li><a class="level is-mobile" href="#Development"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">Development</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#Model-Investigation"><span class="level-left"><span class="level-item">1.3.1</span><span class="level-item">Model Investigation</span></span></a></li><li><a class="level is-mobile" href="#Model-Configuration-Optimization"><span class="level-left"><span class="level-item">1.3.2</span><span class="level-item">Model Configuration Optimization</span></span></a></li><li><a class="level is-mobile" href="#Moder-Serving-Tests"><span class="level-left"><span class="level-item">1.3.3</span><span class="level-item">Moder Serving Tests</span></span></a></li><li><a class="level is-mobile" href="#Prompt-Optimization"><span class="level-left"><span class="level-item">1.3.4</span><span class="level-item">Prompt Optimization</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Staging"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">Staging</span></span></a></li><li><a class="level is-mobile" href="#Production"><span class="level-left"><span class="level-item">1.5</span><span class="level-item">Production</span></span></a></li></ul><li><a class="level is-mobile" href="#To-be-Continued…"><span class="level-left"><span class="level-item">2</span><span class="level-item">To be Continued…</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="https://cdn.statically.io/gh/Criss-Wang/image-host@master/Blog/Steins_Gate_Lab_Badge.webp" alt="Criss Wang&#039;s Log Book" height="28"></a><p class="is-size-7"><span>&copy; 2024 Zhenlin Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="/js/night.js" defer></script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
