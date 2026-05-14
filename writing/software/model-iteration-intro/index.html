@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Model Iteration Series: Intro - Zhenlin Wang</title><meta name="description" content="An overview of industry-level model iteration procedure"><meta property="og:title" content="Model Iteration Series: Intro - Zhenlin Wang"><meta property="og:description" content="An overview of industry-level model iteration procedure"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/software/model-iteration-intro/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Software · ML Infrastructure · Model Development</div> <h1>Model <em>Iteration</em> Series: Intro</h1> <p class="dek">An overview of industry-level model iteration procedure</p> <div class="byline"> <strong>2024.06.01</strong> <span>·</span> <span>7 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="intro"><strong>Intro</strong></h2>
+<p>After pausing the blog updates for a few months in order to fully focus on my LLM iteration work and my personal LLM project, I think it is about time to stop by and share my thoughts on an important topic for LLM - Model iteration.</p>
+<p>Model iteration refers to the update of models used in produciton-level services. When it comes to personal projects, model iteration can also be the attempt to include additional models into the pool of engines that supports the application logic. As we enter the era of AI boom, we are bound to be inundated by lots of new models, many claiming to be the SOTA and beating each other from time to time. Hence, rapid prototyping with the latest models become extremely important.</p>
+<p>Here I’ll give a practical guide on model iteration process in tremendous depth based on my current experience with LLMs. It’ll come in a series of blogs in Software Engineering sections, as it is more of an engineering architectural design rather than algorithmic details. This blog will just be an introductory guide, laying out the full pipeline step by step. For details on each step, stay tuned for future updates.</p>
+<hr>
+<h2 id="model-iteration-workflow"><strong>Model Iteration Workflow</strong></h2>
+<figure align="center">
+    <img src="//images/SWE/Model-Iteration-Flow.png" width="1200px">
+</figure>
+<p>Like any SWE project’s CICD, the entire iteration flow can be split into <code>Dev</code>/<code>Staging</code>/<code>Prod</code> sections. In <strong>Development</strong> section, engineers and scientists will collaborate to validate new models proposed, with a goal of satisfying the <strong>CLASS</strong> objective: <em>Cost, Latency, Accuracy, Security and Stability</em>. This entire process will include identifying the best model configurations, inference engines and optimizing the prompts for different tasks. Once these setups are finalized, we enter into the <code>Staging</code> section, where DevOp engineers or ML Infra engineers will be responsible for integration testing and E2E testing on various services, queries and tasks. More rigorous tests and more critical tests are required in this stage. Detailed reviews from leadership are also required to endorse the adoption of the model. Finally as we enter <code>prod</code> section for deployment, many operational tasks recently captured the attection of the LLM industry, and will be highlighted as we go through them in depth.</p>
+<p>For reference purpose, I’ve drafted a simple workflow. You may use it at your discretion, and change any part as you deem necessary. In the upcoming sections, I will follow this chart and explain each component and their purposes.</p>
+<hr>
+<h2 id="development"><strong>Development</strong></h2>
+<h3 id="model-investigation"><strong>Model Investigation</strong></h3>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_1.png" width="400px">
+</figure>
+<p>To kickstart the process, data scientists and machine learning engineers in the team will keep themselves updated with the latest model progress in the field, and run model investigations periodically. This can come in the form of:</p>
+<ol>
+<li>Third Party API providers
+This is often the most convenient and least secure option. Companies like <a href="https://www.together.xyz/">Together AI</a>, <a href="https://www.anyscale.com/">Anyscale AI</a>, <a href="https://aws.amazon.com/bedrock/">AWS Bedrock</a>, <a href="https://cloud.google.com/vertex-ai">Vertex AI</a> often collaborate with model providers to offer the cheapest and most efficient inference options that beats many in-house models. Nonetheless, they often fall short when it comes to finetuned models.</li>
+<li>Finetuning Models
+Finetuning models on production-level datasets are often the best options to improve model performance for specific services the company provides. However, this often requires much more dedicated efforts and costs a lot. Small startups may have less ability to conduct researches on a large scale over an extended period of time for any significant effects to be observed.</li>
+<li>Quantization and Inference Optimization
+When it comes to in-house models serving with cloud GPU/in-house GPU servers, the right choice of model quantization, model architecture design and inference engine are of paramount importance. The ability to choose the most cost-effective options will save the company millions and even win more customers (via the latency reduction) over time.</li>
+</ol>
+<hr>
+<h3 id="model-configuration-optimization"><strong>Model Configuration Optimization</strong></h3>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_2.png" width="250px">
+</figure>
+<p>Once ML/DS identified a new candidate model setup, they should immediately explore the right configurations for the setup, such as model temperature, maximum tokens and any pre/post-processing logic required. During the optimization process, two major tests are ran on some golden/sliver production-level datasets (golden: human-labeled, silver: AI-generated):</p>
+<ul>
+<li>Accuracy Tests
+The results generated from new model setup are evaluated against ground truth or baseline models (often the champion model in production). A configuration passes the tests only if it produces statistically significant improvement through A/B testing or some internal evaluation criteria. Some prompt engineering is required in this step during tests, but in my opinion, we should setup an automated prompt optimization step after all tests pass to further escalate the performance of the model. Based on past experiences, many attempts actually fail at stability tests or latency tests even with the optimized prompts.</li>
+<li>Stability Tests
+Stable results are often required in products and tasks like chatbot, classification model and data analysis. This is, however, a frequently ignored aspect for personal projects. Developers tend to encourage variations by not setting temperatures to a high value like <code>0.8</code> or <code>1</code>. There can be pros and cons in this side of story, but we will leave the discussion in the in-depth blogs.</li>
+</ul>
+<hr>
+<h3 id="moder-serving-tests"><strong>Moder Serving Tests</strong></h3>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_3.png" width="250px">
+</figure>
+<p>Latency tests will start once the team finalize on the model configurations. This is the phase where ML Infra engineers will run load tests on various use cases and with varying input/output size. Usually it will be a systematic process and easily extensible.</p>
+<p>After the latency tests, the team should also consider the economic impact the model update will create. Usually it comes in the form of switching to cheaper vendor, reduced token usage, more efficient development cycle or model deals won due to better features.</p>
+<hr>
+<h3 id="prompt-optimization"><strong>Prompt Optimization</strong></h3>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_4.png" width="200px">
+</figure>
+<p>As a final step before staging, we try to further improve the prompts for the specific tasks the proposed model will work on. There are many ways this process can take place. We can setup a model-based optimizer, or improve the prompt via some UI-based prompt iteration strategy, or even come up with customized prompts with right in-context learning methods. We will go through this part with code afterwards.</p>
+<hr>
+<h2 id="staging"><strong>Staging</strong></h2>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_5.png" width="300px">
+</figure>
+<p>When it comes to UAT environment, the DevOps or ML Infra engineers need to get the full model setup ready, and update these info in the right DB/Cluster/LLM-gateway. Some additional configuration may also be needed for middlewares like streaming tools (e.g. Kafka) or caching (e.g Redis). Once the model is ready to be deployed on UAT environment, the engineers need to conduct end-to-end tests to ensure no security issues are found. This often happens at the request level, where guardrails take place at various checkpoints. Red teaming becomes important at this stage, and engineers may need to work with customer service engineers or product managers to detect additional model-specific loopholes. Any additional potential model/prompt/data drifts can also be identified during the tests to ensure model robustness. Therefore, data curation and engineering can play a critical role at this point. This will be a potential topic I’ll share my experience on in the future as well.</p>
+<hr>
+<h2 id="production"><strong>Production</strong></h2>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_6.png" width="400px">
+</figure>
+<p>After the UAT tests are done and the model passes screening in staging environment, the code and the model are ready to be deployed. When it comes to deployment, there are two different strategies: static and dynamic. You can refer to my other post on ML deployment for more details. Otherwise, I would suggest starting with static deployment like canary deployment to iteratively route the requests to services utilizing the new model and observe its performance before full deployment. In the meantime, a complete stack of LLM performance monitoring + tracing + alert system should be setup. I I cannot stress more the importance of this part, and will definitely give a full guideline to this section in the future. One major point to mention here is that, once we have detected potential errors that cause any performance degradations, we need to carefully store these errors and augment them if possible. They will be used as valuable data points with negative labels for future finetuning and QA testing. The identified degradation will trigger model fallback or quickly roll back to MLE/DS for further prompt enhancement or configuratio adjustment.</p>
+<hr>
+## **To be Continued...**
+<p>That wrappes up the first and the most important section of model iterations. Once we delve into details together with some coding exercises, we will find out how intricate the process can become, and there will be several major tradeoff you must make along the way. But before that, let’s take a break, digest the content above well, and continue to build great products with great features.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/ml-testing/"> <span class="dir">← previous</span> <span class="title">Testing in Machine Learning</span> </a> <a class="next" href="/writing/software/model-iteration-research-validation/"> <span class="dir">next →</span> <span class="title">Model Iteration Series: Validating Model Research</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

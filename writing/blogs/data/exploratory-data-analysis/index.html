@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>The Data Mining Triology: III. Analysis - Zhenlin Wang</title><meta name="description" content="Let the plot fly ~"><meta property="og:title" content="The Data Mining Triology: III. Analysis - Zhenlin Wang"><meta property="og:description" content="Let the plot fly ~"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/data/exploratory-data-analysis/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Analytics · Data Mining/Data Engineering</div> <h1>The <em>Data</em> Mining Triology: III. Analysis</h1> <p class="dek">Let the plot fly ~</p> <div class="byline"> <strong>2020.09.03</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-07-04</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>Finally we have come to the last part in fundamental data mining. This is where people’s analytical power shine through. However, we also highlight some cautions engineers should practice in exploratory analysis.</p>
+<p>While data analysis is fascinating, I feel that building models based on the analysis to facilitate business decisions is even more exciting. This heavily relies on machine learning models and artificial intelligence toolkits. I’ve also written (and will write more in the future) blogs on these topics. Word of reminder: these models require some level of statistical and mathematical foundations, so it really depends on one’s interests in developing these models.</p>
+<h3 id="a-general-view-of-the-dataset">A general view of the dataset</h3>
+<p>One can always use an easy trick: <code>YourDataFrameName.describe()</code> to show the details about your data entries. This gives very good view of properties of your data. A sample output looks like</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> df.describe(</span><span style="color:#F69D50">include</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'all'</span><span style="color:#ADBAC7">)  </span></span>
+<span class="line"><span style="color:#ADBAC7">       categorical  numeric </span><span style="color:#6CB6FF">object</span></span>
+<span class="line"><span style="color:#ADBAC7">count            </span><span style="color:#6CB6FF">3</span><span style="color:#6CB6FF">      3.0</span><span style="color:#6CB6FF">      3</span></span>
+<span class="line"><span style="color:#ADBAC7">unique           </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">      NaN      </span><span style="color:#6CB6FF">3</span></span>
+<span class="line"><span style="color:#ADBAC7">top              f      NaN      a</span></span>
+<span class="line"><span style="color:#ADBAC7">freq             </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">      NaN      </span><span style="color:#6CB6FF">1</span></span>
+<span class="line"><span style="color:#ADBAC7">mean           NaN      </span><span style="color:#6CB6FF">2.0</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#ADBAC7">std            NaN      </span><span style="color:#6CB6FF">1.0</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#6CB6FF">min</span><span style="color:#ADBAC7">            NaN      </span><span style="color:#6CB6FF">1.0</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#6CB6FF">25</span><span style="color:#F47067">%</span><span style="color:#ADBAC7">            NaN      </span><span style="color:#6CB6FF">1.5</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#6CB6FF">50</span><span style="color:#F47067">%</span><span style="color:#ADBAC7">            NaN      </span><span style="color:#6CB6FF">2.0</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#6CB6FF">75</span><span style="color:#F47067">%</span><span style="color:#ADBAC7">            NaN      </span><span style="color:#6CB6FF">2.5</span><span style="color:#ADBAC7">    NaN</span></span>
+<span class="line"><span style="color:#6CB6FF">max</span><span style="color:#ADBAC7">            NaN      </span><span style="color:#6CB6FF">3.0</span><span style="color:#ADBAC7">    NaN</span></span></code></pre>
+<p>Next let’s look into numerical data’s pattern first.</p>
+<h3 id="numerical-data-distributions">Numerical data distributions</h3>
+<h4 id="1-generate-comprehensive-view-for-the-numericals-in-data-set">1. Generate comprehensive view for the numericals in Data Set</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6CB6FF">list</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">set</span><span style="color:#ADBAC7">(df.dtypes.tolist()))</span></span>
+<span class="line"><span style="color:#ADBAC7">df_num </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df.select_dtypes(</span><span style="color:#F69D50">include</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'float64'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'int64'</span><span style="color:#ADBAC7">]) </span><span style="color:#768390"># select only numerical data</span></span>
+<span class="line"><span style="color:#ADBAC7">display(df_num.head()) </span><span style="color:#768390"># output the first 5 entries</span></span>
+<span class="line"><span style="color:#ADBAC7">df_num.hist(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">), </span><span style="color:#F69D50">bins</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">50</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">xlabelsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">ylabelsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># Give the comprehensive views of all the distribution (in histogram) of the numerical values;</span></span></code></pre>
+<p><strong>Key steps</strong>:<br>
+(i) From the graphs, find which features have similar distributions;<br>
+(ii) Document the discovery for further investigation;</p>
+<h4 id="2-correlation-correlation-is-affected-by-outliers">2. Correlation (correlation is affected by outliers)</h4>
+<p>Find the strongly correlated values with the output. Call this list of values <code>golden_features_list</code>.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">df_num_corr </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df_num.corr()[</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">][:</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#768390"># -1 because the latest row is SalePrice</span></span>
+<span class="line"><span style="color:#ADBAC7">golden_features_list </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df_num_corr[</span><span style="color:#6CB6FF">abs</span><span style="color:#ADBAC7">(df_num_corr) </span><span style="color:#F47067">></span><span style="color:#6CB6FF"> 0.5</span><span style="color:#ADBAC7">].sort_values(</span><span style="color:#F69D50">ascending</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"There is </span><span style="color:#F47067">{}</span><span style="color:#96D0FF"> strongly correlated values with SalePrice:</span><span style="color:#F47067">\n{}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">.format(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(golden_features_list), golden_features_list))</span></span></code></pre>
+<h4 id="3-correlation-outliers-removal">3. Correlation (outliers removal)</h4>
+<ol>
+<li>Plot the numerical features and see which ones have very few or explainable outliers</li>
+<li>Remove the outliers from these features and see which one can have a good correlation without their outliers</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df_num.columns), </span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#ADBAC7">sns.pairplot(</span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df_num,</span></span>
+<span class="line"><span style="color:#F69D50">      x_vars</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df_num.columns[i:i</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">      y_vars</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">])</span></span></code></pre>
+<p><strong>Key steps</strong>:<br>
+(i) Spot any clear outliers, document. Think of outlier’s plausibility. Think of whether to remove it &#x26; document;<br>
+(ii) Spot any clearly linear/non-linear relationships, document;<br>
+(iii) Spot any distribution with a lot of 0’s: do Correlation (0 Removal);</p>
+<h4 id="4-correlation-0-removal">4. Correlation (0 Removal)</h4>
+<p>Removing all 0’s in some columns and generate <code>golden_features_list</code> again, see if any new features are added.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> operator</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">individual_features_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df_num.columns) </span><span style="color:#F47067">-</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">): </span><span style="color:#768390"># -1 because the last column is SalePrice</span></span>
+<span class="line"><span style="color:#ADBAC7">  tmpDf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df_num[[df_num.columns[i], </span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">]]</span></span>
+<span class="line"><span style="color:#ADBAC7">  tmpDf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> tmpDf[tmpDf[df_num.columns[i]] </span><span style="color:#F47067">!=</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">  individual_features_df.append(tmpDf)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">all_correlations </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {feature.columns[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]: feature.corr()[</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">][</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> feature </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> individual_features_df}</span></span>
+<span class="line"><span style="color:#ADBAC7">all_correlations </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(all_correlations.items(), </span><span style="color:#F69D50">key</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">operator.itemgetter(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> (key, value) </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> all_correlations:</span></span>
+<span class="line"><span style="color:#6CB6FF">  print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"</span><span style="color:#F47067">{:>15}</span><span style="color:#96D0FF">: </span><span style="color:#F47067">{:>15}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">.format(key, value))</span></span>
+<span class="line"><span style="color:#ADBAC7">  </span></span>
+<span class="line"><span style="color:#ADBAC7">golden_features_list </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [key </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> key, value </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> all_correlations </span><span style="color:#F47067">if</span><span style="color:#6CB6FF"> abs</span><span style="color:#ADBAC7">(value) </span><span style="color:#F47067">>=</span><span style="color:#6CB6FF"> 0.5</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"There is </span><span style="color:#F47067">{}</span><span style="color:#96D0FF"> strongly correlated values with SalePrice:</span><span style="color:#F47067">\n{}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">.format(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(golden_features_list), golden_features_list))</span></span></code></pre>
+<p>Finally, we can give conclusion with respect to the Numerical data distribution analysis.</p>
+<h3 id="feature-to-feature-categorical-to-categorical-correlation-analysis">Feature to feature (Categorical to Categorical) Correlation Analysis:</h3>
+<ol>
+<li><a href="https://towardsdatascience.com/heatmap-basics-with-pythons-seaborn-fb92ea280a6c">Heat map</a> for features:  <br></li>
+</ol>
+<p><strong>Steps of Analysis for the Heatmap</strong>:</p>
+<ul>
+<li>First of all, remove all simple correlations (easy to explain &#x26; not that relevant)</li>
+<li>Next, identify the relationships that are pertinent to the questoin/task</li>
+<li>Lastly, conclude the features that are similar to be easily combined/ need further investigation/ clearly helpful to the task</li>
+<li>Document the analysis;</li>
+</ul>
+<p>{% codeblock lang:python%}
+corr = df_num.drop(‘SalePrice’, axis=1).corr() # We already examined SalePrice correlations
+plt.figure(figsize=(12, 10))</p>
+<p>sns.heatmap(corr[(corr >= 0.5) | (corr &#x3C;= -0.4)], cmap=‘viridis’, vmax=1.0, vmin=-1.0, linewidths=0.1, annot=True, annot_kws={“size”: 8}, square=True)</p>
+<h1 id="this-generates-the-heatmap-that-display-highly-related-features">this generates the heatmap that display highly related features;</h1>
+<h1 id="note-that-this-map-only-displays-bidirectional-relationships">Note that this map only displays bidirectional relationships;</h1>
+<h1 id="we-cannot-conclude-much-if-there-are-relationships-among-feature-set-of-size--3">We cannot conclude much if there are relationships among feature set of size >= 3;</h1>
+<p>{% endcodeblock %}</p>
+<h3 id="q--q">Q —> Q</h3>
+<p>Q to Q stands for “Quantitative to Quantitative relationship”, which is often found in a pure numeric dataset. For qualitative relationships, tricks like counting and sorting can also be used to transform the qualitative data into numeric ones for Q to Q analysis.</p>
+<ol>
+<li>Extract strongly correlated quantitative features</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">features_to_analyse </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [x </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> x </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> quantitative_features_list </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> x </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> golden_features_list]</span></span>
+<span class="line"><span style="color:#ADBAC7">features_to_analyse.append(</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">display(features_to_analyse)	</span></span></code></pre>
+<ol start="2">
+<li>plot the distribution:</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">fig, ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#6CB6FF">round</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(features_to_analyse) </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> 3</span><span style="color:#ADBAC7">), </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">figsize</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">18</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i, ax </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(fig.axes):</span></span>
+<span class="line"><span style="color:#F47067">  if</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">&#x3C;</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(features_to_analyse) </span><span style="color:#F47067">-</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">        sns.regplot(</span><span style="color:#F69D50">x</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">features_to_analyse[i],</span><span style="color:#F69D50">y</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df[features_to_analyse], </span><span style="color:#F69D50">ax</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">ax)</span></span></code></pre>
+<ol start="3">
+<li>Analysis of the distribution:</li>
+</ol>
+<ul>
+<li>Since Linear Regression is give, we focus on analyzing the spread of the data in each graph</li>
+</ul>
+<h3 id="c--q-categorical-to-quantitative-relationship">C —> Q (Categorical to Quantitative relationship)</h3>
+<p>C to Q stands for “Categorical to Quantitative relationship”. This is different from qualitative or quantitive relationships, as we cannot compare the degree of desired attributes based on category number themselves. Thus we should see how these attributes are manipulated to make the relationship interpretable.</p>
+<ol>
+<li>Extract Categorical features</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">categorical_features </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [a </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> a </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> quantitative_features_list[:</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> df.columns.tolist() </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> (a </span><span style="color:#F47067">not</span><span style="color:#F47067"> in</span><span style="color:#ADBAC7"> quantitative_features_list[:</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]) </span><span style="color:#F47067">or</span><span style="color:#ADBAC7"> (a </span><span style="color:#F47067">not</span><span style="color:#F47067"> in</span><span style="color:#ADBAC7"> df.columns.tolist())]</span></span>
+<span class="line"><span style="color:#ADBAC7">df_categ </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[categorical_features]</span></span>
+<span class="line"><span style="color:#ADBAC7">df_not_num </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df_categ.select_dtypes(</span><span style="color:#F69D50">include</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'O'</span><span style="color:#ADBAC7">]) </span><span style="color:#768390"># include the non-numerical features</span></span></code></pre>
+<ol start="2">
+<li>Apply Boxplot</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> sns.boxplot(</span><span style="color:#F69D50">x</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'SaleCondition'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">y</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'SalePrice'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df_categ) </span></span>
+<span class="line"><span style="color:#768390"># can replace "SaleCondition" with other features</span></span></code></pre>
+<ol start="3">
+<li>Apply Distribution plot</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">fig, axes </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#6CB6FF">round</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df_not_num.columns) </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> 3</span><span style="color:#ADBAC7">), </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">30</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i, ax </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(fig.axes):</span></span>
+<span class="line"><span style="color:#F47067">  if</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">&#x3C;</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(df_not_num.columns):</span></span>
+<span class="line"><span style="color:#ADBAC7">        ax.set_xticklabels(ax.xaxis.get_majorticklabels(), </span><span style="color:#F69D50">rotation</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">45</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">        sns.countplot(</span><span style="color:#F69D50">x</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df_not_num.columns[i], </span><span style="color:#F69D50">alpha</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.7</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">df_not_num, </span><span style="color:#F69D50">ax</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">ax)</span></span>
+<span class="line"><span style="color:#ADBAC7">fig.tight_layout()</span></span></code></pre>
+<p>Through these plots, we can see that some categories are predominant for some features such as <code>Utilities</code>, <code>Heating</code>, <code>GarageCond</code>, <code>Functional</code>… These features may not be relevant for our predictive model.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>The methods above cover a wide range of tools being applied in data analytics. There are definitely many more directions in EDA, and I’ll update my discovery every time I find some interesting things.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/sql/sql-2/"> <span class="dir">← previous</span> <span class="title">SQL: Index and Optimization</span> </a> <a class="next" href="/writing/blogs/sql/sql-3/"> <span class="dir">next →</span> <span class="title">SQL: Going into Applications with MySQL and MongoDB</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Reinforcement Learning - Theoretical Foundations: Part V  - Zhenlin Wang</title><meta name="description" content="RL Continued - Policy Gradient"><meta property="og:title" content="Reinforcement Learning - Theoretical Foundations: Part V  - Zhenlin Wang"><meta property="og:description" content="RL Continued - Policy Gradient"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/rl/reinfocement-5/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Reinforcement Learning</div> <h1>Reinforcement <em>Learning</em> - Theoretical Foundations: Part V </h1> <p class="dek">RL Continued - Policy Gradient</p> <div class="byline"> <strong>2021.01.20</strong> <span>·</span> <span>7 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-01-31</span>  </div> </header> <main class="article container-narrow"> <h3 id="policy-gradient">Policy Gradient</h3>
+<h4 id="1-general-overview">1. General Overview</h4>
+<ul>
+<li>
+<p>Model based RL:</p>
+<ul>
+<li><strong>Pros</strong></li>
+<li>‘Easy’ to learn: via procedure similar to supervised learning</li>
+<li>Learns everything from the data</li>
+<li><strong>Cons</strong></li>
+<li>Objective captures irrelevant info</li>
+<li>May focus on irrelevant details</li>
+<li>Computing policy (planning) is non-trivial and expensive (offline/static evaluation)</li>
+</ul>
+</li>
+<li>
+<p>Value based RL:</p>
+<ul>
+<li><strong>Pros</strong></li>
+<li>Closer to True objective</li>
+<li>Fairly well understandable - somewhat similar to regression</li>
+<li><strong>Cons</strong></li>
+<li>Still not the true objective (similar to model-based)</li>
+</ul>
+</li>
+<li>
+<p>Policy based RL:</p>
+<ul>
+<li><strong>Pros</strong></li>
+<li>Always try to find the true objective (directly targeting the policy)</li>
+<li><strong>Cons</strong></li>
+<li>Ignore some useful learnable knowledge (like policy state/action values) [but can be overcomed by combining with value-function approximation]</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-model-free-policy-based-rl">2. Model-free Policy based RL</h4>
+<ul>
+<li>We directly parametrize the policy via; $\pi_{\theta}(a\mid s) = p(a\mid s, \theta)$</li>
+<li>Advantages:
+<ul>
+<li>Better convergence properties (gradient method)</li>
+<li>Effective in high-dimensional or continuous action spaces</li>
+<li>Can learn stochastic optimal policies (like a scissor-paper-stone game)</li>
+<li>Sometimes policies are simple while values and models are more complex (large environment but easy policy)</li>
+</ul>
+</li>
+<li>Disadvantages:
+<ul>
+<li>Susceptible to local optima (especially with non-linear function approximator)</li>
+<li>Often obtain knowledge that is specifc and does not always generalize well (high variance)</li>
+<li>Ignores a lot of information in the data (when used in isolation)</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-policy-objective-function">3. Policy Objective function</h4>
+<p>Here is a list of functions that can be used potentially measure the quality of policy $\pi_{\theta}$. Each is evaluated depending on the things we are concerned about:</p>
+<ul>
+<li>In episodic environment, we can use the <strong>start value</strong>:
+<ul>
+<li>$J_1(\theta) = v_{\pi_{\theta}}(s_1)$</li>
+</ul>
+</li>
+<li>In continuous environment, we can use the <strong>average value</strong>:
+<ul>
+<li>$J_{av}(\theta) = \sum\limits_{s}\mu_{\pi_{\theta}}(s)v_{\pi_{\theta}}(s)$</li>
+<li>where $\mu_{\pi_{\theta}}(s) = p(S_t = s \mid \pi_{\theta})$ is the probability of being in state $s$ in the long run (long-term proportion)</li>
+</ul>
+</li>
+<li>Otherwise, we replace the value function $v_{\pi_{\theta}}(s)$ with the reward function so:
+<ul>
+<li>$J_{av}(\theta) = \sum\limits_{s}\mu_{\pi_{\theta}}(s)\sum\limits_a\pi_{\theta}(s, a)\sum\limits_r p(r \mid s, a) r$</li>
+</ul>
+</li>
+</ul>
+<p>Since the main target is now to optimize $J(\theta)$, we can now simply apply gradient-based method to solve the problem (in this case, <strong>gradient ascent</strong>)</p>
+<h4 id="4-computing-the-policy-gradient-analytically">4. Computing the policy gradient analytically</h4>
+<p>We know that the most important part of any policy function $J(\theta)$ is just the policy expression $\pi(s,a)$. Hence, assuming that $\pi(s,a)$ is differentiable, we find:</p>
+<p>$$\nabla_{\theta}\pi_{\theta}(s,a) = \pi_{\theta}(s,a) \frac{\nabla_{\theta}\pi_{\theta}(s,a) }{\pi_{\theta}(s,a) } = \pi_{\theta}(s,a) \nabla_{\theta} \log \pi_{\theta}(s,a)$$</p>
+<p>We then say that the score function (gradient base) of a policy $\pi_{\theta}$ is just $\nabla_{\theta} \log \pi_{\theta}(s,a)$.</p>
+<p>We further note that if $J(\theta)$ is an expectaion function dependent on $\pi_{\theta}(s,a)$, i.e., $J(\theta) = \mathbb{E_{\pi_{\theta}}}[f(S,A)]$, we can always apply this gradient base inside the expectation for gradient computation:</p>
+<p>$$\nabla_{\theta}J(\theta) = \mathbb{E}<em>{\pi</em>{\theta}}[f(S,A)\nabla_{\theta} \log \pi_{\theta}(S,A)]$$</p>
+<ul>
+<li>This is called the <strong>score function trick</strong>.</li>
+<li>One useful property is that $\mathbb{E}[b\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)] =\mathbb{E}[b\nabla_{\theta}\sum\limits_{a}\pi_{\theta}(A_t|S_t)] = \mathbb{E}[b\nabla_{\theta} 1] =0$ if b does not depend on the action $A_t$. (<strong>expr 1</strong>)</li>
+</ul>
+<p>Now consider $\nabla_{\theta}J(\theta)$ formally, we have the following <strong>Policy Gradient Theorem</strong>:</p>
+<ul>
+<li>
+<p>For any differentiable policy $\pi_{\theta}(s, a)$,  the policy gradient $\nabla_{\theta}J(\theta) = \mathbb{E}\left[\sum\limits_{t = 0} \nabla_{\theta}\log\pi(A_t\mid S_t) q_{\pi}(S_t, A_t)\right]$ where $q_{\pi}(S_t, A_t)$is the long-term value</p>
+</li>
+<li>
+<p><em>Proof</em>: Let’s consider the expected return $\mathbb{E}[G({\cal F})]$ as the objective $J(\theta)$ where ${\cal F} = S_0,A_0, R_1,…,$ is the filtration. note here $G({\cal F})$ is dependent on $\pi_{\theta}(s,a)$ as it affects the filtration. Now:</p>
+<ul>
+<li>$\nabla_{\theta}J(\theta) =\nabla_{\theta}\mathbb{E}[G({\cal F})] = \mathbb{E}[(\sum\limits_{t=0}R_{t+1})\nabla_{\theta}\log p({\cal F})]$ where $p({\cal F})$ is policy probabilty of this filtration $\cal F$. (Applying the score function trick)</li>
+</ul>
+<p>$$
+\begin{align}
+\nabla_{\theta}\log p({\cal F}) &#x26;= \nabla_{\theta}\log\left[ p(S_0)\pi_{\theta}(A_0|S_0)p(S_1|S_0,A_0)\pi_{\theta}(A_1|S_1)…\right] \\
+&#x26;=\nabla_{\theta}\left[\log p(S_0)+ \log\pi_{\theta}(A_0|S_0)+\log p(S_1|S_0,A_0)+\log\pi_{\theta}(A_1|S_1)…\right] \\
+&#x26;=\nabla_{\theta}\left[\log\pi_{\theta}(A_0|S_0)+\log\pi_{\theta}(A_1|S_1)…\right] \\
+&#x26; \quad \text{(as $\log p(S_0),\; \log p(S_1|S_0,A_0),…$ don’t depend on $\theta$)}
+\end{align}
+$$</p>
+<ul>
+<li>So: $\nabla_{\theta}J(\theta) = \mathbb{E}\left[\left(\sum\limits_{t=0}R_{t+1}\right)\left(\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)\right)\right]$</li>
+<li>We further notice that $\left(\sum\limits_{t=0}R_{t+1}\right)$ is now a constant for every $(A_t, S_t)$ pair in $\cal F$ for  $\nabla_{\theta}J(\theta)$. However, for any $k$, $\sum_{t=0}^kR_{t+1}$ does not depend on $A_{k+1}, A_{k+2},…$, and by <strong>expr 1</strong> above, we can see that $\nabla_{\theta}J(\theta) = \mathbb{E}\left[\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)\left(\sum\limits_{i=t}R_{i+1}\right)\right] = \mathbb{E}\left[\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)q_{\pi}(S_t, A_t)\right]$.</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-actor-critic-algorithm">5. Actor-Critic Algorithm</h4>
+<ol>
+<li>Most basic Q Actor-Critic</li>
+</ol>
+<ul>
+<li>policy gradient still has high variance</li>
+<li>We can use a <em>critic</em> to estimate the action-value function: $q_{\pi}(S_t, A_t) \approx Q_{w}(S_t, A_t)$</li>
+<li>Actor-critic algorithms maintain <em>two</em> sets of parameters
+<ul>
+<li>Critic: Updates action-value function parameters $w$</li>
+<li>Actor: Updates policy parameters $\theta$, in direction suggested by critic</li>
+</ul>
+</li>
+<li>Actor-critic algorithms follow an approximate policy gradient:
+<ul>
+<li>$\nabla_{\theta}J(\theta) \approx \mathbb{E}\left[\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)Q_{w}(S_t, A_t)\right]$</li>
+<li>$\Delta \theta = \alpha \nabla_{\theta}\log\pi_{\theta}(A_t|S_t)Q_{w}(S_t, A_t)$</li>
+</ul>
+</li>
+<li>The critic is solving a familiar problem: policy evaluation, which now can be solve using methods via value-based methods.</li>
+<li>However, this approximation of the policy gradient introduces bias. A biased policy gradient may not find the right solution. We can choose value function approximation carefully so that this bias is removed. This is possible because of the <strong>Compatible Function Approximation Theorem</strong> below:
+<ul>
+<li>If the following two conditions are satisfied:
+<ol>
+<li>Value function approximator is compatible to the policy $\nabla_wQ_w(s,a) = \nabla_{\theta}\log\pi_{\theta}(s,a)$</li>
+<li>Value function parameters w minimise the mean-squared error $\varepsilon = \mathbb{E_{\pi_{\theta}}}[(q_{\pi_{\theta}}(s,a) - Q_w(s,a))^2]$</li>
+</ol>
+</li>
+<li>Then $\nabla_{\theta}J(\theta) = \mathbb{E}\left[\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)Q_{w}(S_t, A_t)\right]$ exactly.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>Advantage Actor-Critic</li>
+</ol>
+<ul>
+<li>Recall <strong>expr 1</strong>, we can again apply this on $Q_{w}(S_t, A_t)$ to further reduce the variance introduced by a large $Q_{w}(S_t, A_t)$ value.</li>
+<li>Consider $A_{\pi_{\theta}}(s,a) = Q_{\pi_{\theta}}(s,a) - v_{\pi_{\theta}}(s)$. This is called an <strong>advantage function.</strong> Since $v_{\pi_{\theta}}(s)$ does not depend on the actions, so$\pi_{\theta}(s,a)$ plays no role here. Then <strong>expr 1</strong> with $\nabla_{\theta}J(\theta)$ formula results in the following</li>
+<li>$\nabla_{\theta}J(\theta) = \mathbb{E}\left[\sum\limits_{t=0}\nabla_{\theta}\log\pi_{\theta}(A_t|S_t)A_{\pi_{\theta}}(S_t, A_t)\right]$</li>
+</ul>
+<ol start="3">
+<li>TD Actor-Critic</li>
+</ol>
+<ul>
+<li>We now apply approximation again (Compatible Function Approximation Theorem) on $A_{\pi_{\theta}}(s)$ using the an estimated TD error $\delta_{\pi_{\theta}}(S_t) = R_{t+1} + \gamma v_{\pi_{\theta}}(S_{t+1})- v_{\pi_{\theta}}(S_t)$</li>
+<li>In practice we can use an approximate TD error $\delta_{t} = R_{t+1} + \gamma v_{w}(S_{t+1})- v_{w}(S_t)$</li>
+<li>So now the critic update is $\Delta \theta = \alpha \delta_t \nabla_{\theta}\log\pi_{\theta}(A_t|S_t)$</li>
+<li>Note given this variant that Critic can estimate value function $v_{\pi_{\theta}}(s)$ from many targets at different time-scales. (MC, TD(0), Forward/Backward TD($\lambda$)</li>
+</ul>
+<ol start="4">
+<li>Natural Actor-Critic</li>
+</ol>
+<ul>
+<li>refers to <a href="https://www.davidsilver.uk/wp-content/uploads/2020/03/pg.pdf">Policy Gradient</a> for more on this content.</li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/ensemble-0/"> <span class="dir">← previous</span> <span class="title">Ensemble Models: Overview</span> </a> <a class="next" href="/writing/blogs/rl/reinfocement-4/"> <span class="dir">next →</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part IV </span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

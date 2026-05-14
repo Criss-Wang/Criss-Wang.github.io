@@ -1,0 +1,601 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Dimension Reduction: Life savers - Zhenlin Wang</title><meta name="description" content="We must dispel the curse of dimensionality!"><meta property="og:title" content="Dimension Reduction: Life savers - Zhenlin Wang"><meta property="og:description" content="We must dispel the curse of dimensionality!"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/dimentionality-reduction/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Matrix Computation · Dimensionality Reduction · Unsupervised Learning</div> <h1>Dimension <em>Reduction:</em> Life savers</h1> <p class="dek">We must dispel the curse of dimensionality!</p> <div class="byline"> <strong>2020.03.04</strong> <span>·</span> <span>7 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-01-11</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>High dimensional data modeling has always been a popular topic of discussion. Many research and work are done in this field simply because we have limited computational power. Even if quantum technology can greatly boost this power in near future, we will still face the curse of unlimited flow of data and features. Thus, it’s actually extremely important that we reduce the amount of data input in a model.</p>
+<p>In this blog, we explore several well-known tools for dimensionality reduction, namly Linear Discriminant Analysis (LDA), Principle Component Analysis (PCA) and Nonnegative Matrix Factorization (NMF).</p>
+<h3 id="lda">LDA</h3>
+<h4 id="1-definition">1. Definition</h4>
+<ul>
+<li>
+<p>Can be either a predictive modeling algorithm for multi-class classification or a dimensionality reduction technique</p>
+</li>
+<li>
+<p>A Generative Learning Algorithm based on labeled data</p>
+</li>
+<li>
+<p>Assumes Gaussian Distribution for $X|_{y = k}$ ; Each attribute has the same variance (Mean removal/Feature Engineering with Log/Root functions/Box-Cox transformation needed)</p>
+</li>
+<li>
+<p>The class calculated from the discrimination function $D_k(x)$ as having the largest value will be the output classification ($y$)</p>
+</li>
+<li>
+<p>LDA creates a new axis based on</p>
+<ol>
+<li>Maximize the distance between means</li>
+<li>Minimize the variations within each categories</li>
+</ol>
+</li>
+<li>
+<p><strong>Procedure</strong></p>
+<ul>
+<li>
+<p><strong>For Dimensionality Reduction</strong> (reduced-rank LDA)</p>
+<ul>
+<li>Compute the d-dimensional mean vectors for the different classes from the dataset.</li>
+<li>Compute the scatter matrices (in-between-class and within-class scatter matrix).</li>
+<li>Compute the eigenvectors (e1,e2,…,ed) and corresponding eigenvalues ($\lambda_1, \lambda_2, \ldots, \lambda_d$) for the scatter matrices.</li>
+<li>Sort the eigenvectors by decreasing eigenvalues and choose k eigenvectors with the largest eigenvalues to form a d×k dimensional matrix W (where every column represents an eigenvector).</li>
+<li>Use this d×k eigenvector matrix to transform the samples onto the new subspace. This can be summarized by the matrix multiplication: Y=XW (where X is a n×d-dimensional matrix representing the n samples, and y are the transformed n×k-dimensional samples in the new subspace).</li>
+</ul>
+</li>
+<li>
+<p><strong>For classification</strong> (Essentially, LDA classifies the sphered data to the closest class mean.)</p>
+<ul>
+<li>
+<p>Perform eigen-decomposition on the pooled covariance matrix $\Sigma = UDU^T$</p>
+</li>
+<li>
+<p>Spheres the data: $X^* \leftarrow D^{-\frac{1}{2}}U^TX$ to produce an identity covariance matrix in the transformed space</p>
+</li>
+<li>
+<p>Obtain group means in the transformed space: $\hat{\mu_1},…,\hat{\mu_k}$</p>
+</li>
+<li>
+<p>Classify $x$ according to $\delta_i(X^*)$:</p>
+<p>$$y_{x_i} = \arg\max \limits_{i} {x^*}^T\hat{\mu_i} - \frac{1}{2}\hat{\mu_i}^T\hat{\mu_i} + \log\hat{\pi_i}$$</p>
+<p>where $\hat{\pi_i}$ is the group’s prior probability</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Extensions to LDA</p>
+<ul>
+<li><strong>Quadratic Discriminant Analysis (QDA)</strong>: Each class uses its own estimate of variance (or covariance when there are multiple input variables).</li>
+<li><strong>Flexible Discriminant Analysis (FDA)</strong>: Where non-linear combinations of inputs is used such as splines.</li>
+<li><strong>Regularized Discriminant Analysis (RDA)</strong>: Introduces regularization into the estimate of the variance (actually covariance), moderating the influence of different variables on LDA.</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Need Less Data</li>
+<li>Simple prototype classifier: Distance to the class mean is used, it’s simple to interpret.</li>
+<li>The decision boundary is linear: It’s simple to implement and the classification is robust.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Linear decision boundaries may not adequately separate the classes. Support for more general boundaries is desired.</li>
+<li>In a high-dimensional setting, LDA uses too many parameters. A regularized version of LDA is desired.</li>
+<li>Support for more complex prototype classification is desired.</li>
+</ul>
+<h4 id="3-application">3. Application</h4>
+<ul>
+<li><strong>Bankruptcy prediction</strong></li>
+<li><strong>Facial recognition</strong></li>
+</ul>
+<h4 id="4-code-implementation">4. Code implementation</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.datasets </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> load_wine</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#ADBAC7">np.set_printoptions(</span><span style="color:#F69D50">precision</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> matplotlib </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
+<span class="line"><span style="color:#ADBAC7">sns.set()</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LabelEncoder</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Loading Data</span></span>
+<span class="line"><span style="color:#ADBAC7">wine </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> load_wine()</span></span>
+<span class="line"><span style="color:#ADBAC7">X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(wine.data, </span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">wine.feature_names)</span></span>
+<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Categorical.from_codes(wine.target, wine.target_names)</span></span>
+<span class="line"><span style="color:#768390"># Merge X and y (Training set)</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> X.join(pd.Series(y, </span><span style="color:#F69D50">name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">## The Simply Way: using sklearn</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.discriminant_analysis </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LinearDiscriminantAnalysis</span></span>
+<span class="line"><span style="color:#ADBAC7">lda </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LinearDiscriminantAnalysis()</span></span>
+<span class="line"><span style="color:#ADBAC7">X_lda </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> lda.fit_transform(X, y)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">## The hard way: Understand the logic here</span></span>
+<span class="line"><span style="color:#768390"># Compute means for each class</span></span>
+<span class="line"><span style="color:#ADBAC7">class_feature_means </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">wine.target_names)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> c, rows </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> df.groupby(</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#ADBAC7">    class_feature_means[c] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> rows.mean()</span></span>
+<span class="line"><span style="color:#ADBAC7">class_feature_means</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Compute the Within Class Scatter Matrix using the Mean Vector</span></span>
+<span class="line"><span style="color:#ADBAC7">within_class_scatter_matrix </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> c, rows </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> df.groupby(</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#ADBAC7">    rows </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> rows.drop([</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">s </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> index, row </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> rows.iterrows():</span></span>
+<span class="line"><span style="color:#ADBAC7">        x, mc </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> row.values.reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">), class_feature_means[c].values.reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">        s </span><span style="color:#F47067">+=</span><span style="color:#ADBAC7"> (x </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> mc).dot((x </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> mc).T)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">        within_class_scatter_matrix </span><span style="color:#F47067">+=</span><span style="color:#ADBAC7"> s</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Compute the Between Class Scatter Matrix:</span></span>
+<span class="line"><span style="color:#ADBAC7">feature_means </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df.mean()</span></span>
+<span class="line"><span style="color:#ADBAC7">between_class_scatter_matrix </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> c </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> class_feature_means:</span></span>
+<span class="line"><span style="color:#ADBAC7">    n </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(df.loc[df[</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">==</span><span style="color:#ADBAC7"> c].index)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    mc, m </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> class_feature_means[c].values.reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">), feature_means.values.reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    between_class_scatter_matrix </span><span style="color:#F47067">+=</span><span style="color:#ADBAC7"> n </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> (mc </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> m).dot((mc </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> m).T)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Compute the Eigenvalues &#x26; Eigenvectors, then sort accordingly</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">eigen_values, eigen_vectors </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.linalg.eig(np.linalg.inv(within_class_scatter_matrix).dot(between_class_scatter_matrix))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pairs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [(np.abs(eigen_values[i]), eigen_vectors[:,i]) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(eigen_values))]</span></span>
+<span class="line"><span style="color:#ADBAC7">pairs </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(pairs, </span><span style="color:#F69D50">key</span><span style="color:#F47067">=lambda</span><span style="color:#ADBAC7"> x: x[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">reverse</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Print the Explained Variance</span></span>
+<span class="line"><span style="color:#ADBAC7">eigen_value_sums </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sum</span><span style="color:#ADBAC7">(eigen_values)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Explained Variance'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i, pair </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(pairs):</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Eigenvector </span><span style="color:#F47067">{}</span><span style="color:#96D0FF">: </span><span style="color:#F47067">{}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">.format(i, (pair[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span><span style="color:#F47067">/</span><span style="color:#ADBAC7">eigen_value_sums).real))</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Identify the Principle Eigenvalues (here k = 2); Compute the new feature space X_lda</span></span>
+<span class="line"><span style="color:#ADBAC7">w_matrix </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.hstack((pairs[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">][</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">].reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">), pairs[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">][</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">].reshape(</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">))).real</span></span>
+<span class="line"><span style="color:#ADBAC7">X_lda </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array(X.dot(w_matrix))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">le </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LabelEncoder()</span></span>
+<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> le.fit_transform(df[</span><span style="color:#96D0FF">'class'</span><span style="color:#ADBAC7">]) </span><span style="color:#768390"># Here the y is just the encoded label set</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Visualize</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.xlabel(</span><span style="color:#96D0FF">'LD1'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.ylabel(</span><span style="color:#96D0FF">'LD2'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.scatter(</span></span>
+<span class="line"><span style="color:#ADBAC7">    X_lda[:,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#ADBAC7">    X_lda[:,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">    c</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">y,</span></span>
+<span class="line"><span style="color:#F69D50">    cmap</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'rainbow'</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    alpha</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.7</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    edgecolors</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'b'</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
+<h3 id="pca">PCA</h3>
+<h4 id="1-definition-1">1. Definition</h4>
+<ul>
+<li>
+<p>A linear model (base version) aimed at <em>unsupervised dimensionality reduction</em>.</p>
+</li>
+<li>
+<p>Basic intuition: projecting data onto its orthogonal feature subspace</p>
+</li>
+<li>
+<p>It is a technique for feature extraction — it combines our input variables in a specific way, then we can drop the “least important” variables while still retaining the most valuable parts of all of the variables (<strong>high variance</strong>, <strong>independent</strong>, <strong>few number</strong>)</p>
+</li>
+<li>
+<p>Each of the “new” variables after PCA are all independent of one another (due to the <em>linear model</em> assumption)</p>
+</li>
+<li>
+<p>PCA effectively minimizes error orthogonal to the model itself</p>
+</li>
+<li>
+<p>It can only be applied to datasets which are linearly separable</p>
+</li>
+<li>
+<p>Complete procedure</p>
+<ol>
+<li>Standardize the data.</li>
+<li>Obtain the Eigenvectors and Eigenvalues from the covariance matrix or correlation matrix (by performing eigendecomposition), or perform Singular Value Decomposition (SVD) [<strong>SVD preferred due to efficiency and automatic eigenvalue sorting</strong>]
+<ul>
+<li>Find the hyperplane that accounts for most of the variation using SVD (that hyperplane represents 1<sup>st</sup> componet);
+<ul>
+<li>This basically means it tries to minimize the points’ distance to the hyperplane/maximize the distance from the projected point to the origin</li>
+</ul>
+</li>
+<li>Find the orthogonal subspace, get from the subspace a best hyperplane with largest variation using SVD again (2nd component which is clearly independent of 1<sup>st</sup> component)</li>
+<li>Repeat to find all the components</li>
+<li>Use the eigenvalues to determine the proportion of variation that each component account for;</li>
+<li>construct the new system using the principle (top k) components; plot the samples using the projections on components as coordinates</li>
+</ul>
+</li>
+<li>We should keep the component if it contributes substantially to the variation</li>
+<li>It eventually cluster samples that are highly correlated;</li>
+</ol>
+</li>
+<li>
+<p>It is possible to restore all the samples if each component correspond to one distinct variable (Note that # of PC &#x3C; # of Samples)</p>
+</li>
+<li>
+<p>Warning: <strong>scaling</strong> and <strong>centering</strong> data is very Important!!!</p>
+</li>
+<li>
+<p><strong>Kernel PCA</strong></p>
+<ul>
+<li>an extension of PCA into non-linear dataset by project dataset into a higher dimensional feature space using the <code>kernel trick</code> (recall SVM)</li>
+<li>Some popular kernels are
+<ul>
+<li>Gaussian/RBF</li>
+<li>Polynomial</li>
+<li>Hyperbolic tangent: $K(\vec{x}, \vec{x}’) = tanh(\vec{x} \cdot \vec{x}’ + \delta)$</li>
+</ul>
+</li>
+<li>Note that the kernel matrix still need to be <em>normalized</em> for PCA to use</li>
+<li>kernel PCA so kernel PCA will have difficulties if we have lots of data points.</li>
+</ul>
+</li>
+<li>
+<p><strong>Robust PCA</strong></p>
+<ul>
+<li>an extension of PCA to deal with sparsity in the matrix</li>
+<li>It factorizes a matrix into the sum of 2 matrices, $M = L + S$, where $M$ is the original matrix, $L$ is the low-rank (with lots of redundant information) matrix and $S$ is a sparse matrix (In the case of corrupted data, $S$ often captures the corrupted entries)</li>
+<li>Application: Latent semantic indexing => $L$ captures all common words while $S$ captures all key words that best identify each document.</li>
+<li>The minimization is over $\Vert L\Vert_* + \lambda \Vert S\Vert_1$ subject to $M = L + S$. Minimizing L1-norm results in sparse values, while minimizing nuclear norm (sometimes also use Frobenious norm $\Vert L\Vert_F$) leads to sparse singular values (hence low rank)</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-pros--cons-1">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Removes Correlated Features</li>
+<li>Improves Algorithm Performance</li>
+<li>Reduces Overfitting</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Independent variables become less interpretable</li>
+<li>Data standardization is must before PCA</li>
+<li>Information Loss (if PCs chosen are not sufficient)</li>
+</ul>
+<h4 id="3-application-1">3. Application</h4>
+<ul>
+<li>When interpretability is not an issue, use pca</li>
+<li>When the dimension is too large or you want to identify features that are independent, use pca</li>
+</ul>
+<h4 id="4-comparison">4. Comparison</h4>
+<p><em>PCA vs LDA</em></p>
+<ul>
+<li>Not as good as LDA in clustering/classification effect, yet idea for Factor analysis</li>
+<li>PCA projects the entire dataset onto a different feature (sub)space, and LDA tries to determine a suitable feature (sub)space in order to distinguish between patterns that belong to different classes</li>
+</ul>
+<p><em>PCA vs ICA</em></p>
+<ul>
+<li>In PCA the basis you want to find is the one that best explains the variability of your data; In ICA the basis you want to find is the one in which each vector is an independent component of your data (which usually has mixed signals/mixed features)</li>
+</ul>
+<h4 id="5-steps">5. Steps</h4>
+<ol>
+<li>Standardize the data to ensure that all variables have a mean of 0 and a standard deviation of 1.</li>
+<li>Compute covariance matrix: This matrix shows how each variable is related to every other variable in the dataset</li>
+<li>Eigen-decomp + feature selection</li>
+<li>Projection / transformation</li>
+</ol>
+<h4 id="6-code-implementation">6. Code implementation</h4>
+<ol>
+<li><code>sklearn</code> version</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns; sns.set(</span><span style="color:#F69D50">style</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'white'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">config InlineBackend.figure_format </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'retina'</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> decomposition</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> datasets</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> mpl_toolkits.mplot3d </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Axes3D</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">digits </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> datasets.load_digits()</span></span>
+<span class="line"><span style="color:#ADBAC7">X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> digits.data</span></span>
+<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> digits.target</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># f, axes = plt.subplots(5, 2, sharey=True, figsize=(16,6))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.subplot(</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, i </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.imshow(X[i,:].reshape([</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">]), </span><span style="color:#F69D50">cmap</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'gray'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pca </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> decomposition.PCA(</span><span style="color:#F69D50">n_components</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">X_reduced </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pca.fit_transform(X)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Projecting </span><span style="color:#F47067">%d</span><span style="color:#96D0FF">-dimensional data to 2D'</span><span style="color:#F47067"> %</span><span style="color:#ADBAC7"> X.shape[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.scatter(X_reduced[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], X_reduced[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">c</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">y,</span></span>
+<span class="line"><span style="color:#F69D50">            edgecolor</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'none'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">alpha</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.7</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">s</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">40</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            cmap</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">plt.cm.get_cmap(</span><span style="color:#96D0FF">'nipy_spectral'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.colorbar()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.title(</span><span style="color:#96D0FF">'MNIST. PCA projection'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pca </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> decomposition.PCA().fit(X)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.plot(np.cumsum(pca.explained_variance_ratio_), </span><span style="color:#F69D50">color</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'k'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">lw</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.xlabel(</span><span style="color:#96D0FF">'Number of components'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.ylabel(</span><span style="color:#96D0FF">'Total explained variance'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.xlim(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">63</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.yticks(np.arange(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1.1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.axvline(</span><span style="color:#6CB6FF">21</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">c</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'b'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.axhline(</span><span style="color:#6CB6FF">0.9</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">c</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'r'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span></code></pre>
+<ol start="2">
+<li><code>numpy</code> version</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy.random </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> rnd</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create random 2d data</span></span>
+<span class="line"><span style="color:#ADBAC7">mu </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">13</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">sigma </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([[</span><span style="color:#6CB6FF">3.5</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1.8</span><span style="color:#ADBAC7">], [</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1.8</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">3.5</span><span style="color:#ADBAC7">]])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Mu "</span><span style="color:#ADBAC7">, mu.shape)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Sigma "</span><span style="color:#ADBAC7">, sigma.shape)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create 1000 samples using mean and sigma</span></span>
+<span class="line"><span style="color:#ADBAC7">x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> rnd.multivariate_normal(mu, sigma, </span><span style="color:#F69D50">size</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Data shape "</span><span style="color:#ADBAC7">, x.shape)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># normalize / standardize</span></span>
+<span class="line"><span style="color:#ADBAC7">x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (x </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> x.mean(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">keepdims</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> x.std(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">keepdims</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># compute covariance</span></span>
+<span class="line"><span style="color:#ADBAC7">cov </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.cov(x.T)  </span><span style="color:#768390"># IMPT: don't forget the transpose here</span></span>
+<span class="line"><span style="color:#ADBAC7">eig_val, eig_vec </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.linalg.eig(cov)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.argsort(eig_val </span><span style="color:#F47067">*</span><span style="color:#F47067"> -</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">eig_val </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> eig_val[indices]</span></span>
+<span class="line"><span style="color:#ADBAC7">eig_vec </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> eig_vec[:,indices]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Sorted Eigen vectors "</span><span style="color:#ADBAC7">, eig_vec)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Sorted Eigen values "</span><span style="color:#ADBAC7">, eig_val, </span><span style="color:#96D0FF">"</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Get explained variance</span></span>
+<span class="line"><span style="color:#ADBAC7">sum_eig_val </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.sum(eig_val)</span></span>
+<span class="line"><span style="color:#ADBAC7">explained_variance </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> eig_val </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> sum_eig_val</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(explained_variance)</span></span>
+<span class="line"><span style="color:#ADBAC7">cumulative_variance </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.cumsum(explained_variance)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(cumulative_variance)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pca_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.dot(x, eig_vec)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Transformed data "</span><span style="color:#ADBAC7">, pca_data.shape)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Reverse PCA transformation</span></span>
+<span class="line"><span style="color:#ADBAC7">recon_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pca_data.dot(eig_vec.T) </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> var </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> mean</span></span></code></pre>
+<h3 id="nmf">NMF</h3>
+<h4 id="1-definition-2">1. Definition</h4>
+<ul>
+<li>It automatically extracts sparse and meaningful (easily interpretable) features from a set of nonnegative data vectors.</li>
+<li>We basically factorize $X_{m\times n}$ into 2 smaller matrices non-negative $W_{m\times r}$ and $H_{r\times n}$ such that $X \approx WH$ and $r \leq \min(m,n)$ ( low-rank approximate factorizations)</li>
+<li>Interpretation of $W$ and $H$:
+<ul>
+<li>Basically, we can interpret $x_i$ to be a weighted sum of some components, where each row in $H$ is a component, and each row in $W$ contains the weights of each component</li>
+</ul>
+</li>
+<li>Idea of the algo:
+<ul>
+<li>Formalize an objective function and iteratively optimize it</li>
+<li>A local minima is sufficient for the solution</li>
+</ul>
+</li>
+<li>Objective function to minimize :
+<ul>
+<li><code>Frobenius norm</code>: $\Vert X-WH\Vert_{F}^{2} \space$ w.r.t. $\space W,H \space$ s.t. $\space W,H \geq 0$</li>
+<li><code>Generalized Kullback-Leibler divergence</code>: $\sum \limits_{ij} (X_{ij}\log\frac{X_{ij}}{WH_{ij}} - X_{ij} + WH_{ij})$</li>
+</ul>
+</li>
+<li>Choices of Optimization technique used:
+<ul>
+<li>Coordinate descent (alternative: gradient descent which fix $W$ and optimize $H$, then fix $H$ and optimize $W$ until tolerance is met)</li>
+<li>Multiplicative Update
+<ul>
+<li>$H \leftarrow H \frac{W^T X}{W^T W H}$,</li>
+<li>$W \leftarrow W \frac{W^T X}{W H H^T}$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Method to choose the optimal factorisation rank, $r$:
+<ul>
+<li>General guideline: $(n+m)r &#x3C;nm$</li>
+<li>Trial and error,</li>
+<li>Estimation using SVD based of the decay of the singular values</li>
+<li>Insights from experts</li>
+</ul>
+</li>
+<li>Tricks
+<ol>
+<li>Initialization: uses SVD to compute a rough estimate of the matrices $W$ and $H$ . If the non-negativity condition did not exist, taking the top k singular values and their corresponding vectors would construct the best rank k estimate, measured by the frobenius norm. Since $W$ and $H$ must be non-negative, we must slightly modify the vectors we use.</li>
+<li>Regularization: Since the $W$ represents weights of a component, it may produces weights that are too high/low. The classical way is to use $l_1$ or $l_2$ regularization losses</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-application">2. Application</h4>
+<ul>
+<li>NMF is suited for tasks where the underlying factors can be interpreted as non-negative</li>
+<li>Image processing</li>
+<li>Topic Modeling</li>
+<li>Text mining</li>
+<li>Hyperspectral unmixing</li>
+</ul>
+<h4 id="3-code-implementation">3. Code Implementation</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> operator </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> itemgetter</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> concurrent.futures </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> ProcessPoolExecutor</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> time </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> time</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> os</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> gensim</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> itertools</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> nltk.stem </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> WordNetLemmatizer</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.feature_extraction.text </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> CountVectorizer, TfidfVectorizer</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.decomposition </span><span style="color:#F47067">import</span><span style="color:#6CB6FF"> NMF</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> OneHotEncoder, MultiLabelBinarizer, LabelEncoder</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">lemmatizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> WordNetLemmatizer()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">data_path </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'matrix_factorization_arxiv_query_result.json'</span></span>
+<span class="line"><span style="color:#ADBAC7">articles_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_json(data_path)</span></span>
+<span class="line"><span style="color:#ADBAC7">articles_df.head()</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> stem</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> lemmatizer.lemmatize(text)</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> map_parallel</span><span style="color:#ADBAC7">(f, iterable, </span><span style="color:#F47067">**</span><span style="color:#ADBAC7">kwargs):</span></span>
+<span class="line"><span style="color:#F47067">    with</span><span style="color:#ADBAC7"> ProcessPoolExecutor() </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pool:</span></span>
+<span class="line"><span style="color:#ADBAC7">        result </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pool.map(f, iterable, </span><span style="color:#F47067">**</span><span style="color:#ADBAC7">kwargs)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> result</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> retrieve_articles</span><span style="color:#ADBAC7">(start, chunksize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> arxiv.query(</span></span>
+<span class="line"><span style="color:#F69D50">        search_query</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">search_query,</span></span>
+<span class="line"><span style="color:#F69D50">        start</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">start,</span></span>
+<span class="line"><span style="color:#F69D50">        max_results</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">chunksize</span></span>
+<span class="line"><span style="color:#ADBAC7">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> vectorize_text</span><span style="color:#ADBAC7">(examples_df, vectorized_column</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'summary'</span><span style="color:#ADBAC7">, vectorizer</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">CountVectorizer):</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    vectorizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> vectorizer(</span><span style="color:#F69D50">min_df</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    features </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> vectorizer.fit_transform(examples_df[vectorized_column])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    le </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LabelEncoder()</span></span>
+<span class="line"><span style="color:#ADBAC7">    ohe </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> OneHotEncoder()</span></span>
+<span class="line"><span style="color:#ADBAC7">    labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> le.fit_transform(valid_example_categories).reshape(</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    labels_ohe </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ohe.fit_transform(labels).todense()</span></span>
+<span class="line"><span style="color:#ADBAC7">    vectorized_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span></span>
+<span class="line"><span style="color:#96D0FF">        'features'</span><span style="color:#ADBAC7">: features,</span></span>
+<span class="line"><span style="color:#96D0FF">        'labels'</span><span style="color:#ADBAC7">: labels,</span></span>
+<span class="line"><span style="color:#96D0FF">        'labels_onehot'</span><span style="color:#ADBAC7"> : labels_ohe</span></span>
+<span class="line"><span style="color:#ADBAC7">    }</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> vectorized_data, (vectorizer, ohe, le)</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> extract_keywords</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    Use gensim's textrank-based approach</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> gensim.summarization.keywords(</span></span>
+<span class="line"><span style="color:#F69D50">        text</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">stem(text),</span></span>
+<span class="line"><span style="color:#F69D50">        lemmatize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span></span>
+<span class="line"><span style="color:#ADBAC7">    )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> filter_out_small_categories</span><span style="color:#ADBAC7">(df, categories, threshold</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">200</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    class_counts </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> categories.value_counts()</span></span>
+<span class="line"><span style="color:#ADBAC7">    too_small_classes </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> class_counts[class_counts </span><span style="color:#F47067">&#x3C;</span><span style="color:#ADBAC7"> threshold].index</span></span>
+<span class="line"><span style="color:#ADBAC7">    too_small_classes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    valid_example_indices </span><span style="color:#F47067">=</span><span style="color:#F47067"> ~</span><span style="color:#ADBAC7">categories.isin(too_small_classes)</span></span>
+<span class="line"><span style="color:#ADBAC7">    valid_examples </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[valid_example_indices]</span></span>
+<span class="line"><span style="color:#ADBAC7">    valid_example_categories </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> categories[valid_example_indices]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> valid_examples, valid_example_categories</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> print_top_words</span><span style="color:#ADBAC7">(model, feature_names, n_top_words):</span></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> topic_idx, topic </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(model.components_):</span></span>
+<span class="line"><span style="color:#ADBAC7">        message </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "Topic #</span><span style="color:#F47067">%d</span><span style="color:#96D0FF">: "</span><span style="color:#F47067"> %</span><span style="color:#ADBAC7"> (topic_idx </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">        message </span><span style="color:#F47067">+=</span><span style="color:#96D0FF"> " "</span><span style="color:#ADBAC7">.join([feature_names[i]</span></span>
+<span class="line"><span style="color:#F47067">                             for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> topic.argsort()[:</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">n_top_words </span><span style="color:#F47067">-</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">:</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]])</span></span>
+<span class="line"><span style="color:#6CB6FF">        print</span><span style="color:#ADBAC7">(message)</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">categories </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> articles_df[</span><span style="color:#96D0FF">'arxiv_primary_category'</span><span style="color:#ADBAC7">].apply(itemgetter(</span><span style="color:#96D0FF">'term'</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">main_categories </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> categories.apply(</span><span style="color:#F47067">lambda</span><span style="color:#ADBAC7"> s: s.split(</span><span style="color:#96D0FF">'.'</span><span style="color:#ADBAC7">)[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">].split(</span><span style="color:#96D0FF">'-'</span><span style="color:#ADBAC7">)[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">main_categories_counts </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> main_categories.value_counts(</span><span style="color:#F69D50">ascending</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">main_categories_counts.plot.barh()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">main_categories_counts[main_categories_counts </span><span style="color:#F47067">></span><span style="color:#6CB6FF"> 200</span><span style="color:#ADBAC7">].plot.barh()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">categories.value_counts(</span><span style="color:#F69D50">ascending</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)[</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">:].plot.barh()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">articles_df[</span><span style="color:#96D0FF">'summary_keywords'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [extract_keywords(i) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> articles_df[</span><span style="color:#96D0FF">'summary'</span><span style="color:#ADBAC7">]]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">article_keyword_lengths </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> articles_df[</span><span style="color:#96D0FF">'summary_keywords'</span><span style="color:#ADBAC7">].apply(</span><span style="color:#F47067">lambda</span><span style="color:#ADBAC7"> kws: </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(kws.split(</span><span style="color:#96D0FF">'</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">valid_examples, valid_example_categories </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> filter_out_small_categories(articles_df, main_categories)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">vectorized_data, (vectorizer, ohe, le) </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> vectorize_text(</span></span>
+<span class="line"><span style="color:#ADBAC7">    valid_examples,</span></span>
+<span class="line"><span style="color:#F69D50">    vectorized_column</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'summary_keywords'</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    vectorizer</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">TfidfVectorizer</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">x_train, x_test, y_train, y_test, y_train_labels, y_test_labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_split(</span></span>
+<span class="line"><span style="color:#ADBAC7">    vectorized_data[</span><span style="color:#96D0FF">'features'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#ADBAC7">    vectorized_data[</span><span style="color:#96D0FF">'labels_onehot'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#ADBAC7">    vectorized_data[</span><span style="color:#96D0FF">'labels'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">    stratify</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">vectorized_data[</span><span style="color:#96D0FF">'labels'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">    test_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.2</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">nmf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> NMF(</span><span style="color:#F69D50">n_components</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">solver</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'mu'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">beta_loss</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'kullback-leibler'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">topics </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nmf.fit_transform(x_train)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">n_top_words </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 10</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">tfidf_feature_names </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> vectorizer.get_feature_names()</span></span>
+<span class="line"><span style="color:#ADBAC7">print_top_words(nmf, tfidf_feature_names, n_top_words)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">dominant_topics </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> topics.argmax(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span></span>
+<span class="line"><span style="color:#ADBAC7">categories </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> le.inverse_transform(y_train_labels[:,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">pd.crosstab(dominant_topics, categories)</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/unsupervised-learning/"> <span class="dir">← previous</span> <span class="title">Unsupervised Learning: Measures about Clustering</span> </a> <a class="next" href="/writing/blogs/recom-sys/recommender-1/"> <span class="dir">next →</span> <span class="title">Recommender Systems: I. Content-Based Filtering And Collaborative Filtering</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

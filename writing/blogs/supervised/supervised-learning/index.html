@@ -1,0 +1,423 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Some Supervised Learning Models - Zhenlin Wang</title><meta name="description" content="So, give me a taste of supervised learning"><meta property="og:title" content="Some Supervised Learning Models - Zhenlin Wang"><meta property="og:description" content="So, give me a taste of supervised learning"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/supervised-learning/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Supervised Learning · Classification</div> <h1>Some <em>Supervised</em> Learning Models</h1> <p class="dek">So, give me a taste of supervised learning</p> <div class="byline"> <strong>2019.06.01</strong> <span>·</span> <span>12 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>Almost everyone who learned about data science or machine learning knows what supervised learning is. However, not many have dived deep into the details of those well-known models. In this blog, I will share some critical aspects of these models (mainly mathematical) that will become helpful in both research and practical work. One note on functionality is that these models work for both regression and classification problems.</p>
+<h3 id="knn">KNN</h3>
+<h4 id="1-definition">1. Definition</h4>
+<ul>
+<li>K nearest neighbors is a simple algorithm that stores all available cases and predict the numerical target based on a similarity measure (e.g., distance functions)</li>
+<li>Non-parametric technique</li>
+<li>Distance functions can be
+<ul>
+<li>Euclidean: $\sqrt{\sum_{i=1}^{k}(x_i - y_i)^2}$</li>
+<li>Manhattan (Or Hamming in the case of Classification):  $\sum_{i=1}^{k}(|x_i - y_i|)$</li>
+<li>Minkowski:  $(\sum_{i=1}^{k}(|x_i - y_i|)^q)^\frac{1}{q}$</li>
+</ul>
+</li>
+<li>Preprocessing
+<ul>
+<li><code>Standardized Distance</code>: One major drawback in calculating distance measures directly from the training set is in the case where variables have different measurement scales or there is a mixture of numerical and categorical variables. The solution is to do standardization on each variable</li>
+<li><code>Dimension Reduction</code>: Usually KNN’s speed gets much slower when number of attributes increase. Hence we need to reduce the number of dimensions using techniques such as PCA and SVD</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-choice-of-k">2. Choice of K</h4>
+<ul>
+<li>In general, a large K value is more precise as it reduces the overall noise; however, the compromise is that the distinct boundaries within the feature space are blurred (Lower prediction accuracy if K is too large).</li>
+<li>Need to use cross validation to determine an optimal K</li>
+</ul>
+<h4 id="3-strength-and-weakness">3. Strength and Weakness</h4>
+<ul>
+<li>Advantage
+<ul>
+<li>The algorithm is simple and easy to implement.</li>
+<li>There’s no need to build a model, tune several parameters, or make additional assumptions.</li>
+<li>The algorithm is versatile. It can be used for classification, regression, and search (as we will see in the next section).</li>
+<li>Good interpretability. There are exceptions: if the number of neighbors is large, the interpretability deteriorates
+<ul>
+<li>“We did not give him a loan, because he is similar to the 350 clients, of which 70 are the bad, and that is 12% higher than the average for the dataset”.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Disadvantages
+<ul>
+<li>The algorithm gets significantly slower as the number of examples and/or predictors/independent variables increase.</li>
+<li>KNN doesn’t know which attributes are more import    ant</li>
+<li>Doesn’t handle missing data gracefully</li>
+<li>Slow during prediction (not training)</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-suitable-scenario">4. Suitable scenario</h4>
+<ul>
+<li>KNN is bad if you have too many data points and speed is important</li>
+<li>In ensemble model:  k-NN is often used for the construction of meta-features (i.e. k-NN predictions as input to other models) or for stacking/blending</li>
+<li>When you are solving a problem which directly focusses on finding similarity between observations, K-NN does better because of its inherent nature to optimize locally (i.e: KNN-search)</li>
+<li><strong>Real Life Example</strong>: a simple recommender system (e.g: Given our movies data set, what are the 5 most similar movies to a movie query)</li>
+</ul>
+<h4 id="5-interview-questions">5. Interview Questions</h4>
+<ol>
+<li>Use 1 line to describe KNN
+<ul>
+<li><strong>Answer</strong>: KNN works by finding the distances between a query and all the examples in the data, selecting the specified number examples (K) closest to the query, then votes for the most frequent label (in the case of classification) or averages the labels (in the case of regression).</li>
+</ul>
+</li>
+</ol>
+<h4 id="6-simple-implementations">6. Simple implementations</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">## For Regression</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.neighbors </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> KNeighborsClassifier</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.neighbors </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> KNeighborsRegressor</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> GridSearchCV</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> confusion_matrix,mean_squared_error,accuracy_score</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> MinMaxScaler</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">##Randomly generate some data</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">data  </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(np.random.randint(</span><span style="color:#F69D50">low</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 2</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">high</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 100</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">size</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)),</span></span>
+<span class="line"><span style="color:#F69D50">                     columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">"Target"</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">"A"</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">"B"</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">"C"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">data.head()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">train_x,test_x,train_y,test_y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_split(data.iloc[:,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:],data.Target,</span><span style="color:#F69D50">test_size</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0.2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(train_x.shape, test_x.shape)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MinMaxScaler(</span><span style="color:#F69D50">feature_range</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scaler.fit(train_x)</span></span>
+<span class="line"><span style="color:#ADBAC7">scaled_train_x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(scaler.transform(train_x),</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'A'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'B'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'C'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">scaled_test_x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(scaler.transform(test_x),</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">"A"</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">"B"</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">"C"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">###Basic Performance testing</span></span>
+<span class="line"><span style="color:#ADBAC7">knn_regressor </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KNeighborsRegressor(</span><span style="color:#F69D50">n_neighbors</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">algorithm</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"brute"</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">weights</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"distance"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">knn_regressor.fit(scaled_train_x, train_y)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">train_pred </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> knn_regressor.predict(scaled_train_x)</span></span>
+<span class="line"><span style="color:#ADBAC7">test_pred </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> knn_regressor.predict(scaled_test_x)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(mean_squared_error(train_y,train_pred))</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(mean_squared_error(test_y,test_pred))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">###Grid Search to determine K</span></span>
+<span class="line"><span style="color:#ADBAC7">knn_regressor </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KNeighborsRegressor(</span><span style="color:#F69D50">algorithm</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"brute"</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">weights</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"distance"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">params </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#96D0FF">"n_neighbors"</span><span style="color:#ADBAC7">: [</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">],</span><span style="color:#96D0FF">"metric"</span><span style="color:#ADBAC7">: [</span><span style="color:#96D0FF">"euclidean"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"cityblock"</span><span style="color:#ADBAC7">]}</span></span>
+<span class="line"><span style="color:#ADBAC7">grid </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> GridSearchCV(knn_regressor,</span><span style="color:#F69D50">param_grid</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">params,</span><span style="color:#F69D50">scoring</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"neg_mean_squared_error"</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">cv</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">grid.fit(scaled_train_x, train_y)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(grid.best_params_)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(grid.best_score_)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">best_knn </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> grid.best_estimator_</span></span>
+<span class="line"><span style="color:#ADBAC7">train_pred </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> best_knn.predict(scaled_train_x)</span></span>
+<span class="line"><span style="color:#ADBAC7">test_pred </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> best_knn.predict(scaled_test_x)</span></span></code></pre>
+<h3 id="svm">SVM</h3>
+<h4 id="1-definition-1">1. Definition</h4>
+<ul>
+<li>Normally a binary classification</li>
+<li>Basic Ideology: SVM is based on the idea of finding a hyperplane that best separates the features into different domains.</li>
+<li>Both for Regression and classification
+<ul>
+<li>SVR</li>
+<li>SVC</li>
+</ul>
+</li>
+<li><code>Support vectors</code>: The points closest to the hyperplane</li>
+<li><code>margin maximizing hyperplane</code>: the bound that maximize the distances from <strong>support vectors</strong></li>
+<li><code>hard margin SVM</code>: If the points are <strong>linearly separable</strong> then only our hyperplane is able to distinguish between them. Then we have very strict constraints to correctly classify each and every datapoint</li>
+<li><code>Soft margin SVM</code>: If the points are <strong>not linearly separable</strong> then we need an update so that our function may skip few outliers and be able to classify almost linearly separable points. For this reason, we introduce a new Slack variable(ξ)
+<ul>
+<li>We use CV to determine whether allowing certain amount of misclassification results in better classification in the long run</li>
+</ul>
+</li>
+<li><code>Kernel</code>: used to systematically find the specfic transformation that leads to class separation
+<ol>
+<li><strong>Polynomial Kernel</strong>: $K(X_1, X_2) = (a+X_{1}^{T}X_{2})^b$ where $a$ = constant term and $b$ = degree of kernel
+<ul>
+<li>done via Dot Product of a Feature Engineered Matrix</li>
+</ul>
+</li>
+<li><strong>Radial basis function kernel (RBF)/ Gaussian Kernel</strong>: $K(X_1, X_2) = e^{-\gamma \lVert X_1 - X_2 \rVert^2}$ where $\lVert X_1 - X_2 \rVert^2$ = Euclidean distance between $X_1$ &#x26; $X_2$
+<ul>
+<li><strong>γ</strong>: As the value of $\gamma$ increases the model gets overfits. As the value of $\gamma$ decreases the model underfits</li>
+<li>For Gaussian kernel: $\gamma = \frac{1}{2\sigma ^2}$</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><strong>Most Important Idea abut Kernel</strong>: Our powerful kernel function actually calculate the high-dimensional relationships <strong>WITHOUT</strong> actually transforming the data to higher dimensions</li>
+<li>Multiclass classification:
+<ul>
+<li>2 types of strategy
+<ul>
+<li>One vs. All: N-class instances then N binary classifier models, then pick the prediction of a non-zero class which is the most certain.</li>
+</ul>
+  <figure align="center">
+  <img src="/images/Machine%20learning/ovr.jpeg" width="500px">
+  <figcaption>One-vs-Rest classification</figcaption>
+  </figure>
+  - One vs. One: N-class instances then N* (N-1)/2 binary classifier models (adopted in SVM). At prediction time, a voting scheme is applied: all C(C−1)/2 classifiers are applied to an unseen sample and the class that got the highest number of \"+1\" predictions gets predicted by the combined classifier.
+</li>
+<li><code>decision_function_shape='ovo'</code> in the parameter to specify one-vs-one, else default is <code>ovr</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>It is really effective in the higher dimension.</li>
+<li>Its solution is global optimal</li>
+<li>Effective when the number of features are more than training examples.</li>
+<li>Great when the data is noise-free and separable</li>
+<li>Less affected by outliers (if they are not the support vectors)</li>
+<li>SVM is suited for extreme case binary classification.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>For larger dataset, it requires a large amount of time to process.</li>
+<li>Does not perform well in case of overlapped classes</li>
+<li>Cannot handle categorical data $\implies$ must convert via proper encoding</li>
+<li>Selection of hyperparameter/Kernel can be difficult</li>
+<li>resulting boundary plane are very difficult to interpret</li>
+</ul>
+<h4 id="3-application">3. Application</h4>
+<ul>
+<li>When you need a non-linear approximator, use it</li>
+<li>When your dataset has a lot of features, use it</li>
+<li>When the matrix is sparse, use it</li>
+<li>When the data is unstructured, it is not used</li>
+</ul>
+<h4 id="4-simple-implementation">4. Simple Implementation</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.svm </span><span style="color:#F47067">import</span><span style="color:#6CB6FF"> SVC</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">svc</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">SVC(</span><span style="color:#F69D50">kernel</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'linear'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># Choices include 'rbf', 'poly', 'sigmoid'</span></span>
+<span class="line"><span style="color:#ADBAC7">svc.fit(X_train,y_train)</span></span>
+<span class="line"><span style="color:#ADBAC7">y_pred</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">svc.predict(X_test)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Accuracy Score:'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(metrics.accuracy_score(y_test,y_pred))</span></span></code></pre>
+<h3 id="decision-tree">Decision Tree</h3>
+<h4 id="1-definition-2">1. Definition</h4>
+<ul>
+<li>Decision Tree is a tree-based model that predict the class or value of the target variable by learning simple decision rules inferred from prior data(training data).</li>
+<li>use a layered splitting process, where at each layer they try to split the data into two or more groups, so that data that fall into the same group are most similar to each other (homogeneity), and groups are as different as possible from each other (heterogeneity).</li>
+<li>It apples a top-down approach to data, so that given a data set, DTs try to group and label observations that are similar between them, and look for the best rules that split the observations that are dissimilar between them until they reach certain degree of similarity.</li>
+<li>Non-parametric technique</li>
+<li><code>Pruning</code>: a technique used to deal with overfitting, that reduces the size of DTs by removing sections of the Tree that provide little predictive or classification power. $\implies$ Simpler trees prefered (according to Occam’s Razor)
+<ul>
+<li>Post-prune: When you take a fully grown DT and then remove leaf nodes only if it results in a better model performance. This way, you stop removing nodes when no further improvements can be made.</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-types-of-dt">2. Types of DT</h4>
+<ol>
+<li><strong>CHAID (Chi-squared Automatic Interaction Detection)</strong>
+<ul>
+<li>multiway DT</li>
+<li>chooses the independent variable that has the strongest interaction with the dependent variable.</li>
+<li>The selection criteria:
+<ol>
+<li>For regression: F-test</li>
+<li>For classification: chi-square test</li>
+</ol>
+</li>
+<li>Has no pruning function</li>
+</ul>
+</li>
+<li><strong>CART (Classification And Regression Tree)</strong>
+<ul>
+<li>binary DT</li>
+<li>handles data in its raw form (no preprocessing needed),</li>
+<li>can use the same variables more than once in different parts of the same DT, which may uncover complex interdependencies between sets of variables.</li>
+<li>The selection metric:
+<ol>
+<li>For Classification: <code>Gini Impurity Index</code>
+<ul>
+<li>$1 - \sum_{i = 0}^{1}(P_i)^2$ where $P_i$ is the % of data with label $i$ in the split</li>
+<li>The lower value indicates a better spliting</li>
+</ul>
+</li>
+<li>For Regression: <code>Least Square Deviation (LSD)</code>
+<ul>
+<li>the sum of the squared distances (or deviations) between the observed values and the predicted values.</li>
+<li>Often refered as ‘sqaured residual’, lower LSD means better split</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>doesn’t use an internal performance measure for Tree selection/testing</li>
+</ul>
+</li>
+<li><strong>Iterative Dichotomiser 3 (ID3)</strong>
+<ul>
+<li>classification DT</li>
+<li><code>Entropy</code>:
+<ul>
+<li>Single Attribute: $E(S) = \sum_{i = 1}^{c} -p_i\log_2 p_i$</li>
+<li>Multiple Attribute: $E(T,X) = \sum_{c\in X}P(c)E(c)$ where $T$ → <em>Current state</em> and $X$ → <em>Selected attribute</em></li>
+<li>The higher the entropy, the harder it is to draw any conclusions from that information.</li>
+</ul>
+</li>
+<li>Follows the rule — A branch with an entropy of zero is a leaf node and A brach with entropy more than zero needs further splitting</li>
+<li>The selection metric:
+<ul>
+<li><code>Information Gain</code>: $Gain(before,after) = Entropy(before) - \sum_{j = 1}^{K}Entropy(j,after)$ where $K$ is number of splits and $j$ is a particular split</li>
+<li>The higher the gain, the better the split</li>
+</ul>
+</li>
+<li>Limitation: it can’t handle numeric attributes nor missing values</li>
+</ul>
+</li>
+<li><strong>C4.5</strong>
+<ul>
+<li>The successor of ID3 and represents an improvement in several aspects
+<ul>
+<li>can handle both continuous and categorical data (regression + classification)</li>
+<li>can deal with missing values by ignoring instances that include non-existing data</li>
+</ul>
+</li>
+<li>The selection metric:
+<ul>
+<li><code>Gain ratio</code>: a modification of Information gain that reduces its bias and is usually the best option</li>
+<li>$Gain ratio(before, after) = \frac{Gain(before,after)}{-\sum_{j = 1}^{K}(P(j)\log_2 P(j))}$</li>
+</ul>
+</li>
+<li><code>Windowing</code>: the algorithm randomly selects a subset of the training data (called a “window”) and builds a DT from that selection.
+<ul>
+<li>This DT is then used to classify the remaining training data, and if it performs a correct classification, the DT is finished. Otherwise, all the misclassified data points are added to the windows, and the cycle repeats until every instance in the training set is correctly classified by the current DT.</li>
+<li>It captures all the “rare” instances together with sufficient “ordinary” cases.</li>
+</ul>
+</li>
+<li>Can be pruned: pruning method is based on estimating the error rate of every internal node, and replacing it with a leaf node if the estimated error of the leaf is lower.</li>
+</ul>
+</li>
+</ol>
+<h4 id="3-strength-and-weakness-1">3. Strength and Weakness</h4>
+<ul>
+<li>Advantage
+<ul>
+<li>The algorithm is simple and easy to implement.</li>
+<li>Require very little data preparation</li>
+<li>The cost of using the tree for inference is logarithmic in the number of data points used to train the tree. Hence the training speed is high</li>
+<li>Good interpretability.</li>
+</ul>
+</li>
+<li>Disadvantages
+<ul>
+<li>Overfitting is quite common with decision trees simply due to the nature of their training. It’s often recommended to perform some type of dimensionality reduction such as PCA so that the tree doesn’t have to learn splits on so many features</li>
+<li>high variance, which means that a small change in the data can result in a very different set of splits, making interpretation somewhat complex.</li>
+<li>vulnerable to becoming biased to the classes that have a majority in the dataset. It’s always a good idea to do some kind of class balancing such as class weights, sampling, or a specialised loss function.</li>
+<li>In more technical terms: it always look for a greedy option to split, thus more inclined towards a locally optimal split instead of a gloablly optimal one</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-suitable-scenario-1">4. Suitable scenario</h4>
+<p>Consideration:</p>
+<ul>
+<li>If the goal is better predictions, we should prefer RF, to reduce the variance.</li>
+<li>If the goal is exploratory analysis, we should prefer a single DT , as to understand the data relationship in a tree hierarchy structure.</li>
+<li>If there is a high non-linearity &#x26; complex relationship between dependent &#x26; independent variables, a tree model will outperform a classical regression method.</li>
+<li>When computational power is low, DT should be used</li>
+<li>When important features in the attributes are already identified, DT can be used</li>
+<li>When you demand more interpretability, DT should be used
+<br>
+</li>
+</ul>
+<p>Use cases:</p>
+<ul>
+<li><strong>healthcare industry</strong>: the screening of positive cases in the early detection of cognitive impairment</li>
+<li><strong>Environment/Agriculture</strong>: DTs are used in agriculture to classify different crop types and identify their phenological stages/recognize different causes of forest loss from satellite imagery</li>
+<li><strong>Sentiment Analysis</strong>: identify emotion from text</li>
+<li><strong>Finance</strong>: Fraud Detection</li>
+</ul>
+<h4 id="5-simple-implementations">5. Simple implementations</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> tree</span></span>
+<span class="line"><span style="color:#ADBAC7">dt </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> tree.DecisionTreeClassifier(</span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">max_depth</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">dt.fit(data_train, label_train)</span></span>
+<span class="line"><span style="color:#ADBAC7">dt_score_train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dt.score(data_train, label_train)  </span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Training score: "</span><span style="color:#ADBAC7">,dt_score_train)</span></span>
+<span class="line"><span style="color:#ADBAC7">dt_score_test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dt.score(data_test, label_test)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Testing score: "</span><span style="color:#ADBAC7">,dt_score_test)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">dt2.predict(data_pred)</span></span></code></pre>
+<h3 id="naive-bayes">Naive Bayes</h3>
+<h4 id="1-definition-3">1. Definition</h4>
+<ul>
+<li>The Naïve Bayes Classifier belongs to the family of probability classifier, using Bayesian theorem. The reason why it is called ‘Naïve’ because it requires rigid independence assumption between input variables.</li>
+<li>The classification formula is simple: $y = \text{argmax}\space p(y = C_k)\prod p(x|y = C_k)$</li>
+<li><code>Why is it called 'Naive'</code>: It is naive because while it uses conditional probability to make classifications, the algorithm simply assumes that all features of a class are independent.  This is considered naive because, in reality, it is not often the case.</li>
+<li>Laplace Smoothing is also applied in some cases to solve the problem of zero probability.</li>
+<li>Different types of NB:
+<ul>
+<li><strong>Gaussian</strong>: It is used in classification and it assumes that features follow a normal distribution.</li>
+<li><strong>Multinomial</strong>: It is used for discrete counts. For example, let’s say,  we have a text classification problem. Here we can consider Bernoulli trials which is one step further and instead of ‘word occurring in the document’, we have ‘count how often word occurs in the document’, you can think of it as ‘number of times outcome number x_i is observed over the n trials’.</li>
+<li><strong>Bernoulli</strong>: The binomial model is useful if your feature vectors are binary (i.e. zeros and ones). One application would be text classification with ‘bag of words’ model where the 1s &#x26; 0s are ‘word occurs in the document’ and ‘word does not occur in the document’ respectively.</li>
+</ul>
+</li>
+<li>You might think to apply some classifier combination technique like ensembling, bagging and boosting but these methods would not help. Actually, “ensembling, boosting, bagging” won’t help since their purpose is to reduce variance. Naive Bayes has no variance to minimize.</li>
+</ul>
+<h4 id="2-pros--cons-1">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>It is easy and fast to predict the class of the test data set. It also performs well in multi-class prediction.</li>
+<li>When assumption of independence holds, a Naive Bayes classifier performs better compare to other models like logistic regression and you need less training data.</li>
+<li>It perform well in case of categorical input variables compared to numerical variable(s). For numerical variable, normal distribution is assumed (bell curve, which is a strong assumption).</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Can’t learn the relationship among the features because assumes feature independence</li>
+<li>the assumption of independent predictors unlikely to hold. In real life, it is almost impossible that we get a set of predictors which are completely independent.</li>
+</ul>
+<h4 id="3-applications">3. Applications</h4>
+<ul>
+<li>Realtime prediction (because it’s fast)</li>
+<li>When Dataset is Huge (high-dimension)</li>
+<li>When training dataset is small</li>
+<li><strong>Text classification/ Spam Filtering/ Sentiment Analysis</strong>: Naive Bayes classifiers mostly used in text classification (due to better result in multi class problems and independence rule) have higher success rate as compared to other algorithms. As a result, it is widely used in Spam filtering (identify spam e-mail) and Sentiment Analysis (in social media analysis, to identify positive and negative customer sentiments)</li>
+<li><strong>Recommendation System</strong>: Naive Bayes Classifier and Collaborative Filtering together builds a Recommendation System that uses machine learning and data mining techniques to filter unseen information and predict whether a user would like a given resource or not.</li>
+</ul>
+<h4 id="4-simple-implementation-1">4. Simple Implementation</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.naive_bayes </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> GaussianNB</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> GaussianNB()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># fit the model with the training data</span></span>
+<span class="line"><span style="color:#ADBAC7">model.fit(train_x,train_y)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># predict the target on the train dataset</span></span>
+<span class="line"><span style="color:#ADBAC7">predict_train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.predict(train_x)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Target on train data'</span><span style="color:#ADBAC7">,predict_train) </span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/regressions-3/"> <span class="dir">← previous</span> <span class="title">Regression Models: GAM, GLM and GLMM</span> </a> <a class="next" href="/writing/blogs/mlops/feature-and-model-selections/"> <span class="dir">next →</span> <span class="title">Feature Selection &amp; Model Selections</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

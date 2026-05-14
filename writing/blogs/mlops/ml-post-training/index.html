@@ -1,0 +1,528 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>MLOps Post Training Considerations - Zhenlin Wang</title><meta name="description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:title" content="MLOps Post Training Considerations - Zhenlin Wang"><meta property="og:description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ml-post-training/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · System Design</div> <h1>MLOps <em>Post</em> Training Considerations</h1> <p class="dek">An Overview of how to design a full-stack Deep Learning System</p> <div class="byline"> <strong>2024.03.08</strong> <span>·</span> <span>12 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Several years before, since I started working on ML projects, I’ve had traumatizing experiences conducting post-training operations. So many years later, I still found the mistakes and lessons I learnt from those projects valuable. Therefore, I’ve decided to share my thoughts here, for my own references (remember the do’s and don’ts!!!) and for anyone interested to take their piece of gem home.</p>
+<p>So what should be done after model training? Many university-level courses touched the surface of the topic, but in essence, it contains the handling of your model artifacts and training results, applying appropriate logging/monitoring and deployment to a server for actual usage. A great workflow chart I learned from <a href="">Jeremy Jordan</a> has demonstrated it well.</p>
+<figure align="center">
+<img src="/images/AI/ML-workflow.png" width="600px">
+<br>
+Credit: Jeremy Jordan
+</figure>
+<p>As you can see from the workflow:</p>
+<ul>
+<li>Experiment tracking is performed immediately after model training to persist the experiment results.</li>
+<li>Finetuned models are saved to a model registry (a form of database for model) to allow easy retrieval of this model</li>
+<li>Once we want to perform inference using this model, we set up a server which interacts with the registry and payload processed from backend to produce inference results</li>
+<li>A event stream (online or offline) service is need to enable drift detection and manage data flows. It should interact with inference server and your feature store actively, on a event-driven or scheduled manner</li>
+<li>Additional metric monitoring and backend logging are needed for issue recovery, model performance evaluation and reliability testing.</li>
+</ul>
+<p>In this blog, I’ll focus on experiment tracking, model registry, serving and monitoring. Note that I would not go through every detail in one blog, as you and I will both get tired reading a lengthy blog. I’ll put some relevant links at places for people intereted to explore further. In the future, I’ll also come up with blogs discussing each component in full detail as well. So stay tuned for that if you like my style XD.</p>
+<h2 id="experiment-tracking">Experiment Tracking</h2>
+<p>Every mature data scientist and ml engineer/researcher should appreciate the important of experiment tracking:</p>
+<ul>
+<li><strong>Reproducibility</strong>: ML experiments often involve multiple dependencies and configurations. Tracking every experiment ensures reproducibility, allowing researchers to revisit and replicate results.</li>
+<li><strong>Collaboration</strong>: In team environments, multiple researchers may contribute to a project. Clear experiment tracking facilitates collaboration by providing a shared understanding of the progress and results.</li>
+<li><strong>Model Iteration</strong>: Continuous improvement is a core aspect of deep learning. Experiment tracking helps monitor model iterations, enabling researchers to identify what works and what doesn’t.</li>
+</ul>
+<p>There are a few components in experiment tracking:</p>
+<ol>
+<li>Logging: Maintain a log for each experiment and save it in a unified place. Log your model hyperparameters, experiment metrics, and any other relevant information. This aids in easy retrieval and comparison.</li>
+<li>Version Control: this include tagging and versioning of your training data, your model, metadata and experiments. This significantly reduces the chance of redoing experiments which may result in significant waste of resources (Yes I did this once…)</li>
+<li>Metadata Annotation: Annotate experiments with metadata such as project name, researcher name, and experiment purpose. This contextual information proves invaluable in understanding the context of each experiment.</li>
+<li>Visualization: Use visualization tools to track and compare metrics across experiments. This aids in identifying trends, outliers, and areas for improvement. In many cases, inputs and outputs stored are visualized as well.</li>
+</ol>
+<h1 id="platforms-to-use">Platforms to use</h1>
+<p>Nowadays, tracking experiments are much easier than 5, 10 years ago with the help of well-developed tracking tools. A few powerful ones I’ve used and would recommend are</p>
+<ul>
+<li>MLflow</li>
+<li>Weights &#x26; Biases (WandB)</li>
+<li>Neptune.ai</li>
+</ul>
+<p>These tools have api’s directly embedded in your training scripts. For example, for mlflow, all you need to do is run <code>mlflow ui</code></p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> mlflow</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">experiment_name </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "YOUR_EXPERIMENT_NAME"</span></span>
+<span class="line"><span style="color:#ADBAC7">run_name </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> datetime.now().strftime(</span><span style="color:#96D0FF">"%Y%m</span><span style="color:#F47067">%d</span><span style="color:#96D0FF">-%H%M"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">mlflow.set_tracking_url(</span><span style="color:#96D0FF">"http://localhost:5000"</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># replace it if you have a dedicated tracking server url</span></span>
+<span class="line"><span style="color:#ADBAC7">mlflow.set_experiment(</span><span style="color:#F69D50">experiment_name</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">experiment_name)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> mlflow.start_run(</span><span style="color:#F69D50">experiment_id</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">experiment_id, </span><span style="color:#F69D50">run_name</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">run_name):</span></span>
+<span class="line"><span style="color:#768390">    # Start your model training</span></span>
+<span class="line"><span style="color:#6CB6FF">    ...</span></span>
+<span class="line"><span style="color:#768390">    # logging metrics</span></span>
+<span class="line"><span style="color:#ADBAC7">    metrics </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> YOUR_METRICS_GETTER</span></span>
+<span class="line"><span style="color:#ADBAC7">    mlflow.log_metric(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">    # logging artifact</span></span>
+<span class="line"><span style="color:#ADBAC7">    mlflow.log_artifact(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>and you will get a beautiful ui that looks like this:
+<img src="https://www.mlflow.org/docs/2.7.1/_images/tracking-chart.png" alt=""></p>
+<h3 id="tracking-individual-components">Tracking individual components</h3>
+<h4 id="tracking-errors">Tracking Errors</h4>
+<p>To enable logging errors, one can use the default python logger, and save the log history as text/artifacts into these platforms. Otherwise, tools like <code>WandB</code> also has its integrated logger that directs the std outputs into its db and saves the log conveniently.</p>
+<h4 id="tracking-hyperparameters">Tracking Hyperparameters</h4>
+<ul>
+<li>Method 1: config yaml file
+in a yaml file</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#8DDB8C">project</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">ORGANIZATION/home-credit</span></span>
+<span class="line"><span style="color:#8DDB8C">name</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">home-credit-default-risk</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#8DDB8C">parameters</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#768390">  # Data preparation</span></span>
+<span class="line"><span style="color:#8DDB8C">  n_cv_splits</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">5</span></span>
+<span class="line"><span style="color:#8DDB8C">  validation_size</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">0.2</span></span>
+<span class="line"><span style="color:#8DDB8C">  stratified_cv</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">True</span></span>
+<span class="line"><span style="color:#8DDB8C">  shuffle</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">  # Random forest</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__n_estimators</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">2000</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__criterion</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">gini</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__max_features</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">0.2</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__max_depth</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">40</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__min_samples_split</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">50</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__min_samples_leaf</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">20</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__max_leaf_nodes</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">60</span></span>
+<span class="line"><span style="color:#8DDB8C">  rf__class_weight</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">balanced</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">  # Post Processing</span></span>
+<span class="line"><span style="color:#8DDB8C">  aggregation_method</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">rank_mean</span></span></code></pre>
+<p>then in your python file you can do:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> yaml</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#6CB6FF"> open</span><span style="color:#ADBAC7">(config_path) </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> f:</span></span>
+<span class="line"><span style="color:#768390">	# note that you should choose loader wisely as some values (e.g. int) may be parsed wrongly if you use the wrong loader</span></span>
+<span class="line"><span style="color:#ADBAC7">    config </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> yaml.load(f, </span><span style="color:#F69D50">Loader</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">yaml.SafeLoader)  </span><span style="color:#768390"># config is dict</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(config[</span><span style="color:#96D0FF">'parameters'</span><span style="color:#ADBAC7">][</span><span style="color:#96D0FF">'n_cv_splits'</span><span style="color:#ADBAC7">])  </span><span style="color:#768390"># 5</span></span></code></pre>
+<ul>
+<li>
+<p>Method 2: command line + argparse
+The most common choice in ML community (and the most convoluted one)</p>
+</li>
+<li>
+<p>Method 3: Hydra
+using the same yaml file, do the folloing</p>
+</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> hydra</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> omegaconf </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DictConfig</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#DCBDFB">@hydra.main</span><span style="color:#ADBAC7">(</span><span style="color:#F69D50">config_path</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'hydra-config.yaml'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> train</span><span style="color:#ADBAC7">(cfg):</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(cfg.pretty())  </span><span style="color:#768390"># this prints config in a reader friendly way</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(cfg.parameters.rf__n_estimators)  </span><span style="color:#768390"># this is how to access single value from the config</span></span>
+<span class="line"><span style="color:#F47067">if</span><span style="color:#6CB6FF"> __name__</span><span style="color:#F47067"> ==</span><span style="color:#96D0FF"> "__main__"</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">    train()</span></span></code></pre>
+<h4 id="tracking-data">Tracking Data</h4>
+<p>Ensure your data source is coherent and versioned consistently requires the use of data registry sometimes. One example is using DVC. You may refer to this <a href="https://aws.amazon.com/blogs/machine-learning/track-your-ml-experiments-end-to-end-with-data-version-control-and-amazon-sagemaker-experiments/">AWS Tutorial on DVC usage</a> to setup your data registry. Due to the versatile nature of data sources, we cannot always rely on a SQL DB (e.g. MySQL) or NoSQL DB (e.g MongoDB, InfluxDB) to manage our experiment training data, hence the usage of DVC.</p>
+<h4 id="tracking-metrics">Tracking Metrics</h4>
+<p>Normally metrics are easily to track directly with the tools I mentioned above. Very often they come with the set of visualizations as well. In case you need to produce your own visualizations, especially when evaluting the impact of model configurations on the metric values, libraries like <code>optuna</code>, <code>hyperopt</code> and <code>scikit-optimize</code> will have support for visualizations.</p>
+<h4 id="tracking-model-environment">Tracking Model Environment</h4>
+<ul>
+<li>Solution 1: Docker images (preferred)</li>
+<li>Create a Dockerfile</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#ADBAC7"># Use a miniconda3 as base image</span></span>
+<span class="line"><span style="color:#ADBAC7">FROM continuumio</span><span style="color:#F47067">/</span><span style="color:#ADBAC7">miniconda3</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7"># Installation of jupyterlab</span></span>
+<span class="line"><span style="color:#ADBAC7">RUN pip install jupyterlab</span><span style="color:#F47067">==</span><span style="color:#FF938A;font-style:italic">0.35.6</span><span style="color:#F47067"> &#x26;&#x26;</span></span>
+<span class="line"><span style="color:#ADBAC7">pip install jupyterlab</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">server</span><span style="color:#F47067">==</span><span style="color:#FF938A;font-style:italic">0.2.0</span><span style="color:#F47067"> &#x26;&#x26;</span></span>
+<span class="line"><span style="color:#ADBAC7">conda install </span><span style="color:#F47067">-</span><span style="color:#ADBAC7">c conda</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">forge nodejs</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7"># Installation of Neptune and enabling neptune extension</span></span>
+<span class="line"><span style="color:#ADBAC7">RUN pip install neptune </span><span style="color:#F47067">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#ADBAC7">pip install neptune</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">notebooks </span><span style="color:#F47067">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#ADBAC7">jupyter labextension install neptune</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">notebooks</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7"># Setting up Neptune API token as env variable</span></span>
+<span class="line"><span style="color:#ADBAC7">ARG NEPTUNE_API_TOKEN</span></span>
+<span class="line"><span style="color:#ADBAC7">ENV NEPTUNE_API_TOKEN</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">$NEPTUNE_API_TOKEN</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7"># Adding current directory to container</span></span>
+<span class="line"><span style="color:#ADBAC7">ADD . </span><span style="color:#F47067">/</span><span style="color:#ADBAC7">mnt</span><span style="color:#F47067">/</span><span style="color:#ADBAC7">workdir</span></span>
+<span class="line"><span style="color:#ADBAC7">WORKDIR </span><span style="color:#F47067">/</span><span style="color:#ADBAC7">mnt</span><span style="color:#F47067">/</span><span style="color:#ADBAC7">workdir</span></span></code></pre>
+<ul>
+<li>run <code>docker build -t YOUR_TAG --build-arg NEPTUNE_API_TOKEN=$NEPTUNE_API_TOKEN .</code></li>
+<li>finally start the image by (example below)</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F69D50">docker</span><span style="color:#96D0FF"> run</span></span>
+<span class="line"><span style="color:#F69D50">    -p</span><span style="color:#96D0FF"> 8888:8888</span></span>
+<span class="line"><span style="color:#F69D50">    IMAGE_TAG:latest</span></span>
+<span class="line"><span style="color:#F69D50">    /opt/conda/bin/jupyter</span><span style="color:#96D0FF"> lab</span></span>
+<span class="line"><span style="color:#F69D50">    --allow-root</span></span>
+<span class="line"><span style="color:#ADBAC7">    --ip</span><span style="color:#F47067">=</span><span style="color:#96D0FF">0.0.0.0</span></span>
+<span class="line"><span style="color:#ADBAC7">    --port</span><span style="color:#F47067">=</span><span style="color:#96D0FF">8888</span></span></code></pre>
+<ul>
+<li>Solution 2: <code>conda</code>
+<ul>
+<li>Usually  <em>.yaml</em> configuration file</li>
+<li>create conda environment by running: <code>conda env create -f environment.yaml</code></li>
+<li>update yaml fle by <code>conda env export > environment.yaml</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="tracking-models">Tracking Models</h4>
+<p>Model needs to be versioned and the artifacts stored in model registry, which I’ll talk about in the next section.</p>
+<h2 id="model-registry">Model Registry</h2>
+<p>Saving and versioning a model can be done at experiment tracking stage, or isolated out as a single stage in the workflow. This is because we usually have it as an output of the experiment runs, and it involves several more intricate details. A few aspects include:</p>
+<ul>
+<li>Different environment the registry (dev/stage/prod)</li>
+<li>Different forms of registering models (save/package/store)</li>
+</ul>
+<h3 id="dev-vs-prod-registry">Dev vs Prod Registry</h3>
+<ul>
+<li>Purpose:
+<ul>
+<li>Dev Environment: where data scientists and machine learning engineers work on creating, experimenting, and refining
+<ul>
+<li>rapid iterations</li>
+<li>multiple experiments</li>
+<li>exploratory models</li>
+</ul>
+</li>
+<li>Prod Environment: where the finalized, stable, and optimized models are deployed to serve predictions in a real-world setting. Production models are expected to be reliable, scalable, and performant
+<ul>
+<li>mainly consist of champion models and challenger models</li>
+<li>both should be well-tested and verified before saved in this registry</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Access and Permissions:
+<ul>
+<li>Dev Environment: access might be more open to facilitate collaboration and experimentation.
+<ul>
+<li>Data scientists/MLEs often have broader access to try out different ideas and approaches.</li>
+</ul>
+</li>
+<li>Prod Environment: access to the model registry in the production environment is typically more restricted
+<ul>
+<li>Authorized personnel, such as DevOps or IT administrators, should have the ability to deploy or update models in the production registry to maintain stability and security</li>
+<li>Less of a concern from data scientist perspective</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Model Versions:
+<ul>
+<li>Dev Environment: usually a large number of model versions as different experiments and iterations are conducted.</li>
+<li>Prod Environment: have fewer, well-tested, and validated model versions. The focus is on deploying stable models that meet performance and reliability requirements.</li>
+</ul>
+</li>
+<li>Logging and Monitoring:
+<ul>
+<li>Dev Environment: more focused on tracking experiment results, understanding model behavior, and debugging</li>
+<li>Prod Environment: critical for tracking the performance of deployed models, identifying issues in <em>real-time</em>, and ensuring that the system meets service-level objectives.</li>
+</ul>
+</li>
+<li>Security Considerations:
+<ul>
+<li>Dev Environment: Security measures in the development environment may be more relaxed to enable faster experimentation
+<ul>
+<li>Model is within internal control, less exposed to external uses.</li>
+<li>Major concern is actually training/testing data leakage</li>
+</ul>
+</li>
+<li>Prod Environment: Strict security measures are implemented in the production environment to safeguard against unauthorized access, data breaches, or other security threats
+<ul>
+<li>Prevent leakage of model information (metadata, weights, architectures, etc) as they are important company properties</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="save-vs-package-vs-store-ml-models">Save vs package vs store ML models</h3>
+<ol>
+<li>Save Model
+<ul>
+<li>Save params to disk</li>
+<li>Mainly for local operations on a single model(save/load model state dict, optim state dict, etc)</li>
+<li>Tools: Pickle, HDFS, JSON, etc</li>
+</ul>
+</li>
+<li>Package Model
+<ul>
+<li>Bundle model with additional resources (model file, dependencies, configuration files, etc)</li>
+<li>Enable easy distribute and deploy the ML model in a production environment</li>
+<li>Tools: Docker Image, Python Packages</li>
+</ul>
+</li>
+<li>Store Model
+<ul>
+<li>Mainly for centralized model storage (model artifact)</li>
+<li>To facilitate model sharing across team</li>
+<li>Tools: MLFlow</li>
+</ul>
+</li>
+</ol>
+<h2 id="save">Save</h2>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load the model and optimizer</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
+<span class="line"><span style="color:#ADBAC7">optimizer </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Save the model and optimizer states in a single file</span></span>
+<span class="line"><span style="color:#ADBAC7">torch.save(</span></span>
+<span class="line"><span style="color:#ADBAC7">	{</span><span style="color:#96D0FF">'model'</span><span style="color:#ADBAC7">: model.state_dict(),</span></span>
+<span class="line"><span style="color:#96D0FF">	 'optimizer'</span><span style="color:#ADBAC7">: optimizer.state_dict()}, </span><span style="color:#96D0FF">'saved_states.pt'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load the saved states from the file</span></span>
+<span class="line"><span style="color:#ADBAC7">saved_states </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.load(</span><span style="color:#96D0FF">'saved_states.pt'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Restore the model and optimizer states from the dictionary</span></span>
+<span class="line"><span style="color:#ADBAC7">model.load_state_dict(saved_states[</span><span style="color:#96D0FF">'model'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">optimizer.load_state_dict(saved_states[</span><span style="color:#96D0FF">'optimizer'</span><span style="color:#ADBAC7">])</span></span></code></pre>
+<h2 id="package">Package</h2>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># load dependencies</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> onnx</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> onnxruntime</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load your trained model (e.g., PyTorch or TensorFlow)</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Convert the model to ONNX format</span></span>
+<span class="line"><span style="color:#ADBAC7">onnx_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> onnx.convert(model, </span><span style="color:#96D0FF">'my_model'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Save the ONNX model to a file</span></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#6CB6FF"> open</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'my_model.onnx'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'wb'</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> f:</span></span>
+<span class="line"><span style="color:#ADBAC7">    f.write(onnx_model.SerializeToString())</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load the ONNX model from the file</span></span>
+<span class="line"><span style="color:#ADBAC7">onnx_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> onnx.load(</span><span style="color:#96D0FF">'my_model.onnx'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create a new session for the model</span></span>
+<span class="line"><span style="color:#ADBAC7">session </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> onnxruntime.InferenceSession(onnx_model)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Use the session to perform inference or deployment</span></span>
+<span class="line"><span style="color:#ADBAC7">inputs </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span><span style="color:#768390">  # Get input data (e.g., images, audio samples, etc.)</span></span>
+<span class="line"><span style="color:#ADBAC7">outputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> session.run(</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">, inputs)</span></span></code></pre>
+<h2 id="store">Store</h2>
+<ul>
+<li>Either use Database to store model versions, or consider using a model registry</li>
+<li>Example of MLFlow</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> mlflow</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load your trained model (e.g., PyTorch or TensorFlow)</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create a new experiment for the model in the Model Registry</span></span>
+<span class="line"><span style="color:#ADBAC7">experiment_id </span><span style="color:#F47067">=</span></span>
+<span class="line"><span style="color:#ADBAC7">mlflow.get_experiment(</span><span style="color:#F69D50">experiment_name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"MyModelExperiment"</span><span style="color:#ADBAC7">).experiment_id</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Set up the artifact for the model</span></span>
+<span class="line"><span style="color:#ADBAC7">artifact_path </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "models/my_model"</span></span>
+<span class="line"><span style="color:#ADBAC7">artifact_uri </span><span style="color:#F47067">=</span><span style="color:#F47067"> f</span><span style="color:#96D0FF">"runs:/</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">experiment_id</span><span style="color:#F47067">}</span><span style="color:#96D0FF">/</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">artifact_path</span><span style="color:#F47067">}</span><span style="color:#96D0FF">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Log the artifact to the Model Registry</span></span>
+<span class="line"><span style="color:#ADBAC7">mlflow.log_artifact(model, artifact_uri)</span></span></code></pre>
+<h2 id="model-serving">Model Serving</h2>
+<p>Model serving is actually a fairly complicated process, as it involves deep understanding of backend engineering and data engineering, as well as more infrastructure management. There are several methods to serve/deploy a model:</p>
+<ul>
+<li>Online</li>
+<li>Offline</li>
+<li>Streaming</li>
+<li>Batch</li>
+<li>Serverless</li>
+</ul>
+<p>For the simplest part, all you’ll need is to parse the data from the request, feed it as input (after feature engineering) into the model you loaded, and get the result. However, in order to make model serving efficient and powerful, many parts of the process need to be optimized:</p>
+<h3 id="api-architecture">API architecture</h3>
+<p>A few strong candidates to build the request/response formatting for data communication when deploying model are Remote Procedure Call (RPC), WebSocket, and RESTful APIs. Let’s discuss the trade-offs associated with each approach:</p>
+<ol>
+<li>Remote Procedure Call (RPC):</li>
+</ol>
+<ul>
+<li>Pros:
+<ul>
+<li>Efficiency: RPC protocols (e.g., gRPC) are known for their efficiency, making them suitable for scenarios where low-latency communication is crucial.</li>
+<li>Streaming: Some RPC frameworks support bidirectional streaming, allowing continuous communication between clients and servers, which can be beneficial for real-time updates.</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>Complexity: Implementing and managing RPC services can be more complex than other approaches, especially when dealing with advanced features like bidirectional streaming.</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>WebSocket:</li>
+</ol>
+<ul>
+<li>Pros:
+<ul>
+<li>Low Latency: WebSockets provide low-latency, full-duplex communication, making them suitable for applications requiring real-time updates.</li>
+<li>Bidirectional Communication: WebSockets enable bidirectional communication, allowing the server to push updates to clients efficiently.</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>Connection Management: Managing WebSocket connections can be more challenging than REST APIs, especially when dealing with issues like connection drops and reconnections.</li>
+<li>Standardization: WebSockets lack a standardized way to describe APIs compared to RESTful APIs.</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>RESTful API:</li>
+</ol>
+<ul>
+<li>Pros:
+<ul>
+<li>Simplicity: RESTful APIs are simple and easy to understand, making them accessible to a wide range of developers.</li>
+<li>Widespread Adoption: RESTful APIs are widely adopted and supported by a vast ecosystem of tools and libraries.
+Statelessness: RESTful APIs are inherently stateless, simplifying scalability and fault tolerance.</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>Latency: For real-time applications, RESTful APIs might introduce higher latency due to the request-response nature of communication.</li>
+<li>Limited Push Mechanism: Traditional REST APIs lack a built-in mechanism for the server to push updates to clients in real-time.</li>
+</ul>
+</li>
+</ul>
+<h3 id="online-vs-offline">Online vs Offline</h3>
+<p>Notice that while some part of the inference may require online models, other parts of the system may be done offline. Take a recommendation system for example:</p>
+<ul>
+<li>The latest recommended feeds should be generated in real-time/online. However, some of the embedding/coarse search may be done offline in fixed duration. The results of these offline inferences are then used as embeddings/context for the refined search/ranking during the real-time inference stage.</li>
+</ul>
+<h3 id="etl-based-deployment">ETL-based Deployment</h3>
+<p>ETL (Extract, Transform, Load) jobs copy and process data from a source to a destination, commonly used in data warehousing. In machine learning model deployment, ETL involves extracting features, predicting, and saving results. Unlike real-time systems, ETL jobs don’t provide quick predictions but process many records at once, contrasting with web apps. You may use ETL structure for serving the model when your app is monolith and the pipeline is less convoluted. Tools like Apache Beam, MapReduce or Airflow are perfect tools for performing ETL-driven model serving.</p>
+<h3 id="model-service-as-part-of-microservices">Model service as part of Microservices</h3>
+<p>If you are serving model on a larger distributed system with many microservices, you would likely need to consider inter-service communication, and push your inference task into an event queue if necessary. Tools like Kafka, RabbitMQ and Celery are designed to achieve this by ways of pub-sub or message brokers. Further discussion will cause it to divert into the field of backend system design, and I shall stop here for interested people to learn more on themselves.</p>
+<h3 id="serverless-architecture">Serverless Architecture</h3>
+<p>If you don’t want to setup a server yourself (managing the infra can be a huge pain) and would like an endpoint that is fault-tolerant, scalable and ready-to-use, many cloud service companies have it available. Examples include Azure ML, AWS Lambda and GCP AI Studio. You can find tutorials on respective tools to setup your inference endpoint with the model you’ve developed.</p>
+<h2 id="model-monitoring">Model Monitoring</h2>
+<h3 id="metrics-to-monitor">Metrics to monitor</h3>
+<p><strong>Model metrics</strong></p>
+<ul>
+<li>Prediction distributions</li>
+<li>Feature distributions</li>
+<li>Evaluation metrics (when ground truth is available)</li>
+</ul>
+<p><strong>System metrics</strong></p>
+<ul>
+<li>Request throughput</li>
+<li>Error rate</li>
+<li>Request latencies</li>
+<li>Request body size</li>
+<li>Response body size</li>
+</ul>
+<p><strong>Resource metrics</strong></p>
+<ul>
+<li>CPU utilization</li>
+<li>Memory utilization</li>
+<li>Network data transfer</li>
+<li>Disk I/O</li>
+</ul>
+<h3 id="sample-procedure-for-ml-app-monitoring">Sample procedure for ML app monitoring</h3>
+<ol>
+<li>
+<p>Create a containerized REST service to expose the model via a prediction endpoint.</p>
+</li>
+<li>
+<p>Setup Instrumentor to collect metrics which are exposed via a separate metrics endpoint</p>
+<ul>
+<li>In the repo from JJ, it is <code>instrumentator.instrument(app).expose(app, include_in_schema=False, should_gzip=True)</code></li>
+<li>After deploying our model service on the Kubernetes cluster, we can port forward to a pod running the server and check out the metrics endpoint running at <code>127.0.0.1:3000/metrics</code>:</li>
+<li><code>kubectl port-forward service/wine-quality-model-service 3000:80</code></li>
+</ul>
+</li>
+<li>
+<p>Deploy <strong>Prometheus</strong> (PULL-based mechanism) to collect and store metrics.</p>
+<ul>
+<li>Prometheus refers to endpoints containing metric data as <strong>targets</strong> which can be discovered either through service discovery or static configuration.</li>
+<li>Usually service discovery would be a good choice as it enable Prometheus to discover which targets should be scraped</li>
+<li>This can be simply done by configuring the endpoints to monitor in a separate service</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#6CB6FF">---</span></span>
+<span class="line"><span style="color:#8DDB8C">endpoints</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">  - </span><span style="color:#8DDB8C">path</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">metrics</span></span>
+<span class="line"><span style="color:#8DDB8C">    port</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">app</span></span>
+<span class="line"><span style="color:#8DDB8C">    interval</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">15s</span></span></code></pre>
+</li>
+<li>
+<p>Deploy <strong>Grafana</strong> to visualize the collected metrics.</p>
+</li>
+<li>
+<p>Finally, we’ll simulate production traffic using <strong>Locust</strong> so that we have some data to see in our dashboards. Some of the standard tests to include are:</p>
+<ol>
+<li>Make a request to our health check endpoint</li>
+<li>choose a random example from the dataset and make a request to prediction service</li>
+<li>choose a random example, corrupt the data, and make a bad request to our prediction service</li>
+</ol>
+</li>
+</ol>
+<h3 id="other-things-to-consider">Other things to consider</h3>
+<ol>
+<li>Drift Detection Service
+<ul>
+<li>Strategies
+<ul>
+<li>deploy a <strong>drift-detection service</strong></li>
+<li>log a <strong>statistical profile</strong></li>
+<li><strong>log the full feature payload</strong></li>
+</ul>
+</li>
+<li><img src="https://www.jeremyjordan.me/content/images/2021/01/model_drift_evaluation_workflow-1024x281.png" alt=""></li>
+</ul>
+</li>
+</ol>
+<h3 id="best-practices">Best Practices</h3>
+<p><strong>Prometheus</strong></p>
+<ul>
+<li>Avoid storing high-cardinality data in labels. Every unique set of labels for is treated as a distinct time series, high-cardinality data in labels can drastically increase the amount of data being stored. As a general rule, try to keep the cardinality for a given metric (number of unique label-sets) under 10.</li>
+<li>Metric names should have a suffix describing the unit (e.g. <code>http_request_duration_****seconds****</code>)</li>
+<li>Use base units when recording values (e.g. seconds instead of milliseconds).</li>
+<li>Use standard <a href="https://prometheus.io/docs/instrumenting/exporters/?ref=jeremyjordan.me">Prometheus exporters</a> when available.</li>
+</ul>
+<p><strong>Grafana</strong></p>
+<ul>
+<li>Ensure your dashboards are easily discoverable and consistent by design.</li>
+<li>Use template variables instead of hardcoding values or duplicating charts.</li>
+<li>Provide appropriate context next to important charts.</li>
+<li>Keep your dashboards in source control.</li>
+<li>Avoid duplicating dashboards.</li>
+</ul>
+<p><a href="https://towardsdatascience.com/testing-features-with-pytest-82765a13a0e7">https://towardsdatascience.com/testing-features-with-pytest-82765a13a0e7</a></p>
+<h2 id="last-words">Last words</h2>
+<p>While this blog covers a lot of topics and provide several examples in the processing of post-training tasks, they are far to complete. In order to truly master each component, I would recommend play around with each part for a few times and make mistakes. This was the path I took, but without any preliminary guide like this. Nonetheless, it was fruitful and really helped me understand the nitty gritty of post-training tasks. Hence, review this blog when you feel like setting up a new project, and make it part of the process!</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/distributed-training/"> <span class="dir">← previous</span> <span class="title">Understanding Distributed Training in Deep Learning</span> </a> <a class="next" href="/writing/blogs/temp/write-quality-code-for-ml/"> <span class="dir">next →</span> <span class="title">Writing Quality Code for Machine Learning</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

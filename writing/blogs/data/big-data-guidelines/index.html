@@ -1,0 +1,504 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>A fundamental course for Data Engineering - Zhenlin Wang</title><meta name="description" content="All you need for understanding industrial-level data"><meta property="og:title" content="A fundamental course for Data Engineering - Zhenlin Wang"><meta property="og:description" content="All you need for understanding industrial-level data"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/data/big-data-guidelines/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining/Data Engineering · Big Data</div> <h1>A <em>fundamental</em> course for Data Engineering</h1> <p class="dek">All you need for understanding industrial-level data</p> <div class="byline"> <strong>2020.05.01</strong> <span>·</span> <span>12 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-07-21</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>In this blog, I’ll discuss about a variety of fundamental concepts in data processing. While remembering them is pointless (since the true data engineers learn by practice), I try to give a clear view of different aspects in handling the data, this includes:</p>
+<ol>
+<li>Data Storage $\implies$ Where data is stored</li>
+<li>Data ETL $\implies$ Extracting / Transforming / Loading</li>
+<li>Data Properties $\implies$ Source types and information system types</li>
+<li>Data Processing Types $\implies$ How different data are processed differently</li>
+<li>Data Cleansing $\implies$ What if the data is not well-organized</li>
+<li>Database Compliance $\implies$ ACID or BASE?</li>
+</ol>
+<h3 id="data-storage">Data Storage</h3>
+<ol>
+<li>Data lake: a centralized repository that allows you to store structured, semistructured, and unstructured data at any scale.</li>
+</ol>
+<ul>
+<li>Single source of truth</li>
+<li>Store any type of data, regardless of structure</li>
+<li>Example: AWS Data Lake
+:  Harness the power of purpose-built analytic services for a wide range of use cases, such as interactive analysis, data processing using Apache Spark and Apache Hadoop, data warehousing, real-time analytics, operational analytics, dashboards, and visualizations.</li>
+</ul>
+<ol start="2">
+<li>Data warehouse: A data warehouse is a central repository of structured data from many data sources. This data is transformed, aggregated, and prepared for business reporting and analysis.</li>
+</ol>
+<ul>
+<li>ETL (Extract, Transform, Load) operations before stored into data warehouse</li>
+<li>Data is stored within the data warehouse using a schema.</li>
+</ul>
+<ol start="3">
+<li>Data Mart: A subset of data from a data warehouse is called a data mart.</li>
+</ol>
+<ul>
+<li>Data marts only focus on one subject or functional area.</li>
+<li>A Data Warehouse might contain all relevant sources for an enterprise, but a Data Mart might store only a single department’s sources. Because data marts are generally a copy of data already contained in a data warehouse, they are often fast and simple to implement.</li>
+</ul>
+<ol start="4">
+<li>
+<p>Traditional data warehousing: pros and cons</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Pros</th><th>Cons</th></tr></thead><tbody><tr><td>Fast data retrieval</td><td>Costly to implement</td></tr><tr><td>Curated data sets</td><td>Maintenance can be challenging</td></tr><tr><td>Centralized storage</td><td>Security concerns</td></tr><tr><td>Better business intelligence</td><td>Hard to scale to meet demand</td></tr></tbody></table>
+</li>
+<li>
+<p>Data Warehouse vs Data Lake</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Factors</th><th>Data warehouse</th><th>Data Lake</th></tr></thead><tbody><tr><td>Data</td><td>Relational from transactional systems, operational databases, and line of business applications</td><td>Non-relational and relational from IoT devices, websites, mobile apps, social media, and corporate applications</td></tr><tr><td>Schema</td><td>Designed prior to implementation (schema-on-write)</td><td>Written at the time of analysis (schema-on-read)</td></tr><tr><td>Price/performance</td><td>Fastest query, higher cost storage</td><td>Fast, low-cost storage</td></tr><tr><td>Data quality</td><td>Highly curated data that serves as the central version of the truth</td><td>Any data, which may or may not be curated (e.g., raw data)</td></tr><tr><td>Users</td><td>Business analysts</td><td>Data scientists, data developers, and BA</td></tr><tr><td>Analytics</td><td>Batch reporting, BI, and visualizations</td><td>Machine learning, predictive analytics, data discovery, and profiling.</td></tr></tbody></table>
+</li>
+</ol>
+<h3 id="etl-basics">ETL Basics</h3>
+<ol>
+<li>
+<p>Extracting data</p>
+<p>There are four key areas you must plan for.</p>
+<ol>
+<li>
+<p>You must identify “where” all of the source data resides. This may be data stored on-premises by your company but can also include data that is found online.</p>
+</li>
+<li>
+<p>You must carefully plan “when” the extraction will take place due to the potential impact of the copy process on the source system.</p>
+</li>
+<li>
+<p>You must plan for “where” the data will be stored during processing. This is generally referred to as a staging location.</p>
+</li>
+<li>
+<p>You must plan for “how often” the extraction must be repeated.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Transforming data</p>
+<p>This phase involves using a series of rules and algorithms to massage the data into its final form. Data cleansing also occurs during this part of the process.</p>
+<p>It can be basic or advanced: This could be replacing NULL values with a zero or replacing the word female with the letter F; Or applying business rules to the data to calculate new values. Filtering, complex join operations, aggregating rows, splitting columns</p>
+</li>
+<li>
+<p>Loading data</p>
+<p>The planning steps you took in the transformation phase will dictate the form the final data store must take. This could be a database, data warehouse, or data lake.</p>
+</li>
+</ol>
+<h3 id="data-properties">Data Properties</h3>
+<ol>
+<li>
+<p>Data Source:</p>
+<p>In each of these data sources, data is stored in a specific way. Some data sources use a schema to organize content and indexes to improve performance. Others organize data in a more flexible way and are called schemaless. Schemaless data sources still use indexes to improve performance.</p>
+</li>
+<li>
+<p>Types of data source:</p>
+<ul>
+<li>
+<p>Structured data:</p>
+<ul>
+<li>
+<p>stored in a tabular format, often within a database management system (DBMS).</p>
+</li>
+<li>
+<p>Organized based on a relational data model</p>
+</li>
+<li>
+<p>Defines and standardize data elements</p>
+</li>
+<li>
+<p>The <em>downside</em> to structured data is its lack of flexibility: you must reconfigure the schema to allow for this new data, and you must account for all records that don’t have a value for this new field.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Semistructured data (NoSQL)</p>
+<ul>
+<li>Stored in the form of elements within a file. (CSV, JSON, XML, etc)</li>
+<li>Organized based on elements and the attributes that define them.</li>
+<li>No pre-defined schemas. Semistructured data is considered</li>
+<li>Have a self-describing structure: Each element is a single instance of a thing, such as a conversation. The attributes within an element define the characteristics of that conversation. Each conversation element can track different attributes.</li>
+<li>The trade-off is with analytics. It can be more difficult to analyze semistructured data when analysts cannot predict which attributes will be present in any given data set.</li>
+</ul>
+</li>
+<li>
+<p>Unstructured data</p>
+<ul>
+<li>Stored in the form of files.</li>
+<li>This data doesn’t conform to a predefined data model and isn’t organized in a predefined manner.</li>
+<li>Can be text-heavy, photographs, audio recordings, or even videos.</li>
+<li>Need to be preprocessed to perform meaningful analysis.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Types of information systems</p>
+<p>There are two main ways—known as information systems—of organizing data within a relational database. The data can be organized to focus on the storage of transactions or the process of analyzing transactions.</p>
+<ul>
+<li>
+<p>Online transaction processing (OLTP) databases:</p>
+<ul>
+<li>operational databases,  primary focus being on the speed of data entry</li>
+<li>These databases are characterized by a large number of insert, update, and delete operations.</li>
+<li>based on ensuring rapid data entry and updates. The effectiveness of an OLTP system is often measured by the number of transactions per second.</li>
+</ul>
+</li>
+<li>
+<p>Online analytical processing (OLAP) databases:</p>
+<ul>
+<li>data warehouses, primary focus being the speed of data retrieval through queries.</li>
+<li>These databases are characterized by a relatively low number of write operations and the lack of update and delete operations</li>
+<li>based on the types of queries and other analytics that will be performed using the data. The effectiveness of an OLAP system is often measured by the response time of query results.</li>
+</ul>
+</li>
+<li>
+<p>OLTP VS OLAP:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Characteristic</th><th>OLTP</th><th>OLAP</th></tr></thead><tbody><tr><td>Nature</td><td>Constant transactions (queries/updates)</td><td>Periodiclarge updates, complex queries</td></tr><tr><td>Examples</td><td>Accounting database, online retail transactions</td><td>Reporting, decision support</td></tr><tr><td>Type</td><td>Operational data</td><td>Consolidated data</td></tr><tr><td>Data retention</td><td>Short-term (2-6 months)</td><td>Long-term (2-5 years)</td></tr><tr><td>Storage</td><td>Gigabytes (GB)</td><td>Terabytes (TB)/petabytes (PB)</td></tr><tr><td>Users</td><td>Many</td><td>Few</td></tr><tr><td>Protection</td><td>Robust, constant data protection and fault tolerance</td><td>Periodic protection</td></tr></tbody></table>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="processing-types">Processing Types</h3>
+<ol>
+<li>
+<p>Categories and types:</p>
+<p><strong>By Collection</strong>:</p>
+<ul>
+<li>
+<p>Batch: Velocity is very predictable with batch processing. It amounts to large bursts of data transfer at scheduled intervals.</p>
+</li>
+<li>
+<p>Periodic: Velocity is less predictable with periodic processing. The loss of scheduled events can put a strain on systems and must be considered.</p>
+</li>
+<li>
+<p>Near real-time: Velocity is a huge concern with near real-time processing. These systems require data to be processed within minutes of the initial collection of the data. This can put tremendous strain on the processing and analytics systems involved.</p>
+</li>
+<li>
+<p>Real-time: Velocity is the paramount concern for real-time processing systems. Information cannot take minutes to process. It must be processed in seconds to be valid and maintain its usefulness.</p>
+</li>
+</ul>
+<p><strong>By Processing</strong>:</p>
+<ul>
+<li>
+<p>Batch and periodic: Once the data has been collected, processing can be done in a controlled environment. There is time to plan for the appropriate resources.</p>
+</li>
+<li>
+<p>Near real-time and real-time: Collection of the data leads to an immediate need for processing. Depending on the complexity of the processing (cleansing, scrubbing, curation), this can slow down the velocity of the solution significantly. Plan accordingly.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Data acceleration</p>
+<p>Another key characteristic of velocity on data is data acceleration, which means the rate at which large collections of data can be ingested, processed, and analyzed. Data acceleration is not constant. It comes in bursts. Take Twitter as an example. Hashtags can become hugely popular and appear hundreds of times in just seconds, or slow down to one tag an hour. That’s data acceleration in action. Your system must be able to efficiently handle the peak of hundreds of tags a second and the lows of one tag an hour.</p>
+</li>
+<li>
+<p>Attributes of batch and stream processing</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Batch data processing</th><th>Stream data processing</th></tr></thead><tbody><tr><td>Data scope</td><td>over all or most of the data</td><td>over data within a rolling time window, or on just the most recent data record</td></tr><tr><td>Data size</td><td>Large batches of data</td><td>Individual records/ micro batches consisting of a few records</td></tr><tr><td>Latency</td><td>Minutes to hours</td><td>Seconds or milliseconds</td></tr><tr><td>Analysis</td><td>Complex analytics</td><td>Simple response functions, aggregates, and rolling metrics</td></tr></tbody></table>
+</li>
+<li>
+<p>Processing big data streams</p>
+<p>There are many reasons to use streaming data solutions. In a batch processing system, processing is always asynchronous, and the collection system and processing system are often grouped together. With streaming solutions, the collection system (producer) and the processing system (consumer) are always separate. Streaming data uses what are called data producers. Each of these producers can write their data to the same endpoint, allowing multiple streams of data to be combined into a single stream for processing. Another huge advantage is the ability to preserve client ordering of data and the ability to perform parallel consumption of data. This allows multiple users to work simultaneously on the same data.</p>
+</li>
+</ol>
+<h3 id="data-cleansing">Data Cleansing</h3>
+<ol>
+<li>
+<p>Curation: the action or process of selecting, organizing, and looking after the items in a collection.</p>
+</li>
+<li>
+<p>Data integrity: the maintenance and assurance of the accuracy and consistency of data over its entire lifecycle.</p>
+<p>Different types of integrity:</p>
+<ul>
+<li>Referential integrity: the process of ensuring that the constraints of table relationships are enforced.</li>
+<li>Domain integrity: the process of ensuring that the data being entered into a field matches the data type defined for that field..</li>
+<li>Entity integrity: the process of ensuring that the values stored within a field match the constraints defined for that field.</li>
+</ul>
+<p>Maintaining Integrity accross steps of a data lifecycle:</p>
+<ul>
+<li>Creation phase: Ensure data accuracy. Mainly involves software audits/data generation audits/data</li>
+<li>Aggregation phase: Ensure the metrics computed are well-defined. Bad practice such as poor naming of metrics</li>
+<li>Storage phase: Ensure stable data are not changed and volatile data are only changed by authorized personels</li>
+<li>Access phase: System should be read-only and audited regularly for anomalies in access pattern</li>
+<li>Share pahse: The phase where veracity get truly examined</li>
+<li>Archive phase: Security of the data is the most important factor. Ensure limited access and read-only</li>
+</ul>
+</li>
+<li>
+<p>Data veracity: the degree to which data is accurate, precise, and trusted.</p>
+</li>
+<li>
+<p>A few best practices to help you identify data integrity issues</p>
+<ul>
+<li>
+<p><strong>Know what clean looks like</strong></p>
+<p>Before you do anything else, you must come to a consensus on what clean looks like. Some businesses deem clean data to be data in its raw format with business rules applied. Some businesses deem clean data as data that has been normalized, aggregated, and had value substitutions applied to regulate all entries. These are two very different understandings of clean. Be sure to know which one you are aiming for.</p>
+</li>
+<li>
+<p><strong>Know where the errors are coming from</strong>
+As you find errors in the data, trace them back to their likely source. This will help you to predict workloads that will have integrity issues.</p>
+</li>
+<li>
+<p><strong>Know what acceptable changes look like</strong>
+From a purely data-centric view, entering a zero in an empty column may seem like an easy data cleansing decision to make, but beware the effects of this change.</p>
+</li>
+<li>
+<p><strong>Know if the original data has value</strong>
+In some systems, the original data is no longer valuable once it has been transformed. However, in highly regulated data or highly volatile data, it is important that both the original data and the transformed data are maintained in the destination system.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Database Schemas</p>
+<p>A data schema is the set of metadata used by the database to organize data objects and enforce integrity constraints. The schema defines attributes of the database, providing descriptions of each object and how it interacts with other objects within the database. One or more schemas can reside on the same database.</p>
+<ul>
+<li>
+<p>Logical schemas: focus on the constraints to be applied to the data within the database. This includes the organization of tables, views, and integrity checks.</p>
+</li>
+<li>
+<p>Physical schemas: focus on the actual storage of data on disk or in a cloud repository. These schemas include details on the files, indices, partitioned tables, clusters, and more.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Information Schemas:</p>
+<p>An information schema is a database of metadata that houses information on the data objects within a database.</p>
+<p>Given the proper permissions on the database, you can query the information schema to learn about the objects within the database. When queries are executed, this information is used to ensure the best optimization for the query. The information schema can also be used in maintenance of the database itself.</p>
+</li>
+</ol>
+<h3 id="database-compliance">Database Compliance</h3>
+<ol>
+<li>
+<p>ACID:</p>
+<ul>
+<li>ACID is an acronym for <em>Atomicity</em>, <em>Consistency</em>, <em>Isolation</em>, and <em>Durability</em>
+<ul>
+<li>
+<p>Atomicity: Ensures that your transactions either completely succeed or completely fail. No one statement can succeed without the others</p>
+</li>
+<li>
+<p>Consistency: Ensures that all transactions provide valid data to the database.  If any single statement violates these checks, the whole transaction will be rolled back</p>
+</li>
+<li>
+<p>Isolation: Ensures that one transaction cannot interfere with another concurrent transaction</p>
+</li>
+<li>
+<p>Data durability: Ensures your changes actually stick. Once a transaction has successfully completed, durability ensures that the result of the transaction is permanent even in the event of a system failure. This means that all completed transactions that result in a new record or update to an existing record will be written to disk and not left in memory.</p>
+</li>
+</ul>
+</li>
+<li>Mainly to ensure veracity in a structured database</li>
+<li>The goal of an ACID-compliant database is to return the most recent version of all data and ensure that data entered into the system meets all rules and constraints that are assigned at all times.</li>
+</ul>
+</li>
+<li>
+<p>BASE:</p>
+<ul>
+<li>BASE is an acronym for <em>Basically Available Soft state Eventually Consistent</em>.
+<ul>
+<li>Basically Available: allows for one instance to receive a change request and make that change available immediately. The system will always guarantee a response for every request. However, it is possible that the response may be a failure or stale data, if the change has not been replicated to all nodes.</li>
+<li>Soft State: In a BASE system, there are allowances for partial consistency across distributed instances. For this reason, BASE systems are considered to be in a soft state, also known as a changeable state.</li>
+<li>Eventually Consistency: The data will be eventually consistent. In other words, a change will eventually be made to every copy. However, the data will be available in whatever state it is during propagation of the change.</li>
+</ul>
+</li>
+<li>BASE supports data integrity in non-relational databases</li>
+<li>This consistency is mostly concerned with the rapid availability of data</li>
+<li>To ensure the data is highly available, changes to data are made available immediately on the instance where the change was made. However, it may take time for that change to be replicated across the fleet of instances.</li>
+</ul>
+</li>
+<li>
+<p>ACID vs BASE:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>ACID</th><th>BASE</th></tr></thead><tbody><tr><td>Strong consistency</td><td>Weak consistency – stale data is OK</td></tr><tr><td>Isolation is key</td><td>Availability is key</td></tr><tr><td>Focus on committed results</td><td>Best effort results</td></tr><tr><td>Conservative (pessimistic) availability</td><td>Aggressive (optimistic) availability</td></tr></tbody></table>
+</li>
+</ol> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/big-data-spark/"> <span class="dir">← previous</span> <span class="title">Apache Spark: Only the simple answer</span> </a> <a class="next" href="/writing/software/regex/"> <span class="dir">next →</span> <span class="title">A Regex Tutorial</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

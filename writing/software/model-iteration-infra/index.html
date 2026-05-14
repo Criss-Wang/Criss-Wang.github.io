@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Model Iteration Series: Validating Model Infra - Zhenlin Wang</title><meta name="description" content="The system and product side of concerns"><meta property="og:title" content="Model Iteration Series: Validating Model Infra - Zhenlin Wang"><meta property="og:description" content="The system and product side of concerns"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/software/model-iteration-infra/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Software · ML Infrastructure · Model Development</div> <h1>Model <em>Iteration</em> Series: Validating Model Infra</h1> <p class="dek">The system and product side of concerns</p> <div class="byline"> <strong>2024.07.27</strong> <span>·</span> <span>9 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="intro"><strong>Intro</strong></h2>
+<p>As the step 2 of the model iteration process, testing model compatibility with the existing infrastructure is another step we should take care of. It consists of managing the resources for training, deployment as well as any interactions mechanisms with the service backend logic (e.g. API). We will provide a deep dive into the relevant investigations and adjustments required for the model changes proposed to be ready for QA testing.</p>
+<p>Again, if you haven’t read my blog that provides the high level insights to the series, I would urge you to kindly go through it to gain more context on this write-up. This blog is for LLM models and its related products/services. The considerations and design decisions required for other ML/AI models may be drastically different.</p>
+<p>In the upcoming sections, I will discuss the following topics:</p>
+<ul>
+<li>Distinction between Infra in QA/Prod and Infra in Dev</li>
+<li>Key components to look out for when managing the infra</li>
+<li>Differernt layers of Latency Tests and their purposes</li>
+<li>Cost evaluation strategies and their impacts to the business</li>
+<li>Trade-offs to consider during the evaluation</li>
+</ul>
+<h2 id="definitions"><strong>Definitions</strong></h2>
+<p>When discussion LLM infrastructure, we must set a clear boundary between the infra toolset used in dev environment vs the ones used in staging or production environment. While the latter strive to be as efficient and robust as possible, the dev infra is more on the exploratory phase to identify potential issues the changes to models/services may cause using the current infra setup. For example, applying <a href="https://arxiv.org/abs/2404.19737">multi-token prediction</a> may sounds attractive to boost the inference speed, but may be completely incompatible with the current GPU resources, or the framework the serves the inference. Hence, it is the Infra team’s job to ensure the changes are valid on the current setup, or make adjustments like changing the inference engine or the compute to account for the changes.</p>
+<p>The dev infra should also be splitted into two categories: <strong>model-based</strong> and <strong>service-based</strong>. Model-based infra are about model training and serving. They strive to get the best out of the computing resources. Usually this involves adopting the most suitable GPU setup and multi-node/multi-server communication links for each model based on the request rate. Avoiding OOM and throttling are bread and butter of the of Model-based infra taks. In the meantime, service-based infra are more concentrated on achieving efficiecny and robustness of the distributed system for the services which the products are based on. This often involves testing the service latency and explore the right scaling strategy for the services that use LLMs. Although it could be QA team’s responsibility to test the full product use cases <em>end-to-end</em>, it it in my personal philosophy that MLEs owns the services from start to finish. As a result, experienced MLEs would keep service-based infra testing to their own for better accountability. Therefore, usually we have specialized MLOps to handle the service-based tasks.</p>
+<p>In the model iteration process, the dev infra needs to test both the system issues these changes may cause on current product, and also the performance expectations of these changes. <strong>Latency</strong> and <strong>Cost</strong> are the two major metrics in my knowledge, as they are ones that infra has the most control over.</p>
+<p>In the context of LLM, latency metrics often measure the rate at which services handles a task using the model as its main reasoning engine. Usually the proposed changes should meet a certain latency threshold, or achieve a latency goal such that customers don’t feel the difference in term of speed as a bottom line, and potentially sense a significant speedup as a result. On the other hand, cost is related to the cost of GPU/API/electricity. A proposed change should strive to at least keep the cost at the current level, or reduce the cost such that it impacts the business and future research explorations.</p>
+<h2 id="key-components"><strong>Key Components</strong></h2>
+<p>Now let’s talk about details. When testing against infrastructure for MLOps in an LLM based service, there are several key components to consider:</p>
+<p><strong>Model-based</strong></p>
+<ol>
+<li>Compute Resources: LLMs require significant computational power for training and inference. Ensure access to high-performance GPUs or specialized AI accelerators to handle the intensive processing demands. This means runtime acceleration and GPU optimization methods need to align with the change proposed.</li>
+<li>Model Architecture: When a services is utilizing multiple models, or multiple adapters attached to the same foundation model, the structure of the model and its inference strategy become a signifant concern here. Any distillation or model compression conducted at serving time should also be investigated.</li>
+</ol>
+<p><strong>Service-based</strong></p>
+<ol>
+<li>Scalable Infrastructure: Implement a flexible and scalable infrastructure that can adapt to changing workloads. Cloud-based solutions or hybrid setups can provide the necessary elasticity. However, introducing a change can potentially break the setup easily. Tests should be ran to prevent such danger.</li>
+<li>Data management: Are we using caching? Are we deploying across thousands of GPU nodes? How to do failure recovery using logs? Managing these data are critical and any changes introduced should be validated against any infra assumptions on data etl.</li>
+<li>Context management: This component is specific to LLMs or multi-modal models. The documents and user requests provide significant value to the answers generated. Ensuring the context management are aligned with the proposed changes to avoid surprising cost or latency increase, or even security breach (a concern that’s addressed in QA stage) will be critical in this step as well.</li>
+</ol>
+<p>As the focus of the blog is on testing latency and costs, I do not want to get into too much details about each individual components yet. I will post a differerent blog discussion the to-do’s and to-don’ts in the LLMOps that every Infra team working on LLM-based products should pay attention to. For now, let us move on to discuss the different layers of Latency tests.</p>
+<h2 id="latency-tests-strategy"><strong>Latency Tests Strategy</strong></h2>
+<p>In general, latency is an important aspect to consider when people consider using an AI-based product. Hence at the dev level, some robust testings are definitely required to prevent latency issues at the start. I have categorized latency tests in several aspects: <em>parallelism</em>, <em>input/output size</em>, and <em>service dependency</em>.</p>
+<p>When it comes to parellelism, the scale varies depending on the business, the company size, and the customer requirements. We usually spin up load testing for different parallelism levels in a logarithmic order. For example, a small-sized project, which calls an API endpoint or uses a single inference engine to run the inference, may expect the load testing on a scale of 1/2/4/8/16/32. A project that serves millions of users at the same time, however, may require a significant different scale of testing.</p>
+<p>The input/output size layer is more nuanced. Usually we test model’s inference speed by running it on specific tasks. However, in my POV, the context of task matters the least when it comes to the input/output size-based latency ablation tests. We can customize a prompt to provide a fixed input size, and at the same expecting a certain length of output by “instructing” the model to do it this way. We may specific a short/medium/long input and pair it with short/medium/long output expectation to derive the latency of the model inference. We need to ensure the data/infra used to run comparisons are completely equal to avoid any impact on token generation so as to isolate this layer perfectly.</p>
+<p>Another aspect is whether the service depends on pre/post-processing steps for resources to warmup/cool down/clean up and for input/output to be parsed or buffered. These factors certainly add/reduce latencies in the service during load testing, and we should be able to isolate the impact the proposed changes have on latency from these aspects. Hence, the simulated environment to run the service level load testings should also be identical (the service environment ran today are kept the same from the other day), and A/B testing is encouraged rather than comparing today’s results with the results genereated 1 month ago.</p>
+<h2 id="cost-evaluation-strategies"><strong>Cost evaluation strategies</strong></h2>
+<p>While it may be less of a concern for the Infra team in big tech companies to evaluate the cost-effectiveness of the implemented solution, it is one of the top priorites when it comes to AI startups. When systems and services scale up, the impact of model inferences on the cost grows significantly. Hence cost control is a compulsory task to complete before any QA tests are conducted for the proposed new changes. Usually it comes in three different formats:</p>
+<ul>
+<li>API costs: Sometimes companies rely on third party API providers to run model inferences. However, when the logic of services requires multiple, concurrent model inferences to complete several subtasks, the costs can quickly scale up and becomes uncontrollable. The most fine-grained level of the model cost is based on token usage, as providers often charge based on tokens used. Hence any long input/output pairs need to be validated in the tests.</li>
+<li>GPU resources: Both persistant and on-demand GPU clusters cost a lot for startups to serve their models on. If the GPU utilization is low, or i/o becomes the bottle neck that affects the efficiency of the inference, we are essentially burning money for nothing. Therefore, it is critical to avoid these situations by conducting the right set of simulations and get metrics on costs to validate the changes’ impact on cost. No changes should go through to the QA stage if it can potentially blow up the profitability of a product line.</li>
+<li>Electricity and manpower: This category is often ignored, but the manpower required to maintain the proposed changes, and the electricty cost of hosting a large amount of GPU resources for model serving is an implicit killer to some extents.</li>
+</ul>
+<p>In light of these aspects, I came up with a strategy to evaluate the cost perspective of the changes:</p>
+<ul>
+<li>Step 1: Test on total token consumptions per request, capture the distribution, identify the anomalies</li>
+<li>Step 2: Test on “useless tokens” generated. For example, if the task output can be easily in bullet point format, using JSON output is not only threatening stability, but also introduces redundant tokens in the inputs and outputs</li>
+<li>Step 3: Test on GPU utilization rate and Memory consumption rate. If “internal fragmentation” happens, we are essentially wasting GPU and thus incurring unnecessary costs.</li>
+<li>Step 4: Analyze the manpower and resources required to adopt the proposed changes and maintain it. Ensure the profit prospects far outweights the cost side of it.</li>
+<li>Step 5: Give a conclusive score on the cost impact of the proposed changes. This step should leave leadership with the right insights on whether to adopt the changes in the final call.</li>
+</ul>
+<h2 id="final-words"><strong>Final words</strong></h2>
+<p>Once again, the endeavor to further improve the model iteration process does not stop here. As we progress into the final stage in dev, we are going to explore the most widely discussed topic, prompt engineering. This is another effort from the previous prompt engineering whitebook, from a dastically different point of view. It’s going to be a fun blog to read. Before that blog comes out, <strong><em>Stay Hunger, Stay Foolish</em></strong>.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/software/model-iteration-research-validation/"> <span class="dir">← previous</span> <span class="title">Model Iteration Series: Validating Model Research</span> </a> <span></span> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

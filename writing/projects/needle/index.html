@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Needle: High-performance DL System - Zhenlin Wang</title><meta name="description" content="A Deep Learning framework with customized GPU and CPU backend in C++ and Python"><meta property="og:title" content="Needle: High-performance DL System - Zhenlin Wang"><meta property="og:description" content="A Deep Learning framework with customized GPU and CPU backend in C++ and Python"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/projects/needle/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Projects · C++ · Python · CUDA · Deep Learning System</div> <h1>Needle: <em>High-performance</em> DL System</h1> <p class="dek">A Deep Learning framework with customized GPU and CPU backend in C++ and Python</p> <div class="byline"> <strong>2023.07.29</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction">Introduction</h3>
+<p>Needle is a Deep Learning framework with customized GPU and CPU backend in C++ and Python. This is an attempt to simulate PyTorch’s <strong>imperative</strong> style, especially its way of auto-differentiation and computational graph traversal. In the meantime, we enable <strong>accelerated computing</strong> with custom <em>ndarrays</em> implementation via low level C++ CUDA programming. This enables tensor operations to run on GPUs and other specialized hardwares.</p>
+<h3 id="key-contributions">Key contributions</h3>
+<ul>
+<li>Modular DL framework
+<ul>
+<li><img src="/images/Projects/Needle2.png" alt=""></li>
+</ul>
+</li>
+<li>Build models from scratch
+<ul>
+<li>ResNet (Residual Blocks, Skip Connection, BatchNorm2D)</li>
+<li>LSTM (Cell State, Hidden State, Forget/Input/Output Gate, Activations)</li>
+<li>Transformer (Multi-Head Self/Cross Attention, LayerNorm, Dropout, Positional Encoding, FFN, Skip Connection, Attention Masking)</li>
+</ul>
+</li>
+<li>Optimization with GPU &#x26; CUDA
+<ul>
+<li>SIMT</li>
+<li>Tensor Model Parallelism</li>
+<li>Register Tiling</li>
+<li>Block Tiling</li>
+<li>GPipe</li>
+<li>Best result: ~5x speedup in 4-core distributed training</li>
+</ul>
+</li>
+</ul>
+<h3 id="tech-stack--methodology"><strong>Tech Stack &#x26; Methodology</strong></h3>
+<div>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cmake/cmake-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-plain.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="40" height="40"> 
+</div>
+<h3 id="acknowledgement">Acknowledgement</h3>
+<p>This project is inspired by <a href="https://dlsyscourse.org">10-414/714</a> <em>Deep Learning Systems</em> by <a href="https://www.cmu.edu">Carnegie Mellon University</a>. Extensions based on this are built and are still under development (more to come!).</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/diffusion/"> <span class="dir">← previous</span> <span class="title">Motion Prediction with Guided Diffusion</span> </a> <a class="next" href="/writing/blogs/mlops/nn-optimizers/"> <span class="dir">next →</span> <span class="title">Neural Network Applied: Optimizer Selection</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

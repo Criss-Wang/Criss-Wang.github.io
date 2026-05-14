@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Regression Models: Linear Regression and Regularization - Zhenlin Wang</title><meta name="description" content="Shallow and Deep Linear Regression"><meta property="og:title" content="Regression Models: Linear Regression and Regularization - Zhenlin Wang"><meta property="og:description" content="Shallow and Deep Linear Regression"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/regressions-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Supervised Learning · Regression · Regularization</div> <h1>Regression <em>Models:</em> Linear Regression and Regularization</h1> <p class="dek">Shallow and Deep Linear Regression</p> <div class="byline"> <strong>2019.05.11</strong> <span>·</span> <span>8 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-06-14</span>  </div> </header> <main class="article container-narrow"> <h3 id="definition">Definition</h3>
+<ul>
+    <li>It is used for predicting the continuous dependent variable with the help of independent variables.</li>
+    <li>The goal is to find the best fit line that can accurately predict the output for the continuous dependent variable.</li>
+    <li>The model is usually fit by minimizing the sum of squared errors (<b>OLS (Ordinary Least Square)</b> estimator for regression parameters)</li>
+    <li>Major algorithm is gradient descent: the key is to adjust the learning rate $\alpha$</li>
+    <li>Explanation in layman terms: 
+        <br>
+        - provides you with a straight line that lets you infer the dependent variables
+        <br> 
+        - estimate the trend of a continuous data by a straight line. using input data to <b> predict </b>the outcome in the best possible way given the past data and its corresponding past outcomes </li>
+</ul> 
+<h3 id="various-regulations">Various Regulations</h3>
+<p>Regularization is a simple techniques to reduce <em>model complexity</em> and prevent <em>over-fitting</em> which may result from simple linear regression.</p>
+<ul>
+    <li>Convergence conditions differ</li>
+    <li>note that regularization only apply on variables (hence $\theta_0$ is not regularized!)</li>
+    <li>L2 norm:  Euclidean distance from the origin</li>
+    <li>L1 norm:  Manhattan distance from the origin</li>
+    <li>Elastic Net:  Mixing L1 and L2 norms</li>
+    <li>Ridge regression: $\lambda  \sum_{k=1}^n (\theta_k)^2$ where $\theta_k$ is cofficient; more widely used as compared to Ridge when number of variables increases </li>
+    <li>Lasso regression: $\lambda  \sum_{k=1}^n  |\theta_k|$; better when the data contains suspicious collinear variables</li>
+</ul> 
+<h3 id="comparison-with-logistic-regression">Comparison with Logistic Regression</h3>
+<ul>
+<li>Linear Regression: the outcomes are continuous (infinite possible values); error minimization technique is ordinary least square.</li>
+<li>Logistic Regression: outcomes usually have limited number of possible values; error minimization technique is maximal likelihood.</li>
+</ul>
+<h3 id="implementations">Implementations</h3>
+<p>Basic operations using <kbd>sklearn</kbd> packages</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.linear_model </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LinearRegression</span></span>
+<span class="line"><span style="color:#ADBAC7">X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], [</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">], [</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">], [</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">]])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.dot(X, np.array([</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">])) </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 3</span></span>
+<span class="line"><span style="color:#ADBAC7">reg </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LinearRegression(</span><span style="color:#F69D50">normalize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fit_intercept</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> True</span><span style="color:#ADBAC7">).fit(X, y)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">display(reg.score(X, y))</span></span>
+<span class="line"><span style="color:#ADBAC7">display(reg.coef_) </span><span style="color:#768390"># regression coefficients</span></span>
+<span class="line"><span style="color:#ADBAC7">display(reg.intercept_) </span><span style="color:#768390"># y-intercept / offset</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">reg.predict(np.array([[</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">]]))</span></span></code></pre>
+<h3 id="common-questions">Common Questions</h3>
+<ul>
+    <li>Is Linear regression sensitive to outliers? <b>Yes!</b></li>
+    <li>Is a relationship between residuals and predicted values in the model ideal? <b>No, residuals should be due to randomness, hence no relationship is an ideal property for th model</b></li>
+    <li>What is the range of learning rate? <b>0 to 1 </b></li>
+</ul> 
+<h3 id="advanced-analytical-solutions">Advanced: Analytical solutions</h3>
+<p>Here let’s discuss some more math-intensive stuff. Those who are not interested can ignore this part (though it gives a very important guide on regression models)</p>
+<h4 id="1-a-detour-into-hypothesis-representation">1. A detour into Hypothesis representation</h4>
+<p>We will use $\mathbf{x_i}$ to denote the independent variable and $\mathbf{y_i}$ to denote dependent variable. A pair of $\mathbf{(x_i,y_i)}$ is called training example. The subscripe $\mathbf{i}$ in the notation is simply index into the training set. We have $\mathbf{m}$ training example then $\mathbf{i = 1,2,3,…m}$.</p>
+<p>The goal of supervised learning is to learn a <em>hypothesis function $\mathbf{h}$</em>, for a given training set that can used to estimate $\mathbf{y}$ based on $\mathbf{x}$. So hypothesis fuction represented as</p>
+<p>$$\mathbf{ h_\theta(x_{i}) = \theta_0 + \theta_1x_i }$$</p>
+<p>where $\mathbf{\theta_0,\theta_1}$ are parameter of hypothesis.This is equation for <strong>Simple / Univariate Linear regression</strong>.</p>
+<p>For <strong>Multiple Linear regression</strong> more than one independent variable exit then we will use $\mathbf{x_{ij}}$ to denote indepedent variable and $\mathbf{y_{i}}$ to denote dependent variable. We have $\mathbf{n}$ independent variable then $\mathbf{j=1,2,3 … n}$. The hypothesis function represented as</p>
+<p>$$\mathbf{h_\theta(x_{i}) = \theta_0 + \theta_1x_{i1} + \theta_2 x_{i2} + … \theta_j x_{ij} … \theta_n  x_{mn} }$$</p>
+<p>where $\mathbf{\theta_0,\theta_1,…\theta_j…\theta_n }$ are parameter of hypothesis, $\mathbf{m}$ Number of training exaples, $\mathbf{n}$ Number of independent variable, $\mathbf{x_{ij}}$ is $\mathbf{i^{th}}$ training exaple of $\mathbf{j^{th}}$ feature.</p>
+<h4 id="2-matrix-formulation">2. Matrix Formulation</h4>
+<p>In general we can write above vector as</p>
+<p>$$ \mathbf{ x_{ij}} = \left( \begin{smallmatrix} \mathbf{x_{i1}} &#x26; \mathbf{x_{i2}} &#x26;.&#x26;.&#x26;.&#x26; \mathbf{x_{in}} \end{smallmatrix} \right)$$</p>
+<p>Now we combine all aviable individual vector into single input matrix of size $(m,n)$ and denoted it by $\mathbf{X}$ input matrix, which consist of all training exaples,</p>
+<p>$$\mathbf{X} = \Bigg( \begin{smallmatrix} x_{11} &#x26; x_{12} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{1n}\\
+x_{21} &#x26; x_{22} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{2n}\\
+x_{31} &#x26; x_{32} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{3n}\\
+.&#x26;.&#x26;.&#x26;. &#x26;.&#x26;.&#x26;.&#x26; \\
+.&#x26;.&#x26;.&#x26;. &#x26;.&#x26;.&#x26;.&#x26; \\
+x_{m1} &#x26; x_{m2} &#x26;.&#x26;.&#x26;.&#x26;.&#x26;. x_{mn}\\
+\end{smallmatrix} \Bigg)_{(m,n)}$$</p>
+<p>We represent parameter of function and dependent variable in vactor form as</p>
+<p>$$\theta = \left(\begin{matrix} \theta_0 \\ \theta_1 \\ .\\.\\ \theta_j\\.\\.\\ \theta_n \end{matrix}\right)_{(n+1,1)} $$</p>
+<p>$$\mathbf{ y } = \left (\begin{matrix} y_1\\ y_2\\. \\. \\ y_i \\. \\. \\ y_m \end{matrix} \right)_{(m,1)}$$</p>
+<p>So we represent hypothesis function in vectorize form $\mathbf{ h_\theta{(x)} = X\theta}$.</p>
+<h4 id="3-cost-function">3. Cost function</h4>
+<p>A cost function measures how much error in the model is in terms of ability to estimate the relationship between $x$ and $y$.
+We can measure the accuracy of our hypothesis function by using a cost function. This takes an average difference of observed dependent variable in the given the dataset and those predicted by the hypothesis function.</p>
+<p>$$\mathbf{ J(\theta) = \frac{1}{m} \sum_{i=1}^{m}(\hat{y}_i - y_i)^2}$$</p>
+<p>$$\mathbf{J(\theta) =  \frac{1}{m} \sum_{i=1}^{m}(h_\theta(x_i) - y_i)^2}$$</p>
+<p>To implement the linear regression, take training example add an extra column that is $x_0$ feature, where $\mathbf{x_0=1}$. $\mathbf{x_{o}} = ( \begin{smallmatrix} x_{i0} &#x26; x_{i1} &#x26; x_{i2} &#x26;.&#x26;.&#x26;.&#x26; x_{mi} \end{smallmatrix} )$,where $\mathbf{x_{i0} =0}$ and input matrix will become as</p>
+<p>$$\mathbf{X} = \left( \begin{smallmatrix} x_{10} &#x26; x_{11} &#x26; x_{12} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{1n}\\
+x_{20} &#x26; x_{21} &#x26; x_{22} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{2n}\\
+x_{30} &#x26; x_{31} &#x26; x_{32} &#x26;.&#x26;.&#x26;.&#x26;.&#x26; x_{3n}\\
+.&#x26;.&#x26;.&#x26;.&#x26;. &#x26;.&#x26;.&#x26;.&#x26; \\
+.&#x26;.&#x26;.&#x26;.&#x26;. &#x26;.&#x26;.&#x26;.&#x26; \\
+x_{m0} &#x26; x_{m1} &#x26; x_{m2} &#x26;.&#x26;.&#x26;.&#x26;.&#x26;. x_{mn}\\
+\end{smallmatrix} \right)_{(m,n+1)}$$</p>
+<p>Each of the m input samples is similarly a column vector with n+1 rows $x_0$ being 1 for our convenience, that is $\mathbf{x_{10},x_{20},x_{30} … x_{m0} =1}$. Now we rewrite the ordinary least square cost function in matrix form as</p>
+<p>$$\mathbf{J(\theta) = \frac{1}{m} (X\theta - y)^T(X\theta - y)}$$</p>
+<p>Let’s look at the matrix multiplication concept,the multiplication of two matrix happens only if number of column of firt matrix is equal to number of row of second matrix. Here input matrix $\mathbf{X}$ of size $\mathbf{(m,n+1)}$, parameter of function is of size $(n+1,1)$ and dependent variable vector of size $\mathbf{(m,1)}$. The product of matrix $\mathbf{X_{(m,n+1)}\theta_{(n+1,1)}}$ will return a vector of size $\mathbf{(m,1)}$, then product of $\mathbf{(X\theta - y)^T_{(1,m)}(X\theta - y)_{(m,1)}}$ will return size of unit vector.</p>
+<h4 id="4-normal-equation">4. Normal Equation</h4>
+<p>The normal equation is an analytical solution to the linear regression problem with a ordinary least square cost function. To minimize our cost function, take partial derivative of $\mathbf{J(\theta)}$ with respect to $\theta$ and equate to $0$. The derivative of function is nothing but if a small change in input what would be the change in output of function.</p>
+<p>$$\mathbf{\min_{\theta_0,\theta_1..\theta_n} J({\theta_0,\theta_1..\theta_n})}\\
+\mathbf{\frac{\partial J(\theta_j)}{\partial\theta_j} =0}$$</p>
+<p>where $\mathbf{j = 0,1,2,…n}$</p>
+<p>Now we will apply partial derivative of our cost function,</p>
+<p>$$\mathbf{\frac{\partial J(\theta_j)}{\partial\theta_j} = \frac{\partial }{\partial \theta} \frac{1}{m}(X\theta - y)^T(X\theta - y) }$$</p>
+<p>I will throw $\mathbf{\frac {1}{m}}$ part away since we are going to compare a derivative to $0$. And solve $\mathbf{J(\theta)}$,</p>
+<p>$$ \begin{align}\mathbf{J(\theta)}
+&#x26;\mathbf{= (X\theta -y)^T(X\theta - y)}\\
+&#x26;\mathbf{= (X\theta)^T - y^T)(X\theta -y)}  \\
+&#x26;\mathbf{= (\theta^T X^T - y^T)(X\theta - y)} \\
+&#x26;\mathbf{= \theta^T X^T X \theta - y^T X \theta - \theta^T X^T y + y^T y} \\
+&#x26;\mathbf{ = \theta^T X^T X \theta  - 2\theta^T X^T y + y^T y} \end{align}$$</p>
+<p>Here $\mathbf{y^T_{(1,m)} X_{(m,n+1)} \theta_{(n+1,1)} = \theta^T_{(1,n+1)} X^T_{(n+1,m)} y_{(m,1)}}$ because of unit vector.</p>
+<p>$$\mathbf{\frac{\partial J(\theta)}{\partial \theta} = \frac{\partial}{\partial \theta} (\theta^T X^T X \theta  - 2\theta^T X^T y + y^T y )} \\
+\mathbf{ = X^T X \frac {\partial \theta^T \theta}{\partial\theta} - 2 X^T y \frac{\partial \theta^T}{\partial\theta} + \frac {\partial y^T y}{\partial\theta}}$$</p>
+<p>Partial derivative $\mathbf{\frac {\partial x^2}{\partial x} = 2x}$, $\mathbf{\frac {\partial kx^2}{\partial x} = kx}$,$\mathbf{\frac {\partial Constact}{\partial x} = 0}$, hence</p>
+<p>$$\begin{align}\mathbf{\frac{\partial J(\theta)}{\partial\theta}\;} &#x26;\mathbf{= X^T X 2\theta - 2X^T y +0} \\
+\mathbf{ 0 \;} &#x26;\mathbf{= 2X^T X \theta - 2X^T y} \\
+\mathbf{ X^T X \theta \;} &#x26;\mathbf{= X^T } \\
+\mathbf{ \theta \;} &#x26;\mathbf{= (X^TX)^{-1} X^Ty }\end{align}$$</p>
+<p>this $\mathbf{ \theta = (X^TX)^{-1} X^Ty }$ is the normal equation for linear regression.</p>
+<h3 id="advanced-model-evaluation-and-model-validation">Advanced: Model Evaluation and Model Validation</h3>
+<h4 id="1-model-evaluation">1. Model evaluation</h4>
+<p>We will predict value for target variable by using our model parameter for test data set. Then compare the predicted value with actual valu in test set. We compute <strong>Mean Square Error</strong> using formula</p>
+<p>$$\mathbf{ J(\theta) = \frac{1}{m} \sum_{i=1}^{m}(\hat{y}_i - y_i)^2}$$</p>
+<p>$\mathbf{R^2}$ is statistical measure of how close data are to the fitted regression line. $\mathbf{R^2}$ is always between 0 to 100%. 0% indicated that model explains none of the variability of the response data around it’s mean. 100% indicated that model explains all the variablity of the response data around the mean.</p>
+<p>$$\mathbf{R^2 = 1 - \frac{SS_E}{SS_T}}$$</p>
+<p>where $SS_E$ = Sum of Square Error, $SS_T$ = Sum of Square Total.</p>
+<p>$$ \mathbf{SS_E = \sum\limits_{i=1}^{m}(\hat{y}_i - y_i)^2} $$</p>
+<p>$$\mathbf{SS_T = \sum\limits_{i=1}^{m}(y_i - \bar{y}_i)^2}$$</p>
+<p>Here $\mathbf{\hat{y}}$ is predicted value and $\mathbf{\bar{y}}$ is mean value of $\mathbf{y}$.
+Below is a sample code for evaluation</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># Normal equation</span></span>
+<span class="line"><span style="color:#ADBAC7">y_pred_norm </span><span style="color:#F47067">=</span><span style="color:#ADBAC7">  np.matmul(X_test_0,theta)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">#Evaluvation: MSE</span></span>
+<span class="line"><span style="color:#ADBAC7">J_mse </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.sum((y_pred_norm </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> y_test)</span><span style="color:#F47067">**</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> X_test_0.shape[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># R_square </span></span>
+<span class="line"><span style="color:#ADBAC7">sse </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.sum((y_pred_norm </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> y_test)</span><span style="color:#F47067">**</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">sst </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.sum((y_test </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> y_test.mean())</span><span style="color:#F47067">**</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">R_square </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 1</span><span style="color:#F47067"> -</span><span style="color:#ADBAC7"> (sse</span><span style="color:#F47067">/</span><span style="color:#ADBAC7">sst)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'The Mean Square Error(MSE) or J(theta) is: '</span><span style="color:#ADBAC7">,J_mse)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'R square obtain for normal equation method is :'</span><span style="color:#ADBAC7">,R_square)</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> The Mean Square Error(</span><span style="color:#6CB6FF">MSE</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">or</span><span style="color:#ADBAC7"> J(theta) </span><span style="color:#F47067">is</span><span style="color:#ADBAC7">:  </span><span style="color:#6CB6FF">0.17776161210877062</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> R square obtain </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> normal equation method </span><span style="color:#F47067">is</span><span style="color:#ADBAC7"> : </span><span style="color:#6CB6FF">0.7886774197617128</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># sklearn regression module</span></span>
+<span class="line"><span style="color:#ADBAC7">y_pred_sk = lin_reg.predict(X_test)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">#Evaluvation: MSE</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> mean_squared_error</span></span>
+<span class="line"><span style="color:#ADBAC7">J_mse_sk = mean_squared_error(y_pred_sk, y_test)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># R_square</span></span>
+<span class="line"><span style="color:#ADBAC7">R_square_sk = lin_reg.score(X_test,y_test)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'The Mean Square Error(MSE) or J(theta) is: '</span><span style="color:#ADBAC7">,J_mse_sk)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'R square obtain for scikit learn library is :'</span><span style="color:#ADBAC7">,R_square_sk)</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> The Mean Square Error(</span><span style="color:#6CB6FF">MSE</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">or</span><span style="color:#ADBAC7"> J(theta) </span><span style="color:#F47067">is</span><span style="color:#ADBAC7">:  </span><span style="color:#6CB6FF">0.17776161210877925</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> R square obtain </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> scikit learn library </span><span style="color:#F47067">is</span><span style="color:#ADBAC7"> : </span><span style="color:#6CB6FF">0.7886774197617026</span></span></code></pre>
+<p>The model returns $R^2$ value of 77.95%, so it fit our data test very well, but still we can imporve the the performance of by diffirent technique. Please make a note that we have transformer out variable by applying  natural log. When we put model into production antilog is applied to the equation.</p>
+<h4 id="2-model-validation">2. Model Validation</h4>
+<p>In order to validated model we need to check few assumption of linear regression model. The common assumption for <em>Linear Regression</em> model are following</p>
+<ol>
+<li>Linear Relationship: In linear regression the relationship between the dependent and independent variable to be <em>linear</em>. This can be checked by scatter ploting Actual value Vs Predicted value</li>
+<li>The residual error plot should be <em>normally</em> distributed.</li>
+<li>The <em>mean</em> of <em>residual error</em> should be 0 or close to 0 as much as possible</li>
+<li>The linear regression require all variables to be multivariate normal. This assumption can best checked with Q-Q plot.</li>
+<li>Linear regession assumes that there is little or no *Multicollinearity in the data. Multicollinearity occurs when the independent variables are too highly correlated with each other. The variance inflation factor <em>VIF</em> identifies correlation between independent variables and strength of that correlation. $\mathbf{VIF = \frac {1}{1-R^2}}$, If VIF >1 &#x26; VIF &#x3C;5 moderate correlation, VIF &#x3C; 5 critical level of multicollinearity.</li>
+<li>Homoscedasticity: The data are homoscedastic meaning the residuals are equal across the regression line. We can look at residual Vs fitted value scatter plot. If heteroscedastic plot would exhibit a funnel shape pattern.</li>
+</ol>
+<p>The model assumption linear regression as follows</p>
+<ol>
+<li>In our model  the actual vs predicted plot is curve so linear assumption fails</li>
+<li>The residual mean is zero and residual error plot right skewed</li>
+<li>Q-Q plot shows as value log value greater than 1.5 trends to increase</li>
+<li>The plot is exhibit heteroscedastic, error will insease after certian point.</li>
+<li>Variance inflation factor value is less than 5, so no multicollearity.</li>
+</ol>
+<figure align="center">
+  <img src="/images/Machine%20learning/regression_plot-1.png" width="500px">
+  <figcaption>Linearity plot and Residual plot.</figcaption>
+</figure>
+<figure align="center">
+  <img src="/images/Machine%20learning/regression_plot-2.png" width="500px">
+  <figcaption>Q-Q Plot and HomoScedasticity plot</figcaption>
+</figure> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/mypal/"> <span class="dir">← previous</span> <span class="title">MyPal</span> </a> <a class="next" href="/writing/blogs/supervised/regressions-2/"> <span class="dir">next →</span> <span class="title">Regression Models: Logistic Regression</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

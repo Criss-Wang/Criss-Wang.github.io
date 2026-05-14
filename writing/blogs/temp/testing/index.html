@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Testing Machine Learning Systems - Zhenlin Wang</title><meta name="description" content="Draft notes on software tests, model evaluation, and model behavior tests."><meta property="og:title" content="Testing Machine Learning Systems - Zhenlin Wang"><meta property="og:description" content="Draft notes on software tests, model evaluation, and model behavior tests."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/temp/testing/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Draft Notes · MLOps · Testing</div> <h1>Testing <em>Machine</em> Learning Systems</h1> <p class="dek">Draft notes on software tests, model evaluation, and model behavior tests.</p> <div class="byline"> <strong>2024.02.17</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>A typical software testing suite will include:</p>
+<ul>
+<li>unit tests which operate on atomic pieces of the codebase and can be run quickly during development,</li>
+<li>regression tests replicate bugs that we’ve previously encountered and fixed,</li>
+<li>integration tests which are typically longer-running tests that observe higher-level behaviors that leverage multiple components in the codebase,</li>
+</ul>
+<p>For machine learning systems, we should be running model evaluation and model tests in parallel.</p>
+<ul>
+<li>Model evaluation covers metrics and plots which summarize performance on a validation or test dataset.</li>
+<li>Model testing involves explicit checks for behaviors that we expect our model to follow.</li>
+</ul>
+<p>How do you write model tests?</p>
+<ol>
+<li>
+<p>Pre-train test</p>
+<ul>
+<li>Early bug discovery + training short-circuiting (saves training cost)</li>
+<li>Things to check:
+<ul>
+<li>output distribution</li>
+<li>gradient-related information (training loss curve)</li>
+<li>data quality</li>
+<li>label leakage</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Post-train test</p>
+<ul>
+<li>post mortem issue discovery and model behavior analysis
+<ul>
+<li>Things to check:
+<ul>
+<li>Invariance Test (use a set of perturbations we should be able to make to the input without affecting the model’s output)</li>
+<li>Directional Expectation Test</li>
+<li>Data Unit Test (similar to regression test, with failued model scenarios)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Organizing tests</p>
+<ul>
+<li>structuring your tests around the “skills” we expect the model to acquire while learning to perform a given task.</li>
+</ul>
+</li>
+<li>
+<p>Model Dev Pipeline</p>
+<ol>
+<li><img src="https://www.jeremyjordan.me/content/images/size/w1000/2020/08/Group-7.png" alt=""></li>
+</ol>
+</li>
+</ol>
+<p>{source: <a href="https://www.jeremyjordan.me/testing-ml/">https://www.jeremyjordan.me/testing-ml/</a>}</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/deep-learning-system-design-2/"> <span class="dir">← previous</span> <span class="title">Deep Learning System Design - A Checklist (Part II)</span> </a> <a class="next" href="/writing/blogs/mlops/project-considerations/"> <span class="dir">next →</span> <span class="title">Starting your AI/ML Project: from research to engineering</span> </a> </nav>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

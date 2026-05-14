@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Model Iteration Series: Validating Model Research - Zhenlin Wang</title><meta name="description" content="The first line of defense to robust model iteration"><meta property="og:title" content="Model Iteration Series: Validating Model Research - Zhenlin Wang"><meta property="og:description" content="The first line of defense to robust model iteration"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/software/model-iteration-research-validation/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Software · ML Infrastructure · Model Development</div> <h1>Model <em>Iteration</em> Series: Validating Model Research</h1> <p class="dek">The first line of defense to robust model iteration</p> <div class="byline"> <strong>2024.07.11</strong> <span>·</span> <span>11 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="intro"><strong>Intro</strong></h2>
+<p>As the first part of the model iteration, or any form of production-driven research projects that commonly take place in industry, we need to conduct data science or machine learning researches on the various components in a product pipeline. For this write-up, we are going to focus on the various steps and preparations needed for a proper LLM model-based research.</p>
+<p>If you haven’t read my blog that provides the high level insights to the series, I would urge you to kindly go through it to gain more context on this write-up. It is important to consider it as an integral part of the entire series, as I will mainly focus on a few parts of the model research. Specifically, I must emphasize that this blog is for LLM models. The considerations and design decisions required for other ML/AI models may be drastically different.</p>
+<p>In the upcoming sections, I will discuss the following topics:</p>
+<ul>
+<li>Different forms of model investigations and how they become crucial to the iteration process</li>
+<li>A proposed strategy to run LLM model investigation for Startup-like DS/ML/AI teams</li>
+<li>How to run inference tests effectively</li>
+<li>Some important points to take note of during LLM model research</li>
+</ul>
+<h2 id="model-investigation"><strong>Model Investigation</strong></h2>
+<figure align="center">
+    <img src="//images/SWE/model_iteration_1.png" width="400px">
+</figure>
+<p>To reiterate from the intro blog, in a common model investigation process, we have 3 major types of model improvements that can be proposed:</p>
+<ul>
+<li>A better third party API</li>
+<li>A better model architecture</li>
+<li>A better set of model parameters ( customization, finetuning, etc…)</li>
+</ul>
+<p>Each type has its strength and weaknesses, as shown in the table below. They are interconnected to some extend, and some may be tested in parallel or in combination. However, all of them should eventually provide business value to the company directly or indirectly.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>Time Span</th><th>Short-term Cost</th><th>Long-term Cost</th><th>Manpower</th><th>Performance Improvement</th><th>Suitable for</th></tr></thead><tbody><tr><td>Third Party API</td><td>Short</td><td>Low</td><td>High</td><td>Low</td><td>Low/Medium</td><td>Startups</td></tr><tr><td>Model Architecture-based</td><td>Long</td><td>High</td><td>Low/Medium</td><td>High</td><td>Depends</td><td>Big Tech</td></tr><tr><td>Model Parameter-based</td><td>Medium</td><td>Medium</td><td>Low</td><td>Medium</td><td>High</td><td>Startups &#x26; Big Tech</td></tr></tbody></table>
+<p>All ML/DS researchers that investigate these methods should be extremely cautious when proposing model changes to the existing ML system, as their investigations are the first line of defense when it comes to new ideas. Having experienced the tremendous effort of repeated validation process gone to drain simply because of flaws in research assumption has taught me the valuable lesson of double checking, even triple checking conjectures, changes, and impacts before presenting ideas for further testing. Therefore, I’ve been developing robust validation systems like the <a href="https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name"><strong>llm-validator</strong></a> myself inside and outside of work. I sincerely wish every team that’s responsible for LLM model investigation would be able to come up with some system like (and of course, better) this one to automate preliminary model validation during the research process.</p>
+<h3 id="proposed-strategy-for-model-investigation"><strong>Proposed Strategy for Model Investigation</strong></h3>
+<p>Every team that works on LLM has its own way of working towards better LLM models at different stages in the company development. In this section, I would like to propose a potentially valid and efficient method for teams that are in early stages (e.g. Startups, or newly formed LLM teams due to the AI frenzy). It’s a 5-step process:</p>
+<p><strong>Step 1: Pick a baseline model</strong></p>
+<p>Most new teams don’t have ready insights on a specific model to use for specific tasks they are given at the start. Thus any widely adopted universal model can be its starting point. The model can be some third party API providers like Bedrock, Anyscale or Together, or any direct model providers like OpenAI, Google or Anthropic. Avoid going into the trap of premature optimization in early stages. When things have not scaled up yet, the cost of using these large models far outweigh the cost of additional troubles caused by small open-source models or custom inference engines in the near future.</p>
+<p>Ultimately, this model will become a <strong>baseline</strong> for new model changes proposed, and will remain as a reference point when models iterate. As our validation data changes, the statistics related to the baseline model should automatically change as a result.</p>
+<p><strong>Step 2: Pick a configuration</strong></p>
+<p>The model configurations here I want to suggest encompass the entire inference process. It includes the right set of parameters during API calling, like <code>temperature</code>, <code>max_tokens</code>, <code>top_p</code>, <code>is_streaming</code> or <code>function_calling</code>. It also includes the choice of providers. These design decisions are highly dependent on the tasks LLMs are trying to solve, and the side-effects that can be caused by them.</p>
+<p><strong>Step 3: Consider the Projected Impact</strong></p>
+<p>This step is often ignored by many junior scientists (including myself) who work on model iteration investigation. In order to make the change useful to the product/business, here are 5 important spectrums to consider:</p>
+<ol>
+<li><strong>Cost</strong>: amount of cost saving this change can bring</li>
+<li><strong>Latency</strong>: reducing inference time or end-to-end process duration can boost customer satisfaction and secure more business eventually</li>
+<li><strong>Accuracy</strong>: the performance boost is often the most obvious from science’s perspective, but often the less obvious in the product. Nonetheless, a significant leap in performance is usually the ultimate factor that enables a product to win.</li>
+<li><strong>Security</strong>: Guardrail against attacks or harmful contents have been well studied in the last couple of years. It is the bottom-line of the product.</li>
+<li><strong>Stability</strong>: it is the most ignored aspect among scientists, especially in LLM. Many researchers choose to “intentionally” ignore stability as they attribute it to the inherent variations LLMs. However, bugs/issues will be reflected out of it, and they are easily sensed by the product users. Moreover, it is the hardest to identify.</li>
+</ol>
+<p>Think through each spectrum carefully ensures that we do not hurt other spectrums significantly when we focus on improving one or two aspects. This prevents a ton of issues from happening when we move into the later stages of model iteration.</p>
+<p><strong>Step 4: Observe, Execute, and Analyze</strong></p>
+<p>I have always had trust in my fellow colleagues for their resourcefulness while searching for model changes. They know how to find the right set of tools to run experiments, make tweaks, and analyze results to further ensure the required model changes are formed and validated. This step is by far the hardest (because it involves lots of execution and thinking), and yet the most trusted part.</p>
+<p>In order to offer some additional guidance to people who are still new to model validation, I have included in the bottom section a demo using my <a href="https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name"><strong>llm-validator</strong></a> repo on how to run a validation process when we change from GPT-4 to Claude 3.5 Sonnet. The same steps can be reproduced across many model changes, and can be done in a systematic way.</p>
+<p><strong>Step 5: Compile and Ship</strong></p>
+<p>Provide the proposed model changes and the updated model metadata to ML Infra engineers will be the final step of this model investigation process. Ensure proper documentation, fallback plans and justification are ready in place. It will then go for a more intricate latency test and cost analysis thereafter.</p>
+<h2 id="more-on-accuracy-and-stability"><strong>More on Accuracy and Stability</strong></h2>
+<p>At the model investigation stage, even though we have to consider all 5 spectrums of the <strong>CLASS</strong> objective, we won’t necessarily have the resources, scope and expertise to fully evaluate <em>cost</em>, <em>latency</em> and <em>security</em>. Hence researchers are most likely gonna focus on <em>accuracy</em> and <em>stability</em>. Here, I will share my two cents on an ideal workflow to conduct these tests <strong>after</strong> we formulate and implement the changes in code.</p>
+<p><strong>A/B Testing is the basic</strong></p>
+<p>It is almost a second nature for DS/MLE to conduct A/B testing when they are given a proposed solution and a baseline solution. The same should be said for accuracy and stability tests. The usual way of A/B testing still holds. If you’re still unfamiliar with it, I urge you to follow some tutorials to understand the steps to run it. You can ready any materials online, or just take a shortcut and read <a href="https://criss-wang.com/post/blogs/mlops/AB-testing/">my post here</a>.</p>
+<p><strong>Components of the inference</strong></p>
+<p>We use A/B testing as the backbone of these tests, and now it is time to fill up the content:</p>
+<ul>
+<li><strong>Task</strong>: what is the input/output format? what is the expected outcome &#x26; format? why is it critical to test model changes on this task?</li>
+<li><strong>Dataset</strong>: where is the raw input sourced from? how is it labeled (human vs LLM)? what’s the size? is there potential data quality issues?</li>
+<li><strong>Model/Engine</strong>: what are the basic config parameters? is it supposed to be time-consuming? what is the cost of model inference for each complete test? are there error handling mechanisms that ensure the tests run smoothly?</li>
+<li><strong>Prompt</strong>: what is the prompt being used? are we using the same one the baseline model is using? what version and what variables? do we have a metaprompt for it?</li>
+<li><strong>Metrics</strong>: what are the set of scores we need to measure? is it naturally varying a lot? is there any obsolete metric we need to replace with new ones?</li>
+</ul>
+<p>When it comes to accuracy, we must ensure the testing data is large enough to cover the input domain well, and the metric is reflective of the goal. For example, if we are to run chunk validation using LLM, then we should consider aspects like chunk relevancy, chunk precision/recall, and ensure the knowledge base is well represented by the chunks in datasets. The results against baseline should also be statistically significant for the proposed solution to hold.</p>
+<p>When it comes to stability, there should be datasets with very similar queries. We have the expectation of identical, or if not, very similar outputs from the model using these similar queries, similarity scores should be measured, and deviations should be further analyzed and further model tuning may be requested upon issues identified.</p>
+<p><strong>Logging</strong></p>
+<p>Run the tests and generate statistics for it. A good validator should be able to return the results in forms of distributions, output datasets and metric scores. In the meantime, it should log any warnings and errors that may alert the researchers the hidden danger of applying this change to production systems.</p>
+<h2 id="a-simple-demo-of-validation-gpt---claude-migration"><strong>A simple demo of validation GPT -> Claude migration</strong></h2>
+<p>For the rest of the blog mostly contains a demo to show how the validation part is achieved via a systematic pipeline. In this demo, we set up a story that some DS found out <code>Claude-3.5-sonnet</code> performs much better than <code>GPT-4</code> and decides to propose that migration for a code generation service. Our role is to validate such proposal from the accuracy perspective using an <a href="https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name"><strong>llm-validator</strong></a>.</p>
+<h3 id="step-1">Step 1</h3>
+<p>As a first step, clone the repo <a href="https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name">[Link]</a>, and specify the major components:</p>
+<p><strong>Task</strong>: Code generation</p>
+<ul>
+<li>Input: user query with code snippet</li>
+<li>Output: completed code section</li>
+<li>Expectation: Code is complete and correct</li>
+</ul>
+<p><strong>Dataset</strong>: a simple demo dataset can be found in the repo: <a href="https://github.com/Criss-Wang/llm-validator/blob/main/datasets/code_generation/test.csv"><em>Link</em></a></p>
+<ul>
+<li>Note: to achieve A/B testing, you should curate sufficient data <em>with multiple batches</em> to make it statistically significant.</li>
+</ul>
+<p><strong>Model</strong>: We have two models to investigate, so we use <code>AnthropicClient</code> and <code>OpenAiClient</code></p>
+<ul>
+<li>
+<p>Note: if you need to use a custom client, please refer to the implementations <a href="https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/components/clients/anthropic.py">here</a> as a guideline.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> os</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> typing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> List, Dict</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> anthropic</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> llm_validation.components.clients </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Client</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> llm_validation.app.configs </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> ClientConfig</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> AnthropicClient</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">Client</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#F47067">    def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self, config: ClientConfig):</span></span>
+<span class="line"><span style="color:#6CB6FF">        super</span><span style="color:#ADBAC7">().</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">(config)</span></span>
+<span class="line"><span style="color:#6CB6FF">        self</span><span style="color:#ADBAC7">.api_key </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> os.getenv(</span><span style="color:#96D0FF">"ANTHROPIC_API_KEY"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    async</span><span style="color:#F47067"> def</span><span style="color:#DCBDFB"> predict_stream</span><span style="color:#ADBAC7">(self, messages: List):</span></span>
+<span class="line"><span style="color:#ADBAC7">        client </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> anthropic.Anthropic(</span><span style="color:#F69D50">api_key</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.api_key)</span></span>
+<span class="line"><span style="color:#ADBAC7">        stream </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> client.messages.create(</span></span>
+<span class="line"><span style="color:#F69D50">            model</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model_name,</span></span>
+<span class="line"><span style="color:#F69D50">            system</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">messages[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">][</span><span style="color:#96D0FF">"content"</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">            messages</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">messages[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:],</span></span>
+<span class="line"><span style="color:#F69D50">            stream</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F47067">            **</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model_options,</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">        for</span><span style="color:#ADBAC7"> chunk </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> stream:</span></span>
+<span class="line"><span style="color:#F47067">            if</span><span style="color:#ADBAC7"> chunk.type </span><span style="color:#F47067">==</span><span style="color:#96D0FF"> "message_start"</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#6CB6FF">                self</span><span style="color:#ADBAC7">.input_tokens </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> chunk.message.usage.input_tokens</span></span>
+<span class="line"><span style="color:#F47067">            elif</span><span style="color:#ADBAC7"> chunk.type </span><span style="color:#F47067">==</span><span style="color:#96D0FF"> "content_block_delta"</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#F47067">                yield</span><span style="color:#6CB6FF"> dict</span><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#F69D50">                    text</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">chunk.delta.text,</span></span>
+<span class="line"><span style="color:#F69D50">                    raw_response</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">chunk,</span></span>
+<span class="line"><span style="color:#ADBAC7">                )</span></span>
+<span class="line"><span style="color:#F47067">            else</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#F47067">                continue</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    async</span><span style="color:#F47067"> def</span><span style="color:#DCBDFB"> predict</span><span style="color:#ADBAC7">(self, messages: List) -> Dict:</span></span>
+<span class="line"><span style="color:#ADBAC7">        client </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> anthropic.Anthropic(</span><span style="color:#F69D50">api_key</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.api_key)</span></span>
+<span class="line"><span style="color:#ADBAC7">        response </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> client.messages.create(</span></span>
+<span class="line"><span style="color:#F69D50">            model</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model_name,</span></span>
+<span class="line"><span style="color:#F69D50">            system</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">messages[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">][</span><span style="color:#96D0FF">"content"</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">            messages</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">messages[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:],</span></span>
+<span class="line"><span style="color:#F47067">            **</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model_options,</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"><span style="color:#F47067">        return</span><span style="color:#6CB6FF"> dict</span><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#F69D50">            text</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">response.content[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">].text,</span></span>
+<span class="line"><span style="color:#F69D50">            raw_response</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">response,</span></span>
+<span class="line"><span style="color:#F69D50">            usage</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">dict</span><span style="color:#ADBAC7">(response.usage),</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    def</span><span style="color:#DCBDFB"> extract_usage</span><span style="color:#ADBAC7">(self, type: </span><span style="color:#6CB6FF">str</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> "input"</span><span style="color:#ADBAC7">) -> </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#F47067">        if</span><span style="color:#6CB6FF"> type</span><span style="color:#F47067"> ==</span><span style="color:#96D0FF"> "input"</span><span style="color:#F47067"> and</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.input_tokens:</span></span>
+<span class="line"><span style="color:#F47067">            return</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.input_tokens</span></span></code></pre>
+</li>
+</ul>
+<p><strong>Prompt</strong>: stored in <code>yaml</code> format</p>
+<ul>
+<li>task prompt: <a href="https://github.com/Criss-Wang/llm-validator/blob/main/prompts/code_generation.yaml"><code>code_generation.yaml</code></a></li>
+<li>judge prompt: <a href="https://github.com/Criss-Wang/llm-validator/blob/main/prompts/judge.yaml"><code>judge.yaml</code></a></li>
+</ul>
+<p><strong>Metrics</strong>: We need to use llm-as-a-judge for this performance evaluation. It is readily defined in the repo as. <code>CodeGenAccuracy</code> under <code>components.metrics.accuracy</code> file, feel free to edit it to fit your needs.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> CodeGenAccuracy</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">AccuracyMetric</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#F47067">    def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self, config: MetricConfig):</span></span>
+<span class="line"><span style="color:#6CB6FF">        super</span><span style="color:#ADBAC7">().</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">(config)</span></span>
+<span class="line"><span style="color:#ADBAC7">        client_config </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ClientConfig(</span></span>
+<span class="line"><span style="color:#F69D50">            name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"openai"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"research"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            model_name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"gpt-4o-mini"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            base_url</span><span style="color:#F47067">=</span><span style="color:#96D0FF">""</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            model_options</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">{</span><span style="color:#96D0FF">"temperature"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"top_p"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"max_tokens"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1024</span><span style="color:#ADBAC7">},</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"><span style="color:#ADBAC7">        prompt_config </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> PromptConfig(</span></span>
+<span class="line"><span style="color:#F69D50">            name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"code-generation-judge"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            path</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"prompts/judge.yaml"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">            version</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"><span style="color:#6CB6FF">        self</span><span style="color:#ADBAC7">.client </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> OpenAiClient(client_config)</span></span>
+<span class="line"><span style="color:#6CB6FF">        self</span><span style="color:#ADBAC7">.prompt </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Prompt(prompt_config)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    def</span><span style="color:#DCBDFB"> grade</span><span style="color:#ADBAC7">(self, input, output: </span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">, label: </span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#ADBAC7">        messages </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.prompt.transform(</span></span>
+<span class="line"><span style="color:#F69D50">            generated_code_answer</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">output, </span><span style="color:#F69D50">expected_code_answer</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">label</span></span>
+<span class="line"><span style="color:#ADBAC7">        )</span></span>
+<span class="line"><span style="color:#F47067">        try</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">            result_content </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.client.sync_predict(messages)</span></span>
+<span class="line"><span style="color:#ADBAC7">            result_content </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> json.loads(result_content[</span><span style="color:#96D0FF">"text"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">            reason </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> result_content[</span><span style="color:#96D0FF">"reason"</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">            code_quality </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> result_content[</span><span style="color:#96D0FF">"code_quality"</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">            response_quality </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> result_content[</span><span style="color:#96D0FF">"response_quality"</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#F47067">        except</span><span style="color:#6CB6FF"> Exception</span><span style="color:#F47067"> as</span><span style="color:#ADBAC7"> e:</span></span>
+<span class="line"><span style="color:#6CB6FF">            print</span><span style="color:#ADBAC7">(e)</span></span>
+<span class="line"><span style="color:#ADBAC7">            reason </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "error"</span></span>
+<span class="line"><span style="color:#ADBAC7">            code_quality </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "wrong"</span></span>
+<span class="line"><span style="color:#ADBAC7">            response_quality </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "bad"</span></span>
+<span class="line"><span style="color:#F47067">        return</span><span style="color:#ADBAC7"> {</span></span>
+<span class="line"><span style="color:#96D0FF">            "reason"</span><span style="color:#ADBAC7">: reason,</span></span>
+<span class="line"><span style="color:#96D0FF">            "code_quality"</span><span style="color:#ADBAC7">: code_quality,</span></span>
+<span class="line"><span style="color:#96D0FF">            "response_quality"</span><span style="color:#ADBAC7">: response_quality,</span></span>
+<span class="line"><span style="color:#ADBAC7">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    def</span><span style="color:#DCBDFB"> aggregate</span><span style="color:#ADBAC7">(self):</span></span>
+<span class="line"><span style="color:#ADBAC7">        code_quality </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.scores[</span><span style="color:#96D0FF">"code_quality"</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">        response_quality </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.scores[</span><span style="color:#96D0FF">"response_quality"</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#6CB6FF">        self</span><span style="color:#ADBAC7">.stats.update(</span><span style="color:#6CB6FF">dict</span><span style="color:#ADBAC7">(Counter(code_quality)))</span></span>
+<span class="line"><span style="color:#6CB6FF">        self</span><span style="color:#ADBAC7">.stats.update(</span><span style="color:#6CB6FF">dict</span><span style="color:#ADBAC7">(Counter(response_quality)))</span></span></code></pre>
+<ul>
+<li>Note: similar to customizable <code>client</code>, my code enables great flexibility for you to define additional metrics, just refer to the <a href="https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/components/metrics"><code>metric</code></a> folder to find things you need.</li>
+</ul>
+<h3 id="step-2-define-the-configuration">Step 2: Define the configuration</h3>
+<p>The configuration file should be stored under <code>configs/{your_taks_name}</code> folder. In this demo, it is <code>configs/code_generation/openai.json</code> and <code>configs/code_generation/anthropic.json</code>. The config follows the format as shown below:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#ADBAC7">{</span></span>
+<span class="line"><span style="color:#8DDB8C">  "project"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"llm-validation"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">  "task_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "name"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"code-generation"</span></span>
+<span class="line"><span style="color:#ADBAC7">  },</span></span>
+<span class="line"><span style="color:#8DDB8C">  "client_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "name"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"openai"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "type"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"research"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "model_name"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"gpt-4o-mini"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "model_options"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">      "temperature"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">      "max_tokens"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1024</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">      "top_p"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1</span></span>
+<span class="line"><span style="color:#ADBAC7">    }</span></span>
+<span class="line"><span style="color:#ADBAC7">  },</span></span>
+<span class="line"><span style="color:#8DDB8C">  "prompt_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "name"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"code-generation-prompt-v1"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "path"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"prompts/code_generation.yaml"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "version"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">1</span></span>
+<span class="line"><span style="color:#ADBAC7">  },</span></span>
+<span class="line"><span style="color:#8DDB8C">  "evaluator_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "metrics"</span><span style="color:#ADBAC7">: [</span></span>
+<span class="line"><span style="color:#ADBAC7">      {</span></span>
+<span class="line"><span style="color:#8DDB8C">        "type"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"accuracy"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">        "aspect"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"codegen"</span></span>
+<span class="line"><span style="color:#ADBAC7">      }</span></span>
+<span class="line"><span style="color:#ADBAC7">    ]</span></span>
+<span class="line"><span style="color:#ADBAC7">  },</span></span>
+<span class="line"><span style="color:#8DDB8C">  "dataset_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "data_path"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"datasets/code_generation/test.csv"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "label_col"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"true_label"</span></span>
+<span class="line"><span style="color:#ADBAC7">  },</span></span>
+<span class="line"><span style="color:#8DDB8C">  "controller_config"</span><span style="color:#ADBAC7">: {</span></span>
+<span class="line"><span style="color:#8DDB8C">    "save_path"</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">"results"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "parallelism"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#8DDB8C">    "use_streaming"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">false</span></span>
+<span class="line"><span style="color:#ADBAC7">  }</span></span>
+<span class="line"><span style="color:#ADBAC7">}</span></span></code></pre>
+<p>In this demo, I’ve already provided the completed configuration for you. If you would like to customize the config, refer to the <a href="https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/app/configs.py"><code>configs.py</code></a> to understand the additional set of parameters.</p>
+<h3 id="step-3-run-experiment">Step 3: Run experiment</h3>
+<p>Run <code>pip install -e .</code> and <code>pip install -r requirements.dev.txt</code> to set the project up. Notice that you may need to have a Weights &#x26; Biases account for experiment logging. After that, we are ready to kick-off the experiment by running the following command:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="plaintext"><code><span class="line"><span>llm-validator run --config-path=configs/code_generation/openai.json</span></span></code></pre>
+<p>You will be able to see the results both from console and from W&#x26;B dashboard. A sample outcome would look like the following</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Calling LLM: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:03&#x3C;00:00,  1.56s/it]</span></span>
+<span class="line"><span>-------- Accuracy ----------</span></span>
+<span class="line"><span>incomplete: 2</span></span>
+<span class="line"><span>fair: 2</span></span>
+<span class="line"><span>wandb: - 0.006 MB of 0.006 MB uploaded</span></span>
+<span class="line"><span>wandb: Run history:</span></span>
+<span class="line"><span>wandb:       Accuracy_fair ▁</span></span>
+<span class="line"><span>wandb: Accuracy_incomplete ▁</span></span>
+<span class="line"><span>wandb:</span></span>
+<span class="line"><span>wandb: Run summary:</span></span>
+<span class="line"><span>wandb:       Accuracy_fair 2</span></span>
+<span class="line"><span>wandb: Accuracy_incomplete 2</span></span>
+<span class="line"><span>wandb:</span></span>
+<span class="line"><span>wandb: 🚀 View run gpt-4o-mini-20240720-123403 at: https://wandb.ai/criss_w/llm-validation/runs/7rzhrlt4</span></span>
+<span class="line"><span>wandb: ⭐️ View project at: https://wandb.ai/criss_w/llm-validation</span></span>
+<span class="line"><span>wandb: Synced 5 W&#x26;B file(s), 0 media file(s), 0 artifact file(s) and 1 other file(s)</span></span>
+<span class="line"><span>wandb: Find logs at:</span></span></code></pre>
+<h3 id="step-4-repeat-for-both-models">Step 4: Repeat for both models</h3>
+<p>Remember to run multiple epochs on different datasets, aggregate and analyze.</p>
+<p>And <strong>hooray</strong>!!! We have completed a first attempt at validating the migration proposal.</p>
+<h3 id="a-take-home-challenge">A take-home challenge</h3>
+<p>Notice that I described the metric implementation for accuracy, but not stability. Investigating stability is a completely different challenge, and I urge you to try implementing the metric logic yourself. If you have any question, raise a issue in the repo, and I’ll clarify it for you with respect to this interesting challenge.</p>
+<h2 id="final-words"><strong>Final words</strong></h2>
+<p>Once again, the endeavor to further improve the model iteration process does not stop here. We have a lot more to go through from the model serving perspective, and it will become much more tricky from there onwards. Nonetheless, that’s where a whole new world unfolds in front of us, especially those new grads who mostly deal with static and performance-oriented services building. Before that blog comes out, <strong><em>Stay Hunger, Stay Foolish</em></strong>.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/software/model-iteration-intro/"> <span class="dir">← previous</span> <span class="title">Model Iteration Series: Intro</span> </a> <a class="next" href="/writing/software/model-iteration-infra/"> <span class="dir">next →</span> <span class="title">Model Iteration Series: Validating Model Infra</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: DBSCAN - Zhenlin Wang</title><meta name="description" content="Graphical methods continued..."><meta property="og:title" content="Clustering: DBSCAN - Zhenlin Wang"><meta property="og:description" content="Graphical methods continued..."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-3/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Machine Learning · Clustering · Unsupervised Learning</div> <h1>Clustering: <em>DBSCAN</em></h1> <p class="dek">Graphical methods continued...</p> <div class="byline"> <strong>2020.02.06</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-09-01</span>  </div> </header> <main class="article container-narrow"> <h2 id="dbscan-introduction">DBSCAN Introduction</h2>
+<ul>
+<li>
+<p>Density-based spatial clustering of applications with noise (DBSCAN)</p>
+</li>
+<li>
+<p>Summary: DBSCAN is a density-based clustering method that discovers clusters of nonspherical shape.</p>
+</li>
+<li>
+<p>Main Concept: Locate regions of high density that are separated from one another by regions of low density.</p>
+</li>
+<li>
+<p>It also marks as outliers the points that are in low-density regions.</p>
+</li>
+<li>
+<p>Implicit assumptions about the method:</p>
+<ul>
+<li>Densities across all the clusters are the same.</li>
+<li>Cluster sizes or standard deviations are the same.</li>
+</ul>
+</li>
+<li>
+<p><strong>Density of region</strong>:<br>
+Mainly defined by 2 parameters</p>
+<ul>
+<li>Density at a point P: Number of points within a circle of Radius $\epsilon$ from point P.</li>
+<li>Dense Region: For each point in the cluster, a circle with radius $\epsilon$ contains at least minimum number of points ($MinPts$)</li>
+</ul>
+</li>
+<li>
+<p><code>The Epsilon neighborhood</code> of a point P in the database D is defined as $N(p) = \{q \in D \mid dist(p, q) \leq \epsilon\}$</p>
+<ul>
+<li>The $dist$ function is usually defined by <code>Euclidean Distance</code></li>
+</ul>
+</li>
+<li>
+<p><strong>3 classification of points</strong>:</p>
+<ul>
+<li><code>Core point</code>: if the point has $\mid N(p)\mid \geq MinPts$</li>
+<li><code>Border point</code>: if the point has $|N(p)| &#x3C; MinPts$ but it lies in the neighborhood of another <code>Core point</code>.</li>
+<li><code>Noise</code>: any data point that is <strong>neither</strong> <code>Core</code> nor <code>Border</code> point</li>
+</ul>
+</li>
+<li>
+<p><strong>Density Reachable/Density Connected/Directly Density Reachable</strong></p>
+<ul>
+<li><code>Directly Density Reachable</code>: Data-point $a$ is directly density reachable from a point $b$ if
+<ul>
+<li>$b$ is a core point</li>
+<li>$a$ is in the epsilon neighborhood of $b$</li>
+</ul>
+</li>
+<li><code>Density Reachable</code>: Data-point $a$ is density reachable from a point $b$ if
+<ul>
+<li>For a chain of points $b_1, b_2, …b_n$, $b_1 = b, b_n = a$, $b_{i+1}$ is directly density reachable from $b_i$.</li>
+<li><code>Density reachable</code> is transitive in nature but, just like <code>direct density reachable</code>, it is not symmetric</li>
+</ul>
+</li>
+<li><code>Density Connected</code>:  Data-point $a$ is density connected to a point $b$ if
+<ul>
+<li>with respect to $\epsilon$ and $MinPts$ there is a point $c$ such that, both $a$ and $b$ are <code>density reachable</code> from $c$ w.r.t. to $\epsilon$ and $MinPts$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Procedure</strong></p>
+<ol>
+<li>Starts with an arbitrary point which has not been visited and its neighborhood information is retrieved from the $\epsilon$ parameter.</li>
+<li>If this point contains $\geq MinPts$ neighborhood points, cluster formation starts.
+Otherwise the point is labeled as <code>noise</code>.
+- This point can be later found within the $\epsilon$ neighborhood of a different point and, thus can be made a part of the cluster.</li>
+<li>If a point is found to be a core point then the points within the $\epsilon$ neighborhood is also part of the cluster. So all the points found within $\epsilon$ neighborhood are added, along with their own $\epsilon$ neighborhood, if they are also core points.</li>
+<li>Continue the steps above (1-3) until the <code>density-connected</code> cluster is completely found.</li>
+<li>The process restarts with a new point which can be a part of a new cluster or labeled as noise.</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Identifies randomly shaped clusters</li>
+<li>doesn’t necessitate to know the number of clusters in the data previously (as opposed to K-means)</li>
+<li>Handles noise</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>If the database has data points that form clusters of <strong>varying density</strong>, then DBSCAN fails to cluster the data points well, since the clustering depends on ϵ and MinPts parameter, they cannot be chosen separately for all clusters
+<ul>
+<li>May Overcome this issue by running additional rounds over large clusters</li>
+</ul>
+</li>
+<li>If the data and features are not so well understood by a domain expert then, setting up $\epsilon$ and $MinPts$ could be tricky</li>
+<li>Computational complexity — when the dimensionality is high, it takes $O(n^2)$</li>
+</ul>
+<h4 id="3-code-implementation">3. Code Implementation</h4>
+<p>{% codeblock lang:python%}
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import stats</p>
+<p>from sklearn.cluster import DBSCAN
+from sklearn.metrics import silhouette_score</p>
+<h1 id="to-choose-the-best-combination-of-the-algorithm-parameters-i-will-first-create-a-matrix-of-investigated-combinations">To choose the best combination of the algorithm parameters I will first create a matrix of investigated combinations.</h1>
+<p>from itertools import product</p>
+<p>mall_data = pd.read_csv(‘Mall_Customers.csv’)
+X_numerics = mall_data[[‘Age’, ‘Annual Income (k$)’, ‘Spending Score (1-100)’]] # subset with numeric variables only</p>
+<p>eps_values = np.arange(8,12.75,0.25) # eps values to be investigated
+min_samples = np.arange(3,10) # min_samples values to be investigated
+DBSCAN_params = list(product(eps_values, min_samples))</p>
+<p>no_of_clusters = []
+sil_score = []</p>
+<p>for p in DBSCAN_params:
+DBS_clustering = DBSCAN(eps=p[0], min_samples=p[1]).fit(X_numerics)
+no_of_clusters.append(len(np.unique(DBS_clustering.labels_)))
+sil_score.append(silhouette_score(X_numerics, DBS_clustering.labels_))</p>
+<p>tmp = pd.DataFrame.from_records(DBSCAN_params, columns =[‘Eps’, ‘Min_samples’])<br>
+tmp[‘No_of_clusters’] = no_of_clusters</p>
+<p>pivot_1 = pd.pivot_table(tmp, values=‘No_of_clusters’, index=‘Min_samples’, columns=‘Eps’)</p>
+<p>fig, ax = plt.subplots(figsize=(12,6))
+sns.heatmap(pivot_1, annot=True,annot_kws={“size”: 16}, cmap=“YlGnBu”, ax=ax)
+ax.set_title(‘Number of clusters’)
+plt.show()</p>
+<p>tmp = pd.DataFrame.from_records(DBSCAN_params, columns =[‘Eps’, ‘Min_samples’])<br>
+tmp[‘Sil_score’] = sil_score</p>
+<p>pivot_1 = pd.pivot_table(tmp, values=‘Sil_score’, index=‘Min_samples’, columns=‘Eps’)</p>
+<p>fig, ax = plt.subplots(figsize=(18,6))
+sns.heatmap(pivot_1, annot=True, annot_kws={“size”: 10}, cmap=“YlGnBu”, ax=ax)
+plt.show()</p>
+<p>DBS_clustering = DBSCAN(eps=12.5, min_samples=4).fit(X_numerics)</p>
+<p>DBSCAN_clustered = X_numerics.copy()
+DBSCAN_clustered.loc[:,‘Cluster’] = DBS_clustering.labels_ # append labels to points</p>
+<p>DBSCAN_clust_sizes = DBSCAN_clustered.groupby(‘Cluster’).size().to_frame()
+DBSCAN_clust_sizes.columns = [“DBSCAN_size”]
+display(DBSCAN_clust_sizes)</p>
+<p>outliers = DBSCAN_clustered[DBSCAN_clustered[‘Cluster’]==-1]</p>
+<p>fig2, (axes) = plt.subplots(1,2,figsize=(12,5))</p>
+<p>sns.scatterplot(‘Annual Income (k$)’, ‘Spending Score (1-100)’,
+data=DBSCAN_clustered[DBSCAN_clustered[‘Cluster’]!=-1],
+hue=‘Cluster’, ax=axes[0], palette=‘Set1’, legend=‘full’, s=45)</p>
+<p>sns.scatterplot(‘Age’, ‘Spending Score (1-100)’,
+data=DBSCAN_clustered[DBSCAN_clustered[‘Cluster’]!=-1],
+hue=‘Cluster’, palette=‘Set1’, ax=axes[1], legend=‘full’, s=45)</p>
+<p>axes[0].scatter(outliers[‘Annual Income (k$)’], outliers[‘Spending Score (1-100)’], s=5, label=‘outliers’, c=“k”)
+axes[1].scatter(outliers[‘Age’], outliers[‘Spending Score (1-100)’], s=5, label=‘outliers’, c=“k”)
+axes[0].legend()
+axes[1].legend()
+plt.setp(axes[0].get_legend().get_texts(), fontsize=‘10’)
+plt.setp(axes[1].get_legend().get_texts(), fontsize=‘10’)</p>
+<p>plt.show()
+{% endcodeblock %}</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-2/"> <span class="dir">← previous</span> <span class="title">Clustering: Hierachial, BIRCH and Spectral</span> </a> <a class="next" href="/writing/blogs/unsupervised/clustering-4/"> <span class="dir">next →</span> <span class="title">Clustering: Affinity Propagation</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

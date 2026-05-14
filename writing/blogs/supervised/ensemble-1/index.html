@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Ensemble Models: Bagging Techniques - Zhenlin Wang</title><meta name="description" content="Gather all we have!"><meta property="og:title" content="Ensemble Models: Bagging Techniques - Zhenlin Wang"><meta property="og:description" content="Gather all we have!"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/ensemble-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Bagging · Supervised Learning · Random Forest</div> <h1>Ensemble <em>Models:</em> Bagging Techniques</h1> <p class="dek">Gather all we have!</p> <div class="byline"> <strong>2021.02.01</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>We have learnt about what bagging is in <em>Ensemble Models: Overview</em>, to recap, bagging is:</p>
+<ul>
+<li>In bagging (Bootstrap Aggregating), a set of weak learners are combined to create a strong learner that obtains better performance than a single one.</li>
+<li>Bagging helps to decrease the model’s variance.</li>
+<li>Combinations of multiple classifiers decrease variance, especially in the case of unstable classifiers, and may produce a more reliable classification than a single classifier.
+In this blog, we will use random forest as an example to illustrate how bagging works
+<strong>Bagging</strong> works as follows:</li>
+</ul>
+<ol>
+<li>Multiple subsets are created from the original dataset, selecting observations with replacement.</li>
+<li>A base model (weak model) is created on each of these subsets.</li>
+<li>The models run in parallel and are independent of each other.</li>
+<li>The final predictions are determined by combining the predictions from all the models.</li>
+</ol>
+<p>Next let’s consider random forest, a model that fully utilized the idea of bagging in its procedure.</p>
+<h3 id="random-forest">Random Forest</h3>
+<h4 id="1-definition">1. Definition</h4>
+<ul>
+<li>A random forest consists of multiple random decision trees. Two types of randomnesses are built into the trees.
+<ul>
+<li>First, each tree is built on a random sample from the original data.</li>
+<li>Second, at each tree node, a subset of features are randomly selected to generate the best split. (Key difference from Bagging algorithms)</li>
+</ul>
+</li>
+<li>An ensemble model that is widely applied (as it can be parallelized)</li>
+<li>Designed to solve the overfitting issue in Decision Tree. The idea is that by training each tree on different samples, although each tree might have high variance with respect to a particular set of the training data, overall, the entire forest will have lower variance but not at the cost of increasing the bias.</li>
+<li><strong>Procedure</strong><br>
+Execute until every last combination is exhausted
+<ol>
+<li>Bootstrapping: Create a bootstraped dataset: randomly select samples from the dataset until it reaches the same size as the original sample (we’re allowed to pick the same sample more than once);</li>
+<li>Decision Tree Construction: Create a decision tree using the bootstraped dataset, but only use a random subset of variables/features at each step (i.e each decision node selection);</li>
+<li><strong>Bagging</strong>: defined as bootstrapping the data plus using the aggregation to make a decision
+<ul>
+<li>given a new instance, run through all the decision trees (the enitre random forest) and obtain the sum of votes for y = 1 and y = 0; (this step is called “aggregation”)</li>
+<li>decide on result of aggregation $\implies$ using the result with higher vote;</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Choose the most accurate random forest:
+<ol>
+<li>Measure Accuracy based on the Out-of-Bag samples (CV) $\implies$ compute the Out-of-Bag Error as the # of samples which Bagging classifies wrongly</li>
+<li>Choice of number of variable used per step affects accuracy (optimized during CV): Usually choose the square root of the # of total variables and try a few settings above and below that value</li>
+</ol>
+</li>
+<li>The low correlation between models is the key</li>
+</ul>
+<blockquote>
+<p><strong>WARNING</strong>: RF is often considered as <strong>Bagging</strong> model while it is <strong>not always true</strong>, <a href="https://stats.stackexchange.com/questions/264129/what-is-the-difference-between-bagging-and-random-forest-if-only-one-explanatory">see this link</a></p>
+</blockquote>
+<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>The power of handle large data sets with higher dimensionality (as each tree select much less features in its construction)</li>
+<li>The model outputs importance of variable, which can be a very handy feature (<code>rf.feature_importance_</code>)</li>
+<li>Balancing errors in data sets where classes are imbalanced.</li>
+<li>It has an effective method for estimating missing data and maintains accuracy when large proportion of the data are missing.</li>
+<li>Using the out of bag error estimate for selection the most accurate random forest removes the need for a set aside test set.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>It has very poor interpretability</li>
+<li>Does not work well for extrapolation to predict for data that is outside of the bounds of your original training data</li>
+<li>Random forest can feel like a black box approach for a statistical modelers we have very little control on what the model does. You can at best try different parameters and random seeds.</li>
+</ul>
+<h4 id="3-simple-implementation">3. Simple Implementation</h4>
+<p>This is a template inspired by the Kaggle notebooks. I shall thank those writers whose code I borrowed from.</p>
+<p>Also note that here an aws s3 connection is made, which automatically makes the process parallelized.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.ensemble </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> RandomForestClassifier</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">RSEED</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 50</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Load in data</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'https://s3.amazonaws.com/projects-rf/clean_data.csv'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Full dataset: https://www.kaggle.com/cdc/behavioral-risk-factor-surveillance-system</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Extract the labels</span></span>
+<span class="line"><span style="color:#ADBAC7">labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array(df.pop(</span><span style="color:#96D0FF">'label'</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># 30% examples in test data</span></span>
+<span class="line"><span style="color:#ADBAC7">train, test, train_labels, test_labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_split(df,</span></span>
+<span class="line"><span style="color:#ADBAC7">                                         labels, </span></span>
+<span class="line"><span style="color:#F69D50">                                         stratify</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> labels,</span></span>
+<span class="line"><span style="color:#F69D50">                                         test_size</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0.3</span><span style="color:#ADBAC7">, </span></span>
+<span class="line"><span style="color:#F69D50">                                         random_state</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> RSEED</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Imputation of missing values</span></span>
+<span class="line"><span style="color:#ADBAC7">train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train.fillna(train.mean())</span></span>
+<span class="line"><span style="color:#ADBAC7">test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> test.fillna(test.mean())</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Features for feature importances</span></span>
+<span class="line"><span style="color:#ADBAC7">features </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(train.columns)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create the model with 100 trees</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> RandomForestClassifier(</span><span style="color:#F69D50">n_estimators</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">, </span></span>
+<span class="line"><span style="color:#F69D50">                               random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">RSEED</span><span style="color:#ADBAC7">, </span></span>
+<span class="line"><span style="color:#F69D50">                               max_features</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'sqrt'</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">                               n_jobs</span><span style="color:#F47067">=-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">verbose</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Fit on training data</span></span>
+<span class="line"><span style="color:#ADBAC7">model.fit(train, train_labels)</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">n_nodes </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
+<span class="line"><span style="color:#ADBAC7">max_depths </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Stats about the trees in random forest</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> ind_tree </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> model.estimators_:</span></span>
+<span class="line"><span style="color:#ADBAC7">    n_nodes.append(ind_tree.tree_.node_count)</span></span>
+<span class="line"><span style="color:#ADBAC7">    max_depths.append(ind_tree.tree_.max_depth)</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'Average number of nodes </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">(np.mean(n_nodes))</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'Average maximum depth </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">(np.mean(max_depths))</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Training predictions (to demonstrate overfitting)</span></span>
+<span class="line"><span style="color:#ADBAC7">train_rf_predictions </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.predict(train)</span></span>
+<span class="line"><span style="color:#ADBAC7">train_rf_probs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.predict_proba(train)[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Testing predictions (to determine performance)</span></span>
+<span class="line"><span style="color:#ADBAC7">rf_predictions </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.predict(test)</span></span>
+<span class="line"><span style="color:#ADBAC7">rf_probs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.predict_proba(test)[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> precision_score, recall_score, roc_auc_score, roc_curve</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Plot formatting</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.style.use(</span><span style="color:#96D0FF">'fivethirtyeight'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.rcParams[</span><span style="color:#96D0FF">'font.size'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 18</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> evaluate_model</span><span style="color:#ADBAC7">(predictions, probs, train_predictions, train_probs):</span></span>
+<span class="line"><span style="color:#96D0FF">    """Compare machine learning model to baseline performance.</span></span>
+<span class="line"><span style="color:#96D0FF">    Computes statistics and shows ROC curve."""</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#ADBAC7">    baseline </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {}</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#ADBAC7">    baseline[</span><span style="color:#96D0FF">'recall'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> recall_score(test_labels, </span></span>
+<span class="line"><span style="color:#ADBAC7">                                     [</span><span style="color:#6CB6FF">1</span><span style="color:#F47067"> for</span><span style="color:#ADBAC7"> _ </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(test_labels))])</span></span>
+<span class="line"><span style="color:#ADBAC7">    baseline[</span><span style="color:#96D0FF">'precision'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> precision_score(test_labels, </span></span>
+<span class="line"><span style="color:#ADBAC7">                                      [</span><span style="color:#6CB6FF">1</span><span style="color:#F47067"> for</span><span style="color:#ADBAC7"> _ </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(test_labels))])</span></span>
+<span class="line"><span style="color:#ADBAC7">    baseline[</span><span style="color:#96D0FF">'roc'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0.5</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#ADBAC7">    results </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {}</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#ADBAC7">    results[</span><span style="color:#96D0FF">'recall'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> recall_score(test_labels, predictions)</span></span>
+<span class="line"><span style="color:#ADBAC7">    results[</span><span style="color:#96D0FF">'precision'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> precision_score(test_labels, predictions)</span></span>
+<span class="line"><span style="color:#ADBAC7">    results[</span><span style="color:#96D0FF">'roc'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_auc_score(test_labels, probs)</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#ADBAC7">    train_results </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {}</span></span>
+<span class="line"><span style="color:#ADBAC7">    train_results[</span><span style="color:#96D0FF">'recall'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> recall_score(train_labels, train_predictions)</span></span>
+<span class="line"><span style="color:#ADBAC7">    train_results[</span><span style="color:#96D0FF">'precision'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> precision_score(train_labels, train_predictions)</span></span>
+<span class="line"><span style="color:#ADBAC7">    train_results[</span><span style="color:#96D0FF">'roc'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_auc_score(train_labels, train_probs)</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> metric </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'recall'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'precision'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'roc'</span><span style="color:#ADBAC7">]:</span></span>
+<span class="line"><span style="color:#6CB6FF">        print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">metric.capitalize()</span><span style="color:#F47067">}</span><span style="color:#96D0FF"> Baseline: </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">round</span><span style="color:#ADBAC7">(baseline[metric], </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span><span style="color:#F47067">}</span><span style="color:#96D0FF"> Test: </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">round</span><span style="color:#ADBAC7">(results[metric], </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span><span style="color:#F47067">}</span><span style="color:#96D0FF"> Train: </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">round</span><span style="color:#ADBAC7">(train_results[metric], </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#768390">    # Calculate false positive rates and true positive rates</span></span>
+<span class="line"><span style="color:#ADBAC7">    base_fpr, base_tpr, _ </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_curve(test_labels, [</span><span style="color:#6CB6FF">1</span><span style="color:#F47067"> for</span><span style="color:#ADBAC7"> _ </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(test_labels))])</span></span>
+<span class="line"><span style="color:#ADBAC7">    model_fpr, model_tpr, _ </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_curve(test_labels, probs)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.rcParams[</span><span style="color:#96D0FF">'font.size'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 16</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#768390">    # Plot both curves</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.plot(base_fpr, base_tpr, </span><span style="color:#96D0FF">'b'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">label</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'baseline'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.plot(model_fpr, model_tpr, </span><span style="color:#96D0FF">'r'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">label</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'model'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.legend()</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.xlabel(</span><span style="color:#96D0FF">'False Positive Rate'</span><span style="color:#ADBAC7">); </span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.ylabel(</span><span style="color:#96D0FF">'True Positive Rate'</span><span style="color:#ADBAC7">); plt.title(</span><span style="color:#96D0FF">'ROC Curves'</span><span style="color:#ADBAC7">)</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"><span style="color:#ADBAC7">    plt.show()</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">evaluate_model(rf_predictions, rf_probs, train_rf_predictions, train_rf_probs)</span></span>
+<span class="line"></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-4/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part IV </span> </a> <a class="next" href="/writing/blogs/prob-and-stats/variational-autoencoder/"> <span class="dir">next →</span> <span class="title">Variational Autoencoder (VAE)</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

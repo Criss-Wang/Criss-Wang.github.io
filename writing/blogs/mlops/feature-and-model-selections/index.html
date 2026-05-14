@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Feature Selection &amp; Model Selections - Zhenlin Wang</title><meta name="description" content="A rudimentary method forgotten by many practitioners nowadays"><meta property="og:title" content="Feature Selection &amp; Model Selections - Zhenlin Wang"><meta property="og:description" content="A rudimentary method forgotten by many practitioners nowadays"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/feature-and-model-selections/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining/Data Engineering</div> <h1>Feature <em>Selection</em> &amp; Model Selections</h1> <p class="dek">A rudimentary method forgotten by many practitioners nowadays</p> <div class="byline"> <strong>2019.06.04</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-05-14</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>Running machine learning models have become much easier in recent years. The prevalence of tutorials and model packages makes it much more convenient for people to apply various theoretically complex algorithms on their datasets and thrive. So to excel in the field of data science, one cannot simple KNOW how to use models, but also <strong>appreciate</strong> each model’s significance and <strong>select</strong> proper models wisely. That’s where feature selections and model selections come in. Both turn out to be challenging and extremely useful in the same time. In light of this, I want to take down the notes I learned through practice and tutorials some key aspects of these two things.</p>
+<h3 id="feature-selection">Feature Selection</h3>
+<ol>
+<li>Benefits
+<ul>
+<li>It enables the machine learning algorithm to train faster.</li>
+<li>It reduces the complexity of a model and makes it easier to interpret.</li>
+<li>It improves the accuracy of a model if the right subset is chosen.</li>
+<li>It reduces Overfitting</li>
+</ul>
+</li>
+<li>Methods</li>
+</ol>
+<p>Here we discuss about some widely used methods for feature selections. To facilitate the demo code, we require the following packages to be applied and data being tuned:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">  from</span><span style="color:#ADBAC7"> sklearn.datasets </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> load_boston</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> statsmodels.api </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sm</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">  from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
+<span class="line"><span style="color:#F47067">  from</span><span style="color:#ADBAC7"> sklearn.linear_model </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LinearRegression, RidgeCV, LassoCV, Ridge, Lasso</span></span>
+<span class="line"><span style="color:#F47067">  from</span><span style="color:#ADBAC7"> sklearn.feature_selection </span><span style="color:#F47067">import</span><span style="color:#6CB6FF"> RFE</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">  %</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"><span style="color:#768390">  #Loading the dataset</span></span>
+<span class="line"><span style="color:#ADBAC7">  x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> load_boston()</span></span>
+<span class="line"><span style="color:#ADBAC7">  df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(x.data, </span><span style="color:#F69D50">columns</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> x.feature_names)</span></span>
+<span class="line"><span style="color:#ADBAC7">  df[</span><span style="color:#96D0FF">"MEDV"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> x.target</span></span>
+<span class="line"><span style="color:#ADBAC7">  X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df.drop(</span><span style="color:#96D0FF">"MEDV"</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)   </span><span style="color:#768390">#Feature Matrix</span></span>
+<span class="line"><span style="color:#ADBAC7">  y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[</span><span style="color:#96D0FF">"MEDV"</span><span style="color:#ADBAC7">]          </span><span style="color:#768390">#Target Variable</span></span></code></pre>
+<ol>
+<li>
+<p>Filter Methods</p>
+<ul>
+<li>No mining algorithm included</li>
+<li>Uses the exact assessment criterion which includes distance, information, dependency, and consistency.</li>
+<li>The filter method uses the principal criteria of ranking technique and uses the rank ordering method for variable selection.</li>
+<li>Generally used as a dasta preprocessing step</li>
+<li>Several main filter methods based on the variable attributes:</li>
+</ul>
+ <figure align="center">
+   <img src="/images/Data%20Science%20Concept/filter.png" width="500px">
+   <figcaption>filter methods</figcaption>
+ </figure>
+</li>
+<li>
+<p>Wrapper Methods</p>
+<ul>
+<li>workflow:</li>
+</ul>
+ <figure align="center">
+   <img src="/images/Data%20Science%20Concept/wrapper.png" width="500px">
+   <figcaption>filter methods</figcaption>
+ </figure>
+   - Use a subset of features and train a model using them. Based on the inferences that we draw from the previous model, we decide to add or remove features from your subset
+ - Computationally expensive
+ - 3 Types:
+     1. <kbd>Forward Selection</kbd>: An iterative method
+         - Start with having no feature in the model. 
+         - In each iteration, we keep adding the feature which best improves our model till an addition of a new variable does not improve the performance of the model.
+     2. <kbd>Backward Elimination</kbd>: An iterative method
+         - Start with all the features and removes the least significant feature at each iteration which improves the performance of the model. 
+         - We repeat this until no improvement is observed on removal of features.
+         - E.g. If the p-value is above 0.05 then we remove the feature, else we keep it.
+         ```python
+           # Adding constant column of ones, mandatory for sm.OLS model
+           X_1 = sm.add_constant(X)
+           # Fitting sm.OLS model
+           model = sm.OLS(y,X_1).fit()
+           display(model.pvalues)
+           # Backward Elimination
+           cols = list(X.columns)
+           pmax = 1
+           while (len(cols)>0):
+               p= []
+               X_1 = X[cols]
+               X_1 = sm.add_constant(X_1)
+               model = sm.OLS(y,X_1).fit()
+               p = pd.Series(model.pvalues.values[1:],index = cols)      
+               pmax = max(p)
+               feature_with_p_max = p.idxmax()
+               if(pmax>0.05):
+                   cols.remove(feature_with_p_max)
+               else:
+                   break
+           selected_features_BE = cols
+           print(selected_features_BE)
+         ``` 
+     3. <kbd>Recursive Feature elimination</kbd>: A greedy optimization algorithm
+         - It repeatedly creates models and keeps aside the best or the worst performing feature at each iteration. 
+         - It constructs the next model with the left features until all the features are exhausted. 
+         - It then ranks the features based on the order of their elimination
+         ```python
+           model = LinearRegression()
+           #Initializing RFE model
+           rfe = RFE(model, 7)
+           #Transforming data using RFE
+           X_rfe = rfe.fit_transform(X,y)  
+           #Fitting the data to model
+           model.fit(X_rfe,y)
+           print(rfe.support_)
+           print(rfe.ranking_)
+           >>> [False False False  True  True  True False  True  True False  True False True]
+           >>> [2 4 3 1 1 1 7 1 1 5 1 6 1]
+         ``` 
+         Here we took LinearRegression model with 7 features and RFE gave feature ranking as above, but the selection of number \'7\' was random. Now we need to find the optimum number of features, for which the accuracy is the highest. We do that by using loop starting with 1 feature and going up to 13. We then take the one for which the accuracy is highest.
+         ```python
+           #no of features
+           nof_list=np.arange(1,13)            
+           high_score=0
+           #Variable to store the optimum features
+           nof=0           
+           score_list =[]
+           for n in range(len(nof_list)):
+               X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = 0.3, random_state = 0)
+               model = LinearRegression()
+               rfe = RFE(model,nof_list[n])
+               X_train_rfe = rfe.fit_transform(X_train,y_train)
+               X_test_rfe = rfe.transform(X_test)
+               model.fit(X_train_rfe,y_train)
+               score = model.score(X_test_rfe,y_test)
+               score_list.append(score)
+               if(score>high_score):
+                   high_score = score
+                   nof = nof_list[n]
+           print("Optimum number of features: %d" %nof)
+           print("Score with %d features: %f" % (nof, high_score))
+         ```
+         As seen from above code, the optimum number of features is 10. We now feed 10 as number of features to RFE and get the final set of features given by RFE method
+         ```python
+           cols = list(X.columns)
+           model = LinearRegression()
+           #Initializing RFE model
+           rfe = RFE(model, 10)             
+           #Transforming data using RFE
+           X_rfe = rfe.fit_transform(X,y)  
+           #Fitting the data to model
+           model.fit(X_rfe,y)              
+           temp = pd.Series(rfe.support_,index = cols)
+           selected_features_rfe = temp[temp==True].index
+           print(selected_features_rfe)
+         ```
+     4. (*) <kbd>Bidirectional Elimination</kbd>: A combination of _Forward Selection_ &#x26; _Backword Elimination_  
+</li>
+<li>
+<p>Self-defined Methods
+There are many interesting methods that can be directly applied in experimentations. However, one method that caught my eyes is the Boruta method:</p>
+<ul>
+<li>Boruta Method (Using shadow features and random forest)
+<ul>
+<li>The main reason I liked this is because its application on Random Forest and XGBoost models.</li>
+<li>It generally works well with well structured data and relatively smaller datasets.</li>
+<li>In the hindsight, it is still relatively slower as compared to some simpler selection criterion, and it does not handle <strong>multicollinearity</strong> immediately.</li>
+<li>checkout <a href="https://towardsdatascience.com/simple-example-using-boruta-feature-selection-in-python-8b96925d5d7a">this python tutorial</a> for more details</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Embedded Methods
+It combines the qualities of filter and wrapper methods. It’s implemented by algorithms that have their own built-in feature selection methods</p>
+<ul>
+<li>
+<p>Workflow</p>
+  <figure align="center">
+    <img src="/images/Data%20Science%20Concept/embedded.png" width="500px">
+    <figcaption>Embedded Method Workflow</figcaption>
+  </figure>
+</li>
+<li>
+<p>Here in the demo code we will do feature selection using Lasso regularization. If the feature is irrelevant, lasso penalizes it’s coefficient and make it 0. Hence the features with coefficient = 0 are removed and the rest are taken.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">  reg </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LassoCV()</span></span>
+<span class="line"><span style="color:#ADBAC7">  reg.fit(X, y)</span></span>
+<span class="line"><span style="color:#6CB6FF">  print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Best alpha using built-in LassoCV: </span><span style="color:#F47067">%f</span><span style="color:#96D0FF">"</span><span style="color:#F47067"> %</span><span style="color:#ADBAC7"> reg.alpha_)</span></span>
+<span class="line"><span style="color:#6CB6FF">  print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Best score using built-in LassoCV: </span><span style="color:#F47067">%f</span><span style="color:#96D0FF">"</span><span style="color:#F47067"> %</span><span style="color:#ADBAC7"> reg.score(X,y))</span></span>
+<span class="line"><span style="color:#F47067">  >>></span><span style="color:#ADBAC7"> Best alpha using built</span><span style="color:#F47067">-in</span><span style="color:#ADBAC7"> LassoCV: </span><span style="color:#6CB6FF">0.724820</span></span>
+<span class="line"><span style="color:#F47067">  >>></span><span style="color:#ADBAC7"> Best score using built</span><span style="color:#F47067">-in</span><span style="color:#ADBAC7"> LassoCV: </span><span style="color:#6CB6FF">0.702444</span></span>
+<span class="line"><span style="color:#ADBAC7">  coef </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Series(reg.coef_, </span><span style="color:#F69D50">index</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> X.columns)</span></span>
+<span class="line"><span style="color:#6CB6FF">  print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Lasso picked "</span><span style="color:#F47067"> +</span><span style="color:#6CB6FF"> str</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">sum</span><span style="color:#ADBAC7">(coef </span><span style="color:#F47067">!=</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">+</span><span style="color:#96D0FF"> " variables and eliminated the other "</span><span style="color:#F47067"> +</span><span style="color:#6CB6FF">  str</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">sum</span><span style="color:#ADBAC7">(coef </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">+</span><span style="color:#96D0FF"> " variables"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">  >>></span><span style="color:#ADBAC7"> Lasso picked </span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7"> variables </span><span style="color:#F47067">and</span><span style="color:#ADBAC7"> eliminated the other </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7"> variables</span></span>
+<span class="line"><span style="color:#ADBAC7">  imp_coef </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> coef.sort_values()</span></span>
+<span class="line"><span style="color:#F47067">  import</span><span style="color:#ADBAC7"> matplotlib</span></span>
+<span class="line"><span style="color:#ADBAC7">  matplotlib.rcParams[</span><span style="color:#96D0FF">'figure.figsize'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">8.0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">10.0</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">  imp_coef.plot(</span><span style="color:#F69D50">kind</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> "barh"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">  plt.title(</span><span style="color:#96D0FF">"Feature importance using Lasso Model"</span><span style="color:#ADBAC7">)</span></span></code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p>Filter vs Wrapper</p>
+<p>Now let us make a comparison between filter methods and wrapper methods, the two most commonly used ways in feature selection.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Characteristics</th><th>Filter Method</th><th>Wrapper Methods</th></tr></thead><tbody><tr><td>Measure of feature relevance</td><td>correlation with dependent variable</td><td>actually training a model on a subset of feature</td></tr><tr><td>Speed</td><td>Much faster</td><td>Slower due to model training</td></tr><tr><td>Performance Evaluation</td><td>statistical methods for evaluation</td><td>Model results cross validation</td></tr><tr><td>Quality of feature set selected</td><td>May be suboptimal</td><td>Guaranteed to output optimal/near-optimal feature set</td></tr><tr><td>Overfitting ?</td><td>Less likely</td><td>Much more prone to</td></tr></tbody></table>
+</li>
+</ol>
+<h3 id="model-selection">Model Selection</h3>
+<p>Here we must clarify one important conceptual misunderstanding:</p>
+<p><strong>Note</strong>: Classical Model selection mainly focuses on performing metrics evaluations through different models, tuning the model parameter and variating the training datasets. The choice of model in the end is often <em>manual</em>. Hence, it differs from the automated model selection procedure where the final selection of model is also done automatically. The latter is often known as AutoML, and has gained quick wide popularity in recent years.</p>
+<p>We now think about what are the main strategies to improve model performance:</p>
+<ol>
+<li>Use a more complicated/more flexible model</li>
+<li>Use a less complicated/less flexible model</li>
+<li>Tuning hyperparameters</li>
+<li>Gather more training samples</li>
+<li>Gather more data to add features to each sample
+Clearly, the first 4 are model selection strategies, and the last one is feature selection.</li>
+</ol>
+<p>When we make these adjustments, we must keep in mind the <code>The Bias-variance trade-off</code>:</p>
+<ul>
+<li><code>bias</code>: Usually the case where the model <code>underfits</code>, i.e. it does not have enough model flexibility to suitably account for all the features in the data</li>
+<li><code>variance</code>: Usually the case where the model <code>overfits</code>, i.e. so much model flexibility that the model ends up accounting for random errors as well as the underlying data distribution</li>
+<li>For high-bias models, the performance of the model on the validation set is similar to the performance on the training set.</li>
+<li>For high-variance models, the performance of the model on the validation set is far worse than the performance on the training set.</li>
+</ul>
+<p>We can easily visualize this via the <strong>learning curve</strong><br>
+</p><figure align="center">
+<img src="/images/Data%20Science%20Concept/learning_curve.png" width="500px">
+<figcaption>Plot 1: The curve to find the best amount of train set size (too low —> high variance; too high —> high bias)</figcaption>
+</figure><p></p>
+<p>In the meantime, we observe from the <strong>validation curve</strong> below that model complexity/hyperparameter choices affect the model performances as well
+</p><figure align="center">
+<img src="/images/Data%20Science%20Concept/validation_curve.png" width="500px">
+<figcaption>Plot 2: The curve to find the best hyperparameters</figcaption>
+</figure><p></p>
+<p>For more details on metrics evaluation and hyperparameter tuning with feedback from validation sets, interested readers can read my blogs on these topics as well.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/supervised-learning/"> <span class="dir">← previous</span> <span class="title">Some Supervised Learning Models</span> </a> <a class="next" href="/writing/blogs/mlops/hyperparam-tuning/"> <span class="dir">next →</span> <span class="title">Hyperparameter Tuning</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

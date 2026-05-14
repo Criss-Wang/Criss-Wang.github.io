@@ -1,0 +1,523 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Topic Modeling with Latent Dirichlet Allocation - Zhenlin Wang</title><meta name="description" content="LDA using a great yet less popular distrbution"><meta property="og:title" content="Topic Modeling with Latent Dirichlet Allocation - Zhenlin Wang"><meta property="og:description" content="LDA using a great yet less popular distrbution"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/topic-modeling/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Unsupervised Learning</div> <h1>Topic <em>Modeling</em> with Latent Dirichlet Allocation</h1> <p class="dek">LDA using a great yet less popular distrbution</p> <div class="byline"> <strong>2019.07.21</strong> <span>·</span> <span>8 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-11-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p><code>Topic modeling</code>: Topic modelling refers to the task of identifying topics that best describes a set of documents. In this blog, we discuss about an popular advanced model that</p>
+<h3 id="definition">Definition</h3>
+<ul>
+<li>To explain in plain word:</li>
+</ul>
+<blockquote>
+<p>LDA imagines a fixed set of topics. Each topic represents a set of words. The goal of LDA is to map all the documents to the topics in a way, such that the words in each document are mostly captured by those imaginary topics.</p>
+</blockquote>
+<ul>
+<li>
+<p>An important note to take is that LDA aims to explain the <code>document-level</code> idea, meaning it has less focus on the meaning of each word/phrase in the document, but rather the topic the document falls under</p>
+</li>
+<li>
+<p><code>Dirichlet Process</code>:</p>
+<ul>
+<li>A family of stochastic process to produce a probability distribution</li>
+<li>Used in Bayesian Inference to describe the <code>prior</code> knowledge about the distribution of random variables</li>
+</ul>
+</li>
+<li>
+<p><code>Dirichlet Distribution</code>:</p>
+<ul>
+<li>Basically a multivariate generalisation of the Beta distribution: $Dir(\Theta|\alpha) = \frac{1}{B(\alpha)} \prod_{k=1}^{K} \theta_k^{\alpha_k -1}$ where $B(x)$ is a beta distribution</li>
+<li>Outputs: $(p(x_1), p(x_2), … , p(x_n))$ where $\sum_i {p(x_i)} = 1$</li>
+<li>Often called <strong>“a distribution of distribution”</strong></li>
+<li><code>symmetric Dirichlet distribution</code>: a special case in the Dirichlet distribution where all $\alpha_i$ are equal, hence use a single scalar $\alpha$ in the model representation</li>
+<li>Impact of $\alpha$: (a scaling vector for each dimension in $\theta$)
+<ul>
+<li>$\alpha &#x3C; 1$:
+<ul>
+<li>Sparsity increases</li>
+<li>The distribution is likely bowl-shaped (most probable vectors are sparse vectors like $(3, 0, 0.03)$ or $(0, 100, 0.5)$</li>
+<li>In LDA, it means a document is likely to be represented by just a few of the topics</li>
+</ul>
+</li>
+<li>$\alpha \geq 1$
+<ul>
+<li>Sparcity decreases</li>
+<li>We will have a unimodel distribution (most probable vectors are in the center)</li>
+<li>In LDA, it means a document is likely to contain most of the topics $\implies$ makes documents more similar to each other</li>
+</ul>
+</li>
+<li>The conjugate prior of multinomial distribution is a Dirichlet distribution</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>LDA\s keywords</p>
+<ul>
+<li><code>k</code>: Number of topics a document belongs to (a fixed number)</li>
+<li><code>V </code>: Size of the vocabulary</li>
+<li><code>M</code>: Number of documents</li>
+<li><code>N</code>: Number of words in each document</li>
+<li><code>w</code>: A word in a document. This is represented as a one hot encoded vector of size V</li>
+<li><code>W</code>: represents a document (i.e. vector of “w”s) of N words</li>
+<li><code>D</code>: Corpus, a collection of M documents</li>
+<li><code>z</code>: A topic from a set of k topics. A topic is a distribution words. For example it might be, Animal = (0.3 Cats, 0.4 Dogs, 0 AI, 0.2 Loyal, 0.1 Evil)</li>
+<li><code>θ</code>: The topic distribution for each of the document based on a parameter <code>α</code></li>
+<li><code>β</code>: The Dirichlet distribution based on parameter <code>η</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="ldas-procedure">LDA’s procedure</h3>
+<ul>
+<li>
+<p>This is quite complicated</p>
+</li>
+<li>
+<p>LDA’s document generation</p>
+  <figure align="center">
+  <img src="/images/Machine%20learning/LDA-2.png" width="500px">
+  </figure>
+<ul>
+<li><code>α</code> has a topic distribution for each document (θ ground for each document) a (M x K) shape matrix</li>
+<li><code>η</code> has a parameter vector for each topic. η will be of shape (k x V)</li>
+<li>In the above drawing, the constants actually represent matrices, and are formed by replicating the single value in the matrix to every single cell.</li>
+<li><code>θ</code> is a random matrix based on dirichlet distribution, where $\theta(i,j)$ represents the probability of the $i$ th document to containing words belonging to the $j$ th topic $\implies$ a relatively low $\alpha$</li>
+<li><code>β</code> is also a dirichlet distribution as <code>θ</code>, $\beta(i,j)$ represents the probability of the $i$ th topic containing the $j$ th word in a vocabulary of size $V$; The higher the $\beta(i,j)$, the more $i$th topic is likely to contain more of the words, and makes the topics more similar to each other</li>
+<li>Detailed steps:
+<ol>
+<li>For each topic, draw a distribution over words $\vec{\beta_k} \sim Dir_v(\eta)$</li>
+<li>For each document
+<ol>
+<li>Draw a vector of topic proportions $\vec{\theta_d} \sim Dir(\vec{a})$. E.g: [climate = 0.7, trade = 0.2, housing = 0.1, economy = 0]</li>
+<li>For each word slot allocated, draw a topic assignment $Z_{d, n} \sim Mult(\vec{\theta_d})$, then draw a word $W_{d,n} \sim Mult(\vec{\beta_{z_{d,n}}})$</li>
+</ol>
+</li>
+<li>We want to infer the join probability given our observations,
+<ul>
+<li>We infer the hidden variables or latent factors $\theta, z, \beta$ by observing the corpse $D$ of documents, i.e. finding $p(\theta, z, \beta | w)$</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>The learning part</p>
+  <figure align="center">
+  <img src="/images/Machine%20learning/LDA-1.png" width="500px">
+  </figure> 
+<ul>
+<li>
+<p>Idea 1: <code>Gibbs sampling</code>:</p>
+<ul>
+<li>
+<p>A point-wise method (Possible but not optimal)</p>
+</li>
+<li>
+<p>Intuition: The setting which generates the original document with the highest proability is the optimal machine</p>
+</li>
+<li>
+<p>The mathematics of collapsed gibbs sampling (cut back version)
+Recall that when we iterate through each word in each document, we unassign its current topic assignment and reassign the word to a new topic. The topic we reassign the word to is based on the probabilities below.</p>
+<p>$$
+P\left(\text{document “likes” the topic}\right) \times P\left(\text{topic “likes” the word } w’\right)
+$$</p>
+<p>$$
+\Rightarrow \frac{n_{i,k}+\alpha}{N_i-1+K\alpha} \times \frac{m_{w’,k}+\gamma}{\sum_{w\in V}m_{w,k} + V\gamma}
+$$</p>
+<p>where</p>
+<p>$n_{i,k}$ - number of word assignments to topic $k$ in document $i$</p>
+<p>$n_{i,k}$ - number of assignments to topic $k$ in document $i$</p>
+<p>$\alpha$ - smoothing parameter (hyper parameter - make sure probability is never 0)</p>
+<p>$N_i$ - number of words in document $i$</p>
+<p>$-1$ - don’t count the current word you’re on</p>
+<p>$K$ - total number of topics</p>
+<p>$m_{w’,k}$ - number of assignments, corpus wide, of word $w’$ to topic $k$</p>
+<p>$m_{w’,k}$ - number of assignments, corpus wide, of word $w’$ to topic $k$</p>
+<p>$\gamma$ - smoothing parameter (hyper parameter - make sure probability is never 0)</p>
+<p>$\sum_{w\in V}m_{w,k}$ - sum over all words in vocabulary currently assigned to topic $k$</p>
+<p>$V$ size of vocabulary i.e. number of distinct words corpus wide</p>
+</li>
+<li>
+<p>Done with each word in a document (to classify them into a topic)</p>
+</li>
+<li>
+<p>Done in an iterative way (different topics for same words in a document: 1st “happy” may be topic 1, which affects 2nd “happy” to be topic 2 in the same document)</p>
+</li>
+<li>
+<p><code>Main steps</code>:</p>
+<ul>
+<li>For each word $w$ in a document $i$: $P(w \in Topic_j | Doc_i) = P(Topic_j | Doc_i, \alpha) * P(w | Topic_j, \eta)$</li>
+<li>The word will be allocated to $\arg\max_{j}P(w \in Topic_j | Doc_i)$</li>
+<li>Note that $\alpha$ is the one used in the original $\theta$ and $\eta$ in $\beta$</li>
+<li>Iterate until each document &#x26; word’s topic is upadted</li>
+<li>Aggregate the results from all documents to update the word distribution $\beta$ for each topic</li>
+<li>Repeat the previous steps until corpus objective $p(\theta, z, \beta | w)$ converges</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Idea 2: <code>variational inference</code>:</p>
+<ul>
+<li>The key concept of variance inference is approximate posterior $p(\theta, z, \beta | w)$ with a distribution $q(\theta, z, \beta)$ using some known families of distribution that is easy to model and to analyze.</li>
+<li>Then, we train the model parameters to minimize the <code>KL-divergence</code> between q and p.</li>
+<li><code>KL-divergence</code>: $D_{KL}(P\Vert Q) = \sum\limits_{x\in X}P(x)log(\frac{P(x)}{Q(x)})$,also called “relative entropy”</li>
+<li>Further reduction in complexity for high dimensional distribution is possible</li>
+</ul>
+</li>
+<li>
+<p>Idea 3: <code>Mean-field variational inference</code></p>
+<ul>
+<li>breaks up the joint distribution into distributions of individual variables that are tractable and easy to analyze</li>
+</ul>
+  <figure align="center">
+  <img src="/images/Machine%20learning/LDA-3.jpeg" width="500px">
+  </figure>
+<ul>
+<li>It is not easy to optimize KL-divergence directly. So let us introduce the <code>Evidence lower bound (ELBO)</code>
+<ul>
+<li>$E_q[log \ \hat{p}(x,z)] - E_q[log \ q(z)]$</li>
+<li>by maximizing ELBO, we are minimizing KL-divergence: <a href="https://medium.com/@jonathan_hui/machine-learning-latent-dirichlet-allocation-lda-1d9d148f13a4">view explanation here</a>
+<ul>
+<li>When minimizing ELBO, we don’t need Z. No normalization is needed. In contrast, KL’s calculation needs the calculated entity to be a probability distribution. Therefore, we need to compute the normalization factor Z if it is not equal to one. Calculating Z is hard. This is why we calculate ELBO instead of KL-divergence.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>There are a lot of math details involving exponential family operations, but the general picutre is captured by the graph below</li>
+</ul>
+  <figure align="center">
+  <img src="/images/Machine%20learning/LDA-4.png" width="500px">
+  <figcaption></figcaption>
+  </figure>
+</li>
+</ul>
+</li>
+<li>
+<p>Evaluation using similarity query</p>
+<p>Ok, now that we have a topic distribution for a new unseen document, let’s say we wanted to find the most similar documents in the corpus. We can do this by comparing the topic distribution of the new document to all the topic distributions of the documents in the corpus. We use the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">Jensen-Shannon distance</a> metric to find the most similar documents.</p>
+<p>What the Jensen-Shannon distance tells us, is which documents are statisically “closer” (and therefore more similar), by comparing the divergence of their distributions. Jensen-Shannon is symmetric, unlike Kullback-Leibler on which the formula is based. This is good, because we want the similarity between documents A and B to be the same as the similarity between B and A.</p>
+<p>The formula is described below.</p>
+<p>For discrete distirbutions $P$ and $Q$, the Jensen-Shannon divergence, $JSD$ is defined as</p>
+<p>$$JSD\left(P\Vert Q\right) = \frac{1}{2}D\left(P\Vert M\right)+\frac{1}{2}D\left(Q\Vert M\right)$$</p>
+<p>where $M = \frac{1}{2}\left(P+Q\right)$</p>
+<p>and $D$ is the Kullback-Leibler divergence</p>
+<p>$$D\left(P\Vert Q\right) = \sum_iP(i)\log\left(\frac{P(i)}{Q(i)}\right)$$</p>
+<p>$$\Rightarrow JSD\left(P\Vert Q\right) = \frac{1}{2}\sum_i
+\left[P(i)\log\left(\frac{P(i)}{\frac{1}{2}\left(P(i)+Q(i)\right)}\right) + Q(i)\log\left(\frac{Q(i)}{\frac{1}{2}\left(P(i)+Q(i)\right)}\right)\right]$$</p>
+<p>The square root of the Jensen-Shannon divergence is the Jensen-Shannon Distance: $\sqrt{JSD\left ( P\Vert Q\right )}$</p>
+<p><strong>The smaller the Jensen-Shannon Distance, the more similar two distributions are (and in our case, the more similar any 2 documents are)</strong></p>
+</li>
+</ul>
+<h3 id="pros--cons">Pros &#x26; Cons</h3>
+<p><strong>Pros</strong></p>
+<ul>
+<li>An effective tool for topic modeling</li>
+<li>Easy to understand/interpretable</li>
+<li>variational inference is tractable</li>
+<li>θ are document-specific, so the variational parameters of θ could be regarded as the representation of a document , hence the feature set is reduced.</li>
+<li>z are sampled repeatedly within a document --- one document can be associated with multiple topics.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Must know the number of topics K in advance</li>
+<li>Hard to know when LDA is working - topics are soft-clusters so there is no objective metric to say “this is the best choice” of hyperparameters</li>
+<li>LDA does not work well with very short documents, like twitter feeds</li>
+<li>Dirichlet topic distribution cannot capture correlations among topics</li>
+<li>Stopwords and rare words should be excluded, so that the model doesnt overcompensate for very frequent words and very rare words, both of which do not contribute to general topics.</li>
+</ul>
+<h3 id="real-word-application">Real-word application</h3>
+<ul>
+<li>
+<p>Text classification</p>
+</li>
+<li>
+<p>Book recommender</p>
+</li>
+<li>
+<p>Article clustering/image clustering</p>
+</li>
+<li>
+<p>understanding the different varieties topics in a corpus (obviously)</p>
+</li>
+<li>
+<p>getting a better insight into the type of documents in a corpus (whether they are about news, wikipedia articles, business documents)</p>
+</li>
+<li>
+<p>quantifying the most used / most important words in a corpus</p>
+</li>
+<li>
+<p>document similarity and recommendation.</p>
+</li>
+</ul>
+<h3 id="long-code-example">Long Code example</h3>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># import dependencies</span></span>
+<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> nltk</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> nltk.corpus </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> stopwords</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> gensim</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> gensim.models </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LdaModel</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> gensim </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> models, corpora, similarities</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> re</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> nltk.stem.porter </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> PorterStemmer</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> time</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> nltk </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> FreqDist</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> scipy.stats </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> entropy</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Read in data; only keep essential columns and English language articles</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'lda_fake.csv'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">usecols</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'uuid'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'author'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'text'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'language'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'site_url'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'country'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[df.language </span><span style="color:#F47067">==</span><span style="color:#96D0FF"> 'english'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[df[</span><span style="color:#96D0FF">'text'</span><span style="color:#ADBAC7">].map(</span><span style="color:#6CB6FF">type</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> str</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">df[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">].fillna(</span><span style="color:#F69D50">value</span><span style="color:#F47067">=</span><span style="color:#96D0FF">""</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">df.dropna(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">subset</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'text'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#768390"># shuffle the data</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df.sample(</span><span style="color:#F69D50">frac</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.0</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">df.reset_index(</span><span style="color:#F69D50">drop</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Define some functions to clean and tokenize the data</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> initial_clean</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    Function to clean text of websites, email addresess and any punctuation</span></span>
+<span class="line"><span style="color:#96D0FF">    We also lower case the text</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#ADBAC7">    text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.sub(</span><span style="color:#96D0FF">"((\S+)?(http(s)?)(\S+))|((\S+)?(www)(\S+))|((\S+)?(\@)(\S+)?)"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">" "</span><span style="color:#ADBAC7">, text)</span></span>
+<span class="line"><span style="color:#ADBAC7">    text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.sub(</span><span style="color:#96D0FF">"[^a-zA-Z ]"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">""</span><span style="color:#ADBAC7">, text)</span></span>
+<span class="line"><span style="color:#ADBAC7">    text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> text.lower() </span><span style="color:#768390"># lower case the text</span></span>
+<span class="line"><span style="color:#ADBAC7">    text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nltk.word_tokenize(text)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> text</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">stop_words </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> stopwords.words(</span><span style="color:#96D0FF">'english'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> remove_stop_words</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    Function that removes all stopwords from text</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> [word </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> text </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">not</span><span style="color:#F47067"> in</span><span style="color:#ADBAC7"> stop_words]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">stemmer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> PorterStemmer()</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> stem_words</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    Function to stem words, so plural and singular are treated the same</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#F47067">    try</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">        text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [stemmer.stem(word) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> text]</span></span>
+<span class="line"><span style="color:#ADBAC7">        text </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [word </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> text </span><span style="color:#F47067">if</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(word) </span><span style="color:#F47067">></span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">] </span><span style="color:#768390"># make sure we have no 1 letter words</span></span>
+<span class="line"><span style="color:#F47067">    except</span><span style="color:#6CB6FF"> IndexError</span><span style="color:#ADBAC7">: </span><span style="color:#768390"># the word "oed" broke this, so needed try except</span></span>
+<span class="line"><span style="color:#F47067">        pass</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> text</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> apply_all</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    This function applies all the functions above into one</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> stem_words(remove_stop_words(initial_clean(text)))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># clean text and title and create new column "tokenized"</span></span>
+<span class="line"><span style="color:#ADBAC7">t1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> time.time()</span></span>
+<span class="line"><span style="color:#ADBAC7">df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[</span><span style="color:#96D0FF">'text'</span><span style="color:#ADBAC7">].apply(apply_all) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> df[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">].apply(apply_all)</span></span>
+<span class="line"><span style="color:#ADBAC7">t2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> time.time()</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Time to clean and tokenize"</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df), </span><span style="color:#96D0FF">"articles:"</span><span style="color:#ADBAC7">, (t2</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">t1)</span><span style="color:#F47067">/</span><span style="color:#6CB6FF">60</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"min"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># We'll use nltk to get a word frequency (by count) here and only keep the top most used words to train the LDA model on</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># first get a list of all words</span></span>
+<span class="line"><span style="color:#ADBAC7">all_words </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [word </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> item </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">]) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> item]</span></span>
+<span class="line"><span style="color:#768390"># use nltk fdist to get a frequency distribution of all words</span></span>
+<span class="line"><span style="color:#ADBAC7">fdist </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> FreqDist(all_words)</span></span>
+<span class="line"><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(fdist) </span><span style="color:#768390"># number of unique words</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># choose k and visually inspect the bottom 10 words of the top k</span></span>
+<span class="line"><span style="color:#ADBAC7">k </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 50000</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> fdist.most_common(k)</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words[</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">:]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># choose k and visually inspect the bottom 10 words of the top k</span></span>
+<span class="line"><span style="color:#ADBAC7">k </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 15000</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> fdist.most_common(k)</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words[</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">:]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># k = 50,000 is too high, as the bottom words aren't even real words and are very rarely used (once in entire corpus)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># k = 15,000 is much more reasonable as these have been used at least 13 times in the corpus</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># define a function only to keep words in the top k words</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words,_ </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> zip</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">fdist.most_common(k))</span></span>
+<span class="line"><span style="color:#ADBAC7">top_k_words </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> set</span><span style="color:#ADBAC7">(top_k_words)</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> keep_top_k_words</span><span style="color:#ADBAC7">(text):</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> [word </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> text </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> word </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> top_k_words]</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#ADBAC7">df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">].apply(keep_top_k_words)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># document length</span></span>
+<span class="line"><span style="color:#ADBAC7">df[</span><span style="color:#96D0FF">'doc_len'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">].apply(</span><span style="color:#F47067">lambda</span><span style="color:#ADBAC7"> x: </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(x))</span></span>
+<span class="line"><span style="color:#ADBAC7">doc_lengths </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(df[</span><span style="color:#96D0FF">'doc_len'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">df.drop(</span><span style="color:#F69D50">labels</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'doc_len'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"length of list:"</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(doc_lengths),</span></span>
+<span class="line"><span style="color:#96D0FF">      "</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">average document length"</span><span style="color:#ADBAC7">, np.average(doc_lengths),</span></span>
+<span class="line"><span style="color:#96D0FF">      "</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">minimum document length"</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">min</span><span style="color:#ADBAC7">(doc_lengths),</span></span>
+<span class="line"><span style="color:#96D0FF">      "</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">maximum document length"</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">max</span><span style="color:#ADBAC7">(doc_lengths))</span></span>
+<span class="line"><span style="color:#ADBAC7">	  </span></span>
+<span class="line"><span style="color:#768390"># plot a histogram of document length</span></span>
+<span class="line"><span style="color:#ADBAC7">num_bins </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 1000</span></span>
+<span class="line"><span style="color:#ADBAC7">fig, ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"><span style="color:#768390"># the histogram of the data</span></span>
+<span class="line"><span style="color:#ADBAC7">n, bins, patches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ax.hist(doc_lengths, num_bins)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xlabel(</span><span style="color:#96D0FF">'Document Length (tokens)'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_ylabel(</span><span style="color:#96D0FF">'Normed Frequency'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.grid()</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xticks(np.logspace(</span><span style="color:#F69D50">start</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">np.log10(</span><span style="color:#6CB6FF">50</span><span style="color:#ADBAC7">),</span><span style="color:#F69D50">stop</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">np.log10(</span><span style="color:#6CB6FF">2000</span><span style="color:#ADBAC7">),</span><span style="color:#F69D50">num</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">base</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10.0</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.xlim(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">2000</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.plot([np.average(doc_lengths) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> np.linspace(</span><span style="color:#6CB6FF">0.0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.0035</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">)], np.linspace(</span><span style="color:#6CB6FF">0.0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.0035</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">), </span><span style="color:#96D0FF">'-'</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">        label</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'average doc length'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.legend()</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.grid()</span></span>
+<span class="line"><span style="color:#ADBAC7">fig.tight_layout()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">### Drop short articles</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">LDA</span><span style="color:#ADBAC7"> does </span><span style="color:#F47067">not</span><span style="color:#ADBAC7"> work very well on short documents, which we will explain later, so we will drop some of the shorter articles here before training the model.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">From the histogram above, droping </span><span style="color:#6CB6FF">all</span><span style="color:#ADBAC7"> articles less than </span><span style="color:#6CB6FF">40</span><span style="color:#ADBAC7"> tokens seems appropriate.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># only keep articles with more than 30 tokens, otherwise too short</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">].map(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">>=</span><span style="color:#6CB6FF"> 40</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#768390"># make sure all tokenized items are lists</span></span>
+<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[df[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">].map(</span><span style="color:#6CB6FF">type</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">df.reset_index(</span><span style="color:#F69D50">drop</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"After cleaning and excluding short aticles, the dataframe now has:"</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df), </span><span style="color:#96D0FF">"articles"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># create a mask of binary values</span></span>
+<span class="line"><span style="color:#ADBAC7">msk </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.rand(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df)) </span><span style="color:#F47067">&#x3C;</span><span style="color:#6CB6FF"> 0.999</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">train_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[msk]</span></span>
+<span class="line"><span style="color:#ADBAC7">train_df.reset_index(</span><span style="color:#F69D50">drop</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">test_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[</span><span style="color:#F47067">~</span><span style="color:#ADBAC7">msk]</span></span>
+<span class="line"><span style="color:#ADBAC7">test_df.reset_index(</span><span style="color:#F69D50">drop</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> train_lda</span><span style="color:#ADBAC7">(data):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    This function trains the lda model</span></span>
+<span class="line"><span style="color:#96D0FF">    We setup parameters like number of topics, the chunksize to use in Hoffman method</span></span>
+<span class="line"><span style="color:#96D0FF">    We also do 2 passes of the data since this is a small dataset, so we want the distributions to stabilize</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#ADBAC7">    num_topics </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 100</span></span>
+<span class="line"><span style="color:#ADBAC7">    chunksize </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 300</span></span>
+<span class="line"><span style="color:#ADBAC7">    dictionary </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> corpora.Dictionary(data[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">    corpus </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [dictionary.doc2bow(doc) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> doc </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> data[</span><span style="color:#96D0FF">'tokenized'</span><span style="color:#ADBAC7">]]</span></span>
+<span class="line"><span style="color:#ADBAC7">    t1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> time.time()</span></span>
+<span class="line"><span style="color:#768390">    # low alpha means each document is only represented by a small number of topics, and vice versa</span></span>
+<span class="line"><span style="color:#768390">    # low eta means each topic is only represented by a small number of words, and vice versa</span></span>
+<span class="line"><span style="color:#ADBAC7">    lda </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LdaModel(</span><span style="color:#F69D50">corpus</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">corpus, </span><span style="color:#F69D50">num_topics</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">num_topics, </span><span style="color:#F69D50">id2word</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">dictionary,</span></span>
+<span class="line"><span style="color:#F69D50">                   alpha</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1e-2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">eta</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.5e-2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">chunksize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">chunksize, </span><span style="color:#F69D50">minimum_probability</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">passes</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    t2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> time.time()</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Time to train LDA model on "</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(df), </span><span style="color:#96D0FF">"articles: "</span><span style="color:#ADBAC7">, (t2</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">t1)</span><span style="color:#F47067">/</span><span style="color:#6CB6FF">60</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"min"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> dictionary,corpus,lda</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#ADBAC7">dictionary,corpus,lda </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_lda(train_df)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># show_topics method shows the the top num_words contributing to num_topics number of random topics</span></span>
+<span class="line"><span style="color:#ADBAC7">lda.show_topics(</span><span style="color:#F69D50">num_topics</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">num_words</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># select and article at random from train_df</span></span>
+<span class="line"><span style="color:#ADBAC7">random_article_index </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.randint(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(train_df))</span></span>
+<span class="line"><span style="color:#ADBAC7">bow </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dictionary.doc2bow(train_df.iloc[random_article_index,</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># get the topic contributions for the document chosen at random above</span></span>
+<span class="line"><span style="color:#ADBAC7">doc_distribution </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([tup[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> tup </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> lda.get_document_topics(</span><span style="color:#F69D50">bow</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">bow)])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># bar plot of topic distribution for this document</span></span>
+<span class="line"><span style="color:#ADBAC7">fig, ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"><span style="color:#768390"># the histogram of the data</span></span>
+<span class="line"><span style="color:#ADBAC7">patches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ax.bar(np.arange(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(doc_distribution)), doc_distribution)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xlabel(</span><span style="color:#96D0FF">'Topic ID'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_ylabel(</span><span style="color:#96D0FF">'Topic Contribution'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_title(</span><span style="color:#96D0FF">"Topic Distribution for Article "</span><span style="color:#F47067"> +</span><span style="color:#6CB6FF"> str</span><span style="color:#ADBAC7">(random_article_index), </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xticks(np.linspace(</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">fig.tight_layout()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># select and article at random from test_df</span></span>
+<span class="line"><span style="color:#ADBAC7">random_article_index </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.randint(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(test_df))</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(random_article_index)</span></span>
+<span class="line"><span style="color:#ADBAC7">new_bow </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dictionary.doc2bow(test_df.iloc[random_article_index,</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(test_df.iloc[random_article_index,</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">new_doc_distribution </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([tup[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> tup </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> lda.get_document_topics(</span><span style="color:#F69D50">bow</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">new_bow)])</span></span>
+<span class="line"><span style="color:#768390"># bar plot of topic distribution for this document</span></span>
+<span class="line"><span style="color:#ADBAC7">fig, ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span><span style="color:#FF938A;font-style:italic">;</span></span>
+<span class="line"><span style="color:#768390"># the histogram of the data</span></span>
+<span class="line"><span style="color:#ADBAC7">patches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ax.bar(np.arange(</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(new_doc_distribution)), new_doc_distribution)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xlabel(</span><span style="color:#96D0FF">'Topic ID'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_ylabel(</span><span style="color:#96D0FF">'Topic Contribution'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_title(</span><span style="color:#96D0FF">"Topic Distribution for an Unseen Article"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.set_xticks(np.linspace(</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">fig.tight_layout()</span></span>
+<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> jensen_shannon</span><span style="color:#ADBAC7">(query, matrix):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    This function implements a Jensen-Shannon similarity</span></span>
+<span class="line"><span style="color:#96D0FF">    between the input query (an LDA topic distribution for a document)</span></span>
+<span class="line"><span style="color:#96D0FF">    and the entire corpus of topic distributions.</span></span>
+<span class="line"><span style="color:#96D0FF">    It returns an array of length M where M is the number of documents in the corpus</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#768390">    # lets keep with the p,q notation above</span></span>
+<span class="line"><span style="color:#ADBAC7">    p </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> query[</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">,:].T </span><span style="color:#768390"># take transpose</span></span>
+<span class="line"><span style="color:#ADBAC7">    q </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> matrix.T </span><span style="color:#768390"># transpose matrix</span></span>
+<span class="line"><span style="color:#ADBAC7">    m </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0.5</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">(p </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> q)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> np.sqrt(</span><span style="color:#6CB6FF">0.5</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">(entropy(p,m) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> entropy(q,m)))</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> get_most_similar_documents</span><span style="color:#ADBAC7">(query,matrix,k</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">):</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#96D0FF">    This function implements the Jensen-Shannon distance above</span></span>
+<span class="line"><span style="color:#96D0FF">    and retruns the top k indices of the smallest jensen shannon distances</span></span>
+<span class="line"><span style="color:#96D0FF">    """</span></span>
+<span class="line"><span style="color:#ADBAC7">    sims </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> jensen_shannon(query,matrix) </span><span style="color:#768390"># list of jensen shannon distances</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> sims.argsort()[:k] </span><span style="color:#768390"># the top k positional index of the smallest Jensen Shannon distances</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#768390"># this is surprisingly fast</span></span>
+<span class="line"><span style="color:#ADBAC7">most_sim_ids </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> get_most_similar_documents(new_doc_distribution,doc_topic_dist)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">most_similar_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_df[train_df.index.isin(most_sim_ids)]</span></span>
+<span class="line"><span style="color:#ADBAC7">most_similar_df[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">]</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/hyperparam-tuning/"> <span class="dir">← previous</span> <span class="title">Hyperparameter Tuning</span> </a> <a class="next" href="/writing/blogs/data/data-preparation/"> <span class="dir">next →</span> <span class="title">The Data Mining Triology: I. Preparation</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

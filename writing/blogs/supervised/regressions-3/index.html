@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Regression Models: GAM, GLM and GLMM - Zhenlin Wang</title><meta name="description" content="A brief introduction to generalized regression"><meta property="og:title" content="Regression Models: GAM, GLM and GLMM - Zhenlin Wang"><meta property="og:description" content="A brief introduction to generalized regression"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/regressions-3/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Regression</div> <h1>Regression <em>Models:</em> GAM, GLM and GLMM</h1> <p class="dek">A brief introduction to generalized regression</p> <div class="byline"> <strong>2019.05.30</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-03-18</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>Generalized linear model (GLM) is a cure to some issues posted by ordinary linear regression. In the well-known linear regression model, we often assume $y=Xc+b$. However, it often assumes that $y$ is not bounded when $x$ is not bounded. However, very often, we must restrict the values of $y$ within a fixed range. This may invalidated the ordinary linear model as the function behaviors near the boundary points can be very off. Generalized linear models aim to deal with this issue by allowing for $y$ that have arbitrary distributions (not just gaussian distribution), a function of $y$ (the link function) to vary linearly with $x$ (rather than assuming that a direct linear relationship between $x$ and $y$). Generalized Additive Model (GAM) and Generalized Linear Mixed Model (GLMM) are extensions to GLM with special functions applied to differenet elements in $x$.</p>
+<h3 id="glm">GLM</h3>
+<p>We note that GLM has three major parts:</p>
+<ol>
+<li>An exponential family of probability distributions: $f(x |\theta) = h(x)\text{exp}[\eta (\theta)) \cdot T(x) + A(\theta)$, some examples include:
+<ul>
+<li>normal</li>
+<li>exponential</li>
+<li>gamma</li>
+<li>chi-squared</li>
+<li>beta</li>
+<li>Dirichlet</li>
+<li>Bernoulli</li>
+<li>categorical</li>
+<li>Poisson</li>
+</ul>
+</li>
+<li>A function of predictor (in GLM it is $Xc$, in extended models, it can be other things, see GAM and GLMM), we can estimate $c$ via <em>maximum likelihood</em> or Bayesian methods like <em>laplace approximation</em> and <em>Gibbs sampling</em>, etc.</li>
+<li>A link function $g$ such that $g(E(Y|X)) = Xc$ (sometime we may have tractable distribution for variance $Var(Y|X) = V(g^{-1}(Xc))$</li>
+</ol>
+<h4 id="1-pros-and-cons-for-glm-and-glmm">1. Pros and Cons for GLM and GLMM</h4>
+<ul>
+<li>
+<p>Pros:</p>
+<ul>
+<li>Easy to interpret</li>
+<li>Easy to grasp</li>
+<li>Coefficients can be further used in numerical models</li>
+<li>Easy to extend: link functions, fixed and random effects, correlation structures</li>
+</ul>
+</li>
+<li>
+<p>Cons:</p>
+<ul>
+<li>Not good for dynamic models (the model is not linear and transformation may not help or would loose information</li>
+</ul>
+</li>
+</ul>
+<h3 id="generalized-additive-models-gams">Generalized additive models (GAMs)</h3>
+<ul>
+<li>GAMs are extensions to GLMs in which the linear predictor $\eta = Xc$ is not restricted to be linear in the covariates $X$ but is the sum of smoothing functions applied to the each $x_i$. For example,</li>
+</ul>
+<p>$$g(E(Y|X)) = c_0 + f_1(x_1) + … + f_n(x_n)$$</p>
+<ul>
+<li>Is useful if relationship between Y and X is likely to be non-linear but we <strong>don’t have any theory or any mechanistic model</strong> to suggest a particular functional form</li>
+<li>Each $Y_i$ is linked with $X_i$ by a <strong>smoothing function</strong> instead of a coefficient $\beta$</li>
+<li>GAMS are <strong>data-driven</strong> rather than model-driven, that is, the resulting fitted values do not come from an a priori model (non-parametric)</li>
+<li><strong>All of the distribution families</strong> allowed with GLM are available with GAM</li>
+</ul>
+<h4 id="1-pros-and-cons-for-gam">1. Pros and Cons for GAM</h4>
+<ul>
+<li><strong>Pros</strong>:
+<ul>
+<li>By combining the basis functions GAMs can represent a large number of functional relationship (to do so they rely on the assumption that the true relationship is likely to be smooth, rather than wiggly)</li>
+<li>Particularly useful for uncovering nonlinear effects of numerical covariates, and for doing so in an “automatic” fashion</li>
+<li>More Flexible as now each sample’s Y is associated with its X by a smoothing function instead of a coefficient $\beta$</li>
+</ul>
+</li>
+<li><strong>Cons</strong>:
+<ul>
+<li>Interpretability of the coefficient $\implies$ need to be estimated graphically</li>
+<li>Coefficients are not easily transferable to other datasets and parameterization</li>
+<li>Very sensitive to gaps in the data and outliers</li>
+<li>Lack underlying theory for the use of hypothesis tests $\implies$ one solution is to do bootstrapping and get aggregated result for more reliable confidence bands</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-examples-of-gam-different-predictor-representation-functions">2. Examples of GAM (different predictor representation functions):</h4>
+<ol>
+<li>
+<p>Loess (Locally weighted regression smoothing)</p>
+<ul>
+<li>The key factor is the <strong>span width</strong> (usually set to be a proportion of the data set: 0.5 as a standard starting point)</li>
+<li>Main idea: Split the data into separate blobs using sliding windows and fit linear regressions in each blob/interval</li>
+<li>Pros:
+<ul>
+<li>Easily interpretable. At each test case, a local linear model is fit (eventually explained by linear behaviours)</li>
+<li>a popular way to see smooth trends on scatterplots</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>If there are a lot of data points, fitting a LOESS over the entire range of the predictor can be slow because so many local linear regressions must be fit.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Regression Splines (piecewise polynomials over usually a finite range)</p>
+<ul>
+<li>Main constraint is that the splines must remain smooth and continuous at knots</li>
+<li>To avoid overfitting of splines, penalty terms are added</li>
+<li>The penalty term also reflects the <strong>degree of smoothness</strong> in the regression</li>
+<li>The less smooth the regression is (after fitting the spline functions), the higher the penalty terms</li>
+<li>Pros:
+<ul>
+<li><strong>cover all sorts of nonlinear trends</strong> and are <strong>computationally very attractive</strong> because spline terms fit exactly into a least squares linear regression framework. Least squares models are very easy to fit computationally</li>
+</ul>
+</li>
+<li>Cons:
+<ul>
+<li>It is possible to create multidimensional splines by creating interactions between spline terms for different predictors. This suffers from the <strong>curse of dimensionality</strong> like KNN because we are trying to <strong>estimate a wavy surface in a large dimensional (many variable) space where data points will only sparsely cover the many many regions of the space</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="glmm">GLMM</h3>
+<p>The model has the form: $g(E(Y|X)) = Xc + Zu$ where $Z$ is the design matrix for the $q$ random effects (the random complement to the fixed $X$). $u$ is a vector of the random effects (the random complement to the fixed $c$). The random effects are just deviations around the value in $\beta$, which is the mean. Usually $Z$ is a sparse matrix that assigns random effects to each element. We nearly always assume that $u \sim {\cal N}(0, G)$ with $G$ being the covariance matrix of the random effects. Assuming that the random effects are independent, we can have $G$ being a diagonal matrix with entries $\sigma_{init}^2$ and $\sigma_{slope}^2$.</p>
+<h4 id="1-code-implementation">1. Code implementation</h4>
+<p>I recommend beginners to use <kbd>statsmodels</kbd> package because the output via <code>.summary()</code> function is very clear to read. For advanced users, you may implement the function yourself by referring to the mathematical expressions and package documentations from the following</p>
+<ul>
+<li><kbd>statsmodels</kbd>: <code>statsmodels.formula.api.mixedlm</code></li>
+<li><kbd>pymc3</kbd></li>
+<li><kbd>theano</kbd></li>
+<li><kbd>pystan</kbd></li>
+<li><kbd>tensorflow</kbd></li>
+<li><kbd>keras</kbd></li>
+</ul>
+<h4 id="2-a-sample-code-using-statsmodels">2. A sample code using <kbd>statsmodels</kbd></h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> statsmodels.formula.api </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> smf</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> patsy </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> dmatrices</span></span>
+<span class="line"><span style="color:#ADBAC7">formula </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "rt ~ group*orientation*identity"</span></span>
+<span class="line"><span style="color:#768390">#formula = "rt ~ -1 + cbcond"</span></span>
+<span class="line"><span style="color:#ADBAC7">md  </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> smf.mixedlm(formula, tbltest, </span><span style="color:#F69D50">groups</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">tbltest[</span><span style="color:#96D0FF">"subj"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">mdf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> md.fit()</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(mdf.summary())</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">fe_params </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(mdf.fe_params,</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'LMM'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">random_effects </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(mdf.random_effects)</span></span>
+<span class="line"><span style="color:#ADBAC7">random_effects </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> random_effects.transpose()</span></span>
+<span class="line"><span style="color:#ADBAC7">random_effects </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> random_effects.rename(</span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">{</span><span style="color:#96D0FF">'groups'</span><span style="color:#ADBAC7">: </span><span style="color:#96D0FF">'LMM'</span><span style="color:#ADBAC7">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">#%% Generate Design Matrix for later use</span></span>
+<span class="line"><span style="color:#ADBAC7">Y, X   </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dmatrices(formula, </span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">tbltest, </span><span style="color:#F69D50">return_type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'matrix'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">Terms  </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> X.design_info.column_names</span></span>
+<span class="line"><span style="color:#ADBAC7">_, Z   </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> dmatrices(</span><span style="color:#96D0FF">'rt ~ -1+subj'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">tbltest, </span><span style="color:#F69D50">return_type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'matrix'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">X      </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.asarray(X) </span><span style="color:#768390"># fixed effect</span></span>
+<span class="line"><span style="color:#ADBAC7">Z      </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.asarray(Z) </span><span style="color:#768390"># mixed effect</span></span>
+<span class="line"><span style="color:#ADBAC7">Y      </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.asarray(Y).flatten()</span></span>
+<span class="line"><span style="color:#ADBAC7">nfixed </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.shape(X)</span></span>
+<span class="line"><span style="color:#ADBAC7">nrandm </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.shape(Z)</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/validation/"> <span class="dir">← previous</span> <span class="title">Model Validations and Performance Evaluators</span> </a> <a class="next" href="/writing/blogs/supervised/supervised-learning/"> <span class="dir">next →</span> <span class="title">Some Supervised Learning Models</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

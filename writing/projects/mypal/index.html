@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>MyPal - Zhenlin Wang</title><meta name="description" content="A Relationship Management System"><meta property="og:title" content="MyPal - Zhenlin Wang"><meta property="og:description" content="A Relationship Management System"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/projects/mypal/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Projects · Full Stack Web Dev · Node.js · React · MongoDB</div> <h1><em>MyPal</em></h1> <p class="dek">A Relationship Management System</p> <div class="byline"> <strong>2019.05.08</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2019-08-02</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction"><strong>Introduction</strong></h3>
+<p><a href="https://github.com/Criss-Wang/MyPal-App">MyPal</a> is a web application for students in campus to manage the interpersonal connections online. It was built by me and <a href="https://github.com/mononokehime14">Ren Hao</a> from National University of Singapore as part of the <a href="https://orbital.comp.nus.edu.sg/">Orbital Program</a>. We managed to design, implement, deploy and iterate our app during the summer of 2019 to improve our product’s rating from Gemini (intermediate) to Apollo 11 (Advanced). [<a href="https://github.com/Criss-Wang/TeamRichardoMLu/blob/master/Orbital_Certificate.pdf"><strong>Certificate</strong></a>]</p>
+<p>Our initiative for building this app was to give college students the power to conveniently create, manage and safely store important details about the people they want to keep connected with in their ever-expanding social circle during their college life. Here is a glimpse of our <a href="https://mypal-app.heroku.com">application</a></p>
+<figure align="center">
+    <img src="//images/Projects/mypal1.png" width="400px">
+    <img src="//images/Projects/mypal2.png" width="400px">
+    <img src="//images/Projects/mypal3.png" width="400px">
+    <img src="//images/Projects/mypal4.png" width="400px">
+</figure>
+<h3 id="major-features"><strong>Major Features</strong></h3>
+<ol>
+<li><strong>“Relationship Info” creation template</strong></li>
+</ol>
+<ul>
+<li>Template to create a new info sheet about a person in one’s social network</li>
+<li>Can be personlized by adding and removing elements in the template</li>
+<li>Automatic integration of information from the person’s social media and contact book (through uploaded or online documents)</li>
+</ul>
+<ol start="2">
+<li><strong>Categorization and tagging</strong></li>
+</ol>
+<ul>
+<li>Allow tags and categories to be applied on each connection for fast group viewing and relationship management</li>
+<li>Associate links to enable the user to switch to the social media to message a specific person</li>
+</ul>
+<ol start="3">
+<li><strong>Social Network Visualization</strong></li>
+</ol>
+<ul>
+<li>Using network diagram to display various social circles the user is in （built with <code>D3.js</code>)</li>
+<li>Using Timeline to help the user recollect the events he/she had with certain people/group</li>
+</ul>
+<ol start="4">
+<li><strong>Weekly/Monthly Report</strong></li>
+</ol>
+<ul>
+<li>Automatically generate a summary about the activities recorded on the website this week</li>
+<li>Produce reminder about friends’ birthday and people they haven’t got in touch with for a long time.</li>
+</ul>
+<h3 id="tech--methodology"><strong>Tech &#x26; Methodology</strong></h3>
+<div>
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/d3js/d3js-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" width="40" height="40"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="40" height="40"> 
+</div>
+<ul>
+<li>Specifically MERN stack (MongoDB, Express.js, ReactJS, Node.js)</li>
+<li>REST/GraphQL APIs</li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <span></span> <a class="next" href="/writing/blogs/supervised/regressions-1/"> <span class="dir">next →</span> <span class="title">Regression Models: Linear Regression and Regularization</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

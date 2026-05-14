@@ -1,0 +1,635 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>SQL: Pick up the Basic within a day - Zhenlin Wang</title><meta name="description" content="The best way to get the memory back is by looking at the code themselves"><meta property="og:title" content="SQL: Pick up the Basic within a day - Zhenlin Wang"><meta property="og:description" content="The best way to get the memory back is by looking at the code themselves"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/sql/sql-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Database System · SQL</div> <h1>SQL: <em>Pick</em> up the Basic within a day</h1> <p class="dek">The best way to get the memory back is by looking at the code themselves</p> <div class="byline"> <strong>2020.08.15</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-05-25</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>This blog is for people who have learnt SQL at some points of their study (just like me): We can quickly recap on various important concepts in SQL.</p>
+<h3 id="basic-concepts">Basic Concepts</h3>
+<ol>
+<li>
+<p>Primary key:</p>
+<ul>
+<li>Always unique for each row of the table, it must be NOT NULL (automatically set when <code>PRIMARY KEY</code> is specified)</li>
+<li>Helps to identify each row even when row attributes are the same</li>
+<li>A table must have and only have 1 primary key</li>
+<li>Types:
+<ul>
+<li>Surrogate key : An artificial key that has no mapping to anything (or business value) in real world.</li>
+<li>Natural key: A key that has mapping to real world thing: example: social security number/ NRIC / Passport number</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>composiite key: 2 column entries combined to form a key</p>
+<ul>
+<li>Motivation: sometimes individuals of 2 entries cannot uniquely identify a row;</li>
+</ul>
+</li>
+<li>
+<p>Foreign key:</p>
+<ul>
+<li>Stores the primary key of a row in another database table</li>
+<li>The foreign key’s column name NOT necessary to coincide with the foreign table’s primary key column name</li>
+<li>A table can have more than 1 foreign key (or no foreign key at all)</li>
+</ul>
+</li>
+<li>
+<p>advance concept:</p>
+<ul>
+<li>
+<p><strong>Q</strong>: is it possible that TABLE A’s foreign key is TABLE B’s primary key and TABLE B’s foreign key is TABLE A’s primary key?</p>
+<p><strong>A</strong>: Yes! cyclic dependency is valid in SQL.</p>
+<p><strong>Example</strong>: <code>employee</code>’s <code>emp_id</code> is <code>department</code>’s <code>manager_id</code>; <code>department</code>’s <code>branch_id</code> is <code>employee</code>’s <code>department_id</code>.</p>
+</li>
+<li>
+<p><strong>Q</strong>: is it possible that TABLE A’s foreign key relates to itself?</p>
+<p><strong>A</strong>: Yes! used to define relationships between rows within a table.</p>
+<p><strong>Example</strong>: <code>employee</code>’s <code>super_id</code> refers to a row in <code>employee</code>’s table.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Data Types:</p>
+<ol>
+<li><kbd>INT</kbd>: — Whole number</li>
+<li><kbd>DECIMAL(M,N)</kbd>: 	— Decimal numbers - exact value, M digits, N after decimal point</li>
+<li><kbd>VARCHAR(K)</kbd>:		— Sring of text of length K</li>
+<li><kbd>BLOB</kbd>:			— Binary Large Object, stores large data</li>
+<li><kbd>DATE</kbd>:				— ‘YYYY-MM-DD’</li>
+<li><kbd>TIMESTAMP</kbd>		— ‘YYYY-MM-DD HH:MM:SS’</li>
+</ol>
+</li>
+<li>
+<p>Difference between DROP and DELETE:
+| DELETE      | DROP |
+| ----------- | ----------- |
+| Data Manipulation Language command      | Data Definition Language Command       |
+| To remove tuples from a table   | To remove entire schema, table, domain or constraints from the database        |</p>
+</li>
+</ol>
+<h3 id="basic-operations">Basic Operations</h3>
+<ol start="0">
+<li>Create Database</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#ADBAC7">SHOW DATABASES;</span></span>
+<span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> DATABASE</span><span style="color:#DCBDFB"> July_05</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">USE</span><span style="color:#ADBAC7"> July_05;</span></span></code></pre>
+<p>Logical Query Processing (IMPT)
+- Step 1. <kbd>FROM (includes JOINS)</kbd> <br>
+- Step 2. <kbd>WHERE</kbd> <br>
+- Step 3. <kbd>GROUP BY</kbd> <br>
+- Step 4. <kbd>HAVING</kbd> <br>
+- Step 5. <kbd>SELECT</kbd> <br>
+- Step 6. <kbd>ORDER BY</kbd> <br>
+<strong>CAUTION about column ordering</strong>: columns evaluated at later steps must be created in earlier steps</p>
+<ol>
+<li>Table Opeartions</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> TABLE</span><span style="color:#DCBDFB"> student</span><span style="color:#ADBAC7"> (</span></span>
+<span class="line"><span style="color:#ADBAC7">    student_id </span><span style="color:#F47067">INT</span><span style="color:#F47067"> PRIMARY KEY</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">    student_name </span><span style="color:#F47067">VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">50</span><span style="color:#ADBAC7">),</span></span>
+<span class="line"><span style="color:#ADBAC7">    major </span><span style="color:#F47067">VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">),</span></span>
+<span class="line"><span style="color:#ADBAC7">    thr_id </span><span style="color:#F47067">INT</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#768390">    -- can also remove the PRIMARY KEY above and add a line below</span></span>
+<span class="line"><span style="color:#768390">    -- PRIMARY KEY(student_id)</span></span>
+<span class="line"><span style="color:#F47067">    FOREIGN KEY</span><span style="color:#ADBAC7">(thr_id) </span><span style="color:#F47067">REFERENCES</span><span style="color:#ADBAC7"> teacher(emp_id) </span><span style="color:#F47067">ON DELETE</span><span style="color:#F47067"> SET</span><span style="color:#F47067"> NULL</span></span>
+<span class="line"><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#768390">-- Show all columns properties using the DESCRIBE keyword</span></span>
+<span class="line"><span style="color:#ADBAC7">DESCRIBE student;</span></span>
+<span class="line"><span style="color:#768390">-- Name          Null       Type</span></span>
+<span class="line"><span style="color:#768390">-- student_id               INT</span></span>
+<span class="line"><span style="color:#768390">-- name                     VARCHAR(50)</span></span>
+<span class="line"><span style="color:#768390">-- major                    VARCHAR(20)</span></span></code></pre>
+<p>Delete or modify a table</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">DROP</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student;</span></span>
+<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">ADD</span><span style="color:#ADBAC7"> gpa </span><span style="color:#F47067">DECIMAL</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">DROP</span><span style="color:#ADBAC7"> COLUMN gpa;</span></span>
+<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">MODIFY</span><span style="color:#ADBAC7"> COLUMN major </span><span style="color:#F47067">TINYINT</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">) UNSIGNED;</span></span>
+<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">ADD</span><span style="color:#F47067"> CONSTRAINT</span><span style="color:#ADBAC7"> pk_id </span><span style="color:#F47067">PRIMARY KEY</span><span style="color:#ADBAC7"> (student_id);</span></span>
+<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">ADD</span><span style="color:#F47067"> CONSTRAINT</span><span style="color:#ADBAC7"> fk_id </span><span style="color:#F47067">FOREIGN KEY</span><span style="color:#ADBAC7"> (thr_id) </span><span style="color:#F47067">REFERENCES</span><span style="color:#ADBAC7"> teacher(emp_id) </span><span style="color:#F47067">ON DELETE</span><span style="color:#F47067"> SET</span><span style="color:#F47067"> NULL</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<ol start="2">
+<li>Row Insertion</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- Two ways of insertion</span></span>
+<span class="line"><span style="color:#F47067">INSERT INTO</span><span style="color:#ADBAC7"> student </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Kate'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Sociology'</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#F47067">INSERT INTO</span><span style="color:#ADBAC7"> student(student_id, </span><span style="color:#F47067">name</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Claire'</span><span style="color:#ADBAC7">);</span></span></code></pre>
+<ol start="3">
+<li>More properties of column</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> TABLE</span><span style="color:#DCBDFB"> student</span><span style="color:#ADBAC7"> (</span></span>
+<span class="line"><span style="color:#ADBAC7">    student_id </span><span style="color:#F47067">INT</span><span style="color:#ADBAC7"> AUTO_INCREMENT, </span><span style="color:#768390">-- id increase automaically if not specified</span></span>
+<span class="line"><span style="color:#ADBAC7">	student_id2 </span><span style="color:#F47067">INT</span><span style="color:#6CB6FF"> IDENTITY</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">) </span><span style="color:#768390">-- similar to AUTO_INCREMENT except</span></span>
+<span class="line"><span style="color:#768390">								   -- IDENTITY(seed, increment) enables one to self define the starting value (seed) and the increment amount (increment)</span></span>
+<span class="line"><span style="color:#F47067">    name</span><span style="color:#F47067"> VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">50</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">NOT NULL</span><span style="color:#ADBAC7">, </span><span style="color:#768390">-- name value cannot be empty</span></span>
+<span class="line"><span style="color:#ADBAC7">    major </span><span style="color:#F47067">VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">UNIQUE</span><span style="color:#ADBAC7">, </span><span style="color:#768390">-- each row's major value must be unique across the table</span></span>
+<span class="line"><span style="color:#ADBAC7">	info </span><span style="color:#F47067">VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">DEFAULT</span><span style="color:#96D0FF"> 'undecided'</span><span style="color:#ADBAC7">, </span><span style="color:#768390">--info has 'undecided' as default value</span></span>
+<span class="line"><span style="color:#F47067">    PRIMARY KEY</span><span style="color:#ADBAC7">(student_id)</span></span>
+<span class="line"><span style="color:#ADBAC7">);</span></span></code></pre>
+<ol start="4">
+<li>Update the table</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- Modify the content</span></span>
+<span class="line"><span style="color:#F47067">UPDATE</span><span style="color:#ADBAC7"> student</span></span>
+<span class="line"><span style="color:#F47067">SET</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'Biochemistry'</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">name</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'What'</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'Biology'</span><span style="color:#F47067"> or</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'Chemistry'</span><span style="color:#ADBAC7">; </span><span style="color:#768390">-- if no WHERE is applied, the set applies to all</span></span>
+<span class="line"><span style="color:#768390">-- Delete entries</span></span>
+<span class="line"><span style="color:#F47067">DELETE</span><span style="color:#F47067"> FROM</span><span style="color:#ADBAC7"> student</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> student_id </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 5</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<ol start="5">
+<li><kbd>SELECT</kbd> keyword</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">  -- partial selection</span></span>
+<span class="line"><span style="color:#F47067">  SELECT</span><span style="color:#6CB6FF"> student</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">name</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">student</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">major</span></span>
+<span class="line"><span style="color:#F47067">  FROM</span><span style="color:#ADBAC7"> student</span></span>
+<span class="line"><span style="color:#F47067">  ORDER BY</span><span style="color:#ADBAC7"> major, </span><span style="color:#F47067">name</span><span style="color:#F47067"> DESC</span><span style="color:#ADBAC7">; </span><span style="color:#768390">-- by default ascending order, DESC change to descending</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">  -- or both major and name descending by </span></span>
+<span class="line"><span style="color:#F47067">  SELECT</span><span style="color:#F47067"> name</span><span style="color:#ADBAC7">, major </span></span>
+<span class="line"><span style="color:#F47067">  FROM</span><span style="color:#ADBAC7"> student</span></span>
+<span class="line"><span style="color:#F47067">  ORDER BY</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">, student_id </span><span style="color:#F47067">DESC</span></span>
+<span class="line"><span style="color:#ADBAC7">  </span></span>
+<span class="line"><span style="color:#F47067">  -</span><span style="color:#ADBAC7"> other optional selection technique</span></span>
+<span class="line"><span style="color:#F47067">  FROM</span><span style="color:#ADBAC7"> student</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#F47067">  WHERE</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'chemistry'</span><span style="color:#F47067"> OR</span><span style="color:#ADBAC7"> major </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'Bio'</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#F47067">  WHERE</span><span style="color:#F47067"> name</span><span style="color:#F47067"> IN</span><span style="color:#ADBAC7"> (</span><span style="color:#96D0FF">'kate'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Claire'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Jack'</span><span style="color:#ADBAC7">); </span><span style="color:#768390">-- the use of IN keyword</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#F47067">  WHERE</span><span style="color:#ADBAC7"> birth_day </span><span style="color:#F47067">BETWEEN</span><span style="color:#96D0FF"> '1970-01-01'</span><span style="color:#F47067"> AND</span><span style="color:#96D0FF"> '1975-01-01'</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#F47067">  WHERE</span><span style="color:#ADBAC7"> (birth_day </span><span style="color:#F47067">>=</span><span style="color:#96D0FF"> '1970-01-01'</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> sex </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'F'</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OR</span><span style="color:#ADBAC7"> salary </span><span style="color:#F47067">></span><span style="color:#6CB6FF"> 80000</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#F47067">  LIMIT</span><span style="color:#6CB6FF"> 2</span><span style="color:#ADBAC7"> OFFSET </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#ADBAC7">  ...</span></span>
+<span class="line"><span style="color:#ADBAC7">  </span></span>
+<span class="line"><span style="color:#F47067">  SELECT</span><span style="color:#F47067"> TOP</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">) </span><span style="color:#768390">-- select the 100 rows in the front</span></span>
+<span class="line"><span style="color:#F47067">  SELECT</span><span style="color:#ADBAC7"> ... </span><span style="color:#F47067">INTO</span><span style="color:#ADBAC7"> samples </span><span style="color:#768390">-- select those columns into the "sample" table</span></span></code></pre>
+<ol start="6">
+<li>comparison keyword</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">&#x3C;</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">></span><span style="color:#ADBAC7"> , </span><span style="color:#F47067">&#x3C;=</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">>=</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">=</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">&#x3C;></span><span style="color:#ADBAC7"> (means </span><span style="color:#F47067">not</span><span style="color:#ADBAC7"> equal </span><span style="color:#F47067">to</span><span style="color:#ADBAC7">), </span><span style="color:#F47067">AND</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">OR</span><span style="color:#ADBAC7">, ANY, ALL</span></span></code></pre>
+<ol start="7">
+<li>Functions to call</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> COUNT</span><span style="color:#ADBAC7">(sex), sex</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> AVG</span><span style="color:#ADBAC7">(salary)</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> SUM</span><span style="color:#ADBAC7">(salary)</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> employee</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> sex </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'F'</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> birth_date </span><span style="color:#F47067">></span><span style="color:#96D0FF"> '1971-01-01'</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> sex;</span></span></code></pre>
+<ol start="8">
+<li>Wildcard</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- It is often used to find the string containing certain characters;</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> client</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> client_name </span><span style="color:#F47067">LIKE</span><span style="color:#96D0FF"> '%LLC'</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<ol start="9">
+<li><kbd>UNION</kbd></li>
+</ol>
+<ul>
+<li>Motivation: row combine (fixed columns)</li>
+<li>Used to combine the multiple select statement into 1;</li>
+<li>Vertical join (add rows of the latter <code>SELECT</code> below the rows of former <code>SELECT</code>)</li>
+<li><strong>Warning</strong>: each entry within the same column must have the same data-type
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> client</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">client_name</span><span style="color:#F47067"> AS</span><span style="color:#ADBAC7"> Non_Employee_Entities, </span><span style="color:#6CB6FF">client</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">branch_id</span><span style="color:#F47067"> AS</span><span style="color:#ADBAC7"> Branch_ID</span></span>
+<span class="line"><span style="color:#768390">-- here the renaming using AS is very important to make the unioned row's column more logical</span></span>
+<span class="line"><span style="color:#768390">-- e.g the client.branch_id and branch_supplier.branch_id unioned to be Branch_ID and branch_id separately in the table returned</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> client</span></span>
+<span class="line"><span style="color:#F47067">UNION</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> branch_supplier</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">supplier_name</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">branch_supplier</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">branch_id</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> branch_supplier;</span></span></code></pre>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span><span style="color:#F47067"> FROM</span></span>
+<span class="line"><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#ADBAC7">    (</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> CITY, </span><span style="color:#F47067">LENGTH</span><span style="color:#ADBAC7">(CITY)</span></span>
+<span class="line"><span style="color:#F47067">    FROM</span><span style="color:#ADBAC7"> STATION</span></span>
+<span class="line"><span style="color:#F47067">    WHERE</span><span style="color:#F47067"> LENGTH</span><span style="color:#ADBAC7">(CITY) </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> MIN</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">LENGTH</span><span style="color:#ADBAC7">(CITY)) </span><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> STATION)</span></span>
+<span class="line"><span style="color:#F47067">    ORDER BY</span><span style="color:#ADBAC7"> CITY)</span></span>
+<span class="line"><span style="color:#F47067">    UNION</span></span>
+<span class="line"><span style="color:#ADBAC7">    (</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> CITY, </span><span style="color:#F47067">LENGTH</span><span style="color:#ADBAC7">(CITY)</span></span>
+<span class="line"><span style="color:#F47067">    FROM</span><span style="color:#ADBAC7"> STATION    </span></span>
+<span class="line"><span style="color:#F47067">    WHERE</span><span style="color:#F47067"> LENGTH</span><span style="color:#ADBAC7">(CITY) </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> MAX</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">LENGTH</span><span style="color:#ADBAC7">(CITY)) </span><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> STATION)</span></span>
+<span class="line"><span style="color:#F47067">    ORDER BY</span><span style="color:#ADBAC7"> CITY)</span></span>
+<span class="line"><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> K </span><span style="color:#768390">-- note the use of AS is MUST included</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> CITY</span></span></code></pre>
+</li>
+</ul>
+<ol start="10">
+<li><kbd>JOIN</kbd></li>
+</ol>
+<ul>
+<li>Motivation: column combine (fixed row)</li>
+<li>The second table is used as an auxilary table for additional column entries in the first table</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">emp_id</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">first_name</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">branch</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">branch_name</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> employee</span></span>
+<span class="line"><span style="color:#F47067">JOIN</span><span style="color:#ADBAC7"> branch    </span><span style="color:#768390">-- LEFT JOIN, RIGHT JOIN</span></span>
+<span class="line"><span style="color:#F47067">ON</span><span style="color:#6CB6FF"> employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">emp_id</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> branch</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">mgr_id</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span><span style="color:#F47067"> FROM</span></span>
+<span class="line"><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#ADBAC7">	(</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#F47067">		*</span></span>
+<span class="line"><span style="color:#F47067">	 FROM</span><span style="color:#ADBAC7"> STATION </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> P</span></span>
+<span class="line"><span style="color:#F47067">	 ORDER BY</span><span style="color:#F47067"> LENGTH</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">P</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CITY</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">DESC</span></span>
+<span class="line"><span style="color:#ADBAC7">	) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> A</span></span>
+<span class="line"><span style="color:#F47067">	 LEFT JOIN</span></span>
+<span class="line"><span style="color:#ADBAC7">	 (</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#F47067">		*</span></span>
+<span class="line"><span style="color:#F47067">	  FROM</span><span style="color:#ADBAC7"> STATION </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> K</span></span>
+<span class="line"><span style="color:#F47067">	  ORDER BY</span><span style="color:#F47067"> LENGTH</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">K</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CITY</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">DESC</span></span>
+<span class="line"><span style="color:#ADBAC7">	) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> B</span></span>
+<span class="line"><span style="color:#F47067">	ON</span><span style="color:#6CB6FF"> A</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">ID</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> B</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">ID</span></span>
+<span class="line"><span style="color:#ADBAC7">)  </span><span style="color:#768390">-- here should not have AS </span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#6CB6FF"> A</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CITY</span><span style="color:#768390"> -- Must specify A or ambiguous warning</span></span></code></pre>
+<p>Different types of join:</p>
+<ul>
+<li><kbd>INNER JOIN</kbd>: the usual type of JOIN;
+Only those rows that match the ON criteria in both tables will be included and joined</li>
+<li><kbd>LEFT JOIN</kbd>:
+All those rows in the left table are included but rows in the right table are included only when they match the <code>ON</code> criteria</li>
+<li><kbd>RIGHT JOIN</kbd>:
+the symmetric idea with <kbd>LEFT JOIN</kbd></li>
+<li><kbd>OUTER JOIN</kbd>:
+All the rows in both tables are included (empty columns in the resultant table rows are treated with NULL)</li>
+</ul>
+<ol start="11">
+<li>Nested query</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">first_name</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">last_name</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> employee</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#6CB6FF"> employee</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">emp_id</span><span style="color:#F47067"> IN</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> works_with</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">emp_id</span></span>
+<span class="line"><span style="color:#F47067">                          FROM</span><span style="color:#ADBAC7"> works_with</span></span>
+<span class="line"><span style="color:#F47067">                          WHERE</span><span style="color:#6CB6FF"> works_with</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">total_sales</span><span style="color:#F47067"> ></span><span style="color:#6CB6FF"> 50000</span><span style="color:#ADBAC7">);</span></span></code></pre>
+<ol start="12">
+<li>ON DELETE</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">ON DELETE</span><span style="color:#F47067"> SET</span><span style="color:#F47067"> NULL</span><span style="color:#768390"> -- set the foreign key to null if the primary key which the foreign key refers to gets deleted</span></span>
+<span class="line"><span style="color:#F47067">ON DELETE CASCADE</span><span style="color:#768390"> -- delete the entire row if the primary key gets deleted, especially important if set null cannot be done (i.e the foreign key cannot be set to null)</span></span></code></pre>
+<ol start="13">
+<li>Trigger test
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">  CREATE</span><span style="color:#F47067"> TABLE</span><span style="color:#DCBDFB"> trigger_test</span><span style="color:#ADBAC7"> (</span></span>
+<span class="line"><span style="color:#F47067">      message</span><span style="color:#F47067"> VARCHAR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">  );</span></span>
+<span class="line"><span style="color:#768390">  -- the following code needs to be manually typed in mySQL code</span></span>
+<span class="line"><span style="color:#ADBAC7">  DELIMITER $$ </span><span style="color:#768390">-- change the delimiter to $$</span></span>
+<span class="line"><span style="color:#F47067">  CREATE</span></span>
+<span class="line"><span style="color:#ADBAC7">      TRIGGER my_trigger </span><span style="color:#F47067">BEFORE</span><span style="color:#F47067"> INSERT</span></span>
+<span class="line"><span style="color:#F47067">      ON</span><span style="color:#ADBAC7"> employee</span></span>
+<span class="line"><span style="color:#F47067">      FOR</span><span style="color:#ADBAC7"> EACH </span><span style="color:#F47067">ROW</span><span style="color:#F47067"> BEGIN</span></span>
+<span class="line"><span style="color:#F47067">          INSERT INTO</span><span style="color:#ADBAC7"> trigger_test </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'added new employee'</span><span style="color:#ADBAC7">); </span><span style="color:#768390">-- note the use of ; delimiter here</span></span>
+<span class="line"><span style="color:#F47067">      END</span><span style="color:#ADBAC7">$$ </span><span style="color:#768390">-- we need to use the $$ as delimiter which is declared in line 168</span></span>
+<span class="line"><span style="color:#ADBAC7">  DELIMITER ; </span><span style="color:#768390">-- change the delimiter back to ;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">  -- Conditional trigger_test</span></span>
+<span class="line"><span style="color:#ADBAC7">  DELIMITER $$</span></span>
+<span class="line"><span style="color:#F47067">  CREATE</span></span>
+<span class="line"><span style="color:#ADBAC7">      TRIGGER my_trigger </span><span style="color:#F47067">BEFORE</span><span style="color:#F47067"> INSERT</span><span style="color:#768390"> -- can also be UPDATE, DELETE</span></span>
+<span class="line"><span style="color:#F47067">      ON</span><span style="color:#ADBAC7"> employee</span></span>
+<span class="line"><span style="color:#F47067">      FOR</span><span style="color:#ADBAC7"> EACH </span><span style="color:#F47067">ROW</span><span style="color:#F47067"> BEGIN</span></span>
+<span class="line"><span style="color:#F47067">          IF</span><span style="color:#6CB6FF"> NEW</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">sex</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'M'</span><span style="color:#F47067"> THEN</span></span>
+<span class="line"><span style="color:#F47067">                INSERT INTO</span><span style="color:#ADBAC7"> trigger_test </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'added male employee'</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#ADBAC7">          ELSEIF </span><span style="color:#6CB6FF">NEW</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">sex</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'F'</span><span style="color:#F47067"> THEN</span></span>
+<span class="line"><span style="color:#F47067">                INSERT INTO</span><span style="color:#ADBAC7"> trigger_test </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'added female'</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#F47067">          ELSE</span></span>
+<span class="line"><span style="color:#F47067">                INSERT INTO</span><span style="color:#ADBAC7"> trigger_test </span><span style="color:#F47067">VALUES</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'added other employee'</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#F47067">          END</span><span style="color:#F47067"> IF</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">      END</span><span style="color:#ADBAC7">$$</span></span>
+<span class="line"><span style="color:#ADBAC7">  DELIMITER ;</span></span>
+<span class="line"><span style="color:#768390">  -- possible to drop the trigger case (done in client terminal):</span></span>
+<span class="line"><span style="color:#F47067">  DROP</span><span style="color:#F47067"> TRIGGER</span><span style="color:#ADBAC7"> my_trigger</span></span></code></pre>
+</li>
+<li>CTE: Common Table Expression</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">	WITH</span><span style="color:#F47067"> Number</span><span style="color:#768390"> -- here Number is the name of the CTE, can be anything </span></span>
+<span class="line"><span style="color:#F47067">	AS</span></span>
+<span class="line"><span style="color:#ADBAC7">	(</span></span>
+<span class="line"><span style="color:#F47067">	SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">	 CustomerId</span></span>
+<span class="line"><span style="color:#ADBAC7">	 , </span><span style="color:#6CB6FF">NTILE</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> CustomerId) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> N</span></span>
+<span class="line"><span style="color:#F47067">	FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Customers</span></span>
+<span class="line"><span style="color:#ADBAC7">	)</span></span>
+<span class="line"><span style="color:#ADBAC7">	,</span></span>
+<span class="line"><span style="color:#ADBAC7">	TopCustomer </span><span style="color:#768390">-- here we define the second CTE here, notice the comma "," above, indicates that the WITH keyword is still effective</span></span>
+<span class="line"><span style="color:#F47067">	AS</span></span>
+<span class="line"><span style="color:#ADBAC7">	(</span></span>
+<span class="line"><span style="color:#F47067">	SELECT</span><span style="color:#ADBAC7">  </span></span>
+<span class="line"><span style="color:#6CB6FF">	 MAX</span><span style="color:#ADBAC7">(CustomerId) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> CustId</span></span>
+<span class="line"><span style="color:#F47067">	FROM</span><span style="color:#F47067"> Number</span></span>
+<span class="line"><span style="color:#F47067">	GROUP BY</span><span style="color:#ADBAC7"> N</span></span>
+<span class="line"><span style="color:#ADBAC7">	)</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#F47067">	SELECT</span><span style="color:#768390">  -- this SELECT is together with the CTE Expression, not separate query</span></span>
+<span class="line"><span style="color:#ADBAC7">	 C2.</span><span style="color:#F47067">*</span></span>
+<span class="line"><span style="color:#F47067">	INTO</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CustomersSample</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#F47067">	FROM</span><span style="color:#ADBAC7"> TopCustomer </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> C1</span></span>
+<span class="line"><span style="color:#F47067">	INNER JOIN</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Customers</span><span style="color:#F47067"> AS</span><span style="color:#ADBAC7"> C2</span></span>
+<span class="line"><span style="color:#F47067">	 ON</span><span style="color:#6CB6FF"> C1</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CustId</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> C2</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CustomerId</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">	SELECT</span><span style="color:#F47067"> *</span><span style="color:#F47067"> FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">CustomersSample</span><span style="color:#768390"> -- with the above cte method, we created a randomized sample in the dbo.customers table</span></span></code></pre>
+<ol start="15">
+<li>Functions and procedures
+<ul>
+<li>Procedure Creation and Execution
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#ADBAC7">  DELIMITER $$</span></span>
+<span class="line"><span style="color:#F47067">  CREATE</span><span style="color:#F47067"> PROCEDURE</span><span style="color:#ADBAC7"> FizzBuzz()</span></span>
+<span class="line"><span style="color:#F47067">  BEGIN</span></span>
+<span class="line"><span style="color:#F47067">    DECLARE</span><span style="color:#ADBAC7"> N </span><span style="color:#F47067">INT</span><span style="color:#F47067"> DEFAULT</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">      WHILE</span><span style="color:#ADBAC7"> N </span><span style="color:#F47067">&#x3C;=</span><span style="color:#6CB6FF"> 100</span><span style="color:#ADBAC7"> DO</span></span>
+<span class="line"><span style="color:#F47067">      SET</span><span style="color:#ADBAC7"> N </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> N </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">      END</span><span style="color:#F47067"> WHILE</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">  END</span><span style="color:#ADBAC7">$$</span></span>
+<span class="line"><span style="color:#ADBAC7">  DELIMITER ;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">  CALL</span><span style="color:#ADBAC7"> FizzBuzz();</span></span></code></pre>
+</li>
+<li>Function Creation
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#ADBAC7">DELIMITER $$</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> FUNCTION</span><span style="color:#DCBDFB"> multi</span><span style="color:#ADBAC7">( </span><span style="color:#768390">-- if function alrea exists, CREATE is changed to ALTER</span></span>
+<span class="line"><span style="color:#ADBAC7">  n </span><span style="color:#F47067">INT</span></span>
+<span class="line"><span style="color:#ADBAC7">  , m </span><span style="color:#F47067">INT</span></span>
+<span class="line"><span style="color:#ADBAC7">) </span></span>
+<span class="line"><span style="color:#F47067">RETURNS</span><span style="color:#F47067"> INT</span></span>
+<span class="line"><span style="color:#ADBAC7">DETERMINISTIC</span></span>
+<span class="line"><span style="color:#F47067">BEGIN</span></span>
+<span class="line"><span style="color:#F47067">  DECLARE</span><span style="color:#ADBAC7"> result </span><span style="color:#F47067">INT</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">  SET</span><span style="color:#ADBAC7"> result </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> m </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> n;</span></span>
+<span class="line"><span style="color:#F47067">  RETURN</span><span style="color:#ADBAC7"> result;</span></span>
+<span class="line"><span style="color:#F47067">END</span><span style="color:#ADBAC7">$$</span></span>
+<span class="line"><span style="color:#ADBAC7">DELIMITER ;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> your_db_name</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">multi</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> result;</span></span></code></pre>
+</li>
+<li>Check if the function exists
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#ADBAC7">SHOW </span><span style="color:#F47067">FUNCTION</span><span style="color:#F47067"> STATUS</span><span style="color:#F47067"> WHERE</span><span style="color:#ADBAC7"> db </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'your database name'</span><span style="color:#ADBAC7">;</span></span></code></pre>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="string-and-numeric-operations-on-values">String and numeric operations on values</h3>
+<p>String operations</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECt</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#6CB6FF">	UPPER</span><span style="color:#ADBAC7">(email) up</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">LOWER</span><span style="color:#ADBAC7">(last_name) low</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">CONCAT</span><span style="color:#ADBAC7">(first_name, </span><span style="color:#96D0FF">' '</span><span style="color:#ADBAC7">, last_name) full_name</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#F47067">LENGTH</span><span style="color:#ADBAC7">(email) email_len</span></span>
+<span class="line"><span style="color:#ADBAC7">    , CONCAT_WS(</span><span style="color:#96D0FF">' | '</span><span style="color:#ADBAC7">, first_name, last_name) full_name_with_separator</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">TRIM</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">' hello '</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> trimmed</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">RIGHT</span><span style="color:#ADBAC7">(email, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> right_three </span></span>
+<span class="line"><span style="color:#ADBAC7">    , LPAD(customer_id, </span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'000'</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> left_zero_padding</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">FORMAT</span><span style="color:#ADBAC7">(address_id, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> formated_3_float_point</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> customer</span></span>
+<span class="line"><span style="color:#F47067">LIMIT</span><span style="color:#6CB6FF"> 10</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<p>Regex Matching<a href="https://dataschool.com/how-to-teach-people-sql/how-regex-works-in-sql/">1</a></p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> CONCAT</span><span style="color:#ADBAC7">(first_name, </span><span style="color:#96D0FF">' '</span><span style="color:#ADBAC7">, last_name) </span><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> customer</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> last_name ~ </span><span style="color:#96D0FF">'^[^aeiou]'</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> last_name ~</span><span style="color:#F47067">*</span><span style="color:#96D0FF"> '[aeiou]$'</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#6CB6FF"> right</span><span style="color:#ADBAC7">(first_name, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#768390">-- ~ : Case-sensitive, compares two statements, returns true if the first string is contained in the second</span></span>
+<span class="line"><span style="color:#768390">-- ~* : Case-insensitive, compares two statements, returns true if the first string is contained in the second</span></span>
+<span class="line"><span style="color:#768390">-- !~ : Case-sensitive, compares two statements, returns false if the first string is contained in the second</span></span>
+<span class="line"><span style="color:#768390">-- !~* : Case-insensitive, compares two statements, return false if the first string is contained in the second</span></span></code></pre>
+<p>Numeric Functions</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#6CB6FF">	RAND</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rand_num</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">ROUND</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">RAND</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">*</span><span style="color:#6CB6FF"> 10</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rand_round_2_decimal</span></span>
+<span class="line"><span style="color:#ADBAC7">    , CEIL(</span><span style="color:#6CB6FF">RAND</span><span style="color:#ADBAC7">()) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> num_ceil</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">FLOOR</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">RAND</span><span style="color:#ADBAC7">()) </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> num_floor</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">RADIANS</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">180</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> pi_from_radian</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">DEGREES</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">141592653589793</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> pi_from_degree</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">ABS</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> absolute_val</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">POWER</span><span style="color:#ADBAC7">(CUSTOMER_ID, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> id_square</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#6CB6FF">DATEDIFF</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">shop_date</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">date</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">return_date</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">date</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> usage_period</span></span>
+<span class="line"><span style="color:#ADBAC7">    , CONV(CUSTOMER_ID, </span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> to_hex</span></span>
+<span class="line"><span style="color:#ADBAC7">    , </span><span style="color:#F47067">IFNULL</span><span style="color:#ADBAC7">(potential_NUll_column, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> replacing_null_with_zero</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> customer</span></span>
+<span class="line"><span style="color:#F47067">LIMIT</span><span style="color:#6CB6FF"> 10</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- A Blunder</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#6CB6FF"> REPLACE</span><span style="color:#ADBAC7">(amount, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> payment</span></span>
+<span class="line"><span style="color:#F47067">LIMIT</span><span style="color:#6CB6FF"> 5</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<h3 id="some-advanced-operations-window-functions">Some Advanced operations: Window functions</h3>
+<ol>
+<li>OVER clause determines window (the set of rows to operate on)</li>
+<li>PARTITION BY splits the result set into partitions on which the window function is applied</li>
+<li>Functions Available:
+<ul>
+<li>Aggregate - <kbd>COUNT, SUM, MIN, MAX, AVG</kbd></li>
+<li>Ranking - <kbd>ROW_NUMBER, RANK, DENSE_RANK, NTILE</kbd></li>
+<li>Offset - <kbd>FIRST_VALUE, LAST_VALUE, LEAD, LAG</kbd></li>
+<li>Statistical - <kbd>PERCENT_RANK, CUME_DIST, PERCENTILE_CONT, PERCENTILE_DIST</kbd></li>
+</ul>
+</li>
+<li>Windows Functions also have FRAMES
+<ul>
+<li>ROWS</li>
+<li>RANGE</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-demo-on-partition-by">1. Demo on <kbd>PARTITION BY</kbd></h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- the non-window function way</span></span>
+<span class="line"><span style="color:#F47067">WITH</span><span style="color:#ADBAC7"> CTE</span></span>
+<span class="line"><span style="color:#F47067">AS</span></span>
+<span class="line"><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Line_Total) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Total</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> Sales_Details</span></span>
+<span class="line"><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span><span style="color:#F47067"> FROM</span><span style="color:#ADBAC7"> CTE </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> A</span></span>
+<span class="line"><span style="color:#F47067">INNER JOIN</span><span style="color:#ADBAC7"> Sales_Details </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> B</span></span>
+<span class="line"><span style="color:#F47067">  ON</span><span style="color:#6CB6FF"> A</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_Id</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> B</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_Id</span><span style="color:#ADBAC7">;	</span></span>
+<span class="line"><span style="color:#ADBAC7">  </span></span>
+<span class="line"><span style="color:#768390">-- the window function way</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Date</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Item</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Price</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Quantity</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Line_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">COUNT</span><span style="color:#ADBAC7">(Line_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Id) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Line_Count</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Line_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Id) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Sales_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Line_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Date) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Daily_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Line_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Total</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> Sales_Details</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total;</span></span></code></pre>
+<h4 id="2-on-ranking-functions">2. On Ranking Functions</h4>
+<p>Ranking functions are available as part of Window Functions:</p>
+<ul>
+<li>
+<p><kbd>ROW_NUMBER()</kbd> unique incrementing integers</p>
+</li>
+<li>
+<p><kbd>RANK()</kbd> same rank for same values, but keep the counting rolling $\implies$ 1, 1 (duplicate), 3, 4, 5</p>
+</li>
+<li>
+<p><kbd>DENSE_RANK()</kbd>: same rank for same values, but only increase rank by 1 when values change $\implies$ 1, 1 (duplicate), 2, 3, 4</p>
+</li>
+<li>
+<p><kbd>RANK()</kbd> vs <kbd>DENSE_RANK()</kbd>: <kbd>RANK()</kbd> will have rows with identical rank/ gaps in rank if we get tied values</p>
+</li>
+<li>
+<p><kbd>NTILE(N)</kbd> assigns tile number based on the number of tiles required, just assign each row with a value from 0 - N ,in increase order</p>
+<ul>
+<li>Example: 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, … ,N, N, N, N</li>
+<li>Usage: for partitioning/selective sampling of the data</li>
+</ul>
+</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#768390">   -- note that here we use ORDER BY instead of PARTITION BY because order/rank is sort of important rather than the fixed set of value</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">ROW_NUMBER</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rownum </span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rnk</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">DENSE_RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> dense</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">NTILE</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> ntle</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_2</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#768390">   -- This is the modified way, we rank individual set of rows by adding on the PARTITION BY </span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Cust_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">ROW_NUMBER</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rownum </span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rnk</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">DENSE_RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> dense</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">NTILE</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Total </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> ntle</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_2</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Cust_Id</span></span></code></pre>
+<h4 id="3-group-by">3. <kbd>GROUP BY</kbd></h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Cust_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#6CB6FF"> SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> rnk </span><span style="color:#768390">-- note that we used SUM(Sales_Total) not Sales_Total or Total because we need the order of SUM(Sales_Total) for each customer and Total is not defined well</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">DENSE_RANK</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#6CB6FF"> SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">DESC</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> dnse</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_2</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">>=</span><span style="color:#96D0FF"> '2019-03-01'</span></span>
+<span class="line"><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> Sales_Cust_Id</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> rnk</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">-- special OVER clause operation</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Customer_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Cust_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount)) </span><span style="color:#768390">-- this declaration will be wrong as the system says cannot aggregate over another aggregation</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount)) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#F47067"> NULL</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Grand_Total </span><span style="color:#768390">-- this is the proper way as the aggregation is down to the OVER Clause not the SUM(Sales_Amount) function</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">AVG</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount)) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#F47067"> NULL</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Average_Cust_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">CAST</span><span style="color:#ADBAC7">((</span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount) </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> SUM</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Amount)) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#F47067"> NULL</span><span style="color:#ADBAC7">))) </span><span style="color:#F47067">*</span><span style="color:#6CB6FF"> 100</span><span style="color:#F47067"> AS</span><span style="color:#F47067"> DECIMAL</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Pct</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales</span></span>
+<span class="line"><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> Sales_Customer_Id</span></span></code></pre>
+<h4 id="4-window-frames">4. Window FRAMES</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Date</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> BETWEEN</span><span style="color:#F47067"> UNBOUNDED</span><span style="color:#F47067"> PRECEDING</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> CURRENT </span><span style="color:#F47067">ROW</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> [Running Total]</span></span>
+<span class="line"><span style="color:#768390">  -- note that SUM is a window function here</span></span>
+<span class="line"><span style="color:#768390">  -- ROWS BETWEEN ... AND CURRENT ROW gives FRAME that is the set of rows from UNBOUNDED PRECEDING to this CUR ROW</span></span>
+<span class="line"><span style="color:#768390">  -- [Runnig Total] => need to put [] between a phrase with empty space " "</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> BETWEEN</span><span style="color:#ADBAC7"> k </span><span style="color:#F47067">PRECEDING</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> CURRENT </span><span style="color:#F47067">ROW</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> [Running Total]</span></span>
+<span class="line"><span style="color:#768390">  -- this line has the FRAME only between the CURRENT ROW and the k rows before it; </span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> UNBOUNDED</span><span style="color:#F47067"> PRECEDING</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> [Running Total]</span></span>
+<span class="line"><span style="color:#768390">  -- this line is a simplified version for BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_2</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 3</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">SELECT</span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Date</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Total</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> UNBOUNDED</span><span style="color:#F47067"> PRECEDING</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> [Running Total]</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">CAST</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">AVG</span><span style="color:#ADBAC7">(Sales_Total) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Cust_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> UNBOUNDED</span><span style="color:#F47067"> PRECEDING</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#F47067"> DECIMAL</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> [Running Average]</span></span>
+<span class="line"><span style="color:#768390">  -- this line enables running average for individual customers for all of them</span></span>
+<span class="line"><span style="color:#768390">  -- CAST .. AS DECIMAL(8,2) reduces the resultant running average into 2 decimal points</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales_2</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date</span></span></code></pre>
+<h4 id="5-lag-and-lead">5. Lag and Lead</h4>
+<ul>
+<li>Useful for trend analysis</li>
+<li><kbd>LAG</kbd> - return the value from the previous row</li>
+<li><kbd>LEAD</kbd> - return the value from the next row</li>
+<li>Format:</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#6CB6FF">LAG</span><span style="color:#ADBAC7">([Column], [Offset], [Value if NULL])</span></span></code></pre>
+<ul>
+<li>Demo:</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#ADBAC7">  Sales_Customer_Id</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Date</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">LAG</span><span style="color:#ADBAC7">(Sales_Amount, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Customer_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> PrevValue</span></span>
+<span class="line"><span style="color:#768390">  -- get the Sales_Amount 2 days before, if no value is in the entry 2 days before, set it to 0 (default is NULL)</span></span>
+<span class="line"><span style="color:#ADBAC7">  , Sales_Amount</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">LEAD</span><span style="color:#ADBAC7">(Sales_Amount, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">PARTITION</span><span style="color:#F47067"> BY</span><span style="color:#ADBAC7"> Sales_Customer_Id </span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> Sales_Date) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> NextValue</span></span>
+<span class="line"><span style="color:#768390">  -- idea is the same, just change it to later</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#6CB6FF"> dbo</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Sales</span></span></code></pre>
+<h4 id="6-rolling-window">6. Rolling window</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> </span></span>
+<span class="line"><span style="color:#F47067">  *</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(SalesAmount) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> [Date] </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> BETWEEN</span><span style="color:#6CB6FF"> 9</span><span style="color:#F47067"> PRECEDING</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> CURRENT </span><span style="color:#F47067">ROW</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Total </span></span>
+<span class="line"><span style="color:#768390">  -- the Window FRAME method and SUM function together makings the window "rolling"</span></span>
+<span class="line"><span style="color:#ADBAC7">  , </span><span style="color:#6CB6FF">SUM</span><span style="color:#ADBAC7">(SalesAmount) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> [Date] </span><span style="color:#F47067">ROWS</span><span style="color:#F47067"> BETWEEN</span><span style="color:#ADBAC7"> CURRENT </span><span style="color:#F47067">ROW</span><span style="color:#F47067"> AND</span><span style="color:#6CB6FF"> 9</span><span style="color:#F47067"> FOLLOWING</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> Forward</span></span>
+<span class="line"><span style="color:#768390">  -- we use FOLLOWING for the future rows</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> #TempSales </span><span style="color:#768390">-- nothing fancy about # sign here</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#ADBAC7"> [Date] </span><span style="color:#768390">-- here [] is needed because Date itself is a SQL keyword</span></span></code></pre>
+<h4 id="7-variable-specification">7. Variable Specification</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">SET</span><span style="color:#F47067"> GLOBAL</span><span style="color:#ADBAC7"> some_global_variable </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">SET</span><span style="color:#ADBAC7"> @n </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 10</span><span style="color:#ADBAC7">;</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> @n </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> num;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">SET</span><span style="color:#ADBAC7">@id </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> payment_id </span><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> payment </span><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> customer_id </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 2</span><span style="color:#F47067"> LIMIT</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">);</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> @id </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> new_id;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">WITH</span><span style="color:#ADBAC7"> cte </span><span style="color:#F47067">AS</span></span>
+<span class="line"><span style="color:#ADBAC7">(</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> customer_id, </span><span style="color:#6CB6FF">COUNT</span><span style="color:#ADBAC7">(payment_id) cc</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> payment p</span></span>
+<span class="line"><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> customer_id</span></span>
+<span class="line"><span style="color:#ADBAC7">),</span></span>
+<span class="line"><span style="color:#ADBAC7">cnt </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> (</span><span style="color:#F47067">SELECT</span><span style="color:#ADBAC7"> cc, </span><span style="color:#6CB6FF">COUNT</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> tcc, </span><span style="color:#6CB6FF">MAX</span><span style="color:#ADBAC7">(cc) </span><span style="color:#F47067">OVER</span><span style="color:#ADBAC7">() </span><span style="color:#F47067">AS</span><span style="color:#ADBAC7"> mcc </span><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> cte </span><span style="color:#F47067">GROUP BY</span><span style="color:#ADBAC7"> cc)</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> cte</span></span>
+<span class="line"><span style="color:#F47067">INNER JOIN</span><span style="color:#ADBAC7"> cnt </span><span style="color:#F47067">ON</span><span style="color:#6CB6FF"> cnt</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">cc</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> cte</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">cc</span><span style="color:#F47067"> AND</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">cnt</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">tcc</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 1</span><span style="color:#F47067"> OR</span><span style="color:#6CB6FF"> cnt</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">cc</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> cnt</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">mcc</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">ORDER BY</span><span style="color:#6CB6FF"> cte</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">cc</span><span style="color:#F47067"> DESC</span><span style="color:#ADBAC7">, customer_id </span><span style="color:#F47067">ASC</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<h3 id="conclusion">Conclusion</h3>
+<p>The above codes demonstrate the majorities of the SQL codes formats an engineer would ever need in its daily CRUD operations already. Thanks for reading!</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/cli-nic/"> <span class="dir">← previous</span> <span class="title">CLI-nic</span> </a> <a class="next" href="/writing/blogs/sql/sql-2/"> <span class="dir">next →</span> <span class="title">SQL: Index and Optimization</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

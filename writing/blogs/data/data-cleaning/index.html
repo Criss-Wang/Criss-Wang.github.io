@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>The Data Mining Triology: II. Cleaning - Zhenlin Wang</title><meta name="description" content="The first step when you get some data: clean it up!"><meta property="og:title" content="The Data Mining Triology: II. Cleaning - Zhenlin Wang"><meta property="og:description" content="The first step when you get some data: clean it up!"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/data/data-cleaning/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining/Data Engineering</div> <h1>The <em>Data</em> Mining Triology: II. Cleaning</h1> <p class="dek">The first step when you get some data: clean it up!</p> <div class="byline"> <strong>2019.09.01</strong> <span>·</span> <span>7 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-09-22</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>Very often, the data loaded into your notebooks are not entirely usable. There might be missing values, noisy data points, duplicates and outliers. Sometimes, data needs to be scaled up and down. Encoding and dimensionality reductions can be performed to make data cleaner and easier to operate on. Here we discuss about some essential ways to clean up the data</p>
+<h3 id="basic-cleaning">Basic Cleaning</h3>
+<p>The first step involves</p>
+<ol>
+<li>Detecting and handling missing or noisy data;</li>
+<li>Removal of outliers</li>
+<li>Minimizing duplication and computed biases within the data</li>
+</ol>
+<hr>
+<ul>
+<li>
+<p>Missing Data</p>
+<p>Missing data is the entries with empty input or Null input. It can be handled in following ways:</p>
+<ol>
+<li>
+<p>Ignore the Tuple</p>
+<p><strong>Note</strong>: Suitable only when the dataset is quite large and multiple values are missing within a tuple</p>
+</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">	df2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> df[[column </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> column </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> df </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> df[column].count() </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(df) </span><span style="color:#F47067">>=</span><span style="color:#6CB6FF"> 0.3</span><span style="color:#ADBAC7">]] </span><span style="color:#768390"># Drops columns with >70% of rows missing value;</span></span>
+<span class="line"><span style="color:#ADBAC7">	</span></span>
+<span class="line"><span style="color:#6CB6FF">	print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"List of dropped columns:"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">end</span><span style="color:#F47067">=</span><span style="color:#96D0FF">" "</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">	for</span><span style="color:#ADBAC7"> c </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> df.columns:</span></span>
+<span class="line"><span style="color:#F47067">		if</span><span style="color:#ADBAC7"> c </span><span style="color:#F47067">not</span><span style="color:#F47067"> in</span><span style="color:#ADBAC7"> df2.columns:</span></span>
+<span class="line"><span style="color:#6CB6FF">			print</span><span style="color:#ADBAC7">(c, </span><span style="color:#F69D50">end</span><span style="color:#F47067">=</span><span style="color:#96D0FF">", "</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># list out the dropped columns</span></span></code></pre>
+<ol start="2">
+<li>Fill the Missing Values using
+<ul>
+<li>Manual imputation (via inspection &#x26; domain knowledge)</li>
+<li>Mean value imputation</li>
+<li>Most Probable Value (Mode) imputation</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>Noisy Data</p>
+<p>Noisy data is meaningless data that can’t be interpreted by machines. It can be generated due to faulty data collection, data entry errors etc. It can be handled in following ways :</p>
+<ol>
+<li>
+<p><a href="https://www.geeksforgeeks.org/python-binning-method-for-data-smoothing">Binning Method</a>:</p>
+<p>[Sorted data in order to smooth it] $\implies$ [The whole data divided into segments of equal size]  $\implies$ [Various methods are performed to complete the task. Each segmented is handled separately.]</p>
+</li>
+<li>
+<p>Regression:</p>
+<p>Fitting data to a regression function: ML Regression Algorithm can be used for smoothing of data. Interpolate using the regression.</p>
+</li>
+<li>
+<p>Clustering:</p>
+</li>
+</ol>
+<p>Groups the similar data in a cluster and apply unsupervised learning.</p>
+</li>
+<li>
+<p>Detect and Remove Outliers:</p>
+<ul>
+<li>Detect Outliers (Some simple methods outlined below)</li>
+</ul>
+<h4 id="1-using-boxplot">1. Using Boxplot</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
+<span class="line"><span style="color:#ADBAC7">sns.boxplot(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<h4 id="2-using-scatterplot">2. Using Scatterplot</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> matplotlib </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#ADBAC7">fig, ax </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">ax.scatter(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">plot.show()</span></span></code></pre>
+<h4 id="3-using-z-score">3. Using z score</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> scipy </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> stats</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#ADBAC7">z </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.abs(stats.zscore(boston_df))</span></span>
+<span class="line"><span style="color:#ADBAC7">threshold </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 3</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(np.where(z </span><span style="color:#F47067">></span><span style="color:#ADBAC7"> threshold))</span></span></code></pre>
+<h4 id="4-using-interquartile-range-iqr-score">4. Using interquartile range (IQR) score</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">Q1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> boston_df_o1.quantile(</span><span style="color:#6CB6FF">0.25</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">Q3 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> boston_df_o1.quantile(</span><span style="color:#6CB6FF">0.75</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">IQR</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> Q3 </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> Q1</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(boston_df_o1 </span><span style="color:#F47067">&#x3C;</span><span style="color:#ADBAC7"> (Q1 </span><span style="color:#F47067">-</span><span style="color:#6CB6FF"> 1.5</span><span style="color:#F47067"> *</span><span style="color:#6CB6FF"> IQR</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">|</span><span style="color:#ADBAC7">(boston_df_o1 </span><span style="color:#F47067">></span><span style="color:#ADBAC7"> (Q3 </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1.5</span><span style="color:#F47067"> *</span><span style="color:#6CB6FF"> IQR</span><span style="color:#ADBAC7">))</span></span></code></pre>
+<ul>
+<li>Remove Outliers (Fixed value or interval methods)</li>
+</ul>
+<h4 id="5-using-column-specific-value-threshold">5. Using column specific value threshold</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">boston_df_o </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> boston_df_o[(z </span><span style="color:#F47067">&#x3C;</span><span style="color:#6CB6FF"> 3</span><span style="color:#ADBAC7">).all(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)]</span></span></code></pre>
+<h4 id="6-using-value-range-iqr-in-this-case">6. Using value range (IQR in this case)</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">boston_df_out </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> boston_df_o1[</span><span style="color:#F47067">~</span><span style="color:#ADBAC7">((boston_df_o1 </span><span style="color:#F47067">&#x3C;</span><span style="color:#ADBAC7"> (Q1 </span><span style="color:#F47067">-</span><span style="color:#6CB6FF"> 1.5</span><span style="color:#F47067"> *</span><span style="color:#6CB6FF"> IQR</span><span style="color:#ADBAC7">)) </span><span style="color:#F47067">|</span><span style="color:#ADBAC7">(boston_df_o1 </span><span style="color:#F47067">></span><span style="color:#ADBAC7"> (Q3 </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1.5</span><span style="color:#F47067"> *</span><span style="color:#6CB6FF"> IQR</span><span style="color:#ADBAC7">))).any(</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)]</span></span></code></pre>
+</li>
+<li>
+<p>Remove Duplicates</p>
+<p>Sometimes, there may exist duplicate data entries. Most of the time, this is undesirable. You may want to remove those entries (after carefully examine the problem setups)</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">s1_dup </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> s1_trans[s1_trans.duplicated()] </span><span style="color:#768390"># Identify Duplicates</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(s1_dup.shape)</span></span>
+<span class="line"><span style="color:#ADBAC7">s1_trans.drop_duplicates(</span><span style="color:#F69D50">subset</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> None</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">keep</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> 'first'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> True</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># Remove Duplicates</span></span></code></pre>
+</li>
+</ul>
+<h3 id="transforming-data">Transforming data</h3>
+<p>We transform datasets in some situations to :</p>
+<ol>
+<li>Convert the raw data into a specified format according to the need of the model.</li>
+<li>Remove redundancy within the data (not duplicates, but unnecessary bytes that occupy the storage for no meaning)</li>
+<li>Efficiently organize the data</li>
+</ol>
+<p>Here we just present the method using sci-kit laern’s <code>preprocessing</code> module.</p>
+<h3 id="data-conversion">Data Conversion</h3>
+<ol>
+<li>
+<p>Normalization (Basically Data rescaling/mean removal):
+It is done in order to scale the data values in a specified range (-1.0 to 1.0 or 0.0 to 1.0)</p>
+</li>
+<li>
+<p>Attribute Selection (Usually for Aggregation purpose):
+In this strategy, new attributes are constructed from the given set of attributes to help the mining process.</p>
+</li>
+<li>
+<p>Discretization: (<strong>IMPT!!!</strong>)
+This is done to replace the raw values of numeric attribute by interval levels or conceptual levels.</p>
+<ul>
+<li>Using classes/ranges/bands mapping (given or need to design)</li>
+<li>Using Top-down approaches: <a href="https://natmeurer.com/a-simple-guide-to-entropy-based-discretization/">Entropy-based Discretization</a></li>
+</ul>
+</li>
+<li>
+<p>Concept Hierarchy Generation:
+Here attributes are converted from level to higher level in hierarchy. For example, the attribute “city” can be converted to “country” in some scenarios.</p>
+</li>
+<li>
+<p>Encode Data:
+Machine learning algorithms cannot work with categorical data directly, categorical data must be converted to number.</p>
+<ol>
+<li>Label Encoding</li>
+<li>One hot encoding</li>
+<li>Dummy variable trap</li>
+</ol>
+<p><strong>Label encoding</strong> refers to transforming the word labels into numerical form so that the algorithms can understand how to operate on them.</p>
+<p>A <strong>One hot encoding</strong> is a representation of categorical variable as binary vectors.It allows the representation of categorical data to be more expresive. This first requires that the categorical values be mapped to integer values, that is label encoding. Then, each integer value is represented as a binary vector that is all zero values except the index of the integer, which is marked with a 1.</p>
+<p>The <strong>Dummy variable trap</strong> is a scenario in which the independent variable are multicollinear, a scenario in which two or more variables are highly correlated in simple term one variable can be predicted from the others.</p>
+<p>By using <code>pandas get_dummies</code> function we can do all above three step in line of code. We will this fuction  to get dummy variable for sex, children,smoker,region features. By setting <code>drop_first =True</code> function will remove dummy variable trap by droping one variable and original variable.The pandas makes our life easy.</p>
+</li>
+<li>
+<p>Advanced: Box-Cox transformation
+A Box Cox transformation is a way to transform non-normal dependent variables into a normal shape. Normality is an important assumption for many statistical techniques; if your data isn’t normal, applying a Box-Cox means that you are able to run a broader number of tests. All that we need to perform this transformation is to find lambda value and apply the rule shown below to your variable.</p>
+</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">## The trick of Box-Cox transformation is to find lambda value, however in practice this is quite affordable. The following function returns the transformed variable, lambda value,confidence interval. See the sample code below:</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> scipy.stats </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> boxcox</span></span>
+<span class="line"><span style="color:#ADBAC7">y_bc,lam, ci</span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> boxcox(df_encode[</span><span style="color:#96D0FF">'charges'</span><span style="color:#ADBAC7">],</span><span style="color:#F69D50">alpha</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.05</span><span style="color:#ADBAC7">) </span></span></code></pre>
+  <figure align="center">
+    <img src="/images/Machine%20learning/box-cox.png" width="300px">
+    <figcaption>box-cox</figcaption>
+  </figure>
+<h3 id="data-scaling--standardizing--mean-removal">Data Scaling / Standardizing / Mean Removal</h3>
+<p><strong>Note</strong>: Don’t use all of them, only use some selectively when you need to (which is usually the case after EDA)!!!</p>
+<ol>
+<li>Rescaling Data: scaled between the given range</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">data_scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> preprocessing.MinMaxScaler(</span><span style="color:#F69D50">feature_range</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">data_scaled </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> data_scaler.fit_transform(input_data)</span></span></code></pre>
+<ol start="2">
+<li>Mean Removal: standardize input_data into mean = 0 and std = 1</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">data_standardized </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> preprocessing.scale(input_data)</span></span>
+<span class="line"><span style="color:#ADBAC7">data_standardized.mean(</span><span style="color:#F69D50">axis</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">data_standardized.std(</span><span style="color:#F69D50">axis</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#FF938A;font-style:italic">	```	</span></span>
+<span class="line"><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">. Normalizing Data: values of a feature vector are adjusted so that they </span><span style="color:#6CB6FF">sum</span><span style="color:#ADBAC7"> up to </span><span style="color:#6CB6FF">1</span></span>
+<span class="line"><span style="color:#FF938A;font-style:italic">```python	</span></span>
+<span class="line"><span style="color:#ADBAC7">data_normalized </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> preprocessing.normalize(input_data, </span><span style="color:#F69D50">norm</span><span style="color:#F47067">  =</span><span style="color:#96D0FF"> 'l1'</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<ol start="4">
+<li>Binarizing Data: convert a numerical feature vector into a Boolean vector</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">data_binarized </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> preprocessing.Binarizer(</span><span style="color:#F69D50">threshold</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.4</span><span style="color:#ADBAC7">).transform(input_data)</span></span></code></pre>
+<ol start="5">
+<li>Label Encoding: changing the word labels into numbers</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">### Encode:</span></span>
+<span class="line"><span style="color:#ADBAC7">label_encoder </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> preprocessing.LabelEncoder()</span></span>
+<span class="line"><span style="color:#ADBAC7">input_classes </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'suzuki'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'ford'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'suzuki'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'toyota'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'ford'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'bmw'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">label_encoder.fit(input_classes) </span><span style="color:#768390">#Generate Mapping</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">Class mapping:"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i, item </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(label_encoder.classes_):</span></span>
+<span class="line"><span style="color:#6CB6FF">  print</span><span style="color:#ADBAC7">(item, </span><span style="color:#96D0FF">'-->'</span><span style="color:#ADBAC7">, i)</span></span>
+<span class="line"><span style="color:#ADBAC7">labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'toyota'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'ford'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'suzuki'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">encoded_labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> label_encoder.transform(labels) </span><span style="color:#768390"># Actual Encoding</span></span>
+<span class="line"><span style="color:#768390">### Decode:</span></span>
+<span class="line"><span style="color:#ADBAC7">decoded_labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> label_encoder.inverse_transform(encoded_labels) </span><span style="color:#768390"># Actual Decoding</span></span></code></pre>
+<p><strong>Warning</strong>: it assumes higher the categorical value, better the category (solved by one hot encoding)
+6. One Hot Encoding (often used together with argmax function): <a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html">Dummy Variable Encoding</a></p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> enc </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> OneHotEncoder(</span><span style="color:#F69D50">handle_unknown</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'ignore'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [[</span><span style="color:#96D0FF">'Male'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], [</span><span style="color:#96D0FF">'Female'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">], [</span><span style="color:#96D0FF">'Female'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">]]</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> enc.fit(X)</span></span>
+<span class="line"><span style="color:#ADBAC7">OneHotEncoder(</span><span style="color:#F69D50">handle_unknown</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'ignore'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> enc.categories_</span></span>
+<span class="line"><span style="color:#ADBAC7">[array([</span><span style="color:#96D0FF">'Female'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Male'</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">object</span><span style="color:#ADBAC7">), array([</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">object</span><span style="color:#ADBAC7">)]</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> enc.transform([[</span><span style="color:#96D0FF">'Female'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], [</span><span style="color:#96D0FF">'Male'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">]]).toarray()</span></span>
+<span class="line"><span style="color:#ADBAC7">array([[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">.],</span></span>
+<span class="line"><span style="color:#ADBAC7">      [</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">., </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">.]])</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> enc.inverse_transform([[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], [</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]])</span></span>
+<span class="line"><span style="color:#ADBAC7">array([[</span><span style="color:#96D0FF">'Male'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#ADBAC7">      [</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">]], </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">object</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<ol start="7">
+<li>Scaler Comparison and choices
+<ol>
+<li><kbd>MinMaxScaler</kbd></li>
+</ol>
+<ul>
+<li><strong>Definition</strong>: Add or substract a constant. Then multiply or divide by another constant. MinMaxScaler subtracts the mimimum value in the column and then divides by the difference between the original maximum and original minimum.</li>
+<li><strong>Preprocessing Type</strong>: Scale</li>
+<li><strong>Range</strong>: 0 to 1 default, can override</li>
+<li><strong>Mean</strong>: varies</li>
+<li><strong>Distribution Characteristics</strong>: Bounded</li>
+<li><strong>When Use</strong>: Use first unless have theoretical reason to need stronger scalers.</li>
+<li><strong>Notes</strong>: Preserves the shape of the original distribution. Doesn’t reduce the importance of outliers. Least disruptive to the information in the original data. Default range for MinMaxScaler is 0 to 1.</li>
+</ul>
+<ol start="2">
+<li><kbd>RobustScaler</kbd></li>
+</ol>
+<ul>
+<li><strong>Definition</strong>: RobustScaler standardizes a feature by removing the median and dividing each feature by the interquartile range.</li>
+<li><strong>Preprocessing Type</strong>: Standardize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: varies</li>
+<li><strong>Distribution Characteristics</strong>: Unbounded</li>
+<li><strong>When Use</strong>: Use if have outliers and don’t want them to have much influence.</li>
+<li><strong>Notes</strong>: Outliers have less influence than with MinMaxScaler. Range is larger than MinMaxScaler or Standard Scaler.</li>
+</ul>
+<ol start="3">
+<li><kbd>StandardScaler</kbd></li>
+</ol>
+<ul>
+<li><strong>Definition</strong>: StandardScaler standardizes a feature by removing the mean and dividing each value by the standard deviation.</li>
+<li><strong>Preprocessing Type</strong>: Standardize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: 0</li>
+<li><strong>Distribution Characteristics</strong>: Unbounded, Unit variance</li>
+<li><strong>When Use</strong>: When need to transform a feature so it is close to normally distributed.</li>
+<li><strong>Notes</strong>: Results in a distribution with a standard deviation equal to 1 (and variance equal to 1). If you have outliers in your feature (column), normalizing your data will scale most of
+the data to a small interval.</li>
+</ul>
+<ol start="4">
+<li><kbd>Normalizer</kbd></li>
+</ol>
+<ul>
+<li><strong>Definition</strong>: An observation (row) is normalized by applying 12 (Euclidian) normalization. If each element were squared and summed, the total would equal 1. Could also specify 11 (Manhatten) normalization.</li>
+<li><strong>Preprocessing Type</strong>: Normalize</li>
+<li><strong>Range</strong>: varies</li>
+<li><strong>Mean</strong>: 0</li>
+<li><strong>Distribution Characteristics</strong>: Unit norm</li>
+<li><strong>When Use</strong>: Rarely</li>
+<li><strong>Notes</strong>: Normalizes each sample observation (row), not the feature (column)!</li>
+</ul>
+</li>
+</ol>
+<h3 id="reduce-data">Reduce Data</h3>
+<p>The aim of data reduction is to fit the data size to the question/make model more efficient. Usually there are 4 major methods as outlined below:</p>
+<h4 id="1-data-cube-aggregation">1. Data Cube Aggregation:</h4>
+<p>Aggregation operation is applied to data for the construction of the data cube.</p>
+<ul>
+<li>The cube stores multidimensional aggregated information</li>
+<li>Ensures a smallest representation which is enough for the Task</li>
+<li>Base cuboid: individual entity of interest (e.g customers)</li>
+<li>Apex cuboid: total of all branches (e.g total sales for all item types)</li>
+</ul>
+<h4 id="2-attribute-subset-selection">2. Attribute Subset Selection:</h4>
+<p>The highly relevant attributes should be used, rest all can be discarded.
+Significance Level and p-value of the attribute comparison:</p>
+<ul>
+<li>The attribute having p-value greater than significance level can be discarded.</li>
+</ul>
+<h4 id="3-numerosity-reduction">3. Numerosity Reduction:</h4>
+<p>This enable to store the model of data instead of whole data, for example: Regression Models.</p>
+<ul>
+<li>
+<p>Parametric Method
+Regression
+log-linear models</p>
+</li>
+<li>
+<p>Non-parametri Method
+histograms (for supervised learning binning)
+clustering (for unsupervised learning binning)
+sampling (best is simple random sampling without replacement)
+data cube aggregation (move from lowest level to highest level, data reduces when moving up the cube)</p>
+</li>
+</ul>
+<h4 id="4-dimensionality-reduction">4. Dimensionality Reduction:</h4>
+<ul>
+<li>This reduce the size of data by encoding mechanisms.</li>
+<li>lossy vs lossless:
+If after reconstruction from compressed data, original data can be retrieved, such reduction are called lossless reduction</li>
+<li>Methods:
+<ol>
+<li>Wavelet transforms: decompose a signal based on special bases (or basis functions), which have certain mathematical properties; Works well for image description</li>
+<li>PCA (Identify the components contributing to the most of the variances in the data)</li>
+<li>ICA (identify independent components that extract individual signals from a mixture)</li>
+</ol>
+</li>
+</ul>
+<h3 id="conclusion">Conclusion</h3>
+<p>The above methods really focused a lot on numerical data and basic variables. There are tones of details I neglected (like errors in entries, how to detect them and how to fix them). Also, there are special treatments on words or images (like regex processing and image transformations). These are widely applied in the field of natural language processing and computer visions. We encourage interested readers to explore these ideas by reading the regex tutorials (I’ve also written a blog on it) and CV tutorials.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/data-preparation/"> <span class="dir">← previous</span> <span class="title">The Data Mining Triology: I. Preparation</span> </a> <a class="next" href="/writing/blogs/mlops/ab-testing/"> <span class="dir">next →</span> <span class="title">A brief Intro to A/B Testing</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

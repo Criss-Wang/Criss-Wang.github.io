@@ -1,0 +1,419 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Recommender Systems: I. Content-Based Filtering And Collaborative Filtering - Zhenlin Wang</title><meta name="description" content="Welcome to the world the recommenders"><meta property="og:title" content="Recommender Systems: I. Content-Based Filtering And Collaborative Filtering - Zhenlin Wang"><meta property="og:description" content="Welcome to the world the recommenders"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/recom-sys/recommender-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Recommender Systems</div> <h1>Recommender <em>Systems:</em> I. Content-Based Filtering And Collaborative Filtering</h1> <p class="dek">Welcome to the world the recommenders</p> <div class="byline"> <strong>2020.04.01</strong> <span>·</span> <span>8 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-03-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+<p>The rapid growth of data collection has led to a new era of information. Data is being used to create more efficient systems and this is where Recommendation Systems come into play.  Recommendation Systems are a type of <strong>information filtering systems</strong> as they improve the quality of search results and provides items that are more relevant to the search item or are realted to the search history of the user. They are used to predict the <strong>rating</strong> or <strong>preference</strong> that a user would give to an item. Almost every major tech company has applied them in some form or the other: Amazon uses it to suggest products to customers, YouTube uses it to decide which video to play next on autoplay, and Facebook uses it to recommend pages to like and people to follow. Moreover,  companies like Netflix and Spotify  depend highly on the effectiveness of their recommendation engines for their business and success.</p>
+<h3 id="traditional-recommender-system-models">Traditional recommender system models</h3>
+<p>There are basically three types of traditional recommender systems, let’s use the example of movie recommendation (e.g. Netflix):</p>
+<ul>
+<li><strong>Demographic Filtering</strong>: They offer generalized recommendations to every user, based on movie popularity and/or genre. The System recommends the same movies to users with similar demographic features. Since each user is different , this approach is considered to be too simple. The basic idea behind this system is that movies that are more popular and critically acclaimed will have a higher probability of being liked by the average audience.</li>
+<li><strong>Content Based Filtering</strong>: They suggest similar items based on a particular item. This system uses item metadata, such as genre, director, description, actors, etc. for movies, to make these recommendations. The general idea behind these recommender systems is that if a person liked a particular item, he or she will also like an item that is similar to it.</li>
+<li><strong>Collaborative Filtering</strong>: This system matches persons with similar interests and provides recommendations based on this matching. Collaborative filters do not require item metadata like its content-based counterparts.</li>
+</ul>
+<p>In later blogs, we will talk about more recent models for recommender systems, including factorization machines and deep learning based models.</p>
+<h3 id="content-based-filtering">Content Based Filtering</h3>
+<h4 id="1-definition">1. Definition</h4>
+<ul>
+<li>Use additional information about users and/or items.
+<ul>
+<li>Example: User features: age, the sex, the job or any other personal information</li>
+<li>Exmaple: Item features: the category, the main actors, the duration or other characteristics for the movies.</li>
+</ul>
+</li>
+<li>Main idea: given the set of features (both User and Item), apply a method to identify the model that explain the observed user-item interactions.  <br>
+  <figure align="center">
+      <img src="/images/Machine%20learning/Content_flow.png" width="500px">
+      <figcaption>Content Flow</figcaption>
+  </figure>
+</li>
+<li>Little concern about “Cold Start”: new users or items can be described by their characteristics (content) and so relevant suggestions can be done for these new entities</li>
+<li>One key tool used: <code>Term Frequency-Inverse Document Frequency (TF-IDF)</code>:
+<ul>
+<li>TF: the frequency of a word in a document</li>
+<li>IDF: the inverse of the document frequency among the whole corpus of documents.</li>
+<li>log: log function is taken to dampen the effect of high frequency word (0 vs 100 $\implies$ 0 vs 2 (log100))</li>
+</ul>
+</li>
+<li>Note that normalization is needed before we apply <code>TF-IDF</code> because the initial feature map are all 1’s and 0’s, but the <strong>log</strong> function will remove all these differentiation. In the end the TF score will just be 1/0</li>
+</ul>
+<h4 id="2-limitation">2. Limitation</h4>
+<ul>
+<li>They are not good at capturing inter-dependence or complex behaviours. For example: A user may prefer gaming + tv the most while a pure tv is not really his favourate.</li>
+</ul>
+<h4 id="3-code-sample">3. Code Sample</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np </span><span style="color:#768390"># linear algebra</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.feature_extraction.text </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> TfidfVectorizer</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics.pairwise </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> linear_kernel</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">books </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'goodread/books.csv'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">encoding</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> "ISO-8859-1"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">ratings </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'goodread/ratings.csv'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">encoding</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> "ISO-8859-1"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">book_tags </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'goodread/book_tags.csv'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">encoding</span><span style="color:#F47067"> =</span><span style="color:#96D0FF"> "ISO-8859-1"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">tags </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'goodread/tags.csv'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">tags_join_DF </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.merge(book_tags, tags, </span><span style="color:#F69D50">left_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'tag_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">right_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'tag_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">how</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'inner'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">to_read </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'goodread/to_read.csv'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">tf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> TfidfVectorizer(</span><span style="color:#F69D50">analyzer</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'word'</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">ngram_range</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">),</span><span style="color:#F69D50">min_df</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stop_words</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'english'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">tfidf_matrix </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> tf.fit_transform(books[</span><span style="color:#96D0FF">'authors'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">cosine_sim </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> linear_kernel(tfidf_matrix, tfidf_matrix)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">titles </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Series(books.index, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Function that get book recommendations based on the cosine similarity score of book authors</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> authors_recommendations</span><span style="color:#ADBAC7">(title):</span></span>
+<span class="line"><span style="color:#ADBAC7">    idx </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> indices[title]</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">enumerate</span><span style="color:#ADBAC7">(cosine_sim[idx]))</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(sim_scores, </span><span style="color:#F69D50">key</span><span style="color:#F47067">=lambda</span><span style="color:#ADBAC7"> x: x[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">reverse</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> sim_scores[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">21</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">    book_indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [i[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> sim_scores]</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> titles.iloc[book_indices]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">books_with_tags </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.merge(books, tags_join_DF, </span><span style="color:#F69D50">left_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'book_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">right_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'goodreads_book_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">how</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'inner'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">tf1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> TfidfVectorizer(</span><span style="color:#F69D50">analyzer</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'word'</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">ngram_range</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">),</span><span style="color:#F69D50">min_df</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stop_words</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'english'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">tfidf_matrix1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> tf1.fit_transform(books_with_tags[</span><span style="color:#96D0FF">'tag_name'</span><span style="color:#ADBAC7">].head(</span><span style="color:#6CB6FF">10000</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">cosine_sim1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> linear_kernel(tfidf_matrix1, tfidf_matrix1)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Build a 1-dimensional array with book titles</span></span>
+<span class="line"><span style="color:#ADBAC7">titles1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">indices1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Series(books.index, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Function that get book recommendations based on the cosine similarity score of books tags</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> tags_recommendations</span><span style="color:#ADBAC7">(title):</span></span>
+<span class="line"><span style="color:#ADBAC7">    idx </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> indices1[title]</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">enumerate</span><span style="color:#ADBAC7">(cosine_sim1[idx]))</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(sim_scores, </span><span style="color:#F69D50">key</span><span style="color:#F47067">=lambda</span><span style="color:#ADBAC7"> x: x[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">reverse</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> sim_scores[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">21</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">    book_indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [i[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> sim_scores]</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> titles.iloc[book_indices]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">temp_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> books_with_tags.groupby(</span><span style="color:#96D0FF">'book_id'</span><span style="color:#ADBAC7">)[</span><span style="color:#96D0FF">'tag_name'</span><span style="color:#ADBAC7">].apply(</span><span style="color:#96D0FF">' '</span><span style="color:#ADBAC7">.join).reset_index()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">books </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.merge(books, temp_df, </span><span style="color:#F69D50">left_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'book_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">right_on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'book_id'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">how</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'inner'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">books[</span><span style="color:#96D0FF">'corpus'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (pd.Series(books[[</span><span style="color:#96D0FF">'authors'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'tag_name'</span><span style="color:#ADBAC7">]]</span></span>
+<span class="line"><span style="color:#ADBAC7">                .fillna(</span><span style="color:#96D0FF">''</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">                .values.tolist()</span></span>
+<span class="line"><span style="color:#ADBAC7">                ).str.join(</span><span style="color:#96D0FF">' '</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">tf_corpus </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> TfidfVectorizer(</span><span style="color:#F69D50">analyzer</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'word'</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">ngram_range</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">),</span><span style="color:#F69D50">min_df</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stop_words</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'english'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">tfidf_matrix_corpus </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> tf_corpus.fit_transform(books[</span><span style="color:#96D0FF">'corpus'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">cosine_sim_corpus </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> linear_kernel(tfidf_matrix_corpus, tfidf_matrix_corpus)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Build a 1-dimensional array with book titles</span></span>
+<span class="line"><span style="color:#ADBAC7">titles </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Series(books.index, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">books[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Function that get book recommendations based on the cosine similarity score of books tags</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> corpus_recommendations</span><span style="color:#ADBAC7">(title):</span></span>
+<span class="line"><span style="color:#ADBAC7">    idx </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> indices1[title]</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">enumerate</span><span style="color:#ADBAC7">(cosine_sim_corpus[idx]))</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(sim_scores, </span><span style="color:#F69D50">key</span><span style="color:#F47067">=lambda</span><span style="color:#ADBAC7"> x: x[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">reverse</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    sim_scores </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> sim_scores[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">21</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">    book_indices </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [i[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> sim_scores]</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> titles.iloc[book_indices]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">corpus_recommendations(</span><span style="color:#96D0FF">"The Hobbit"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">corpus_recommendations(</span><span style="color:#96D0FF">"Twilight (Twilight, #1)"</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<h3 id="collaborative-filtering">Collaborative Filtering</h3>
+<h4 id="1-definition-1">1. Definition</h4>
+<ul>
+<li>Based solely on the past interactions recorded between users and items in order to produce new recommendations</li>
+<li>Main idea: Past user-item interactions are sufficient to detect similar users and/or similar items and make predictions based on these estimated proximities.</li>
+<li>Every user and item is described by a feature vector or embedding. It creates embedding for both users and items on its own. It embeds both users and items in the same embedding space.</li>
+<li>2 Major Types:
+<ul>
+<li>Memory Based
+<ul>
+<li>Users and items are represented directly by their past interactions (large sparce vector)</li>
+<li>Recommendations are done following nearest neighbour information</li>
+<li>No latent model is assumed</li>
+<li>Theoretically a low bias but a high variance.</li>
+<li>Usualy recommend those items with high rating for a user $x_u$: $R_{x_u} = \frac{\sum_{i=0}^{n}R_iW_i}{\sum_{i = 0}^{n}W_i}$
+<ul>
+<li>$R_{x_u}$: the rating given to $x$ by user $u$</li>
+<li>$i = 0 \to i = n$: users similar to $u$ / items similar to $x$</li>
+<li>$R_i$: respective ratings</li>
+<li>$W_i$: similarity score for $i$-th item/user similar to $x$/$u$ (deduced using the similarity metircs shown below)</li>
+</ul>
+</li>
+<li>Similarity Metrics:
+<ul>
+<li><code>Cosine Similarity</code></li>
+<li><code>Dot Product</code></li>
+<li><code>Euclidean distance</code></li>
+<li><code>Pearson Similarity</code>: $r = \frac{\sum_{i = 1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i = 1}^{n}(x_i - \bar{x})^2\sum_{i = 1}^{n}(y_i - \bar{y})^2}}$</li>
+</ul>
+</li>
+<li><strong>Limitations</strong>:
+<ol>
+<li>Don’t scale easily</li>
+<li>KNN algorithm has a complexity of O(ndk)</li>
+<li>Users may easily fall into a “information confinement area” which only give too precise/general information</li>
+</ol>
+</li>
+<li><strong>Overcome Limitation</strong>: Use Approximate nearest neighbour (ANN) or take advantage of sparse matrix</li>
+<li>2 Types:
+<ul>
+<li><strong>User-User</strong>:
+<ul>
+<li>Identify users with the most similar “interactions profile” (nearest neighbours) in order to suggest items that are the most popular among these neighbours (and that are “new” to our user).</li>
+<li>We consider that two users are similar if they have interacted with a lot of common items in the same way (similar rating, similar time hovering…). $\implies$ Prevents overfitting</li>
+<li>As, in general, every user have only interacted with a few items, it makes the method pretty sensitive to any recorded interactions (<strong>high variance</strong>)</li>
+<li>Only based on interactions recorded for users similar to our user of interest, we obtain more personalized results (<strong>low bias</strong>)</li>
+</ul>
+</li>
+<li><strong>Item-Item</strong>:
+<ul>
+<li>Find items similar to the ones the user already “positively” interacted with</li>
+<li>Two items are considered to be similar if most of the users that have interacted with both of them did it in a similar way.</li>
+<li>A lot of users have interacted with an item, the neighbourhood search is far less sensitive to single interactions (<strong>lower variance</strong>)</li>
+<li>Interactions coming from every kind of users are then considered in the recommendation, making the method less personalised (<strong>more biased</strong>)</li>
+<li>VS <strong>User-User</strong>: Less personalized, but more robust</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Model Based
+<ul>
+<li>New reprensentations of users and items are build based on a model (small dense vectors)</li>
+<li>The model “derives” the relevant features of the user-item interactions</li>
+<li>Recommendations are done following the model information</li>
+<li>May contain interpretability issue</li>
+<li>Theoretically a higher bias but a lower variance</li>
+<li>3 Types:
+<ul>
+<li><strong>Clustering</strong>
+<ul>
+<li>Simple KNN/ANN will do on these metrices</li>
+</ul>
+</li>
+<li><strong>Matrix Factorization</strong>
+<ul>
+<li>Main assumption: There exists a very low dimensional latent space of features in which we can represent both users and items and such that the interaction between a user and an item can be obtained by computing the dot product of corresponding dense vectors in that space.</li>
+<li>Generate the factor matrices as feature matrices for users and items.</li>
+<li>Idea: $\text{Find X, Y s.t. } M_{n \times m} \approx X_{n \times l} \cdot Y_{m \times l}^T$
+<ul>
+<li>$M_{n \times m}$: Interaction matrix of ratings, usually sparse</li>
+<li>$X_{n \times l}$: User matrix</li>
+<li>$Y_{m \times l}$: Item matrix</li>
+<li>$l$: the dimension of the latent space</li>
+</ul>
+</li>
+<li>Advanced Factorization methods:
+<ol>
+<li><strong>SVD</strong>:
+<ul>
+<li>Not so well due to the sparsity of matrix</li>
+<li>$R = UDV^T$: $U$ is item matrix; $V$ is user matrix</li>
+</ul>
+</li>
+<li><strong>WMF</strong> (Weighted Matrix Factorization)
+<ul>
+<li>Weight applied to rated/non-rated entries</li>
+<li>Similar to <strong>NMF</strong> but also consider non-rated ones by associating a weight to each entry</li>
+</ul>
+</li>
+<li><strong>NMF</strong>:
+<ul>
+<li>Uses only the observed or rated one</li>
+<li>Performs well with sparse matrices</li>
+<li>$Loss = \sum_i \sum_j (X_iY_j^T - M_{i,j})^2\space for \space r(i,j) = 1$ where $r(i,j)$ indicates the $j$-th item rated by $i$-th user</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Minimizing the objective function
+<ul>
+<li>Most common: <code>Weighted Alternating Least Squares</code></li>
+<li>Formula: $ (X,Y) = \arg \min\limits_{X,Y} \frac{1}{2}\sum\limits_{(i,j) \in E}[(X_i)(Y_j)^T - M_{ij}]^2 + \frac{\lambda}{2}(\sum\limits_{i,k}(X_{ik})^2 + \sum\limits_{j,k}(Y_{jk})^2)$</li>
+<li>Regularized minimization of “rating reconstruction error”</li>
+<li>Optimization process via Gradient Descent (Reduce runtime by batch running)</li>
+<li>Instead of solving for $X$ and $Y$ together, we alternate between the above two equations.
+<ul>
+<li>Fixing $X$ and solving for $Y$</li>
+<li>Fixing $Y$ and solving for $X$</li>
+</ul>
+</li>
+<li>This algorithm gives us an approximated result (two equations are not convex at the same time $\implies$ can’t reach a global minimum $\implies$ local minimum close to the global minimum)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>For a fixed set of users and items, new interactions recorded over time bring new information and make the system more and more effective.</li>
+<li>Solution to “Cold Start” problem:
+<ol>
+<li>Heuristics to generate embeddings for fresh items
+<ol>
+<li>Recommending random items to new users/recommend new item to random users</li>
+<li>Recommending popular items to new usres/recommend new items to most active users</li>
+<li>Recomeending a set of various items to new users or a new item to a set of various users</li>
+<li>Use a non collaborative method for early life of the user/item</li>
+</ol>
+</li>
+<li>Projection in WALS (given current optimal $X$ and $Y$)</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
+<p><strong>Pros</strong></p>
+<ul>
+<li>Require no information about users or items (more versatile)</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li>Cold Start problem:
+<ol>
+<li>Impossible to recommend anything to new users or to recommend a new item to any users</li>
+<li>Many users or items have too few interactions to be efficiently handled.</li>
+</ol>
+</li>
+</ul>
+<h4 id="3-comparison-with-content-based-method">3. Comparison with Content Based Method</h4>
+<ol>
+<li>Content based methods suffer far less from the cold start problem than collaborative approaches</li>
+<li>CB is much more constrained (because representation of users and/or items are given)</li>
+<li>CB tends to have the highest bias but the lowest variance</li>
+</ol>
+<h4 id="4-code-samples">4. Code samples</h4>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># Import libraries</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
+<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> warnings</span></span>
+<span class="line"><span style="color:#ADBAC7">warnings.filterwarnings(</span><span style="color:#96D0FF">'ignore'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> os</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> textwrap </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> wrap</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Read the input training data</span></span>
+<span class="line"><span style="color:#ADBAC7">input_data_file_movie </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "movie.csv"</span></span>
+<span class="line"><span style="color:#ADBAC7">input_data_file_rating </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> "rating.csv"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">movie_data_all </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(input_data_file_movie)</span></span>
+<span class="line"><span style="color:#ADBAC7">rating_data_all </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(input_data_file_rating)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Keep only required columns</span></span>
+<span class="line"><span style="color:#ADBAC7">movie_data_all </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> movie_data_all.drop([</span><span style="color:#96D0FF">'genres'</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">rating_data_all </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> rating_data_all.drop([</span><span style="color:#96D0FF">'timestamp'</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Pick all ratings</span></span>
+<span class="line"><span style="color:#768390">#num_ratings = 2000000</span></span>
+<span class="line"><span style="color:#ADBAC7">rating_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> rating_data_all.iloc[:, :]</span></span>
+<span class="line"><span style="color:#ADBAC7">movie_rating_merged_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> movie_data.merge(rating_data, </span><span style="color:#F69D50">on</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'movieId'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">how</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'inner'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">movie_rating_merged_pivot </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.pivot_table(movie_rating_merged_data,</span></span>
+<span class="line"><span style="color:#F69D50">                                           index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'title'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">                                           columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'userId'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">                                           values</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'rating'</span><span style="color:#ADBAC7">],</span></span>
+<span class="line"><span style="color:#F69D50">                                           dropna</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">                                           fill_value</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span></span>
+<span class="line"><span style="color:#ADBAC7">                                          )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Create a matrix R, such that, R(i,j) = 1 iff User j has selected a rating for Movie i. R(i,j) = 0 otherwise.</span></span>
+<span class="line"><span style="color:#ADBAC7">R </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.ones(Y.shape)</span></span>
+<span class="line"><span style="color:#ADBAC7">no_rating_idx </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.where(Y </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0.0</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Assign n_m (number of movies), n_u (number of users) and n_f (number of features)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">n_u </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Y.shape[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">n_m </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Y.shape[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span></span>
+<span class="line"><span style="color:#ADBAC7">n_f </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 2</span><span style="color:#768390">  # Because we want to cluster movies into 2 genres</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Setting random seed to reproduce results later</span></span>
+<span class="line"><span style="color:#ADBAC7">np.random.seed(</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">Initial_X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.rand(n_m, n_f)</span></span>
+<span class="line"><span style="color:#ADBAC7">Initial_Theta </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.rand(n_u, n_f)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Cost Function</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> collabFilterCostFunction</span><span style="color:#ADBAC7">(X, Theta, Y, R, reg_lambda):</span></span>
+<span class="line"><span style="color:#ADBAC7">    cost </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0</span></span>
+<span class="line"><span style="color:#ADBAC7">    error </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (np.dot(X, Theta.T) </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> Y) </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> R</span></span>
+<span class="line"><span style="color:#ADBAC7">    error_sq </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.power(error, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    cost </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.sum(np.sum(error_sq)) </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> 2</span></span>
+<span class="line"><span style="color:#ADBAC7">    cost </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> cost </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> ((reg_lambda</span><span style="color:#F47067">/</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> ( np.sum(np.sum((np.power(X, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)))) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> np.sum(np.sum((np.power(Theta, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">))))))</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> cost</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Gradient Descent</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> collabFilterGradientDescent</span><span style="color:#ADBAC7">(X, Theta, Y, R, alpha, reg_lambda, num_iters):</span></span>
+<span class="line"><span style="color:#ADBAC7">    cost_history </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros([num_iters, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">    </span></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(num_iters):</span></span>
+<span class="line"><span style="color:#ADBAC7">        error </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (np.dot(X, Theta.T) </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> Y) </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> R</span></span>
+<span class="line"><span style="color:#ADBAC7">        X_grad </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.dot(error, Theta) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> reg_lambda </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> X</span></span>
+<span class="line"><span style="color:#ADBAC7">        Theta_grad </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.dot(error.T, X) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> reg_lambda </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> Theta</span></span>
+<span class="line"><span style="color:#ADBAC7">        </span></span>
+<span class="line"><span style="color:#ADBAC7">        X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> X </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> alpha </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> X_grad </span></span>
+<span class="line"><span style="color:#ADBAC7">        Theta </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Theta </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> alpha </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> Theta_grad</span></span>
+<span class="line"><span style="color:#ADBAC7">        </span></span>
+<span class="line"><span style="color:#ADBAC7">        cost_history[i] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> collabFilterCostFunction(X, Theta, Y, R, reg_lambda)</span></span>
+<span class="line"><span style="color:#ADBAC7">        </span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> X, Theta, cost_history</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Tune hyperparameters</span></span>
+<span class="line"><span style="color:#ADBAC7">alpha </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0.0001</span></span>
+<span class="line"><span style="color:#ADBAC7">num_iters </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 100000</span></span>
+<span class="line"><span style="color:#ADBAC7">reg_lambda </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Perform gradient descent to find optimal parameters</span></span>
+<span class="line"><span style="color:#ADBAC7">X, Theta </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Initial_X, Initial_Theta</span></span>
+<span class="line"><span style="color:#ADBAC7">X, Theta, cost_history </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> collabFilterGradientDescent(X, Theta, Y, R, alpha, reg_lambda, num_iters)</span></span>
+<span class="line"><span style="color:#ADBAC7">cost </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> collabFilterCostFunction(X, Theta, Y, R, reg_lambda)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Final cost ="</span><span style="color:#ADBAC7">, cost)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">user_idx </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.randint(n_u)</span></span>
+<span class="line"><span style="color:#ADBAC7">pred_rating </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Original rating of an user:</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">, Y.iloc[:,user_idx].sort_values(</span><span style="color:#F69D50">ascending</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">predicted_ratings </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.dot(X, Theta.T)</span></span>
+<span class="line"><span style="color:#ADBAC7">predicted_ratings </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> sorted</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">zip</span><span style="color:#ADBAC7">(predicted_ratings[:,user_idx], Y.index), </span><span style="color:#F69D50">reverse</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">Predicted rating of the same user:"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">_ </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(rating, movie) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> rating, movie </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> predicted_ratings]</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/dimentionality-reduction/"> <span class="dir">← previous</span> <span class="title">Dimension Reduction: Life savers</span> </a> <a class="next" href="/writing/blogs/recom-sys/recommender-2/"> <span class="dir">next →</span> <span class="title">Recommender Systems: II. Factorization Machine</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>A Regex Tutorial - Zhenlin Wang</title><meta name="description" content="Learn to process string operations in an efficient way"><meta property="og:title" content="A Regex Tutorial - Zhenlin Wang"><meta property="og:description" content="Learn to process string operations in an efficient way"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/software/regex/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Software · Software Engineering</div> <h1>A <em>Regex</em> Tutorial</h1> <p class="dek">Learn to process string operations in an efficient way</p> <div class="byline"> <strong>2020.06.13</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-06-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction">Introduction</h3>
+<p>Recently I’ve been working on software developement projects and learning some NLP algorithms. Then regex came to my attention as a powerful string processing tool. It is so useful that I have to utilize the techniques almost everyday in my learning and work. Nonetheless, I think I might have a chance of leaving it to rot after some time. To maintain good memory of the syntax, I decided to create this blog, to both teach my future self and all of you interested readers. Without further a do, let’s begin.</p>
+<h3 id="regex">Regex</h3>
+<ul>
+<li>Full name: regular expression</li>
+<li>Create/search for a specific pattern in a string</li>
+<li>Very useful for text editing/file searching/phrase grouping/etc</li>
+<li>terminalogies
+<ul>
+<li><code>raw string</code>: a raw string in python is just string prefixed with ‘r’, it tells python not to handle back slashes in any special way</li>
+<li><code>MetaCharacters</code>: symbols in the search pattern to create variated pattern</li>
+</ul>
+</li>
+<li>Useful website: [1] <a href="https://regex101.com">Regex101</a><br></li>
+<li>In the following, I’ll outline all keywords used in the expression</li>
+</ul>
+<h4 id="1-special-sequences-with-backslash">1. Special sequences with backslash</h4>
+<ul>
+<li>
+<p><code>\d</code>: digit(0-9)</p>
+</li>
+<li>
+<p><code>\D</code>: Not a Digit(0-9)</p>
+</li>
+<li>
+<p><code>\w</code>: Word character (a-z, A-Z, 0-9 _)</p>
+</li>
+<li>
+<p><code>\W</code>: Not a word character</p>
+</li>
+<li>
+<p><code>\s</code>: Whitespace(space, tab, blank line)</p>
+</li>
+<li>
+<p><code>\b</code>: Word boundary</p>
+</li>
+<li>
+<p><code>\B</code>: Not a word boundary</p>
+</li>
+<li>
+<p><code>\A</code>: Start of string, <strong>alternative representation</strong>: <code>^</code></p>
+</li>
+<li>
+<p><code>\Z</code>: End of string, <strong>alternative representation</strong>: <code>$</code></p>
+</li>
+<li>
+<p><code>\g&#x3C;id></code>: Matches a previously defined group</p>
+</li>
+</ul>
+<h4 id="2-metacharacters">2. MetaCharacters:</h4>
+<ul>
+<li><code>\</code>: Escape special characters</li>
+<li><code>.</code>: Matches any character</li>
+<li><code>$</code>: Matches end of string</li>
+<li><code>^</code>: Matches start of string</li>
+<li><code>[]</code>: Matches characters in brackets</li>
+<li><code>[^ ]</code>: Matches characters not in brackets</li>
+<li><code>|</code>: Either or</li>
+<li><code>()</code>: Group</li>
+</ul>
+<h4 id="3-quantifiers">3. Quantifiers:</h4>
+<ul>
+<li><code>*</code>: 0 or more</li>
+<li><code>+</code>: 1 or more</li>
+<li><code>?</code>: 0 or 1</li>
+<li><code>{m}</code>: Exactly m times</li>
+<li><code>{n,}</code>: Min n times</li>
+<li><code>{m,n}</code>: From m to n times, as many as possible</li>
+<li><code>{m,n}?</code>: From m to n times, as few as possible</li>
+</ul>
+<h3 id="demonstrate-the-idea-of-raw-string">Demonstrate the idea of raw string</h3>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'</span><span style="color:#F47067">\t</span><span style="color:#96D0FF">Tab'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#8DDB8C;font-weight:bold">\t</span><span style="color:#96D0FF">Tab'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#768390"># this gives the following output</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> 	Tab</span></span>
+<span class="line"><span style="color:#F47067">>>></span><span style="color:#ADBAC7"> \</span><span style="color:#FF938A;font-style:italic">tTab</span></span></code></pre>
+<p>Let’s try out some regex usage by initializing the following strings</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> re</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">text_to_search </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> '''</span></span>
+<span class="line"><span style="color:#96D0FF">abcdefghijklmnopqurtuvwxyz</span></span>
+<span class="line"><span style="color:#96D0FF">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></span>
+<span class="line"><span style="color:#96D0FF">1234567890</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">Ha HaHa</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">MetaCharacters (Need to be escaped):</span></span>
+<span class="line"><span style="color:#96D0FF">. ^ $ * + ? { } [ ] \ | ( )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">coreyms.com</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">321-555-4321</span></span>
+<span class="line"><span style="color:#96D0FF">123.555.1234</span></span>
+<span class="line"><span style="color:#96D0FF">123*555*1234</span></span>
+<span class="line"><span style="color:#96D0FF">800-555-1234</span></span>
+<span class="line"><span style="color:#96D0FF">900-555-1234</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">somebody123@gamil.com</span></span>
+<span class="line"><span style="color:#96D0FF">test@test.com</span></span>
+<span class="line"><span style="color:#96D0FF">some@qq.edu</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">Mr. Schafer</span></span>
+<span class="line"><span style="color:#96D0FF">Mr Smith</span></span>
+<span class="line"><span style="color:#96D0FF">Ms Davis</span></span>
+<span class="line"><span style="color:#96D0FF">Mrs. Robinson</span></span>
+<span class="line"><span style="color:#96D0FF">Mr. T</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#96D0FF">FirstLast</span></span>
+<span class="line"><span style="color:#96D0FF">First.Last</span></span>
+<span class="line"><span style="color:#96D0FF">First Last</span></span>
+<span class="line"><span style="color:#96D0FF">First..Last</span></span>
+<span class="line"><span style="color:#96D0FF">First...Last</span></span>
+<span class="line"><span style="color:#96D0FF">First....Last</span></span>
+<span class="line"><span style="color:#96D0FF">'''</span></span>
+<span class="line"><span style="color:#ADBAC7">urls </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> '''</span></span>
+<span class="line"><span style="color:#96D0FF">https://www.google.com</span></span>
+<span class="line"><span style="color:#96D0FF">http://baidu.com</span></span>
+<span class="line"><span style="color:#96D0FF">'''</span></span>
+<span class="line"><span style="color:#ADBAC7">sentence </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'Start a sentence and then bring it to an end'</span></span>
+<span class="line"></span></code></pre>
+<p>Next let’s apply 2 functions <kbd>test</kbd> and <kbd>test2</kbd> that we use to apply regex on <code>text_to_search</code> and <code>sentence</code> respectively:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> test</span><span style="color:#ADBAC7">(s):</span></span>
+<span class="line"><span style="color:#ADBAC7">    pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(s)</span></span>
+<span class="line"><span style="color:#ADBAC7">    matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.finditer(text_to_search)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> match </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> matches:</span></span>
+<span class="line"><span style="color:#6CB6FF">        print</span><span style="color:#ADBAC7">(match) </span><span style="color:#768390"># output: span(x, y) -> the location [x,y] in the string, match -> matched string</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">""</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> test2</span><span style="color:#ADBAC7">(s):</span></span>
+<span class="line"><span style="color:#ADBAC7">    pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(s)</span></span>
+<span class="line"><span style="color:#ADBAC7">    matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.finditer(sentence)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> match </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> matches:</span></span>
+<span class="line"><span style="color:#6CB6FF">        print</span><span style="color:#ADBAC7">(match) </span><span style="color:#768390"># output: span(x, y) -> the location [x,y] in the string, match -> matched string</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">""</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Then we can try the following code and play around with it</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># use of \</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'ms</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#96D0FF">com'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#8DDB8C;font-weight:bold">\\</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of \d</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">"</span><span style="color:#6CB6FF">\d</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of \w</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">"</span><span style="color:#6CB6FF">\w</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of ^</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">^</span><span style="color:#96D0FF">Start'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'Start</span><span style="color:#6CB6FF">^</span><span style="color:#96D0FF">a'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># no match</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">^</span><span style="color:#96D0FF">a'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># no match</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of $</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'end</span><span style="color:#6CB6FF">$</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># no match</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">$</span><span style="color:#96D0FF">Start'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># no match</span></span>
+<span class="line"><span style="color:#ADBAC7">test2(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'a</span><span style="color:#6CB6FF">$</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># no match</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use word boundary usage</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\b</span><span style="color:#96D0FF">Ha'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\B</span><span style="color:#96D0FF">Ha'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\b</span><span style="color:#96D0FF">Ha</span><span style="color:#6CB6FF">\b</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of .</span></span>
+<span class="line"><span style="color:#768390"># warning: . does not takes \n into account</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">.</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">.</span><span style="color:#F47067">*</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># usage of group ()</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\d\d\d.\d\d\d.\d\d\d\d</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">(\d</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">).\d\d\d.\d\d\d\d</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of |</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#6CB6FF">(</span><span style="color:#F47067"> |</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># limit the value in pattern []</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">([</span><span style="color:#F47067">6-9</span><span style="color:#6CB6FF">]\d</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">).(\d</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">).(\d</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">a-zA-Z</span><span style="color:#6CB6FF">]</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">^a-zA-Z</span><span style="color:#6CB6FF">]</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># take NOT</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#6CB6FF">[</span><span style="color:#8DDB8C;font-weight:bold"> \.</span><span style="color:#6CB6FF">]</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># limit the size in pattern using {}</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">(\d</span><span style="color:#F47067">{3}</span><span style="color:#6CB6FF">).\d</span><span style="color:#F47067">{3}</span><span style="color:#6CB6FF">.\d</span><span style="color:#F47067">{4}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\w</span><span style="color:#F47067">{4,8}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\w</span><span style="color:#F47067">{4,8}?</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of ?</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#F47067">?</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># has 1 or 0 .</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#F47067">?</span><span style="color:#6CB6FF">\s</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'555-</span><span style="color:#F47067">?</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of +</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#F47067">+</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># use of *</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'First</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#F47067">*</span><span style="color:#96D0FF">Last'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"==========================="</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390"># Now let's try a combination of the above methods</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\d</span><span style="color:#F47067">{3}</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">-.</span><span style="color:#6CB6FF">]\d</span><span style="color:#F47067">{3}</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">-.</span><span style="color:#6CB6FF">]\d</span><span style="color:#F47067">{4}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<h3 id="substitution">Substitution</h3>
+<p>To substitute existing characters in a string, we need to specify a pattern directly, and we then use the <code>.sub</code> method.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'https</span><span style="color:#F47067">?</span><span style="color:#96D0FF">://</span><span style="color:#6CB6FF">(</span><span style="color:#96D0FF">www</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">)</span><span style="color:#F47067">?</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)(</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">subbed_urls </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.sub(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#8DDB8C">\2\3</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">,urls)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(subbed_urls)</span></span></code></pre>
+<p>The <code>pattern</code> can also be used to direcly find all the occurances, so that we don’t need to define <kbd>test</kbd> and <kbd>test2</kbd> by ouselves.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">-</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">-</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">matches1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.findall(text_to_search)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> match </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> matches1:</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(match)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pattern2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">\d</span><span style="color:#F47067">{3}</span><span style="color:#96D0FF">-</span><span style="color:#6CB6FF">\d</span><span style="color:#F47067">{3}</span><span style="color:#96D0FF">-</span><span style="color:#6CB6FF">\d</span><span style="color:#F47067">{4}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">matches2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern2.findall(text_to_search)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> match </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> matches2:</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(match)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">### Check match at the begin of the string</span></span>
+<span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'Start'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.match(sentence)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(matches)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'sentence'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.match(sentence)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(matches)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">### Case insensitive mode</span></span>
+<span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'start'</span><span style="color:#ADBAC7">, re.I) </span><span style="color:#768390"># re.I is a short version of re.IGNORECASE</span></span>
+<span class="line"><span style="color:#ADBAC7">matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.match(sentence)</span></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(matches)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#768390">### Actual functionality demo</span></span>
+<span class="line"><span style="color:#768390"># Email search</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">a-zA-Z0-9_.+-</span><span style="color:#6CB6FF">]</span><span style="color:#F47067">+</span><span style="color:#96D0FF">@</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">a-zA-Z0-9_.+-</span><span style="color:#6CB6FF">]</span><span style="color:#F47067">+</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">[</span><span style="color:#F47067">a-zA-Z0-9_.+-</span><span style="color:#6CB6FF">]</span><span style="color:#F47067">+</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">test(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">@</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">pattern </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> re.compile(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">@</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#8DDB8C;font-weight:bold">\.</span><span style="color:#6CB6FF">(\w</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">)</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">matches </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pattern.finditer(text_to_search)</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> match </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> matches:</span></span>
+<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(match.group(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">), match.group(</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">), match.group(</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">))</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/big-data-guidelines/"> <span class="dir">← previous</span> <span class="title">A fundamental course for Data Engineering</span> </a> <a class="next" href="/writing/blogs/data/database-introduction/"> <span class="dir">next →</span> <span class="title">Database: Intro</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

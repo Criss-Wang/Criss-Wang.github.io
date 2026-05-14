@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Reinforcement Learning - Theoretical Foundations: Part III  - Zhenlin Wang</title><meta name="description" content="RL Continued - Model-free algorithms"><meta property="og:title" content="Reinforcement Learning - Theoretical Foundations: Part III  - Zhenlin Wang"><meta property="og:description" content="RL Continued - Model-free algorithms"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/rl/reinfocement-3/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DrVzDgH_.css"></head> <body> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="criss.wang index page"> <span class="glyph" aria-hidden="true">z</span> <span>criss.wang <small>· /writing</small></span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">publications</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Reinforcement Learning · Control Theory</div> <h1>Reinforcement <em>Learning</em> - Theoretical Foundations: Part III </h1> <p class="dek">RL Continued - Model-free algorithms</p> <div class="byline"> <strong>2021.01.07</strong> <span>·</span> <span>10 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-01-22</span>  </div> </header> <main class="article container-narrow"> <h3 id="model---free-prediction">Model - Free Prediction</h3>
+<h4 id="1-introduction">1. Introduction</h4>
+<p>This is an important chapter that lays the fundamental work for <strong>model-free control</strong> algorithms. In this blog we shall see a few important ideas (MC, TD, online/offline, forward/backward learning) being discussed. While this chapter is not math-intense, it is imperative for us to remember the concepts before moving onto control algorithms.</p>
+<p>To begin with, note that this is a <strong>prediction</strong> problem. Hence we are still only going to predict the final $v_{\pi}(s)$ based on a given $\pi$. However, the <strong>Model-free</strong> part suggests that we no longer require an MDP to be explicitly defined/given. This is because we are going to use a sampling strategy.</p>
+<ul>
+<li>Sampling:
+If a strategy derives certain functions (in this case $v$) directly via episodes of observations, we say that this strategy applies sampling method.</li>
+</ul>
+<h4 id="2-monte-carlo-mc-policy-evaluation">2. Monte Carlo (MC) Policy Evaluation</h4>
+<ul>
+<li>MC learns from complete episodes (no bootstrapping)</li>
+<li>Monte-Carlo policy evaluation uses <em>empirical mean return</em> instead of <em>expected return</em></li>
+</ul>
+<ol>
+<li>First-step MC</li>
+</ol>
+<ul>
+<li>For each state $s$, only conisder the first time $t$ that $s$ is visited in each episode (update at most 1 time per run)</li>
+<li>Increment counter $N(s) ← N(s) + 1$</li>
+<li>Increment total return $S(s) ← S(s) + G_t$</li>
+<li>Estimate mean return value $V(s) = S(s)/N(s)$</li>
+<li>The estimator $V$ converges to $v_{\pi}$ when number of visits approaches infinity</li>
+</ul>
+<ol start="2">
+<li>Every-step MC</li>
+</ol>
+<ul>
+<li>For each state $s$, conisder each time $t$ that $s$ is visited in each episode (update at most 1 time per run)</li>
+<li>For instance, $S_1 = s, S_3 = s$, then we update $N(s) \gets N(s) + 2$ and $S(s) \gets S(s) + G_1 + G_3$ where $G_1 = R_1 + \gamma R_2 + \gamma^2 G_3$</li>
+<li>The remaining part are the same as First-step MC</li>
+</ul>
+<ol start="3">
+<li>Incremental Monte-Carlo Updates</li>
+</ol>
+<ul>
+<li>
+<p>Based on the idea $\mu_k = \mu_{k-1} + \frac{1}{k}(x_k - \mu_{k-1})$</p>
+</li>
+<li>
+<p>Hence we take perspective of each episodes observations $S_t$ instead of states $s$.</p>
+</li>
+<li>
+<p>$N(S_t) ← N(S_t) + 1$</p>
+</li>
+<li>
+<p>$V(S_t) ← V(S_t) + \frac{1}{N(S_t)}(G_t - V(S_t))$</p>
+</li>
+<li>
+<p>In non-stationary problems, it can be useful to track a running mean, i.e. forget old episodes. Hence the formula is tweeked.  $V(S_t) ← V(S_t) +\alpha(G_t - V(S_t))$</p>
+<p><strong>Limitation</strong>:
+Since MC only updates when the episode terminates (hence ‘complete’), it cannot be applied to process which may run infinitely.</p>
+</li>
+</ul>
+<h4 id="3-temporal-difference-td-learning">3. Temporal Difference (TD) Learning</h4>
+<ul>
+<li>A solution to the ‘incomplete’ episodes problem by applying bootstrapping</li>
+<li>The $G_t$ above is replaced by an estimate $R_{t+1} + \gamma V(S_{t+1})$ (estimated return) based on the Bellman Expectation Equation.</li>
+<li>$R_{t+1} + \gamma V(S_{t+1})$ is called <strong>TD target</strong></li>
+<li>$\delta_t = R_{t+1} + \gamma V(S_{t+1}) - V(S_t)$ is called <strong>TD error</strong></li>
+<li>As now $V(S_t)$ only depends on the next time-step $t+1$ and not the entire episode result $G_t$, we say it is <strong>online</strong> (and hence the other method which updates everything when episode ends is <strong>offline</strong>).</li>
+</ul>
+<h4 id="4-bias-variance-trade-off">4. Bias Variance trade-off</h4>
+<ul>
+<li>Computation using $G_t$ is unbiased, but with high variance due to all rewards $R_{t: t \to \infty}$from transitions $S_t \to S_{t+1}$ and actions selected at random</li>
+<li>Computation using TD target is biased, but with much lower variance, since we we only have one reward $R_t$ to be varied (note that $V(S_{t+1})$ is known and fixed during update of $V(S_t)$</li>
+<li>By the classical trade-off analysis, we see that
+<ul>
+<li>TD is more sensitive to inital values</li>
+<li>TD is usually more efficient than MC</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-more-comparisons-between-td-and-mc">5. More comparisons between TD and MC</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>MC</th><th>TD</th></tr></thead><tbody><tr><td>converges to solution with</td><td>minimum mean-squared error</td><td>max likelihood Markov model</td></tr><tr><td>Convergence with function approximation</td><td>Yes</td><td>No</td></tr><tr><td>Exploits Markov property</td><td>No</td><td>Yes</td></tr><tr><td>More efficient in</td><td>Non-Markov env</td><td>Markov env</td></tr></tbody></table>
+<h4 id="6-tdlambda">6. TD($\lambda$)</h4>
+<p>Now we explore alternative estimators for $G_t$</p>
+<ul>
+<li><strong>n-step return</strong>: $G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + … + \gamma^{n-1} R_{t+n} + \gamma^{n} V(S_{t+n})$</li>
+<li><strong>$\lambda$-return</strong>:  $G_t^{\lambda} = (1-\lambda)\sum\limits_{k=1}^{\infty}\lambda^{k-1}G_t^{(k)}$</li>
+</ul>
+<p>Here by utilising $G^{\lambda}_t$, we have TD($\lambda$) as a new evaluation policy. However, notice from the expression above that $G^{\lambda}_t$ is forward-looking, meaning that this would require $n$ transition steps until the episodes end. This faces exactly the same limitation as MC!!!</p>
+<h4 id="7-solution-backward-online-evaluation">7. Solution: Backward online evaluation</h4>
+<p>Instead of look for values in future time-steps, we use values from earlier time-steps. This method is called a backward view of TD($\lambda$). In essence, we update online, every step, from incomplete sequences.</p>
+<p>Based on a theorem, the sum of offline updates is identical for forward-view and backward-view TD($\lambda$).</p>
+<h4 id="8-eligibility-trace">8. Eligibility Trace</h4>
+<p>The key to Backward TD($\lambda$) is eligbility trace, we intuitively derive contributing factors from earlier time steps as follows:</p>
+<ul>
+<li><em>Frequency heuristic</em>: assign credit to most frequent states</li>
+<li><em>Recency heuristic</em>: assign credit to most recent states ($\gamma$ discount rate)</li>
+</ul>
+<p>Combing 2 heuristics above, we obtain a rule $E_0(s) = 0$ and $E_t(s) = \gamma\lambda E_{t-1}(s) + \mathbb{1}{S_{t} = s}$.
+Hence the new update formula is $V(s) ← V(s) +\alpha\delta_tE_t(s)$. Observe now that we need to update $V$ for every state $s$ upon each time-step.</p>
+<h4 id="9-additonal-note">9. Additonal note</h4>
+<ul>
+<li>TD(1) is roughly equivalent to every-visit Monte-Carlo</li>
+<li>TD(0) is exactly equivalent to simple TD</li>
+</ul>
+<h3 id="model-free-control">Model Free Control</h3>
+<h4 id="1-main-objective">1. Main objective</h4>
+<p>Instead of estimating the value function, we try to optimize the value function with an unknown MDP.</p>
+<h4 id="2-recap-of-on-policy-vs-off-policy">2. Recap of On-Policy vs Off-Policy</h4>
+<ol>
+<li>
+<p>On-policy
+Learn about $\pi$ from experience sampled from previous rounds in $\pi$.
+In essence trying to improve $\pi$ by running it <strong>using current agent iteself</strong>.</p>
+</li>
+<li>
+<p>Off-policy
+Learn about $\pi$ from experience sampled from previous rounds (or complete run) in $\pi’$.
+In essence trying to improve $\pi$ by <strong>Observing another policy</strong> getting run by <strong>another agent</strong> and <strong>deduce several directions</strong> to improve $\pi$ .</p>
+</li>
+</ol>
+<h4 id="3-generalised-policy-iteration-with-monte-carlo-evaluation">3. Generalised Policy Iteration With Monte-Carlo Evaluation</h4>
+<p>In general we can following the policy iteration method introduced in chapter 3 following 2 steps:</p>
+<ul>
+<li>
+<p><strong>Policy evaluation</strong> - Monte-Carlo policy evaluation:</p>
+<ul>
+<li>We want to evaluate $V = v_{\pi}$. However, with out MDP, we cannot determine $\pi$ easily using a simple <strong>State-Value Function</strong>. So we must resort to a <strong>Action-Value Function</strong>, i.e., $\pi’(s) = \arg\max\limits_{a \in {\cal A}}q_{\pi}(s,a)$.</li>
+<li>We further observe that in each iteration, we must run the full policy to obtain $q_{\pi}(s,a)$ for every action/state pair. This is highly inefficient as we do not know how long it takes. Hence instead we do episodic updates using $Q \approx q_{\pi}$. That is, we do <strong>not fully evaluate</strong> that policy, but <strong>sample state-action pair with current policy for $T$ times per episode</strong> and <strong>immediately improve</strong> the policy upon that. This $T$ manually set by us imposes guarantee on  sampling complexity.</li>
+<li>We call the strategy above <em>GILE MC control</em> as it satisfies the <strong>GILE</strong> property.</li>
+<li>In conclusion, the evaluation phase is as follows:
+<ul>
+<li>Sample kth episode using $\pi: (S_1, A_1, R_2, …, S_T) \sim \pi$</li>
+<li>For each state $S_t$ and action $A_t$ in the episode:</li>
+<li>$N(S_t, A_t) \leftarrow N(S_t, A_t) + 1$,</li>
+<li>$Q(S_t, A_t) \leftarrow Q(S_t, A_t)  + \frac{1}{N(S_t, A_t) } (G_t - Q(S_t, A_t) )$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Policy improvement: $\epsilon$-Greedy policy improvement</p>
+<ul>
+<li>We choose actions that greedily maximizes the $Q$. We allow some degree of exploration by making such greedy choice with $1-\epsilon$ probability.</li>
+</ul>
+<p>$$\pi(a|s)=\Bigg\{ \begin{array}{rcl} \frac{\epsilon}{m} + (1- \epsilon) &#x26; if \; a^{\star} =\arg\max\limits_{a \in {\cal A}}q_{\pi}(s,a) \\ \frac{\epsilon}{m} &#x26; otherwise \end{array} $$</p>
+<ul>
+<li>Nothat this $\epsilon$-Greedy policy works as we always have improvement $v_{\pi}(s) \leq v_{\pi’}(s)$ like the proof shown in DP note.</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-gile-property">4. GILE property</h4>
+<p>Greedy in the Limit with Infinite Exploration (GLIE) has the following 2 parts:</p>
+<ul>
+<li>
+<p>All state-action pairs are explored infinitely many times: $\lim\limits_{k \to \infty}N_k(s,a) = \infty$</p>
+</li>
+<li>
+<p>The policy converges on a greedy policy,</p>
+<p>$$\lim\limits_{k \to \infty}{\pi}_k(a|s) = \mathbf{1}[a =\arg\max\limits_{a’ \in {\cal A}}Q_{k}(s,a’)]$$</p>
+</li>
+</ul>
+<p>For example, $\epsilon$-greedy is GLIE if $\epsilon$ reduces to zero at $\epsilon_k = \frac{1}{k}$.
+This property enables the following theorem:</p>
+<ul>
+<li>GLIE Monte-Carlo control converges to the optimal action-value function: $Q(s,a) \to q_*(s,a)$</li>
+</ul>
+<h4 id="5-temporal-difference-method">5. Temporal Difference method</h4>
+<ol>
+<li>From MC to TD
+Temporal-difference (TD) learning has several advantages over Monte-Carlo (MC)</li>
+</ol>
+<ul>
+<li>Lower variance</li>
+<li>Online</li>
+<li>Incomplete sequences</li>
+</ul>
+<ol start="2">
+<li>Sarsa update of $Q$
+The most basic form is $Q(S, A) ← Q(S, A) + \alpha (R + \gamma Q(S’ , A’ ) − Q(S, A))$. Now recall from model-free prediction the variations of TD:</li>
+</ol>
+<ul>
+<li><strong>n-step Sarsa</strong>
+<ul>
+<li>$q_t^{(n)} = R_{t+1} + \gamma R_{t+2} + … + \gamma^{(n-1)}R_{t+n} + \gamma^nQ(S_{t+n})$</li>
+<li>$Q(S, A) ← Q(S, A) + \alpha (q_t^{(n)} − Q(S, A))$</li>
+</ul>
+</li>
+<li><strong>Forward View Sarsa($\lambda$)</strong>
+<ul>
+<li>$q_t^{\lambda} = (1-\lambda)\sum\limits_{k=1}^{\infty}\lambda^{k-1}q_t^{(k)}$</li>
+<li>$Q(S, A) ← Q(S, A) + \alpha (q_t^{\lambda} − Q(S, A))$</li>
+</ul>
+</li>
+<li><strong>Backward View Sarsa($\lambda$)</strong>: we use <em>eligibility traces</em> in an online algorithm
+<ul>
+<li>$E_0(s, a) = 0$</li>
+<li>$E_t(s, a) = \gamma\lambda E_{t-1}(s) + \mathbf{1}{S_{t} = s, A_t = a}$.</li>
+<li>In each iteration, we upate $Q(s,a)$ for every $(s,a)$ pair.</li>
+<li>$\delta_t = R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_{t}, A_{t})$</li>
+<li>$Q(s,a) ← Q(s,a)  +\alpha\delta_tE_t(s,a)$</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>Off-policy learning
+In this case, we evaluate target policy $\pi(a|s)$ to compute $v_{\pi}(s)$ or $q_{\pi}(s,a)$, but the evaluation was based on another (ongoing or completed) policy run $\mu(a|s): (S_1, A_1, R_2, …, S_T) \sim \mu$</li>
+</ol>
+<p>It has the following advantages:</p>
+<ul>
+<li>Learn from observing humans or other agents</li>
+<li>Re-use experience generated from old policies</li>
+<li>Learn about optimal policy while following <em>exploratory</em> policy</li>
+<li>Learn about multiple policies while following <strong>one</strong> policy</li>
+</ul>
+<ol start="4">
+<li>Importance sampling for Off-policy
+We note that we can estimate the expectation of a different distribution via:
+$$\mathbb{E}_{X \sim P}[f(X)] = \sum Q(X)\frac{P(X)}{Q(X)}f(X) = \mathbb{E}_{X \sim Q}\left[\frac{P(X)}{Q(X)}f(X)\right]$$</li>
+</ol>
+<p>One may trie to use returns generated from $\mu$ to evaluate $\pi$ via multiple sampling corrections:</p>
+<p>$$G_t^{\frac{\pi}{\mu}} = G_t^{\mu} \times \frac{\pi(A_t\mid S_t)}{\mu(A_t\mid S_t)}\frac{\pi(A_{t+1}\mid S_{t+1})}{\mu(A_{t+1}\mid S_{t+1})}…\frac{\pi(A_T\mid S_T)}{\mu(A_T\mid S_T)}$$</p>
+<p>and then</p>
+<p>$$Q(S, A) ← Q(S, A) + \alpha (G_t^{\frac{\pi}{\mu}} − Q(S, A))$$</p>
+<p>However, this multiple chaining may result in:</p>
+<ul>
+<li>Invalud computation when one of the $\mu(a|s) = 0$ while $\pi(a|s) \neq 0$</li>
+<li>Dramatically increasing variance</li>
+</ul>
+<p>Hence, we consider adopting TD target $R + \gamma Q(S’ , A’ )$ for importance sampling instead of actual return $G_t$. This removes the multiple chaining as the expression becomes:</p>
+<ul>
+<li>$Q(S_t, A_t) ← Q(S_t, A_t) + \alpha (\frac{\pi(A_{t}|S_{t})}{\mu(A_{t}|S_{t})}(R_{t+1} + \gamma Q(S_{t+1}, A_{t+1} ) )− Q(S_t, A_t))$</li>
+</ul>
+<p>Unfortunately, in the above expression, we are still sticking to the $\mu$ policy in choosing $A_{t+1}$ when we update our $Q$ for $\pi$. This is not very reasonable, as our policy could potentially have a better choice of action. Importance sampling discounts this fact. Hence we may seek for alternative solution that removes to need to do importance sampling.</p>
+<h4 id="6-q-learning">6. Q-Learning</h4>
+<p>Q-learning is a method that resolves the above issue. We now consider $Q$ update based on $\pi$: we choose maximizer $A’ \sim \pi(\cdot | S_{t})$. This allows both behaviour and target policies to improve. Note that in this case, $\mu$ is improved via a $\epsilon$-greedy case since $A’$ is chosen randomly with $\epsilon$ probability and $Q \to q_*$ by theorem.</p>
+<ul>
+<li>$Q(S_t, A_t) ← Q(S_t, A_t) + \alpha (R_{t+1} + \max\limits_{a’ \in {\cal A}}\gamma Q(S_{t+1}, a’ ) − Q(S_t, A_t))$</li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-2/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part II </span> </a> <a class="next" href="/writing/blogs/supervised/ensemble-0/"> <span class="dir">next →</span> <span class="title">Ensemble Models: Overview</span> </a> </nav>  <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>criss.wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">publications</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
