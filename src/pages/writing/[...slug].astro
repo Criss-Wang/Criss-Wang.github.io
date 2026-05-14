@@ -1,0 +1,92 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { excerptFor, formatDate, formatIsoDate, postCategories, postDate, postSlug, postTags, postUrl, readingMinutes, sortPosts, type Post } from "../../lib/posts";
+import { profile } from "../../data/profile";
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+  return posts.map((post, index) => ({
+    params: { slug: postSlug(post) },
+    props: {
+      post,
+      previous: posts[index + 1],
+      next: posts[index - 1],
+    },
+  }));
+}
+
+interface Props {
+  post: Post;
+  previous?: Post;
+  next?: Post;
+}
+
+const { post, previous, next } = Astro.props;
+const { Content } = await render(post);
+const tags = [...postCategories(post), ...postTags(post)];
+const date = postDate(post);
+const titleWords = post.data.title.split(/\s+/);
+const emIndex = titleWords.length > 1 ? 1 : 0;
+const before = titleWords.slice(0, emIndex).join(" ");
+const emphasized = titleWords[emIndex] || post.data.title;
+const after = titleWords.slice(emIndex + 1).join(" ");
+const needsMath = post.data.mathjax || /\\\(|\\\[|\$\$/.test(post.body);
+---
+
+<BaseLayout title={post.data.title} description={excerptFor(post)} section="writing" postFonts>
+  <div class="breadcrumb"><a href="/writing/">← all writing</a></div>
+
+  <header class="post-head">
+    <div class="kicker">{tags.slice(0, 5).join(" · ") || "Post"}</div>
+    <h1>{before && `${before} `}<em>{emphasized}</em>{after && ` ${after}`}</h1>
+    <p class="dek">{excerptFor(post)}</p>
+    <div class="byline">
+      <strong>{formatDate(date)}</strong>
+      <span>·</span>
+      <span>{readingMinutes(post.body)} min read</span>
+      <span>·</span>
+      <span>by {profile.name}</span>
+      {post.data.updated && (
+        <>
+          <span>·</span>
+          <span>updated {formatIsoDate(post.data.updated as Date)}</span>
+        </>
+      )}
+    </div>
+  </header>
+
+  <main class="article container-narrow">
+    <Content />
+  </main>
+
+  <nav class="post-nav" aria-label="Post navigation">
+    {previous ? (
+      <a class="prev" href={postUrl(previous)}>
+        <span class="dir">← previous</span>
+        <span class="title">{previous.data.title}</span>
+      </a>
+    ) : <span></span>}
+    {next ? (
+      <a class="next" href={postUrl(next)}>
+        <span class="dir">next →</span>
+        <span class="title">{next.data.title}</span>
+      </a>
+    ) : <span></span>}
+  </nav>
+
+  {needsMath && (
+    <>
+      <script is:inline>
+        window.MathJax = {
+          tex: {
+            inlineMath: [["$", "$"], ["\\(", "\\)"]],
+            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+          },
+          svg: { fontCache: "global" },
+        };
+      </script>
+      <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    </>
+  )}
+</BaseLayout>

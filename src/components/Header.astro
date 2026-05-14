@@ -1,0 +1,33 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+import { profile } from "../data/profile";
+
+interface Props {
+  section?: string;
+}
+
+const { section = "home" } = Astro.props;
+const links = [
+  { href: "/about/", label: "about", section: "about" },
+  { href: "/writing/", label: "writing", section: "writing" },
+  { href: "/publications/", label: "publications", section: "publications" },
+  { href: "/projects/", label: "projects", section: "projects" },
+  { href: "/contact/", label: "contact", section: "contact" },
+];
+const subtitle = section === "home" ? "/now" : `/${section}`;
+---
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label={`${profile.brand} index page`}>
+      <span class="glyph" aria-hidden="true">{profile.glyph}</span>
+      <span>{profile.brand} <small>· {subtitle}</small></span>
+    </a>
+    <ul aria-label="Primary navigation">
+      {links.map((link) => (
+        <li><a href={link.href} class:list={[section === link.section && "active"]}>{link.label}</a></li>
+      ))}
+    </ul>
+    <ThemeToggle />
+  </div>
+</header>

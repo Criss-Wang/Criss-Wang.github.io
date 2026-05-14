@@ -1,0 +1,161 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { excerptFor, formatDate, postCategories, postDate, postTags, postUrl, readingMinutes, searchText, sortPosts } from "../lib/posts";
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const grouped = posts.reduce<Record<string, typeof posts>>((groups, post) => {
+  const year = String(postDate(post).getUTCFullYear());
+  groups[year] ||= [];
+  groups[year].push(post);
+  return groups;
+}, {});
+const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+---
+
+<BaseLayout title="Writing" description="A searchable archive of all Markdown posts by Zhenlin Wang." section="writing">
+  <section class="page-head">
+    <div class="preheader">Writing</div>
+    <h1>Notes &amp; <em>essays</em>.</h1>
+    <p class="lede">A searchable archive of {posts.length} posts on machine learning, data systems, software engineering, and projects.</p>
+  </section>
+
+  <div class="search-row">
+    <div class="search-input" id="searchWrap">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7" cy="7" r="5"></circle>
+        <path d="M11 11l3 3"></path>
+      </svg>
+      <input type="search" id="search" aria-label="Search posts" placeholder="Search by title, tag, or topic" autocomplete="off" />
+      <button class="clear-search" id="clearSearch" type="button" aria-label="Clear search">x</button>
+    </div>
+    <div class="archive-count" id="archiveCount">{posts.length} posts</div>
+  </div>
+
+  <main id="postList">
+    {years.map((year) => (
+      <section class="year-group" data-year={year}>
+        <div class="year-head">
+          <h2>{year}</h2>
+        </div>
+        {grouped[year].map((post) => (
+          <article class="post-card" data-search={searchText(post)}>
+            <div class="post-meta">
+              <div>{formatDate(postDate(post))}</div>
+              <div>{readingMinutes(post.body)} min</div>
+            </div>
+            <div>
+              <h2><a href={postUrl(post)}>{post.data.title}</a></h2>
+              <p>{excerptFor(post)}</p>
+              <div class="tag-list">
+                {[...postCategories(post), ...postTags(post)].slice(0, 6).map((tag) => (
+                  <button type="button" data-tag={tag}>{tag}</button>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </section>
+    ))}
+  </main>
+
+  <nav class="pager" id="pager" aria-label="Pagination">
+    <button type="button" id="prevPage">← previous</button>
+    <span id="pageStatus">page 1 of 1</span>
+    <button type="button" id="nextPage">next →</button>
+  </nav>
+
+  <script is:inline>
+    (function () {
+      const pageSize = 5;
+      const input = document.getElementById("search");
+      const wrap = document.getElementById("searchWrap");
+      const clear = document.getElementById("clearSearch");
+      const count = document.getElementById("archiveCount");
+      const list = document.getElementById("postList");
+      const posts = Array.from(document.querySelectorAll(".post-card"));
+      const groups = Array.from(document.querySelectorAll(".year-group"));
+      const prev = document.getElementById("prevPage");
+      const next = document.getElementById("nextPage");
+      const status = document.getElementById("pageStatus");
+      let page = 1;
+      let filtered = posts;
+
+      function matches(post, query) {
+        const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        const haystack = post.dataset.search || "";
+        return tokens.every((token) => haystack.includes(token));
+      }
+
+      function apply() {
+        const query = input.value.trim().toLowerCase();
+        filtered = posts.filter((post) => matches(post, query));
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        page = Math.min(page, totalPages);
+        const start = (page - 1) * pageSize;
+        const visible = new Set(filtered.slice(start, start + pageSize));
+
+        posts.forEach((post) => {
+          post.hidden = !visible.has(post);
+        });
+        groups.forEach((group) => {
+          group.hidden = !Array.from(group.querySelectorAll(".post-card")).some((post) => !post.hidden);
+        });
+        wrap.classList.toggle("has-value", query.length > 0);
+        count.textContent = query ? `${filtered.length} of ${posts.length} matching "${query}"` : `${posts.length} posts`;
+        status.textContent = `page ${page} of ${totalPages}`;
+        prev.disabled = page <= 1;
+        next.disabled = page >= totalPages;
+      }
+
+      function setQuery(value) {
+        input.value = value;
+        page = 1;
+        apply();
+        const url = new URL(window.location.href);
+        if (value) url.searchParams.set("q", value);
+        else url.searchParams.delete("q");
+        history.replaceState(null, "", url);
+      }
+
+      input.addEventListener("input", () => setQuery(input.value));
+      clear.addEventListener("click", () => {
+        setQuery("");
+        input.focus();
+      });
+      document.querySelectorAll("[data-tag]").forEach((button) => {
+        button.addEventListener("click", () => {
+          setQuery(button.dataset.tag || "");
+          input.focus();
+          list.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+      prev.addEventListener("click", () => {
+        if (page > 1) page -= 1;
+        apply();
+        list.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      next.addEventListener("click", () => {
+        page += 1;
+        apply();
+        list.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      document.addEventListener("keydown", (event) => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+        if (event.key === "/" && !typing) {
+          event.preventDefault();
+          input.focus();
+          input.select();
+        } else if (event.key === "Escape" && document.activeElement === input) {
+          if (input.value) setQuery("");
+          else input.blur();
+        }
+      });
+
+      const initial = new URL(window.location.href).searchParams.get("q") || "";
+      if (initial) input.value = initial;
+      apply();
+    })();
+  </script>
+</BaseLayout>

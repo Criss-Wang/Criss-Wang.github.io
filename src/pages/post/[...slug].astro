@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content";
+import { postSlug, postUrl, slugify, sortPosts, type Post } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+  const paths = new Map<string, Post>();
+  for (const post of posts) {
+    paths.set(postSlug(post), post);
+    paths.set(slugify(post.data.title), post);
+  }
+  return [...paths.entries()].map(([slug, post]) => ({
+    params: { slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: Post };
+const target = postUrl(post);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={target} />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <a href={target}>Continue to {post.data.title}</a>
+  </body>
+</html>

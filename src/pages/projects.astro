@@ -1,0 +1,75 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { excerptFor, isProjectPost, postDate, postTags, postUrl, sortPosts } from "../lib/posts";
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft)).filter(isProjectPost);
+const recent = posts.slice(0, Math.ceil(posts.length / 2));
+const older = posts.slice(Math.ceil(posts.length / 2));
+const displayDate = (date: Date) => {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}·${month}·${day}`;
+};
+---
+
+<BaseLayout title="Projects" description="Project writeups by Zhenlin Wang." section="projects">
+  <section class="page-head">
+    <div class="preheader">Projects · archive</div>
+    <h1>Things I have <em>built</em> and written up.</h1>
+    <p class="lede"><a href="https://github.com/Criss-Wang/">GitHub -></a></p>
+  </section>
+
+  <main>
+    <section class="section">
+      <div class="section-head">
+        <div class="label"><span class="num">01</span>Recent</div>
+        <h2>Project writeups</h2>
+      </div>
+      <div class="section-body">
+        {recent.map((post, index) => (
+          <a class:list={["project-rowline", index === 0 && "featured"]} href={postUrl(post)}>
+            <div class="left">
+              <div class="name">{post.data.title}</div>
+              <div class="status">writeup · {displayDate(postDate(post))}</div>
+            </div>
+            <div>
+              <p class="desc">{excerptFor(post)}</p>
+              <div class="links">
+                <span>read -></span>
+                {postTags(post).slice(0, 3).map((tag) => <span>{tag}</span>)}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    {older.length > 0 && (
+      <section class="section">
+        <div class="section-head">
+          <div class="label"><span class="num">02</span>Older</div>
+          <h2>Maintained archive</h2>
+        </div>
+        <div class="section-body">
+          {older.map((post) => (
+            <a class="project-rowline" href={postUrl(post)}>
+              <div class="left">
+                <div class="name">{post.data.title}</div>
+                <div class="status archived">archived · {displayDate(postDate(post))}</div>
+              </div>
+              <div>
+                <p class="desc">{excerptFor(post)}</p>
+                <div class="links">
+                  <span>read -></span>
+                  {postTags(post).slice(0, 3).map((tag) => <span>{tag}</span>)}
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>

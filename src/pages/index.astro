@@ -1,0 +1,146 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { now } from "../data/now";
+import { publications, scholarProfileUrl } from "../data/publications";
+import {
+  excerptFor,
+  isProjectPost,
+  postDate,
+  postTags,
+  postUrl,
+  readingMinutes,
+  sortPosts,
+} from "../lib/posts";
+
+const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
+const recent = posts.slice(0, 3);
+const projectPosts = posts.filter(isProjectPost).slice(0, 4);
+const displayDate = (date: Date) => {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}·${month}·${day}`;
+};
+---
+
+<BaseLayout title={profile.name} description={profile.tagline} section="home">
+  <section class="hero">
+    <div>
+      <h1>Notes on machine learning systems, AI software, and the craft of making models <em>work</em>.</h1>
+    </div>
+    <aside class="now-card" aria-label="Now">
+      <div class="now-head">
+        <h3><span class="slash">/</span> now</h3>
+        <span class="stamp">{now.updated}</span>
+      </div>
+      <dl>
+        {now.items.map((item, index) => (
+          <>
+            <dt>{item.label}</dt>
+            <dd class:list={[index === 0 && "status"]}>{item.value}</dd>
+          </>
+        ))}
+      </dl>
+    </aside>
+  </section>
+
+  <main class="home-main">
+    <section class="section" id="writing">
+      <div class="section-head">
+        <div class="label"><span class="num">01</span>Writing</div>
+        <div>
+          <h2>Recent essays &amp; notes</h2>
+          <div class="desc">Reverse-chron. All {posts.length} Markdown posts preserved.</div>
+        </div>
+        <a href="/writing/" class="see-all">all writing -></a>
+      </div>
+
+      {recent.map((post, index) => (
+        <a href={postUrl(post)} class:list={["post", index === 0 && "featured"]}>
+          <div class="date">
+            {index === 0 && <span class="badge">featured</span>}
+            <span>{displayDate(postDate(post))}</span>
+          </div>
+          <div>
+            <div class="title">{post.data.title}</div>
+            <div class="desc">{excerptFor(post)}</div>
+          </div>
+          <div class="read">{readingMinutes(post.body)} min</div>
+        </a>
+      ))}
+    </section>
+
+    <section class="section" id="publications">
+      <div class="section-head">
+        <div class="label"><span class="num">02</span>Publications</div>
+        <div>
+          <h2>Selected research work</h2>
+          <div class="desc">Papers and research artifacts from the current archive.</div>
+        </div>
+        <a href={scholarProfileUrl} class="see-all">Google Scholar -></a>
+      </div>
+
+      <div class="pubs">
+        {publications.slice(0, 3).map((pub) => (
+          <article class="pub">
+            <div class="venue-block">
+              <span class="v">{pub.venue}</span>
+              <span class="year">{pub.year}</span>
+            </div>
+            <div>
+              <h3>{pub.title}</h3>
+              <p class="authors">{pub.authors}</p>
+              <div class="links">
+                {pub.links.map((link) => <a href={link.href}>{link.label}</a>)}
+              </div>
+            </div>
+            <div class="right-stat">
+              {pub.citationCount === null ? (
+                <a href={pub.scholarUrl}>Scholar</a>
+              ) : (
+                <>
+                  <a class="cites" href={pub.scholarUrl}>{pub.citationCount}</a>
+                  cited
+                </>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section" id="projects">
+      <div class="section-head">
+        <div class="label"><span class="num">03</span>Projects</div>
+        <div>
+          <h2>Project writeups</h2>
+          <div class="desc">Preserved project posts with stable local images.</div>
+        </div>
+        <a href="/projects/" class="see-all">all projects -></a>
+      </div>
+
+      <div class="projects-wrap">
+        <div class="projects">
+          {projectPosts.map((post) => (
+            <a class="project" href={postUrl(post)}>
+              <div class="project-head">
+                <div class="name">{post.data.title}</div>
+                <span class="status">writeup</span>
+              </div>
+              <p class="desc">{excerptFor(post)}</p>
+              <div class="tags">
+                {postTags(post).slice(0, 4).map((tag) => <span>{tag}</span>)}
+              </div>
+              <div class="actions">
+                <span>read -></span>
+                <span class="stat">{displayDate(postDate(post))}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

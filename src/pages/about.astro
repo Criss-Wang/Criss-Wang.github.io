@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+
+const emailLink = profile.links.find((link) => link.label === "Email");
+const socialLinks = profile.links.filter((link) => link.label !== "Email");
+---
+
+<BaseLayout title="About" description={profile.shortBio} section="about">
+  <section class="page-head about-head">
+    <h1>I work on machine learning systems and <em>AI software</em>.</h1>
+  </section>
+
+  <main>
+    <section class="prose">
+      {profile.about.map((paragraph) => <p>{paragraph}</p>)}
+    </section>
+
+    <section class="block">
+      <h2>Background</h2>
+      {profile.background.map((item) => (
+        <div class="timeline-row">
+          <span class="when">{item.when}</span>
+          <span class="what">{item.what} · <span class="org">{item.org}</span></span>
+        </div>
+      ))}
+    </section>
+
+    <section class="block">
+      <h2>Focus</h2>
+      {profile.focus.map((item) => (
+        <div class="timeline-row">
+          <span class="when">topic</span>
+          <span class="what">{item}</span>
+        </div>
+      ))}
+    </section>
+
+    <section class="block">
+      <h2>Elsewhere</h2>
+      <dl class="elsewhere">
+        {emailLink && (
+          <>
+            <dt>email</dt>
+            <dd><a href={emailLink.href}>{profile.email}</a></dd>
+          </>
+        )}
+        {socialLinks.map((link) => (
+          <>
+            <dt>{link.label}</dt>
+            <dd><a href={link.href}>{link.href.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></dd>
+          </>
+        ))}
+      </dl>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,51 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { publications, scholarProfileUrl } from "../data/publications";
+
+const grouped = publications.reduce<Record<string, typeof publications>>((groups, pub) => {
+  groups[pub.year] ||= [];
+  groups[pub.year].push(pub);
+  return groups;
+}, {});
+const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+---
+
+<BaseLayout title="Publications" description="Selected publications and research artifacts by Zhenlin Wang." section="publications">
+  <section class="page-head">
+    <div class="preheader">Publications · selected</div>
+    <h1>Papers on machine learning, <em>bandits</em>, and robustness.</h1>
+    <p class="lede">
+      Conference papers, workshop papers, and research artifacts from CMU, NUS, and related collaborations.
+      <a href={scholarProfileUrl}>Google Scholar -></a>
+    </p>
+  </section>
+
+  <main>
+    {years.map((year) => (
+      <section class="section">
+        <div class="section-head">
+          <div class="label">{grouped[year][0].venue.includes("Workshop") ? "workshop" : "research"}</div>
+          <h2>{year}</h2>
+        </div>
+        <div class="section-body">
+          {grouped[year].map((pub) => (
+            <article class="paper">
+              <div><span class:list={["venue", pub.venue.toLowerCase().includes("workshop") && "workshop"]}>{pub.venue}</span></div>
+              <div>
+                <h3>{pub.title}</h3>
+                <p class="meta">{pub.authors}</p>
+                <div class="actions">
+                  {pub.links.map((link) => <a href={link.href}>{link.label}</a>)}
+                  <a href={pub.scholarUrl}>scholar</a>
+                  {pub.citationCount !== null && (
+                    <a class="cites" href={pub.scholarUrl}><strong>{pub.citationCount}</strong> cited</a>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+</BaseLayout>

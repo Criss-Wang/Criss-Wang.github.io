@@ -1,0 +1,59 @@
+---
+import { profile } from "../data/profile";
+
+interface Props {
+  section?: string;
+}
+
+const { section = "home" } = Astro.props;
+---
+
+<footer>
+  {section === "home" ? (
+    <div class="footer-inner footer-grid">
+      <div>
+        <p class="colophon">Hand-built in Astro. Set in Fraunces for display, Inter for reading, and JetBrains Mono for structure.</p>
+        <div class="build">
+          <div>{profile.brand} · CC BY 4.0 · <a href="/rss.xml">RSS</a></div>
+          <div>Personal notes, projects, and research archive</div>
+        </div>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="/writing/">writing</a></li>
+          <li><a href="/publications/">publications</a></li>
+          <li><a href="/projects/">projects</a></li>
+          <li><a href="/about/">about</a></li>
+          <li><a href="/rss.xml">rss</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Elsewhere</h4>
+        <ul>
+          {profile.links.filter((link) => link.label !== "Email").map((link) => (
+            <li><a href={link.href}>{link.label.toLowerCase()}</a></li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h4>Reach</h4>
+        <ul>
+          <li><a href="/contact/">mail</a></li>
+          <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+        </ul>
+      </div>
+    </div>
+  ) : (
+    <div class="footer-inner">
+      <div>{profile.brand} · CC BY 4.0 · <a href="/rss.xml">RSS</a></div>
+      <nav aria-label="Footer navigation">
+        <a href="/about/">about</a>
+        <a href="/writing/">writing</a>
+        <a href="/publications/">publications</a>
+        <a href="/projects/">projects</a>
+        <a href="/contact/">contact</a>
+      </nav>
+    </div>
+  )}
+</footer>
