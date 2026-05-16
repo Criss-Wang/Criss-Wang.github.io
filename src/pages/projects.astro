@@ -5,9 +5,13 @@ import { homeProjectMeta } from "../data/home";
 import liveStatsJson from "../data/live-stats.json";
 import { excerptFor, isProjectPost, postCategories, postUrl, sortPosts } from "../lib/posts";
 
-const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft)).filter(isProjectPost);
+const allProjectPosts = sortPosts(await getCollection("posts", ({ data }) => !data.draft)).filter(isProjectPost);
 const projectMeta = (title: string) => homeProjectMeta[title] ?? { status: "archived" as const };
-const techTags = (post: (typeof posts)[number], meta = projectMeta(post.data.title)) =>
+const posts = allProjectPosts.filter((post) => {
+  const meta = homeProjectMeta[post.data.title];
+  return meta && meta.showOnProjects !== false;
+});
+const techTags = (post: (typeof allProjectPosts)[number], meta = projectMeta(post.data.title)) =>
   (meta.featuredTags ?? postCategories(post))
     .filter((tag) => tag.toLowerCase() !== "projects")
     .slice(0, 3);
@@ -28,6 +32,8 @@ const repoAge = (pushedAt?: string) => {
   if (!pushedAt) return null;
   const pushed = new Date(pushedAt);
   const now = new Date();
+  const days = Math.floor((now.getTime() - pushed.getTime()) / (1000 * 60 * 60 * 24));
+  if (days < 31) return `${Math.max(1, days)}d`;
   const months =
     (now.getUTCFullYear() - pushed.getUTCFullYear()) * 12 + now.getUTCMonth() - pushed.getUTCMonth();
   if (months < 12) return `${Math.max(1, months)}mo`;
@@ -57,7 +63,7 @@ const projectSections = [
 <BaseLayout title="Projects" description="Project writeups by Zhenlin Wang." section="projects">
   <section class="page-head projects-page-head">
     <div class="preheader">Projects · collection</div>
-    <h1>Things I have <em>built</em> and written up.</h1>
+    <h1>Agents, <em>models</em>, and systems I built.</h1>
     <p class="lede"><a href="https://github.com/Criss-Wang/">GitHub -></a></p>
   </section>
 
@@ -80,7 +86,7 @@ const projectSections = [
               const stars = repoStats?.stars ?? meta.stars;
               const commits = repoStats?.commits;
               const repoUrl = repoStats?.url ?? meta.repoUrl;
-              const repoTitle = repoStats?.name ?? meta.repoTitle ?? post.data.title;
+              const repoTitle = meta.repoTitle ?? repoStats?.name ?? post.data.title;
               const image = projectImage(post.data.link);
               return (
                 <article class="project-archive-row">

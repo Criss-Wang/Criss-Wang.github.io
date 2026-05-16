@@ -1,57 +1,92 @@
 ---
 title: "Clustering: Apriori"
-excerpt: "Association Rule realized via inference"
-layout: post
 date: 2020/02/11
-updated: 2021/9/20
 categories:
   - Blogs
-tags: 
-  - Machine Learning
-  - Clustering
+tags:
   - Unsupervised Learning
+  - Association Rules
+excerpt: "A practical introduction to Apriori and association rule mining, including support, confidence, lift, frequent itemsets, and market-basket analysis."
+layout: post
 mathjax: true
 toc: true
 ---
-### Association Rule
-Association rule learning is a rule-based machine learning method for discovering interesting relations between variables in large databases. It is intended to identify strong rules discovered in databases using some measures of interestingness. For example, we may want to find 1-1 product category assocaition rule: product cateogry 1 -> product category 2
 
-This is often used for discovering regularities between products in large-scale transaction data recorded by point-of-sale (POS) systems in supermarkets. Because we don\'t have initial associations in our data, it is an unsupervised learning problem for marketing activities such as, e.g., promotional pricing or product placements. In contrast with sequence mining, association rule learning typically does not consider the order of items either within a transaction or across transactions. [Wikipedia]
-### Evaluation Metrics<sup>[1]</sup>
-[1]: https://michael.hahsler.net/research/recommender/associationrules.html
-1. Support
-  - $P(X,Y)$: % of transactions where items in X AND Y are bought together
-  - Property of down-ward closure which means that all sub sets of a frequent set (support > min. support threshold) are also frequent
-  - Cons: Items that occur very infrequently in the data set are pruned although they would still produce interesting and potentially valuable rules.
-2. Confidence
-  - $P(Y\|X)$: % of transactions amongst all customers who bought Y given that they have bought X
-  - While support is used to prune the search space and only leave potentially interesting rules, confidence is used in a second step to filter rules that exceed a min. confidence threshold
-  - Cons: sensitive to the frequency of the consequent (Y) in the data set. Caused by the way confidence is calculated, Ys with higher support will automatically produce higher confidence values even if they exists no association between the items.
-3. Lift
-  - $\frac{P(X,Y)}{P(X)P(Y)} = \frac{P(Y\|X)}{P(Y)}$
-  - An association rule X -> Y is only useful if the lift value > 1
-  - Want to consider also the presence of Y being bought independently without knowledge about X
-  - Largely solves to problem of confidence threshold: sensitive to the frequency of the consequent (Y)
-4. Conviction
-  - $\frac{P(X)P(\neg Y)}{P(X, \neg Y)} = \frac{1-P(Y)}{1-P(Y\|X)}$: How poor can the association be.
-  - A directed measure  monotone in confidence and lift.
-5. Leverage
-  - $P(X,Y) - P(X)P(Y)$: difference of X and Y appearing together in the data set and what would be expected if X and Y where statistically independent.
-  - The rational in a sales setting is to find out how many more units (items X and Y together) are sold than expected from the independent sells.
-  - Cons: suffer from the rare item problem.
+## Introduction
 
-### Apriori Property
-All subsets of a frequent itemset must be frequent (Apriori propertry). If an itemset is infrequent, all its supersets will be infrequent.
+Apriori is not a clustering algorithm in the usual sense. It is an association rule mining algorithm. It finds itemsets that frequently appear together and derives rules from them.
 
-Applying the apriori property, we get the following algorithm.
+Classic use case: market-basket analysis.
 
-#### Algorithm
-1. Generating **Support** Value for Itemsets containing one items (*One Itemset*)
-2. With a pre-defined **support** threshold, identify itemsets worth exploring
-3. With the shortlisted *One Itemset* that are above the **support** threshold, generate Itemsets containing two items (*Two Itemsets*)
-4. With the same pre-definited **support** threshold, identify associations in *Two Itemsets* that are worth exploring
-5. With the shortlisted *Two Itemsets*, association rule is generated between the two items
-6. Confidence value is generated for each association rule
-7. With a pre-defined **confidence** threshold, association rules are being shortlisted
-8. With shortlisted association rules, the lift values are computed for each of them
-9. Only association rules with lift value > 1 is considered as meaningful associations
+```text
+Customers who buy bread and peanut butter also often buy jam.
+```
+
+## Frequent Itemsets
+
+An itemset is a set of items, such as:
+
+```text
+{bread, peanut butter}
+```
+
+Support measures how often an itemset appears:
+
+$$
+support(A) = \frac{\text{transactions containing } A}{\text{all transactions}}
+$$
+
+Apriori finds itemsets whose support exceeds a minimum threshold.
+
+## Apriori Principle
+
+The key property:
+
+```text
+If an itemset is frequent, all of its subsets must also be frequent.
+```
+
+This lets the algorithm prune the search space. If `{bread, jam}` is not frequent, then `{bread, jam, milk}` cannot be frequent.
+
+## Association Rules
+
+A rule has the form:
+
+```text
+A -> B
+```
+
+Confidence measures how often B appears when A appears:
+
+$$
+confidence(A \to B) = \frac{support(A \cup B)}{support(A)}
+$$
+
+Lift compares the rule to chance:
+
+$$
+lift(A \to B) = \frac{confidence(A \to B)}{support(B)}
+$$
+
+Lift greater than 1 suggests A and B appear together more often than expected if independent.
+
+## Practical Use
+
+Apriori is useful for:
+
+- Basket analysis.
+- Product bundling.
+- Recommendation rules.
+- Event co-occurrence.
+- Pattern discovery in transaction data.
+
+Watch out:
+
+- Too low support creates too many rules.
+- High confidence can be misleading for very common items.
+- Rules show association, not causation.
+- Business usefulness matters more than rule count.
+
+## Closing
+
+Apriori is a clear method for discovering frequent co-occurrence patterns. It is best used as exploratory analysis or as a simple rule-based recommendation ingredient.

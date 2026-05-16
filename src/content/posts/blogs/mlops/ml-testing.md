@@ -1,6 +1,6 @@
 ---
 title: "Testing in Machine Learning"
-excerpt: "A holistic approach to evaluate machine learning code"
+excerpt: "A practical checklist for testing data, models, ML systems, and CI/CD pipelines."
 date: 2024/04/19
 categories:
   - Blogs
@@ -12,99 +12,135 @@ mathjax: true
 toc: true
 ---
 
-# ML Testing
+Machine learning testing is broader than ordinary software testing. A model can pass unit tests and still fail because the data distribution changed, the evaluation metric is wrong, the serving path is overloaded, or the product behavior is biased.
 
-The complexity of ML models and the iterative nature of their development pose unique challenges in ensuring their reliability, robustness, and performance. In this blog post, we delve into the critical aspect of ML testing in MLOps, exploring various strategies, tools, and best practices to ensure the quality and effectiveness of ML models in production environments.
+In MLOps, a useful testing strategy needs to cover four layers:
 
-## Data quality and diversity
+- **Data:** Are the inputs reliable, representative, and separated correctly?
+- **Model:** Does the model improve the metric that matters, and does it stay robust under realistic variation?
+- **System:** Can the training and inference pipelines run reliably at production scale?
+- **Product:** Does the model behave safely and fairly for the people affected by it?
 
-Data quality and diversity are critical factors in ML testing, ensuring that models perform reliably across different scenarios and datasets. This means the following aspects need to be tested thoroughly:
+The sections below are a practical checklist for those layers.
 
-1. **Data Consistency**:
-   Ensuring data consistency involves validating the integrity, accuracy, and completeness of datasets used for training and testing ML models. Techniques such as data profiling, schema validation, and anomaly detection help identify inconsistencies and errors in the data.
+## Data Quality and Diversity
 
-   As a baseline, we shall always check for:
+Data quality is the first testing surface. If the data is inconsistent, leaked, mis-split, or unrepresentative, later model evaluation becomes difficult to trust.
 
-   - **Implementation errors** (i.e., written logic, error handling) during ETL of data
-     - _Encoding_ is often something people forget to check. However this is extremely important in the ML domain.
-   - **Input/Ouput Shape and Range** misalignment from the model
-   - **Potential Train/Test/Validation Split issue** (e.g. class imbalance among the split) and **Potential data leakages** (e.g. from train set to test set)
-   - UNEXPECTED **Feature correlation** and **Temporal dependencies** within dataset
+### Data Consistency
 
-2. **Data Drift**:
-   Data drift refers to changes in the underlying data distribution over time, leading to performance degradation in ML models. Monitoring data drift involves comparing model predictions with ground truth labels and detecting deviations from expected behavior. Techniques like drift detection and concept drift detection are employed to locate data drift issues.
+Consistency checks validate the integrity, accuracy, completeness, shape, and range of the datasets used for training, validation, and testing. Common tools include data profiling, schema validation, anomaly detection, and simple invariant checks.
 
-   As a baseline, we shall always check for:
+At minimum, test for:
 
-   - **Distribution drift**
-     - _Kolmogorov-Smirnov Test_ for numerical CDF drift testing
-     - _Chi-square Test_ for categorical drift testing
-   - **Performance drift** caused by domain shifts or concept shifts. Typically conducted during production stage and can be in the form of supervised/unsupervised/semi-supervised
+- **ETL implementation errors:** Check parsing, joins, deduplication, missing-value handling, label generation, and error handling. Encoding issues are especially easy to miss and can quietly damage text-heavy ML systems.
+- **Input/output shape and range mismatches:** Confirm that feature tensors, labels, prediction outputs, and post-processed values match the contracts expected by downstream code.
+- **Train/validation/test split issues:** Look for class imbalance across splits, duplicated examples, time-travel leakage, user-level leakage, and contamination from training data into validation or test data.
+- **Unexpected feature correlations:** Investigate correlations that look too strong to be real. They may reveal leakage, data collection artifacts, or temporal dependencies.
 
-## Model quality
+### Data Drift
 
-Model quality encompasses various aspects such as regression, robustness, and domain adaptation, ensuring that ML models generalize well and exhibit reliable performance across diverse datasets.
+Data drift is a change in the input distribution over time. Concept drift is a change in the relationship between inputs and labels. Both can degrade production performance even when the model code has not changed.
 
-1. **Metrics definition & evaluation framework**
-   Before stepping into regression testing or robustness testing, you MUST ensure the correct implementation of your evaluation framework. It will a huge waste of time if you spend tons of time trying to improving upon a problematic metric results. Make sure all the custom implementation of evaluation pipeline and metrics are thoroughly tested.
+At minimum, monitor:
 
-2. **Regression testing**
-   Regression testing involves validating model outputs against expected outcomes to detect regression bugs and ensure model correctness. Regression can happen during training time and inference time, so it is critical to provide robust UAT testing and Prod testing, and set up alarms carefully. This is a major task in many of the industry-level ML projects, as it significantly affects the product's quality.
+- **Distribution drift:** Use tests such as the Kolmogorov-Smirnov test for numerical features and the chi-square test for categorical features, then pair those tests with domain review so statistical noise does not trigger false alarms.
+- **Performance drift:** Track production metrics when labels are available, and use proxy metrics or delayed-label analysis when labels arrive slowly.
+- **Segment-level drift:** Watch important user groups, traffic sources, regions, devices, or product surfaces separately. Aggregate metrics can hide a regression in a smaller segment.
 
-   As a baseline, we shall always check for :
+## Model Quality
 
-   - [Training] Convergence
-   - [Training] Overfitting / Underfitting
-   - [Training + Inference] Directional expectation (e.g. snow shouldn't be expected under high temperature)
-   - [Inference] Server testing (batch/streaming features)
+Model quality testing asks whether the model is correct enough, stable enough, and useful enough for the product context. It should happen before full system testing, but it depends on a reliable evaluation framework.
 
-3. **Robustness**
-   Model robustness refers to the ability of ML models to perform consistently in the presence of perturbations, adversarial attacks, and out-of-distribution data.
+### Evaluation Framework
 
-   As a baseline we should always consider the following methods:
+Before regression or robustness testing, test the evaluation pipeline itself. It is easy to waste days improving a model against a broken metric.
 
-   - adversarial training with input perturbation
-   - robust optimization over model with surrogate functions / loss that accounts for perturbation
+Check that:
 
-## Fairness & Bias
+- The metric implementation matches the product objective.
+- Label normalization, filtering, and aggregation rules are correct.
+- Custom evaluators are tested with small examples where the expected answer is obvious.
+- Offline metrics are compared against a current baseline, not just against an isolated candidate score.
 
-Ensuring fairness and mitigating bias in ML models are essential for ethical AI and preventing discriminatory outcomes. This includes identifying and mitigating biases related to race, gender, age, and other demographic factors. Techniques such as fairness-aware training, bias detection, and algorithmic auditing help address ethical concerns and promote fairness and transparency in ML systems. In post-GPT area, this often means `alignment` for LLMs. However, many explicit components like **Diverse Representation**, **Transparency and Explainability** and **Bias Monitoring** (preprocessing/data, discriminatory inference, evaluation framework, etc) need to be considered. The focus also differ from business to business. Hence, I would not provide a generic baseline here. Instead, I'd recommend taking a deep dive into the [IBM's AI Fairness 360 (AIF360)](https://aif360.res.ibm.com/) for the specific biases you'd like to mitigate and the relevant metrics used. On the other hand, you may also resort to LLM evaluators to complete the task for you (at a risk of evaluation bias).
+### Regression Testing
+
+Regression testing checks whether a new model, prompt, feature, or serving change makes existing behavior worse. Regression can happen during training or inference, so it should be covered in development, staging, and production.
+
+At minimum, test:
+
+- **Training behavior:** convergence, overfitting, underfitting, and sensitivity to random seeds.
+- **Inference behavior:** prediction contracts, batch and streaming paths, timeout behavior, and response formatting.
+- **Directional expectations:** examples where the expected direction is obvious, such as a snow prediction becoming less likely when temperature rises.
+- **Product acceptance cases:** user-facing workflows that must keep working even when the model changes.
+
+### Robustness
+
+Robustness testing checks whether the model behaves consistently under perturbations, adversarial inputs, noisy data, and out-of-distribution examples.
+
+Useful methods include:
+
+- Input perturbation tests, such as typos, paraphrases, feature noise, cropping, or missing fields.
+- Adversarial or stress examples targeted at known model weaknesses.
+- Robust training or optimization methods when the risk justifies the extra complexity.
+- Evaluation on slices that represent edge cases, minority classes, or important production segments.
+
+## Fairness and Bias
+
+Fairness testing is part of product quality, not an optional ethics appendix. The relevant risks depend heavily on the domain, but teams should explicitly test for disparate performance, representational gaps, and harmful outputs.
+
+For traditional ML systems, this can mean testing metrics across demographic groups, auditing labels and features for proxy variables, and monitoring bias after launch. For LLM systems, it can also mean alignment evaluations, red-team prompts, harmful-output checks, and reviewer audits.
+
+There is no single universal baseline here. The right tests depend on the affected users, business context, legal constraints, and product failure modes. A good starting point is [IBM AI Fairness 360](https://aif360.res.ibm.com/), which catalogs fairness metrics and mitigation techniques. LLM-based evaluators can help with review at scale, but they also introduce their own evaluation bias, so they should not be treated as the only judge.
 
 ## System Testing
 
-Ensuring robust system is another critical part of the MLOps workflow. The context may diverge based on inference or training pipeline. However, both have the target of maintaining model correctness, scalability and fault tolerance.
+System testing checks whether the training and inference pipelines can run reliably, recover from failure, and meet production constraints. The details differ between training and serving, but both need correctness, scalability, and fault tolerance.
 
-From a training-based aspect, we need to consider
+For training systems, test:
 
-- If multi-node or multi-server (or both) setup is secured with failure recovery mechanisms like model checkpointing and replica syncing
-- If CPU/GPU bandwidth is fully utilized and memory is fully utilized
-- If storage is causing a issue
-- If network congestions / latencies can be addressed as desired
+- Multi-node or multi-server recovery through checkpointing, retry logic, and replica synchronization.
+- CPU, GPU, memory, and storage utilization.
+- Dataset loading throughput and storage bottlenecks.
+- Network congestion, latency, and distributed-training communication overhead.
 
-From an inference-based aspect, we need to consider
+For inference systems, test:
 
-- If model can serve streaming/batch/real-time functionalities
-- If model can have low latency, even under heavy traffic, i.e. load testing or stress testing (\*note: this may be addressed by devop team, but we should also pay attention to the processing time change due to heated servers)
+- Batch, streaming, and real-time serving paths.
+- Latency under normal load, peak load, and stress conditions.
+- Error handling for provider failures, malformed inputs, oversized requests, and timeout paths.
+- Changes in processing time when servers are under sustained load.
 
-## ML Testing but SWE
+## ML Testing and Software Engineering
 
-To write high quality ML code doesn't just mean we need to consider all the data science and ML research perspective, but also the basic software engineering principles need to be highly respected. Towards this end, we have to write robust unit tests. However, the guideline may differ from the traditional swe practices. Here we have the following suggestions when performing unit testing in ML:
+High-quality ML code still needs ordinary software engineering discipline. The difference is that ML tests often need to avoid large fixtures, expensive models, and hidden assumptions about learned weights.
 
-- **Use small, simple data samples**: Avoid loading data files as sample data. Use one or two data entries defined directly in the test files if possible.
-- **When viable, test against random or empty weights** to get rid of any assumption about model weights and ensure the architecture's robustness on any embedding layers
-- **Write critical tests against the actual model**: If they take a while to run, you may choose to mark `@slow` on the test and run only when needed (e.g., pre-commit and pre-merge).
-- **Check post-processing logics** such as diversification or filtering recommendations to ensure business logic runs correctly after the ML part
+Good unit-test practices include:
 
-## ML Testing CI/CD
+- **Use tiny examples:** Prefer one or two inline examples over loading a full data file.
+- **Test random or empty weights when possible:** This checks architecture and tensor-flow assumptions without depending on a specific trained model.
+- **Keep critical model tests separate:** Mark slow tests clearly and run them before important merges or releases.
+- **Test post-processing logic:** Recommendation filtering, diversification, ranking rules, thresholds, and formatting often contain product-critical logic outside the model itself.
 
-ML testing, just like SWE testing, is a continuous effort. We can often automate it via CI/CD. However, unlike SWE testing, some of the efforts are destined to give non-deterministic outcomes, and consequently requires human-in-the-loop. Towards this end, CI/CD in ml is a more challenging task, and have less of a standardized way to follow. Nonetheless, there are still guidelines we can follow. I really like how [Jeremy Jordan](https://www.jeremyjordan.me/testing-ml/) depicts a canonical model development pipeline would look like as follows:
+## ML Testing in CI/CD
 
-![A complete flow](https://www.jeremyjordan.me/content/images/2020/08/Group-7.png)
+ML testing should be continuous, but it is not always deterministic. Data changes, stochastic training, and human evaluation can make CI/CD harder than in traditional software projects.
 
-If you are interested in more detailed descriptions, for e.g. how dev/uat/prod testing would differ in a ml-driven project in big companies, I'd recommend [this book](https://www.databricks.com/resources/ebook/the-big-book-of-mlops?scid=7018Y000001Fi1CQAS&utm_medium=paid+search&utm_source=google&utm_campaign=17107065832&utm_adgroup=145252855846&utm_content=ebook&utm_offer=the-big-book-of-mlops&utm_ad=678157791283&utm_term=databricks%20the%20big%20book%20of%20mlops&gad_source=1&gclid=CjwKCAjwoPOwBhAeEiwAJuXRh97QqZgy1288RwSefteCmvWr9EwD11wvIe6kZNVzC35pDP6u492j2RoC7UkQAvD_BwE) from Databricks. It contains tons of great lessons on how to build a robust system, which includes testings in CI/CD on ML models.
+A practical pipeline usually combines:
+
+- Fast unit tests on every commit.
+- Data validation and metric checks on model-training jobs.
+- Regression suites for candidate models, prompts, and feature changes.
+- Slower integration or end-to-end tests before deployment.
+- Human review for ambiguous product, fairness, or quality judgments.
+- Production monitoring for drift, latency, cost, and model-output quality.
+
+Jeremy Jordan's testing guide has a helpful diagram of the model-development loop. The key point is the same one used throughout this post: combine software tests, data tests, model behavior tests, and production monitoring instead of treating validation score as the only check.
+
+For a deeper enterprise MLOps view, the [Databricks Big Book of MLOps](https://www.databricks.com/resources/ebook/the-big-book-of-mlops) is a useful reference for how development, UAT, production testing, and monitoring fit together.
 
 ## References
 
-- https://www.jeremyjordan.me/testing-ml/
-- https://eugeneyan.com/writing/testing-ml/
-- https://www.tekhnoal.com/load-tests-for-ml-models
+- [Jeremy Jordan: Effective testing for machine learning systems](https://www.jeremyjordan.me/testing-ml/)
+- [Eugene Yan: How to Test Machine Learning Code and Systems](https://eugeneyan.com/writing/testing-ml/)
+- [Tekhnoal: Load tests for ML models](https://www.tekhnoal.com/load-tests-for-ml-models)

@@ -27,14 +27,27 @@ const reviewership = (await getCollection("reviewership", ({ data }) => !data.dr
 
   return a.data.venue.localeCompare(b.data.venue);
 });
+const reviewershipGroups = reviewership.reduce(
+  (groups, item) => {
+    const group = groups.find((entry) => entry.year === item.data.year);
+    if (group) {
+      group.items.push(item);
+    } else {
+      groups.push({ year: item.data.year, items: [item] });
+    }
+    return groups;
+  },
+  [] as Array<{ year: string; items: typeof reviewership }>,
+);
+const reviewKindLabel = (kind?: string) => (kind?.toLowerCase() === "journal" ? "Journal" : "Conf");
 ---
 
-<BaseLayout title="Research" description="Research and publications by Zhenlin Wang." section="publications">
+<BaseLayout title="Research" description="Research on machine learning under uncertainty, robustness, bandits, and production-relevant AI evaluation by Zhenlin Wang." section="publications">
   <section class="page-head">
     <div class="preheader">Research</div>
-    <h1>Research on machine learning, <em>bandits</em>, and robustness.</h1>
+    <h1>Machine learning under <em>uncertainty</em>.</h1>
     <p class="lede">
-      Publications and paper reviews across applied ML systems, out-of-distribution detection, bandits, and optimization.
+      Peer-reviewed work on out-of-distribution error, optimal transport, safe bandits, and robust optimization, with a bias toward systems that know when not to trust themselves.
       <a href={scholarProfileUrl}>google scholar -></a>
     </p>
   </section>
@@ -81,12 +94,20 @@ const reviewership = (await getCollection("reviewership", ({ data }) => !data.dr
     <section class="section research-section reviewership-section">
       <div class="section-head research-section-head">
         <div class="section-label"><span class="num">02</span>Reviewership</div>
+        <div class="desc">Active reviewer service across ML, AI, robotics, information retrieval, scientific computing, and journal venues.</div>
       </div>
       <div class="section-body reviewership-list">
-        {reviewership.map((item) => (
+        {reviewershipGroups.map((group) => (
           <article class="review-line">
-            <span class="review-year">{item.data.year}</span>
-            <span class="review-conference">{item.data.venue}</span>
+            <span class="review-year">{group.year}</span>
+            <div class="review-venues" aria-label={`Reviewed papers in ${group.year}`}>
+              {group.items.map((item) => (
+                <span class="review-venue" title={`${item.data.role ?? "Reviewer"} · ${item.data.kind ?? "Conference"}`}>
+                  <span class="review-conference">{item.data.venue}</span>
+                  <span class="review-kind">{reviewKindLabel(item.data.kind)}</span>
+                </span>
+              ))}
+            </div>
           </article>
         ))}
       </div>

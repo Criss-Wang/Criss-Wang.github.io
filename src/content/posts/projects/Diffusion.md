@@ -10,7 +10,7 @@ categories:
   - Deep Learning
   - Autonomous Vehicle
 excerpt: "Researched and developed a classifier-free guidance-based latent diffusion model for autonomous vehicle motion forecasting using UNet and Transformer as backbones"
-link: "/images/Projects/Diffusion1.webp"
+link: "/images/Projects/trajectory-diffusion-diagram.svg"
 mathjax: true
 toc: true
 ---

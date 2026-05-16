@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-15T00:27:17.273Z",
+  "generatedAt": "2026-05-16T17:15:12.188Z",
   "publications": {
     "Characterizing Out-of-Distribution Error via Optimal Transport": {
       "citationCount": 20,
@@ -46,6 +46,42 @@
     }
   },
   "repositories": {
+    "LLM Validator": {
+      "name": "llm-validator",
+      "fullName": "Criss-Wang/llm-validator",
+      "url": "https://github.com/Criss-Wang/llm-validator",
+      "stars": 0,
+      "forks": 0,
+      "commits": 21,
+      "pushedAt": "2024-09-20T21:23:11Z",
+      "updatedAt": "2025-10-05T05:15:14Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "ResumeAssist": {
+      "name": "ResumeAssist",
+      "fullName": "Criss-Wang/ResumeAssist",
+      "url": "https://github.com/Criss-Wang/ResumeAssist",
+      "stars": 1,
+      "forks": 0,
+      "commits": 80,
+      "pushedAt": "2024-10-24T22:56:42Z",
+      "updatedAt": "2024-10-05T21:48:24Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Deployable AI": {
+      "name": "dpai",
+      "fullName": "Criss-Wang/dpai",
+      "url": "https://github.com/Criss-Wang/dpai",
+      "stars": 1,
+      "forks": 0,
+      "commits": 16,
+      "pushedAt": "2024-06-23T18:05:45Z",
+      "updatedAt": "2024-08-30T03:31:15Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
     "Needle: High-performance DL System": {
       "name": "needle",
       "fullName": "Criss-Wang/needle",

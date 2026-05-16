@@ -1,42 +1,92 @@
 ---
 title: "Regression Models: Logistic Regression"
-excerpt: "Logit Model: the simple becomes the powerful"
-layout: post
 date: 2019/05/13
-updated: 2021/4/20
 categories:
   - Blogs
-tags: 
-  - Regression
+tags:
   - Supervised Learning
+  - Classification
+excerpt: "A practical introduction to logistic regression for binary classification, odds, probabilities, regularization, thresholds, and evaluation."
+layout: post
 mathjax: true
 toc: true
 ---
-### Definition
 
-- We have a mathematical function which gives a value between $-\infty$ and $\infty$, and to convert it to a value between (0,1), we need a <b>Sigmoid</b> function or a logistic function
-- We can visualize it as a boundary (the decision boundary) to separate 2 categories on a hyperplane, where each dimension is a variable (a certain type of information)
-- The algorithm used is also *gradient descent*
+## Introduction
 
-### Common Questions
-1. What is a logistic function?   
-    __Answer__: $f(z) = {1\over (1+e -z) }$.  
-2. What is the range of values of a logistic function?  
-    __Answer__: The values of a logistic function will range from 0 to 1. The values of Z will vary from $-\infty$ to $\infty$.  
-3. What are the cost functions of logistic function?    
-    __Answer__: The popular 2 are __Cross-entropy__ or __log loss__. Note that __MSE__ is not used as squaring sigmoid violates convexity (cause local extrema to appear).
+Despite the name, logistic regression is usually used for classification. It models the probability of a binary outcome.
 
-### Basic Implementation
-```python
-from sklearn.datasets import load_iris
-from sklearn.linear_model import LogisticRegression
-X, y = load_iris(return_X_y=True)
-clf = LogisticRegression(random_state=2).fit(X, y)
-clf.predict(X[:2, :])
+For features $x$, logistic regression predicts:
 
-clf.predict_proba(X[:2, :])
-clf.score(X, y)
-```
+$$
+p(y=1 \mid x) = \sigma(w^Tx + b)
+$$
 
-### Notes
-In fact, logistic regression is simple, but the key thing here is actually on the mathematics behind *gradient descent* and its multi-dimensional variations. I\'ll discuss about them in future posts.
+where:
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+## Interpretation
+
+The model is linear in log-odds:
+
+$$
+\log \frac{p}{1-p} = w^Tx + b
+$$
+
+This makes logistic regression more interpretable than many nonlinear classifiers.
+
+## Training Objective
+
+Logistic regression is trained with log loss, also called binary cross-entropy:
+
+$$
+-y\log(p) - (1-y)\log(1-p)
+$$
+
+This rewards well-calibrated probabilities, not only correct classes.
+
+## Thresholds
+
+The model outputs probabilities. A threshold turns probabilities into classes.
+
+The default threshold is often 0.5, but that is not always right.
+
+Choose threshold based on:
+
+- Precision-recall tradeoff.
+- Cost of false positives.
+- Cost of false negatives.
+- Review capacity.
+- Business constraints.
+
+## Regularization
+
+Use regularization to reduce overfitting:
+
+- L2 for coefficient shrinkage.
+- L1 for sparse feature selection.
+- Elastic net for a mix.
+
+Scale features when using regularized logistic regression.
+
+## Evaluation
+
+Useful metrics:
+
+- Accuracy.
+- Precision.
+- Recall.
+- F1.
+- ROC-AUC.
+- PR-AUC.
+- Log loss.
+- Calibration.
+
+For imbalanced data, accuracy can be misleading. Precision-recall curves are often more useful.
+
+## Closing
+
+Logistic regression is a strong baseline for classification. It is fast, interpretable, and useful for understanding whether the features contain predictive signal.

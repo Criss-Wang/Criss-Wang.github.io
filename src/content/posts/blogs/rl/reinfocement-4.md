@@ -1,93 +1,100 @@
 ---
-title: "Reinforcement Learning - Theoretical Foundations: Part IV "
-excerpt: "RL Continued - Value Function Approximation"
+title: "Reinforcement Learning: Theoretical Foundations, Part IV"
 date: 2021/01/28
-updated: 2022/01/14
 categories:
   - Blogs
-tags: 
+tags:
   - Reinforcement Learning
+  - Machine Learning
+excerpt: "A practical introduction to policy-gradient methods, stochastic policies, the policy-gradient objective, baselines, and variance reduction."
 layout: post
 mathjax: true
 toc: true
 ---
-### Value Function Approximation
 
-We know various methods can be applied for function approximation. For this note, we will mainly consider those differentiable methods: Linear Approximation and Neural Nets
+## Introduction
 
-#### 1. Stochastic Gradient Descent (SGD)
-Here let\'s review a basic approximation strategy for gradient-based method: Stochastic Gradient Descent.
+Value-based methods learn how good actions are. Policy-gradient methods directly optimize the policy.
 
-First our aim is to minimize the mean square error (MSE) between our estimator and the true function. The error is represented by 
+They are useful when:
 
-$$J(\textbf{w}) = \mathbb{E}\_{\pi}[(\hat{v}(S, \textbf{w}) - v_{\pi}(S))^2].$$
+- Actions are continuous.
+- A stochastic policy is desired.
+- The policy is naturally parameterized by a neural network.
 
-To attain $\arg\min\limits\_{\textbf{w}} J(\textbf{w})$ we need to update the gradient until convergence.
+## Policy Objective
 
-A full gradient update 
+Let a policy be parameterized by $\theta$:
 
-$$\Delta(\textbf{w}) = \alpha\mathbb{E}\_{\pi}[(v_{\pi}(S) - \hat{v}(S, \textbf{w}) )\nabla\_{\textbf{w}}\hat{v}(S, \textbf{w})]$$ 
+$$
+\pi_\theta(a \mid s)
+$$
 
-has the issue of converging at local minimum. Hence stochastic sampling with $\Delta(\textbf{w}) = \alpha(v_{\pi}(S) - \hat{v}(S, \textbf{w}))\nabla_{\textbf{w}}\hat{v}(S, \textbf{w})$ will work better in general.
+The goal is to maximize expected return:
 
-#### 2. Linearization
-We begin by considering a linear model. So $\hat{v}(S, \textbf{w}) = \textbf{x}(S)^T\textbf{w}$ where $\textbf{x}(S)$ is the feature vector/representation of the current state space. The stochastic update $\nabla_{\textbf{w}}\hat{v}(S, \textbf{w})$ in SGD is also updated to $\textbf{x}(S)$. 
+$$
+J(\theta) = E_{\pi_\theta}[G_t]
+$$
 
-On the other hand, we don\'t have an oracle for a known $v_{\pi}(S)$ in practice, so we need ways to estimate it. This is where algorithm design comes in.
+Policy-gradient methods estimate:
 
-### Algorithm analysis
+$$
+\nabla_\theta J(\theta)
+$$
 
-#### 1. linear Monte-Carlo policy evaluation
-- To represent $v_{\pi}(S_t)$, we use $G_t$. In every epoch, we apply supervised learning to “training data”: $\langle S_1, G_1\rangle , \langle S_2, G_2\rangle ,..., \langle S_T, G_T\rangle$.
-- The update is now $\Delta(\textbf{w}) = \alpha(G_t - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$
-- Note that Monte-Carlo evaluation converges to a local optimum 
-- As $G_t$ is unbiased, it works even when using non-linear value function approximation
+and update the policy in the direction of higher expected return.
 
-#### 2. TD Learning
-- We use $R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w})$ for $v_{\pi}(S_t)$.
-- TD(0) has the update formula: $\Delta(\textbf{w}) = \alpha(R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w}) - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$
-- Linear TD(0) converges (close) to global optimum
-- On the other hand we can use $\lambda$-return $G^{\lambda}_{t}$ as substitute. This is a TD($\lambda$) method.
-- Forward view linear TD($\lambda$):  $\Delta(\textbf{w}) = \alpha(G^{\lambda}_{t} - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$
-- Backward view linear TD($\lambda$) requires eligibility trace:
-	- $\delta_t  = R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w}) - \hat{v}(S_t, \textbf{w})$
-	- $E_t = \gamma\lambda E_{t-1} + \textbf{x}(S_t)$
-	- $\Delta_{\textbf{w}} = \alpha\delta_tE_t$
+## REINFORCE
 
-#### 3. Convergence of Prediction Algorithms
+The classic Monte Carlo policy-gradient update is:
 
-| On\Off-policy  | Algorithm | Table-lookup | Linear | Non-Linear |
-|--|--|--|--|--|
-|On-Policy| MC | Y | Y | Y |
-|On-Policy  | TD(0) | Y | Y | N |
-|On-Policy| TD($\lambda$) | Y | Y | N |
-|Off-Policy| MC | Y | Y | Y |
-|Off-Policy  | TD(0) | Y | N | N |
-|Off-Policy| TD($\lambda$) | Y | N | N |
+$$
+\nabla_\theta J(\theta)
+\approx
+G_t \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+$$
 
+Intuition:
 
+- If an action led to high return, increase its probability.
+- If an action led to low return, decrease its probability.
 
+## Baselines
 
-## Action-Value Function Approximation
-Now we don\'t simply approximate a value function $v_{\pi}(s)$, but approximate action-value function $q_{\pi}(s,a)$ instead.
+Policy-gradient estimates can have high variance. A baseline reduces variance without changing the expected gradient.
 
-The main idea is just find $\hat{q_{\pi}}(s, a, \textbf{w}) \approx q_{\pi}(s,a)$. Both MC and TD work the same way exactly by substituting these items inside the expressions.
+Commonly:
 
-## Improvements
+$$
+G_t - b(s_t)
+$$
 
-### Gradient TD
-Some more recent improves aim to resolve the failure of convergence of off-policy TD algorithms. This gave birth to a Gradient TD algorithm that converges in both linear and non-linear cases. This requires an additional parameter $\textbf{h}$ to be added and tuned which reprsents the gradient of projected Bellman error. In a similar fashion, a gradient Q-learning is also invented, but with no gurantee on non-linear model convergence.
+where $b(s_t)$ might be a value function estimate.
 
-### Least Squares Prediction and Experience Replay
-LS estimator is known to approximate $\textbf{w}$ well in general. So instead of correctly approximating $\textbf{w}$, it may also be ideal to approximate $LS(\textbf{w})$ instead.
+This leads toward actor-critic methods.
 
-It is found that SGD with Experience Replay converges in this case. By \"Experience Replay\" we are storing the history in each epoch instead of discarding them after each iteration.  And we randomly selection some of these \"data\" for stochastic update in SGD.
+## Advantages
 
-### Deep Q-Networks (DQN)
-- DQN uses **experience replay** and **fixed Q-targets**
-- It takes actions based on a $\epsilon$-greedy policy
-- Store transition $(s_t , a_t ,r_{t+1},s_{t+1})$ in replay memory $\cal D$ (experience replay)
-- Sample random mini-batch of transitions from $\cal D$ 
-- Compute Q-learning targets w.r.t. old, fixed parameters $\textbf{w}^-$ (fixed Q-target: not the latest $\textbf{w}$ but a $\textbf{w}$ computed some batches ago)
+An advantage function measures how much better an action is than expected:
 
-In general, LS-based methods work well in terms of convergence but suffers from computational complexity.
+$$
+A(s,a) = Q(s,a) - V(s)
+$$
+
+Using advantages helps the policy update focus on actions that are better or worse than the state's baseline expectation.
+
+## Practical Issues
+
+Policy-gradient methods can be unstable because updates may change the policy too much.
+
+Common techniques:
+
+- Advantage normalization.
+- Entropy regularization.
+- Gradient clipping.
+- Trust-region or clipped objectives.
+- Careful reward scaling.
+
+## Closing
+
+Policy gradients directly optimize behavior. They are flexible, especially for continuous control, but they need variance reduction and careful training discipline.

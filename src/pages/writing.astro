@@ -6,11 +6,11 @@ import { excerptFor, formatDate, postCategories, postDate, postTags, postUrl, re
 const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
 ---
 
-<BaseLayout title="Writing" description="A searchable archive of all Markdown posts by Zhenlin Wang." section="writing">
+<BaseLayout title="Writing" description="Zhenlin Wang's notebook on AI, machine learning, model evaluation, data systems, and the questions behind them." section="writing">
   <section class="page-head">
     <div class="preheader">Writing</div>
-    <h1>Notes &amp; <em>essays</em>.</h1>
-    <p class="lede">A searchable archive of {posts.length} posts on machine learning, data systems, software engineering, and projects.</p>
+    <h1>A notebook for <em>AI and ML</em>.</h1>
+    <p class="lede">Field notes from building AI systems, learning in public, writing tutorials, and following the ideas moving through papers, talks, workshops, podcasts, and practitioner threads.</p>
   </section>
 
   <div class="search-row">

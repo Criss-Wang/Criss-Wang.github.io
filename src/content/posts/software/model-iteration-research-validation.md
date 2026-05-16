@@ -1,6 +1,6 @@
 ---
 title: "Model Iteration Series: Validating Model Research"
-excerpt: "The first line of defense to robust model iteration"
+excerpt: "How to validate LLM model-change proposals before they move into infra, QA, and product testing."
 date: 2024/07/11
 categories:
   - Software
@@ -12,250 +12,190 @@ mathjax: true
 toc: true
 ---
 
-## **Intro**
+## Intro
 
-As the first part of the model iteration, or any form of production-driven research projects that commonly take place in industry, we need to conduct data science or machine learning researches on the various components in a product pipeline. For this write-up, we are going to focus on the various steps and preparations needed for a proper LLM model-based research.
+The first stage of model iteration is research validation. Before a new model, provider, prompt, adapter, or inference configuration reaches infra and QA, the research team should be able to explain why the change is worth testing further.
 
-If you haven\'t read my blog that provides the high level insights to the series, I would urge you to kindly go through it to gain more context on this write-up. It is important to consider it as an integral part of the entire series, as I will mainly focus on a few parts of the model research. Specifically, I must emphasize that this blog is for LLM models. The considerations and design decisions required for other ML/AI models may be drastically different.
+This post focuses on LLM model investigation inside production-driven teams. The same validation mindset can apply to other ML systems, but the specific evaluation design, failure modes, and deployment constraints may be very different.
 
-In the upcoming sections, I will discuss the following topics:
+If you have not read the [series intro](/writing/software/model-iteration-intro/) yet, it provides the larger workflow. This post zooms in on the first line of defense: validating the model research before it becomes an engineering project.
 
-- Different forms of model investigations and how they become crucial to the iteration process
-- A proposed strategy to run LLM model investigation for Startup-like DS/ML/AI teams
-- How to run inference tests effectively
-- Some important points to take note of during LLM model research
+I will cover four topics:
 
-## **Model Investigation**
+- The main forms of LLM model investigation
+- A practical strategy for early-stage LLM teams
+- How to test accuracy and stability
+- A small validator workflow that makes the process repeatable
+
+## Model Investigation
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_1.png" width="400px">
+  <img src="/images/SWE/model_iteration_1.png" alt="Model investigation stage in the model iteration workflow" width="400" />
 </figure>
 
-To reiterate from the intro blog, in a common model investigation process, we have 3 major types of model improvements that can be proposed:
+In the model iteration workflow, a research proposal usually falls into one of three buckets:
 
-- A better third party API
-- A better model architecture
-- A better set of model parameters ( customization, finetuning, etc...)
+- **Provider change:** switching to a different third-party API or hosted model provider
+- **Architecture change:** changing the model architecture, serving architecture, or inference engine
+- **Parameter change:** changing prompts, decoding parameters, fine-tuned weights, adapters, or other task-specific configuration
 
-Each type has its strength and weaknesses, as shown in the table below. They are interconnected to some extend, and some may be tested in parallel or in combination. However, all of them should eventually provide business value to the company directly or indirectly.
+Each option has a different cost profile and validation burden:
 
-|                          | Time Span | Short-term Cost | Long-term Cost | Manpower | Performance Improvement | Suitable for        |
-| ------------------------ | --------- | --------------- | -------------- | -------- | ----------------------- | ------------------- |
-| Third Party API          | Short     | Low             | High           | Low      | Low/Medium              | Startups            |
-| Model Architecture-based | Long      | High            | Low/Medium     | High     | Depends                 | Big Tech            |
-| Model Parameter-based    | Medium    | Medium          | Low            | Medium   | High                    | Startups & Big Tech |
+- **Third-party API:** fast to test and easy to integrate, but can create long-term cost and vendor-dependency risk. This is often a good fit for early product teams.
+- **Architecture-based change:** can unlock large system-level gains, but is expensive, slow, and infra-heavy. This is usually a better fit for mature ML teams.
+- **Parameter-based change:** often gives the best task-specific lift, but can overfit or hide stability issues. This is the most common path for LLM product teams.
 
-All ML/DS researchers that investigate these methods should be extremely cautious when proposing model changes to the existing ML system, as their investigations are the first line of defense when it comes to new ideas. Having experienced the tremendous effort of repeated validation process gone to drain simply because of flaws in research assumption has taught me the valuable lesson of double checking, even triple checking conjectures, changes, and impacts before presenting ideas for further testing. Therefore, I've been developing robust validation systems like the [**llm-validator**](https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name) myself inside and outside of work. I sincerely wish every team that's responsible for LLM model investigation would be able to come up with some system like (and of course, better) this one to automate preliminary model validation during the research process.
+These paths are connected. A team may test a new provider and new prompt strategy at the same time, or combine fine-tuning with a new inference engine. Still, every proposal should eventually translate into business or product value. A model change that only looks good in an isolated notebook is not ready for the next stage.
 
-### **Proposed Strategy for Model Investigation**
+This is why research validation needs to be cautious. A flawed assumption at this stage can waste infra time, QA time, and leadership attention later. The goal is not to prove that an idea is exciting; the goal is to decide whether it is solid enough to deserve more expensive validation.
 
-Every team that works on LLM has its own way of working towards better LLM models at different stages in the company development. In this section, I would like to propose a potentially valid and efficient method for teams that are in early stages (e.g. Startups, or newly formed LLM teams due to the AI frenzy). It\'s a 5-step process:
+## A Practical Investigation Strategy
 
-**Step 1: Pick a baseline model**
+Every LLM team has its own process. For a startup or a newly formed LLM team, I would start with a five-step loop.
 
-Most new teams don\'t have ready insights on a specific model to use for specific tasks they are given at the start. Thus any widely adopted universal model can be its starting point. The model can be some third party API providers like Bedrock, Anyscale or Together, or any direct model providers like OpenAI, Google or Anthropic. Avoid going into the trap of premature optimization in early stages. When things have not scaled up yet, the cost of using these large models far outweigh the cost of additional troubles caused by small open-source models or custom inference engines in the near future.
+### Step 1: Pick a Baseline Model
 
-Ultimately, this model will become a **baseline** for new model changes proposed, and will remain as a reference point when models iterate. As our validation data changes, the statistics related to the baseline model should automatically change as a result.
+New teams often do not know which model is best for a task. Start with a widely adopted model that is strong enough to act as a reliable reference point. This could be a direct provider such as OpenAI, Anthropic, or Google, or a managed platform such as Bedrock, Together, or Vertex AI.
 
-**Step 2: Pick a configuration**
+Avoid premature optimization early on. Before traffic and product requirements are clear, the hidden engineering cost of small open-source models or custom serving stacks can outweigh the visible API cost of a stronger hosted model.
 
-The model configurations here I want to suggest encompass the entire inference process. It includes the right set of parameters during API calling, like `temperature`, `max_tokens`, `top_p`, `is_streaming` or `function_calling`. It also includes the choice of providers. These design decisions are highly dependent on the tasks LLMs are trying to solve, and the side-effects that can be caused by them.
+The baseline should remain stable enough that every future model proposal can be compared against it. As the validation dataset changes, the baseline statistics should be regenerated automatically.
 
-**Step 3: Consider the Projected Impact**
+### Step 2: Pick an Inference Configuration
 
-This step is often ignored by many junior scientists (including myself) who work on model iteration investigation. In order to make the change useful to the product/business, here are 5 important spectrums to consider:
+The configuration should cover the full inference path, not just the model name. At minimum, track:
 
-1. **Cost**: amount of cost saving this change can bring
-2. **Latency**: reducing inference time or end-to-end process duration can boost customer satisfaction and secure more business eventually
-3. **Accuracy**: the performance boost is often the most obvious from science's perspective, but often the less obvious in the product. Nonetheless, a significant leap in performance is usually the ultimate factor that enables a product to win.
-4. **Security**: Guardrail against attacks or harmful contents have been well studied in the last couple of years. It is the bottom-line of the product.
-5. **Stability**: it is the most ignored aspect among scientists, especially in LLM. Many researchers choose to "intentionally" ignore stability as they attribute it to the inherent variations LLMs. However, bugs/issues will be reflected out of it, and they are easily sensed by the product users. Moreover, it is the hardest to identify.
+- Provider and model version
+- Prompt version
+- Decoding parameters such as `temperature`, `top_p`, and `max_tokens`
+- Streaming or non-streaming behavior
+- Function calling or structured-output mode
+- Preprocessing and post-processing logic
 
-Think through each spectrum carefully ensures that we do not hurt other spectrums significantly when we focus on improving one or two aspects. This prevents a ton of issues from happening when we move into the later stages of model iteration.
+These decisions can change accuracy, latency, stability, and cost. Treat them as part of the model proposal rather than incidental settings.
 
-**Step 4: Observe, Execute, and Analyze**
+### Step 3: Estimate the Projected Impact
 
-I have always had trust in my fellow colleagues for their resourcefulness while searching for model changes. They know how to find the right set of tools to run experiments, make tweaks, and analyze results to further ensure the required model changes are formed and validated. This step is by far the hardest (because it involves lots of execution and thinking), and yet the most trusted part.
+Before running a full experiment, define what kind of improvement the proposal is supposed to create. I use the **CLASS** objective:
 
-In order to offer some additional guidance to people who are still new to model validation, I have included in the bottom section a demo using my [**llm-validator**](https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name) repo on how to run a validation process when we change from GPT-4 to Claude 3.5 Sonnet. The same steps can be reproduced across many model changes, and can be done in a systematic way.
+1. **Cost:** Does the change reduce cost per request or total operating cost?
+2. **Latency:** Does it reduce model latency or end-to-end service duration?
+3. **Accuracy:** Does it improve the task metric that matters to the product?
+4. **Security:** Does it preserve guardrails against harmful content, prompt attacks, or data leakage?
+5. **Stability:** Does it produce consistent behavior across similar inputs and repeated runs?
 
-**Step 5: Compile and Ship**
+Thinking through all five dimensions prevents a narrow optimization from damaging the product. A model that improves accuracy but makes latency unpredictable may still be a bad trade.
 
-Provide the proposed model changes and the updated model metadata to ML Infra engineers will be the final step of this model investigation process. Ensure proper documentation, fallback plans and justification are ready in place. It will then go for a more intricate latency test and cost analysis thereafter.
+### Step 4: Execute and Analyze
 
-## **More on Accuracy and Stability**
+This is where the research work becomes concrete: collect the dataset, run the baseline, run the candidate, compare metrics, inspect failures, and decide whether the idea survives.
 
-At the model investigation stage, even though we have to consider all 5 spectrums of the **CLASS** objective, we won\'t necessarily have the resources, scope and expertise to fully evaluate _cost_, _latency_ and _security_. Hence researchers are most likely gonna focus on _accuracy_ and _stability_. Here, I will share my two cents on an ideal workflow to conduct these tests **after** we formulate and implement the changes in code.
+The important part is repeatability. The team should be able to rerun the same validation when the dataset changes, the prompt changes, or a new model version appears. A tool like [llm-validator](https://github.com/Criss-Wang/llm-validator) is useful because it turns model validation into a pipeline instead of a one-off script.
 
-**A/B Testing is the basic**
+### Step 5: Compile and Ship the Proposal
 
-It is almost a second nature for DS/MLE to conduct A/B testing when they are given a proposed solution and a baseline solution. The same should be said for accuracy and stability tests. The usual way of A/B testing still holds. If you\'re still unfamiliar with it, I urge you to follow some tutorials to understand the steps to run it. You can ready any materials online, or just take a shortcut and read [my post here](https://criss-wang.com/post/blogs/mlops/AB-testing/).
+If the candidate passes research validation, package the result for the infra and QA stages. The handoff should include:
 
-**Components of the inference**
+- The baseline and candidate configuration
+- Dataset description and sampling logic
+- Accuracy and stability results
+- Known failure cases
+- Cost and latency assumptions, if available
+- Rollback or fallback recommendation
 
-We use A/B testing as the backbone of these tests, and now it is time to fill up the content:
+At this point, the research team is not saying the change is production-ready. It is saying the change is worth deeper infra, QA, and product validation.
 
-- **Task**: what is the input/output format? what is the expected outcome & format? why is it critical to test model changes on this task?
-- **Dataset**: where is the raw input sourced from? how is it labeled (human vs LLM)? what's the size? is there potential data quality issues?
-- **Model/Engine**: what are the basic config parameters? is it supposed to be time-consuming? what is the cost of model inference for each complete test? are there error handling mechanisms that ensure the tests run smoothly?
-- **Prompt**: what is the prompt being used? are we using the same one the baseline model is using? what version and what variables? do we have a metaprompt for it?
-- **Metrics**: what are the set of scores we need to measure? is it naturally varying a lot? is there any obsolete metric we need to replace with new ones?
+## Accuracy and Stability
 
-When it comes to accuracy, we must ensure the testing data is large enough to cover the input domain well, and the metric is reflective of the goal. For example, if we are to run chunk validation using LLM, then we should consider aspects like chunk relevancy, chunk precision/recall, and ensure the knowledge base is well represented by the chunks in datasets. The results against baseline should also be statistically significant for the proposed solution to hold.
+The CLASS objective includes cost, latency, accuracy, security, and stability. At the research-validation stage, however, the team may not yet have the full infra environment required to measure cost, latency, or security rigorously. In practice, researchers usually focus first on **accuracy** and **stability**.
 
-When it comes to stability, there should be datasets with very similar queries. We have the expectation of identical, or if not, very similar outputs from the model using these similar queries, similarity scores should be measured, and deviations should be further analyzed and further model tuning may be requested upon issues identified.
+### A/B Testing Is the Backbone
 
-**Logging**
+Accuracy and stability tests should compare the candidate against a baseline. The basic A/B testing mindset still applies: keep the dataset, prompt contract, task definition, and evaluation logic consistent, then isolate the effect of the model change.
 
-Run the tests and generate statistics for it. A good validator should be able to return the results in forms of distributions, output datasets and metric scores. In the meantime, it should log any warnings and errors that may alert the researchers the hidden danger of applying this change to production systems.
+If you want a refresher, I have a separate [A/B testing post](/writing/blogs/mlops/ab-testing/) that covers the general idea.
 
-## **A simple demo of validation GPT -> Claude migration**
+### Components of an Inference Test
 
-For the rest of the blog mostly contains a demo to show how the validation part is achieved via a systematic pipeline. In this demo, we set up a story that some DS found out `Claude-3.5-sonnet` performs much better than `GPT-4` and decides to propose that migration for a code generation service. Our role is to validate such proposal from the accuracy perspective using an [**llm-validator**](https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name).
+A useful inference test should define five components:
 
-### Step 1
+- **Task:** What is the input format, output format, and expected behavior?
+- **Dataset:** Where does the input come from, who labeled it, how large is it, and what quality issues might exist?
+- **Model or engine:** Which provider, model version, client, and inference settings are being tested?
+- **Prompt:** Which prompt version is used, and does the candidate use the same prompt as the baseline?
+- **Metrics:** Which scores matter, and are any old metrics no longer aligned with the product goal?
 
-As a first step, clone the repo [[Link]](https://github.com/Criss-Wang/llm-benchmark/tree/main/configs/task_name), and specify the major components:
+For accuracy, the dataset should cover the real input domain well enough that the result is meaningful. For example, in a chunk-validation task, the dataset should represent the knowledge base and evaluate relevance, precision, recall, or another metric tied to retrieval quality. The candidate should beat the baseline by a margin that is statistically and practically meaningful.
 
-**Task**: Code generation
+For stability, construct groups of similar queries where the expected outputs should be identical or nearly identical. Then measure the output similarity, score variance, invalid-output rate, and failure patterns. If similar inputs produce surprising deviations, the team should inspect those cases before moving the model forward.
 
-- Input: user query with code snippet
-- Output: completed code section
-- Expectation: Code is complete and correct
+### Logging
 
-**Dataset**: a simple demo dataset can be found in the repo: [_Link_](https://github.com/Criss-Wang/llm-validator/blob/main/datasets/code_generation/test.csv)
+The validator should return more than a final score. It should save distributions, per-example outputs, aggregate metrics, warnings, and errors. Hidden warning patterns often reveal production risks earlier than the headline accuracy number.
 
-- Note: to achieve A/B testing, you should curate sufficient data _with multiple batches_ to make it statistically significant.
+## A Small Validator Demo
 
-**Model**: We have two models to investigate, so we use `AnthropicClient` and `OpenAiClient`
+The rest of this post shows the shape of a repeatable validation pipeline using [llm-validator](https://github.com/Criss-Wang/llm-validator). The current repo includes a simple classification example, but the same structure can be adapted to a GPT-to-Claude migration, code-generation task, or any other LLM evaluation.
 
-- Note: if you need to use a custom client, please refer to the implementations [here](https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/components/clients/anthropic.py) as a guideline.
+### Step 1: Define the Validation Components
 
-  ```python
-  import os
-  from typing import List, Dict
+Clone the repo and identify the major components:
 
-  import anthropic
-
-  from llm_validation.components.clients import Client
-  from llm_validation.app.configs import ClientConfig
-
-
-  class AnthropicClient(Client):
-      def __init__(self, config: ClientConfig):
-          super().__init__(config)
-          self.api_key = os.getenv("ANTHROPIC_API_KEY")
-
-      async def predict_stream(self, messages: List):
-          client = anthropic.Anthropic(api_key=self.api_key)
-          stream = client.messages.create(
-              model=self.model_name,
-              system=messages[0]["content"],
-              messages=messages[1:],
-              stream=True,
-              **self.model_options,
-          )
-
-          for chunk in stream:
-              if chunk.type == "message_start":
-                  self.input_tokens = chunk.message.usage.input_tokens
-              elif chunk.type == "content_block_delta":
-                  yield dict(
-                      text=chunk.delta.text,
-                      raw_response=chunk,
-                  )
-              else:
-                  continue
-
-      async def predict(self, messages: List) -> Dict:
-          client = anthropic.Anthropic(api_key=self.api_key)
-          response = client.messages.create(
-              model=self.model_name,
-              system=messages[0]["content"],
-              messages=messages[1:],
-              **self.model_options,
-          )
-          return dict(
-              text=response.content[0].text,
-              raw_response=response,
-              usage=dict(response.usage),
-          )
-
-      def extract_usage(self, type: str = "input") -> int:
-          if type == "input" and self.input_tokens:
-              return self.input_tokens
-  ```
-
-**Prompt**: stored in `yaml` format
-
-- task prompt: [`code_generation.yaml`](https://github.com/Criss-Wang/llm-validator/blob/main/prompts/code_generation.yaml)
-- judge prompt: [`judge.yaml`](https://github.com/Criss-Wang/llm-validator/blob/main/prompts/judge.yaml)
-
-**Metrics**: We need to use llm-as-a-judge for this performance evaluation. It is readily defined in the repo as. `CodeGenAccuracy` under `components.metrics.accuracy` file, feel free to edit it to fit your needs.
-
-```python
-class CodeGenAccuracy(AccuracyMetric):
-    def __init__(self, config: MetricConfig):
-        super().__init__(config)
-        client_config = ClientConfig(
-            name="openai",
-            type="research",
-            model_name="gpt-4o-mini",
-            base_url="",
-            model_options={"temperature": 0, "top_p": 1, "max_tokens": 1024},
-        )
-        prompt_config = PromptConfig(
-            name="code-generation-judge",
-            path="prompts/judge.yaml",
-            version=1,
-        )
-        self.client = OpenAiClient(client_config)
-        self.prompt = Prompt(prompt_config)
-
-    def grade(self, input, output: str, label: str):
-        messages = self.prompt.transform(
-            generated_code_answer=output, expected_code_answer=label
-        )
-        try:
-            result_content = self.client.sync_predict(messages)
-            result_content = json.loads(result_content["text"])
-            reason = result_content["reason"]
-            code_quality = result_content["code_quality"]
-            response_quality = result_content["response_quality"]
-        except Exception as e:
-            print(e)
-            reason = "error"
-            code_quality = "wrong"
-            response_quality = "bad"
-        return {
-            "reason": reason,
-            "code_quality": code_quality,
-            "response_quality": response_quality,
-        }
-
-    def aggregate(self):
-        code_quality = self.scores["code_quality"]
-        response_quality = self.scores["response_quality"]
-        self.stats.update(dict(Counter(code_quality)))
-        self.stats.update(dict(Counter(response_quality)))
+```bash
+git clone git@github.com:Criss-Wang/llm-validator.git
+cd llm-validator
 ```
 
-- Note: similar to customizable `client`, my code enables great flexibility for you to define additional metrics, just refer to the [`metric`](https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/components/metrics) folder to find things you need.
+For a basic classification validation, the components are:
 
-### Step 2: Define the configuration
+- **Task:** classify an input into the expected label
+- **Dataset:** [`datasets/classification.csv`](https://github.com/Criss-Wang/llm-validator/blob/main/datasets/classification.csv)
+- **Model:** an OpenAI client or another client under [`llm_validation/components/clients`](https://github.com/Criss-Wang/llm-validator/tree/main/llm_validation/components/clients)
+- **Prompt:** [`prompts/classification.yaml`](https://github.com/Criss-Wang/llm-validator/blob/main/prompts/classification.yaml)
+- **Metrics:** accuracy, plus optional latency and cost metrics
 
-The configuration file should be stored under `configs/{your_taks_name}` folder. In this demo, it is `configs/code_generation/openai.json` and `configs/code_generation/anthropic.json`. The config follows the format as shown below:
+For a serious A/B test, use a dataset large enough to support multiple batches and statistically meaningful comparisons.
+
+### Step 2: Define the Metric
+
+For classification, the accuracy metric can be simple: compare the normalized model output against the expected label, then aggregate the results.
+
+```python
+class ClassificationAccuracy(AccuracyWithGroundTruth):
+    async def grade(self, input, output: str, label: str):
+        predicted = output.lower().strip()
+        expected = str(label).lower().strip()
+        return {"correctness": predicted == expected}
+
+    def aggregate(self):
+        correctness = self.scores["correctness"]
+        passed = sum(correctness)
+        total = len(correctness)
+        self.stats.update(
+            {
+                "total_correct": passed,
+                "total_wrong": total - passed,
+            }
+        )
+```
+
+For more complex tasks, replace this with an LLM-as-a-judge metric, semantic similarity metric, rubric-based grader, or task-specific evaluator. Custom metrics live under the [`metrics`](https://github.com/Criss-Wang/llm-validator/tree/main/llm_validation/components/metrics) folder.
+
+### Step 3: Define the Configuration
+
+The configuration ties the task, client, prompt, dataset, metrics, and controller together. A simplified version looks like this:
 
 ```json
 {
-  "project": "llm-validation",
+  "project": "integration-test",
   "task_config": {
-    "name": "code-generation"
+    "name": "classification"
   },
   "client_config": {
-    "name": "openai",
-    "type": "research",
+    "client_name": "openai",
+    "client_type": "third_party_llm",
     "model_name": "gpt-4o-mini",
+    "model_type": "gpt-4",
     "model_options": {
       "temperature": 0,
       "max_tokens": 1024,
@@ -263,72 +203,87 @@ The configuration file should be stored under `configs/{your_taks_name}` folder.
     }
   },
   "prompt_config": {
-    "name": "code-generation-prompt-v1",
-    "path": "prompts/code_generation.yaml",
+    "name": "classification",
+    "path": "prompts/classification.yaml",
     "version": 1
   },
   "evaluator_config": {
     "metrics": [
       {
         "type": "accuracy",
-        "aspect": "codegen"
+        "aspect": "classification-all"
+      },
+      {
+        "type": "latency"
+      },
+      {
+        "type": "cost"
       }
     ]
   },
   "dataset_config": {
-    "data_path": "datasets/code_generation/test.csv",
-    "label_col": "true_label"
+    "data_path": "datasets/classification.csv",
+    "label_col": "true_label",
+    "sanity_test": true
   },
   "controller_config": {
-    "save_path": "results",
+    "save_path": "results/tests",
     "parallelism": 12,
-    "use_streaming": false
+    "use_streaming": false,
+    "save_inference": true
   }
 }
 ```
 
-In this demo, I've already provided the completed configuration for you. If you would like to customize the config, refer to the [`configs.py`](https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/app/configs.py) to understand the additional set of parameters.
+The live sample config is available at [`configs/openai.json`](https://github.com/Criss-Wang/llm-validator/blob/main/configs/openai.json). For additional fields, refer to [`configs.py`](https://github.com/Criss-Wang/llm-validator/blob/main/llm_validation/app/configs.py).
 
-### Step 3: Run experiment
+### Step 4: Run the Experiment
 
-Run `pip install -e .` and `pip install -r requirements.dev.txt` to set the project up. Notice that you may need to have a Weights & Biases account for experiment logging. After that, we are ready to kick-off the experiment by running the following command:
+Install the package and development dependencies:
 
+```bash
+pip install -r requirements.dev.txt
+pip install -e .
 ```
-llm-validator run --config-path=configs/code_generation/openai.json
+
+If you use Weights & Biases for experiment logging, log in before running the experiment. Then run the validator:
+
+```bash
+llm-validator run --config-path=configs/openai.json
 ```
 
-You will be able to see the results both from console and from W&B dashboard. A sample outcome would look like the following
+A successful run should produce console metrics, saved results, and experiment logs. A compact console result might look like this:
 
-```
-Calling LLM: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:03<00:00,  1.56s/it]
+```text
 -------- Accuracy ----------
-incomplete: 2
-fair: 2
-wandb: - 0.006 MB of 0.006 MB uploaded
-wandb: Run history:
-wandb:       Accuracy_fair ▁
-wandb: Accuracy_incomplete ▁
-wandb:
-wandb: Run summary:
-wandb:       Accuracy_fair 2
-wandb: Accuracy_incomplete 2
-wandb:
-wandb: 🚀 View run gpt-4o-mini-20240720-123403 at: https://wandb.ai/criss_w/llm-validation/runs/7rzhrlt4
-wandb: ⭐️ View project at: https://wandb.ai/criss_w/llm-validation
-wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 1 other file(s)
-wandb: Find logs at:
+total_correct: 42
+total_wrong: 8
+-------- Latency ----------
+p50_ms: 820
+p95_ms: 1460
+-------- Cost ----------
+estimated_cost_usd: 0.31
 ```
 
-### Step 4: Repeat for both models
+### Step 5: Repeat for the Candidate
 
-Remember to run multiple epochs on different datasets, aggregate and analyze.
+Duplicate the baseline config, change the candidate model or provider, and run the same dataset again. Then aggregate the results across multiple batches.
 
-And **hooray**!!! We have completed a first attempt at validating the migration proposal.
+The final research recommendation should answer:
 
-### A take-home challenge
+- Did the candidate beat the baseline on the target metric?
+- Did it introduce new failure modes?
+- Is the improvement large enough to justify infra validation?
+- What should infra and QA pay attention to next?
 
-Notice that I described the metric implementation for accuracy, but not stability. Investigating stability is a completely different challenge, and I urge you to try implementing the metric logic yourself. If you have any question, raise a issue in the repo, and I\'ll clarify it for you with respect to this interesting challenge.
+## Take-Home Challenge
 
-## **Final words**
+The demo above focuses on accuracy. Stability is harder because it requires defining groups of similar inputs, then measuring whether the model behaves consistently across them. A useful exercise is to implement a stability metric that groups related queries, measures output similarity, and reports variance or drift.
 
-Once again, the endeavor to further improve the model iteration process does not stop here. We have a lot more to go through from the model serving perspective, and it will become much more tricky from there onwards. Nonetheless, that\'s where a whole new world unfolds in front of us, especially those new grads who mostly deal with static and performance-oriented services building. Before that blog comes out, **_Stay Hunger, Stay Foolish_**.
+If you have questions, open an issue in the [llm-validator repo](https://github.com/Criss-Wang/llm-validator/issues), and I will clarify the challenge there.
+
+## Final Words
+
+Improving the model iteration process does not stop with research validation. Once a proposal survives this stage, the next question is whether the model can work inside the real serving system. That brings us to infra validation, where latency, cost, scaling, and service compatibility become the center of the work.
+
+Before that blog comes out, **_Stay Hungry, Stay Foolish_**.

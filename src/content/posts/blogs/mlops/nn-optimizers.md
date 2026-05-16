@@ -1,6 +1,6 @@
 ---
 title: "Neural Network Applied: Optimizer Selection"
-excerpt: "Choose a good optimization strategy is as important as selecting the right model"
+excerpt: "A practical guide to choosing SGD, momentum, RMSProp, Adam, AdamW, and related optimizers for neural network training."
 date: 2023/12/15
 categories:
   - Blogs
@@ -11,153 +11,198 @@ mathjax: true
 toc: true
 ---
 
-### Background
+## Background
 
-As one starts to use Neural Networks in their data models, he will inevitably encounter code of form like this:
+An optimizer is the part of training that updates model parameters after gradients are computed. The loss function says what the model should improve. Backpropagation computes gradients. The optimizer decides how to use those gradients.
 
-<figure align="center">
-  <img src="/images/Machine%20learning/optimization.png" width="700px">
-</figure>
-
-One might be quickly puzzled by the 3 terms `optimizer`, `adam` and `sparse_categorical_crossentropy` here. The first 2 are part of this blog\'s focus, which is about the optimization strategy applied in a Neural Network execution, and the `sparse_categorical_crossentropy` is a loss function used to help with the optimization.
-
-To understand the relevance of optimizer, one must first understand how an NN is trained. During the training of an NN, the weights of each neuron keeps getting updated so that the `loss` can be minimized. However, randomly updating the weights is not really feasible as there are hundreds of thousands of weights. Hence our smart scientists came up with a backward propagation (BP) algorithm for updating the weights. One may learn more about BP [here](https://towardsdatascience.com/how-does-back-propagation-in-artificial-neural-networks-work-c7cad873ea7). Behind BP we now require the `optimizer` to facilitate the updating of weights in each iteration.
-
-Right below we discuss a few most commonly used optimizers:
-
-### Gradient Descent
-
-Gradient Descent is the most basic optimization strategy which is based on the first order derivative of a loss function. The first order derivative serves as a guide on the direction to modify the weight so as to minimize the loss function. We\'ve discussed its variant in details in an earlier post. To refresh our memory and make this blog more coherent, let\'s quickly recap here.
-
-Analytic form: $\theta = \theta - \alpha * \nabla J(\theta)$
-
-Characteristics of Gradient Descent include:
-
-- It\'s used heavily in linear regression and classification algorithms.
-- Easy computation and implementatoin (`Pros`)
-- May trap at local minima (`Cons`)
-- Weights are changed only after calculating gradient on the whole dataset. So, if the dataset is too large then the convergence may take very long time (`Cons`)
-- Requires large memory to calculate gradient on the whole dataset (`Cons`)
-
-### Stochastic Gradient Descent
-
-Gradient Descent has the problem of calculate gradient on the whole dataset in each itearation for weight update. Here Stochastic Gradient Descent aims to resolve this issue by processing data in random batches.
-
-As the model parameters are frequently updated parameters have high variance and fluctuations in loss functions at different intensities.
-
-Analytic form: $\theta = \theta - \alpha * \nabla J(\theta; x_i; y_i)$
-
-Characteristics of SGD include:
-
-- The learning rate needs to be updated in each iteartion to aviod over-fitting
-- Faster convergence rate and less memory used (`Pros`)
-- High variance in model parameters. (`Cons`)
-- May continue to run even when global minima is achieved. (`Cons`)
-- To reduce the variance we further have the `mini-batch Gradient Descent` which divides the data into mutiple batches and updates the model parameters after every batch (vs 1 data entry per update in SGD).
-
-**In general**, Gradient Descent method has the challenge of
-
-- Choosing an optimum value of the learning rate. If the learning rate is too small than gradient descent may take ages to converge.
-- Have a constant learning rate for all the parameters. There may be some parameters which we may not want to change at the same rate.
-- May get trapped at local minima.
-
-### Momentum
-
-Momentum was invented for reducing high variance in SGD and softens the convergence. It takes advantage of information from previous directions via a formula $V(t) = \gamma V(t) + \alpha * \nabla J(\theta)$
-
-Analytic form: $\theta = \theta - V(t)$
-
-Characteristics of Momentum include:
-
-- The momentum term $\gamma$ is usually set to 0.9 or a similar value.
-- Faster Convergence and smaller variance (`pros`)
-- Less Oscilliation & more smooth shifting of direction (`pros`)
-
-### Adagrad
-
-Often, the learning rate $\alpha$ of the optimizer is a constant. However, one may expect the optimizer to explore faster at the start and slower at the end to quickly converge to an optimum. Hence the learning rate may subject to change as iteration goes. `Adagrad` aims to achieve such effect. If we use low learning rates for parameters associated with most frequently occurring features, and high learning rates for parameters associated with infrequent features. We can get a good model.
-
-Analytic form: $$\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + diag(G_t)}}\cdot g_t$$
-
-where $g_t = [g_{t,i}], \\; g_{t,i} = \nabla_{\theta} J(\theta_{t,i})$ and $G_t = \sum\*{n = 1}^{t} g_n$
-
-Here $\epsilon$ is a smoothing term that avoids division by zero (usually on the order of 1e−8)
-
-Characteristics of Adagrad include:
-
-- Learning rate changes for each training parameter.
-- Don\'t need to manually tune the learning rate. (`pros`)
-- Able to train and performs well on sparse data. (`pros`)
-- Computationally expensive as a need to calculate the second order derivative. (`cons`)
-- Learning rate is monotone decreasing as iteration $t$ increases. (`cons`)
-
-### AdaDelta
-
-It is an extension of **AdaGrad** which tends to remove the _decaying learning Rate_ problem of it. Instead of accumulating all previously squared gradients, Adadelta limits the window of accumulated past gradients to some fixed size $w$. In this optimizer, exponentially moving average is used rather than the sum of all the gradients.
-
-By the idea above, we reducing the window size of $G_t = \sum_{n = 1}^{t} g_n$ from $t$ to $w$:
-
-$$G_t^w = \sum_{n = t-w+1}^{w} g_n$$
-
-Analytic form:
+The simplest update is gradient descent:
 
 $$
-\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + diag(G_t^w)}}\cdot g_t
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t)
 $$
 
-Characteristics of AdaDelta include:
+Here $\theta$ is the parameter vector, $\alpha$ is the learning rate, and $J$ is the objective function.
 
-- Learning rate does not decay necessarily (`pros`)
-- More computationally expensive as expectation is involved (`cons`)
+In neural networks, the practical question is not "Which optimizer is theoretically best?" It is "Which optimizer is stable, efficient, and well matched to this model and data?"
 
-### RMSProp
+## Gradient Descent and Mini-Batch SGD
 
-The RMSProp algorithm full form is called Root Mean Square Prop, which is an adaptive learning rate optimization algorithm proposed by Geoffery Hinton.
+Full-batch gradient descent computes gradients over the whole dataset before each update. That is usually too expensive for deep learning.
 
-RMSProp is another strategy that tries to resolve `Adagrad`\'s radically diminishing learning rates problem by using a moving average of the squared gradient. It utilizes the magnitude of the recent gradient descents to normalize the gradient.
-
-While Adagrad accumulates all previous gradient squares, RMSprop just calculates the corresponding average value, so it can eliminate the problem of quickly dropping of learning rate of the Adagrad.
-
-By the idea above, we replace the $G_t = \sum_{n = 1}^{t} g_n$ with an expectation formula:
-
-$$\mathbb{E}[g_t^2] = \gamma \mathbb{E}[g_{t-1}^2] + (1-\gamma)g_t^2 .$$
-
-Analytic form:
+Mini-batch stochastic gradient descent (SGD) updates the model after each mini-batch:
 
 $$
-\begin{equation}
-\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + \mathbb{E}[g_t^2])}}\cdot g_t
-\end{equation}
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t; x_b, y_b)
 $$
 
-**Conclusion** for the dynamic learning rate optimizer:
+SGD is simple and memory efficient. It often generalizes well, especially in vision workloads, but it can require careful learning-rate tuning and scheduling.
 
-- Good for sparse data
-- Be careful of the diminishing speed of learning rate
-- More expensive computationally in general
+Use SGD when:
 
-### Adam
+- You want a simple, memory-light optimizer.
+- The model and task are known to work well with SGD.
+- You can afford learning-rate tuning.
+- Generalization matters more than fast early progress.
 
-Adam (Adaptive Moment Estimation) works with momentums of first and second order. The intuition behind the Adam is that we don\'t want to roll so fast just because we can jump over the minimum, we want to decrease the velocity a little bit for a careful search. In addition to storing an exponentially decaying average of past squared gradients like AdaGrad, Adam also keeps an exponentially decaying average of past gradients M(t). In summary, Adam can be looked at as a combination of RMSprop and Stochastic Gradient Descent with momentum.
+## Momentum
 
-Note that although the name `momentum` looks fancy, the terms we need to consider are just first and second order momentum, which are essentially `mean` and `variance` of the gradients. Afterwards, we can consider 2 terms $m_t$ and $v_t$ as follows
+Momentum smooths updates by accumulating a velocity term:
 
-Hence the formula is as follows:
+$$
+v_t = \gamma v_{t-1} + \alpha \nabla J(\theta_t)
+$$
 
-$$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t $$
+$$
+\theta_{t+1} = \theta_t - v_t
+$$
 
-$$v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$$
+Momentum helps reduce oscillation and can accelerate progress in consistent descent directions. A common value is $\gamma = 0.9$.
 
-These 2 terms are used to approximate the first and second moments, that is:
+Use SGD with momentum as a strong baseline when plain SGD is too noisy.
 
-$$\mathbb{E}[m_t] \approx \mathbb{E}[g_t]\\;\\;;\\; \mathbb{E}[v_t] \approx \mathbb{E}[g_t^2]$$
+## AdaGrad
 
-Although we have $\mathbb{E}[\cdot]$ above, theorem suggests that we can use the observed $m_t$ and $v_t$ to approximate $\mathbb{E}[g_t]$ and $\mathbb{E}[g_t^2]$ directly.
+AdaGrad adapts the learning rate for each parameter based on the sum of squared historical gradients:
 
-After bias correction, we derive the terms
+$$
+\theta_{t+1} =
+\theta_t -
+\frac{\alpha}{\sqrt{G_t + \epsilon}} g_t
+$$
 
-$$\hat{m_t} = \frac{m_t}{1-\beta_1^2}\\;\\; ;\\; \hat{v_t} = \frac{v_t}{1-\beta_2^2}$$
+It works well for sparse features because frequently updated parameters receive smaller effective learning rates. Its weakness is that the accumulated denominator only grows, so learning can slow too much over long training.
 
-Here $\beta_1$ and $\beta_2$ have really good default values of 0.9 and 0.999 respectively.
+Use AdaGrad when sparse features are central and the training run is not extremely long.
 
-Finally the update formula is just $\theta_t = \theta\*{t-1} - \alpha \* \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} $
+## RMSProp
+
+RMSProp fixes AdaGrad's aggressively shrinking learning rate by using an exponential moving average of squared gradients:
+
+$$
+E[g^2]_t = \rho E[g^2]_{t-1} + (1 - \rho)g_t^2
+$$
+
+$$
+\theta_{t+1} =
+\theta_t -
+\frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t
+$$
+
+RMSProp adapts learning rates without letting the denominator grow forever. It is historically important and still useful, though Adam-style optimizers are more common defaults today.
+
+## Adam
+
+Adam combines momentum-like first moment estimates with RMSProp-like second moment estimates:
+
+$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t
+$$
+
+$$
+v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2
+$$
+
+Bias-corrected estimates are then used for the update:
+
+$$
+\hat{m}_t = \frac{m_t}{1-\beta_1^t}
+$$
+
+$$
+\hat{v}_t = \frac{v_t}{1-\beta_2^t}
+$$
+
+$$
+\theta_{t+1} =
+\theta_t -
+\alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\epsilon}
+$$
+
+Adam is a good default when you need fast, stable progress and do not want to hand-tune as much as SGD. Common defaults are $\beta_1 = 0.9$, $\beta_2 = 0.999$, and $\epsilon = 10^{-8}$.
+
+## AdamW
+
+AdamW decouples weight decay from the Adam gradient update. This matters because L2 regularization and weight decay are not equivalent under adaptive optimizers.
+
+AdamW is a common default for transformer training and fine-tuning:
+
+```python
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=3e-4,
+    betas=(0.9, 0.95),
+    weight_decay=0.1,
+)
+```
+
+Use AdamW when:
+
+- Training transformers.
+- Fine-tuning pretrained neural networks.
+- Weight decay is part of the regularization plan.
+- You want a strong modern default.
+
+## Adafactor
+
+Adafactor reduces optimizer memory by factorizing second-moment estimates. This can be useful for very large language models where AdamW optimizer state is expensive.
+
+The tradeoff is that Adafactor can be more sensitive to configuration. Use it when optimizer memory is a real bottleneck, not just because it exists.
+
+## Optimizer Selection Heuristics
+
+Use this as a starting point:
+
+- **Classical deep vision baseline:** SGD with momentum or AdamW.
+- **Transformer training or fine-tuning:** AdamW.
+- **Very large model with optimizer-memory pressure:** Adafactor or sharded AdamW.
+- **Sparse features:** AdaGrad or an adaptive optimizer.
+- **Small noisy dataset:** AdamW with careful weight decay, early stopping, and validation monitoring.
+- **Memory-constrained training:** consider SGD, Adafactor, optimizer sharding, or offload.
+
+Then tune the learning rate. Optimizer choice matters, but a bad learning rate can make any optimizer look broken.
+
+## Scheduler Pairing
+
+Optimizers and schedules should be chosen together.
+
+Common pairings:
+
+- SGD with momentum plus step decay or cosine decay.
+- AdamW plus warmup and cosine decay.
+- AdamW plus linear warmup and linear decay for fine-tuning.
+- Reduce-on-plateau when validation metrics are meaningful and training is slower.
+
+Always log the learning rate. It is part of the experiment state.
+
+## Practical Debugging
+
+If training is unstable:
+
+- Lower the learning rate.
+- Add warmup.
+- Check data and labels.
+- Check for NaNs or Infs.
+- Track gradient norm.
+- Clip gradients if spikes are rare.
+- Confirm loss reduction on a tiny batch.
+- Try BF16 or FP32 if FP16 is unstable.
+
+If training is too slow:
+
+- Profile the data loader.
+- Increase batch size if memory allows.
+- Use mixed precision.
+- Try `torch.compile` if the model is a fit.
+- Improve the scheduler before changing architectures.
+
+## Closing
+
+Optimizer selection is a practical decision. Start with a strong default, tune the learning rate and schedule, measure stability, and only switch optimizers when the symptoms point to a real bottleneck.
+
+For a broader training workflow, see [Deep Learning Training: A Practical Guide](/writing/blogs/mlops/ml-training/).
+
+## References
+
+- [PyTorch Optimizers](https://docs.pytorch.org/docs/2.12/optim.html)
+- [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
+- [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101)

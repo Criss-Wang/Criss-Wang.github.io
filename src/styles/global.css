@@ -3264,6 +3264,7 @@ a:hover {
 }
 
 .article {
+  --article-measure: 38rem;
   font-family: "Newsreader", Georgia, serif;
   font-variation-settings: "opsz" 18;
   font-size: 18px;
@@ -3318,7 +3319,7 @@ a:hover {
 }
 
 .article > * {
-  max-width: 62ch;
+  max-width: var(--article-measure);
 }
 
 .article h2,
@@ -3365,7 +3366,8 @@ a:hover {
 }
 
 .article pre {
-  max-width: 70ch;
+  width: min(100%, var(--article-measure));
+  max-width: none;
   overflow: auto;
   border-left: 3px solid var(--primary);
   background: var(--surface) !important;
@@ -4396,7 +4398,10 @@ body {
 
 .article figure,
 .article > p:has(> img:only-child) {
-  max-width: 70ch;
+  width: min(100%, var(--article-measure));
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
   padding: 14px;
   border: 1px solid var(--hairline);
   background: color-mix(in srgb, var(--surface) 78%, transparent);
@@ -6887,6 +6892,32 @@ body[data-section="contact"] footer {
   gap: 28px;
 }
 
+.review-venues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.review-venue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--hairline);
+  color: var(--text);
+}
+
+.review-kind {
+  padding-left: 6px;
+  border-left: 1px solid var(--hairline);
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .contact-page {
   margin-bottom: 72px;
   padding-top: 96px;
@@ -6905,4 +6936,147 @@ body[data-section="contact"] footer {
   justify-self: end;
   margin-left: auto;
   text-align: right;
+}
+
+@media (max-width: 880px) {
+  html,
+  body {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  :root {
+    --index-rail: calc(100% - 48px);
+  }
+
+  .nav-inner,
+  .site-notice,
+  .hero,
+  .home-section {
+    width: var(--index-rail);
+    max-width: none;
+  }
+
+  .nav-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  .brand-copy,
+  .brand-name {
+    min-width: 0;
+  }
+
+  .nav ul {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 54px 0 42px;
+  }
+
+  .hero-copy {
+    min-width: 0;
+    padding-top: 0;
+  }
+
+  .identity-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-bottom: 18px;
+    white-space: normal;
+  }
+
+  .identity-strip b {
+    display: none;
+  }
+
+  .hero h1 {
+    max-width: 100%;
+    font-size: clamp(34px, 11vw, 42px);
+    line-height: 1.08;
+  }
+
+  .hero-lede {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  body[data-section="about"] .page-head,
+  body[data-section="about"] .prose,
+  body[data-section="about"] .block {
+    width: calc(100vw - 48px);
+    max-width: calc(100vw - 48px);
+    margin-left: 24px;
+    margin-right: 24px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  body[data-section="about"] .page-head h1,
+  body[data-section="about"] .prose p {
+    max-width: 100%;
+  }
+
+  body[data-section="about"] .prose p,
+  body[data-section="about"] .what {
+    overflow-wrap: break-word;
+  }
+
+  .hero-tags {
+    align-items: baseline;
+    gap: 6px 10px;
+  }
+
+  .hero-tags strong,
+  .hero-tags span {
+    font-size: 11px;
+  }
+
+  .now-card {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .now-card dl {
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 12px 14px;
+  }
+
+  .now-card dd,
+  .now-card dd small {
+    overflow-wrap: anywhere;
+  }
+
+  .compact-section-head,
+  .writing-row,
+  .home-pub,
+  .publication-year-group,
+  .publication-year-papers .paper,
+  .project-archive-row,
+  .research-section-head,
+  .review-line,
+  .contact-directory-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .writing-read,
+  .citation-count,
+  .archive-count {
+    justify-self: start;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .review-venues {
+    align-items: flex-start;
+  }
 }

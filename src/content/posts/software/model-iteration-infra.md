@@ -1,6 +1,6 @@
 ---
 title: "Model Iteration Series: Validating Model Infra"
-excerpt: "The system and product side of concerns"
+excerpt: "Infrastructure checks for LLM model changes before QA: compatibility, latency, and cost."
 date: 2024/07/27
 categories:
   - Software
@@ -12,73 +12,116 @@ mathjax: true
 toc: true
 ---
 
-## **Intro**
+## Intro
 
-As the step 2 of the model iteration process, testing model compatibility with the existing infrastructure is another step we should take care of. It consists of managing the resources for training, deployment as well as any interactions mechanisms with the service backend logic (e.g. API). We will provide a deep dive into the relevant investigations and adjustments required for the model changes proposed to be ready for QA testing.
+In the second step of the model iteration process, the goal is to decide whether a proposed model change can survive the infrastructure around it. A model may look promising in [research validation](/writing/software/model-iteration-research-validation/), but still fail once it touches training resources, inference engines, API contracts, request routing, latency budgets, or cost constraints.
 
-Again, if you haven't read my blog that provides the high level insights to the series, I would urge you to kindly go through it to gain more context on this write-up. This blog is for LLM models and its related products/services. The considerations and design decisions required for other ML/AI models may be drastically different.
+For example, [multi-token prediction](https://arxiv.org/abs/2404.19737) may look attractive because it can improve inference speed. But before it reaches QA, the infra team still needs to answer several practical questions: does the current serving framework support it, does the GPU setup benefit from it, does it change memory pressure, and does it affect the service contract exposed to the backend?
 
-In the upcoming sections, I will discuss the following topics:
+This post focuses on LLM products and LLM-powered services. Other ML systems may share the same validation mindset, but the concrete infra questions can be very different. If you have not read the [series intro](/writing/software/model-iteration-intro/) yet, it may be useful context before this post.
 
-- Distinction between Infra in QA/Prod and Infra in Dev
-- Key components to look out for when managing the infra
-- Differernt layers of Latency Tests and their purposes
-- Cost evaluation strategies and their impacts to the business
-- Trade-offs to consider during the evaluation
+I will cover four topics:
 
-## **Definitions**
+- The distinction between dev infra and QA/prod infra
+- The difference between model-based and service-based infra validation
+- The main layers of latency testing
+- The cost checks that should happen before QA
 
-When discussion LLM infrastructure, we must set a clear boundary between the infra toolset used in dev environment vs the ones used in staging or production environment. While the latter strive to be as efficient and robust as possible, the dev infra is more on the exploratory phase to identify potential issues the changes to models/services may cause using the current infra setup. For example, applying [multi-token prediction](https://arxiv.org/abs/2404.19737) may sounds attractive to boost the inference speed, but may be completely incompatible with the current GPU resources, or the framework the serves the inference. Hence, it is the Infra team\'s job to ensure the changes are valid on the current setup, or make adjustments like changing the inference engine or the compute to account for the changes.
+## What Infra Validation Means
 
-The dev infra should also be splitted into two categories: **model-based** and **service-based**. Model-based infra are about model training and serving. They strive to get the best out of the computing resources. Usually this involves adopting the most suitable GPU setup and multi-node/multi-server communication links for each model based on the request rate. Avoiding OOM and throttling are bread and butter of the of Model-based infra taks. In the meantime, service-based infra are more concentrated on achieving efficiecny and robustness of the distributed system for the services which the products are based on. This often involves testing the service latency and explore the right scaling strategy for the services that use LLMs. Although it could be QA team\'s responsibility to test the full product use cases _end-to-end_, it it in my personal philosophy that MLEs owns the services from start to finish. As a result, experienced MLEs would keep service-based infra testing to their own for better accountability. Therefore, usually we have specialized MLOps to handle the service-based tasks.
+When discussing LLM infrastructure, we need to separate the infra used during development from the infra used in staging or production.
 
-In the model iteration process, the dev infra needs to test both the system issues these changes may cause on current product, and also the performance expectations of these changes. **Latency** and **Cost** are the two major metrics in my knowledge, as they are ones that infra has the most control over.
+QA and production infra should be efficient, observable, and robust. Dev infra has a different job: it should expose whether a model or service change is compatible with the current system, and whether the system needs to change before the model can move forward.
 
-In the context of LLM, latency metrics often measure the rate at which services handles a task using the model as its main reasoning engine. Usually the proposed changes should meet a certain latency threshold, or achieve a latency goal such that customers don\'t feel the difference in term of speed as a bottom line, and potentially sense a significant speedup as a result. On the other hand, cost is related to the cost of GPU/API/electricity. A proposed change should strive to at least keep the cost at the current level, or reduce the cost such that it impacts the business and future research explorations.
+In this stage, infra validation usually has two tracks.
 
-## **Key Components**
+### Model-Based Infra
 
-Now let\'s talk about details. When testing against infrastructure for MLOps in an LLM based service, there are several key components to consider:
+Model-based infra covers training and serving concerns. The core question is whether the compute stack can run the model change safely and efficiently.
 
-**Model-based**
+Common checks include:
 
-1. Compute Resources: LLMs require significant computational power for training and inference. Ensure access to high-performance GPUs or specialized AI accelerators to handle the intensive processing demands. This means runtime acceleration and GPU optimization methods need to align with the change proposed.
-2. Model Architecture: When a services is utilizing multiple models, or multiple adapters attached to the same foundation model, the structure of the model and its inference strategy become a signifant concern here. Any distillation or model compression conducted at serving time should also be investigated.
+- Whether the proposed model architecture fits the available GPU memory
+- Whether the serving engine supports the required inference pattern
+- Whether runtime acceleration, batching, quantization, or adapter logic still works
+- Whether multi-node or multi-server communication becomes a bottleneck
+- Whether the change increases the risk of OOM, throttling, or poor GPU utilization
 
-**Service-based**
+If a service uses multiple models, or multiple adapters attached to the same foundation model, the serving strategy becomes especially important. Distillation, compression, routing, and adapter loading can all affect latency and reliability.
 
-1. Scalable Infrastructure: Implement a flexible and scalable infrastructure that can adapt to changing workloads. Cloud-based solutions or hybrid setups can provide the necessary elasticity. However, introducing a change can potentially break the setup easily. Tests should be ran to prevent such danger.
-2. Data management: Are we using caching? Are we deploying across thousands of GPU nodes? How to do failure recovery using logs? Managing these data are critical and any changes introduced should be validated against any infra assumptions on data etl.
-3. Context management: This component is specific to LLMs or multi-modal models. The documents and user requests provide significant value to the answers generated. Ensuring the context management are aligned with the proposed changes to avoid surprising cost or latency increase, or even security breach (a concern that's addressed in QA stage) will be critical in this step as well.
+### Service-Based Infra
 
-As the focus of the blog is on testing latency and costs, I do not want to get into too much details about each individual components yet. I will post a differerent blog discussion the to-do\'s and to-don'ts in the LLMOps that every Infra team working on LLM-based products should pay attention to. For now, let us move on to discuss the different layers of Latency tests.
+Service-based infra covers the distributed system around the model. The core question is whether the product service can keep its expected behavior after the model change.
 
-## **Latency Tests Strategy**
+Common checks include:
 
-In general, latency is an important aspect to consider when people consider using an AI-based product. Hence at the dev level, some robust testings are definitely required to prevent latency issues at the start. I have categorized latency tests in several aspects: _parallelism_, _input/output size_, and _service dependency_.
+- Whether the API contract still matches the model's input and output behavior
+- Whether caching, queues, retries, rate limits, and timeouts still behave correctly
+- Whether context management introduces surprising latency, cost, or security risk
+- Whether logs and traces are sufficient for debugging failures
+- Whether the service can scale under realistic request patterns
 
-When it comes to parellelism, the scale varies depending on the business, the company size, and the customer requirements. We usually spin up load testing for different parallelism levels in a logarithmic order. For example, a small-sized project, which calls an API endpoint or uses a single inference engine to run the inference, may expect the load testing on a scale of 1/2/4/8/16/32. A project that serves millions of users at the same time, however, may require a significant different scale of testing.
+QA may own full end-to-end product validation, but MLE and MLOps teams should still validate these service-level risks before a model change reaches QA. The earlier the infra team catches incompatibility, the cheaper the iteration becomes.
 
-The input/output size layer is more nuanced. Usually we test model's inference speed by running it on specific tasks. However, in my POV, the context of task matters the least when it comes to the input/output size-based latency ablation tests. We can customize a prompt to provide a fixed input size, and at the same expecting a certain length of output by "instructing" the model to do it this way. We may specific a short/medium/long input and pair it with short/medium/long output expectation to derive the latency of the model inference. We need to ensure the data/infra used to run comparisons are completely equal to avoid any impact on token generation so as to isolate this layer perfectly.
+In practice, the two metrics infra can influence most directly are **latency** and **cost**.
 
-Another aspect is whether the service depends on pre/post-processing steps for resources to warmup/cool down/clean up and for input/output to be parsed or buffered. These factors certainly add/reduce latencies in the service during load testing, and we should be able to isolate the impact the proposed changes have on latency from these aspects. Hence, the simulated environment to run the service level load testings should also be identical (the service environment ran today are kept the same from the other day), and A/B testing is encouraged rather than comparing today\'s results with the results genereated 1 month ago.
+## Latency Test Strategy
 
-## **Cost evaluation strategies**
+Latency is one of the first things users feel in an AI product. A model improvement that makes the service noticeably slower may not be a product improvement at all. At the dev stage, latency tests should isolate the model change from unrelated system noise as much as possible.
 
-While it may be less of a concern for the Infra team in big tech companies to evaluate the cost-effectiveness of the implemented solution, it is one of the top priorites when it comes to AI startups. When systems and services scale up, the impact of model inferences on the cost grows significantly. Hence cost control is a compulsory task to complete before any QA tests are conducted for the proposed new changes. Usually it comes in three different formats:
+I usually think about latency tests across three layers: **parallelism**, **input/output size**, and **service dependencies**.
 
-- API costs: Sometimes companies rely on third party API providers to run model inferences. However, when the logic of services requires multiple, concurrent model inferences to complete several subtasks, the costs can quickly scale up and becomes uncontrollable. The most fine-grained level of the model cost is based on token usage, as providers often charge based on tokens used. Hence any long input/output pairs need to be validated in the tests.
-- GPU resources: Both persistant and on-demand GPU clusters cost a lot for startups to serve their models on. If the GPU utilization is low, or i/o becomes the bottle neck that affects the efficiency of the inference, we are essentially burning money for nothing. Therefore, it is critical to avoid these situations by conducting the right set of simulations and get metrics on costs to validate the changes' impact on cost. No changes should go through to the QA stage if it can potentially blow up the profitability of a product line.
-- Electricity and manpower: This category is often ignored, but the manpower required to maintain the proposed changes, and the electricty cost of hosting a large amount of GPU resources for model serving is an implicit killer to some extents.
+### Parallelism
 
-In light of these aspects, I came up with a strategy to evaluate the cost perspective of the changes:
+Parallelism tests ask how the system behaves as request volume increases. The exact scale depends on the business and product requirements, but the test levels should usually grow in a logarithmic pattern.
 
-- Step 1: Test on total token consumptions per request, capture the distribution, identify the anomalies
-- Step 2: Test on "useless tokens" generated. For example, if the task output can be easily in bullet point format, using JSON output is not only threatening stability, but also introduces redundant tokens in the inputs and outputs
-- Step 3: Test on GPU utilization rate and Memory consumption rate. If "internal fragmentation" happens, we are essentially wasting GPU and thus incurring unnecessary costs.
-- Step 4: Analyze the manpower and resources required to adopt the proposed changes and maintain it. Ensure the profit prospects far outweights the cost side of it.
-- Step 5: Give a conclusive score on the cost impact of the proposed changes. This step should leave leadership with the right insights on whether to adopt the changes in the final call.
+For a smaller service that calls a single API endpoint or inference engine, it may be enough to test concurrency levels such as `1 / 2 / 4 / 8 / 16 / 32`. A service with millions of active users will need a much larger and more realistic load-testing plan.
 
-## **Final words**
+The important metrics are not only average latency. The team should also track throughput, error rate, queueing time, timeout rate, p95 latency, and p99 latency.
 
-Once again, the endeavor to further improve the model iteration process does not stop here. As we progress into the final stage in dev, we are going to explore the most widely discussed topic, prompt engineering. This is another effort from the previous prompt engineering whitebook, from a dastically different point of view. It\'s going to be a fun blog to read. Before that blog comes out, **_Stay Hunger, Stay Foolish_**.
+### Input and Output Size
+
+Input/output size tests ask how latency changes as prompt length and generated output length change. The business task matters, but for this layer I care most about controlling token counts.
+
+A useful matrix is:
+
+| Input size | Output size | Purpose |
+| --- | --- | --- |
+| Short | Short | Baseline fast-path latency |
+| Short | Long | Generation-heavy latency |
+| Long | Short | Context ingestion latency |
+| Long | Long | Worst-case latency pressure |
+
+The prompts should be designed so that input size and expected output size are stable across runs. The comparison environment should also be identical. Otherwise, the test may measure prompt variance or infra drift instead of the proposed model change.
+
+### Service Dependencies
+
+Service-level latency also depends on everything around the model: preprocessing, retrieval, context construction, post-processing, parsing, buffering, warmup, cooldown, cleanup, retries, and external services.
+
+These dependencies should be tested in a simulated environment that stays as close as possible across experiment runs. When possible, A/B testing is better than comparing today's results with results generated a month ago, because the surrounding system may have changed in the meantime.
+
+## Cost Evaluation Strategy
+
+Cost may be less urgent for some large companies, but it is critical for AI startups. As traffic grows, model inference can become one of the largest costs in the product. A proposed model change should not move to QA until the team understands its cost impact.
+
+The main cost categories are:
+
+- **API cost:** Third-party model providers usually charge by token usage. If one product request triggers several model calls, small prompt changes can produce large cost changes.
+- **GPU resources:** Persistent and on-demand GPU clusters are expensive. Low utilization, memory fragmentation, inefficient batching, and I/O bottlenecks all turn compute into wasted budget.
+- **Operational cost:** Engineering time, maintenance burden, monitoring complexity, and electricity costs can become meaningful, especially when the serving stack grows more complex.
+
+A practical cost review should answer five questions:
+
+1. How many input and output tokens does each request consume?
+2. How much of that token usage is unnecessary for the user-facing task?
+3. What are the GPU utilization, memory utilization, and fragmentation patterns?
+4. How much engineering work is required to adopt and maintain the change?
+5. Does the expected product or research gain justify the added cost?
+
+The final output should be a clear recommendation, not just a metric dump. Leadership should be able to see whether the change reduces cost, keeps cost roughly neutral, or introduces a cost risk that needs an explicit business decision.
+
+## Final Words
+
+Improving the model iteration process does not stop here. After research validation and infra validation, the next stage is to look closely at prompt engineering from a product-development perspective. That discussion overlaps with my earlier prompt engineering whitebook, but it approaches the topic from a very different angle.
+
+Before that blog comes out, **_Stay Hungry, Stay Foolish_**.

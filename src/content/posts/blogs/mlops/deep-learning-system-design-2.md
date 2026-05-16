@@ -1,6 +1,6 @@
 ---
-title: "Deep Learning System Design - A Checklist (Part II)"
-excerpt: "An Overview of how to design a full-stack Deep Learning System"
+title: "Deep Learning System Design: A Checklist, Part II"
+excerpt: "A practical checklist for the production side of deep learning systems: packaging, deployment, serving, monitoring, logging, and model operations."
 date: 2024/02/10
 categories:
   - Blogs
@@ -12,110 +12,222 @@ mathjax: true
 toc: true
 ---
 
-### A quick recap
+## Recap
 
-In the previous post, checklist part I, we\'ve talked about the early stage of designing a deep learning system. These steps are often of paramount importance when we build some ml projects in our courseworks. At the end of these steps, we often have a ready-to-use model that solves the problem at hand. However, if we really want to make it a product, to benefit thousand of users or the community, a lot of engineering work on the backend still need to be done. This includes:
+[Part I](/writing/blogs/mlops/deep-learning-system-design-1/) covered the early system-design work: data, modeling, evaluation, training, and experiment tracking.
 
-- Saving the model artifact, wrapping the solution up and deploy it
-- Creating endpoints for user to interact with, aka model serving
-- Iteratively update the model by monitoring the model performance and system performance, and fix any issue related to the product.
+This part covers the production side:
 
-Let\'s go through each of the step one by one.
+1. Packaging and model artifacts.
+2. Deployment.
+3. Serving.
+4. Monitoring.
+5. Logging and operations.
 
-### Step 5: Packaging and Deployment
+This is where a trained model becomes a system that users and other services can depend on.
 
-Technically speaking, **packaging** a model isn\'t really the right word to describe the process of saving a trained model for usage. When people talk about **packaging** a model, they usually mean storing the trained model somewhere to deploy it for future usage. Thus it is closely related to deployments. Hence, when it comes to saving the model, here\'s the things to look out for:
+## Step 5: Packaging and Model Artifacts
 
-1. What platform do you use to store the model: local? cloud? edge?
-2. What metadata do you need?
-   - model hyperparams?
-   - dependencies (this can be tricky a lot of times)
-   - model json files? (example: hugging face models)
-3. how do you do the
-4. what\'s the size requirement?
-5. can we containerize it? (i.e. building an environment easy for deployment and serving)
-6. Is model-versioning done effectively?
-7. Does the saved model work perfectly in the infrastructure? (GPU? Memory? Network?)
-8. Knowing when to update the model
+Packaging means turning a trained model into a reproducible artifact that another process can load safely.
 
-when deploying the model, several strategies can be considered as well. For example:
+A production artifact should include:
 
-- Directly use the existing endpoints from experiment tracking tools (e.g. wandb, kubeflow)
-- Setup external APIs (SageMaker, AWS Lambda, AWS ECS)
-- Shadow Deployment
-- A/B Testing (with bandit method sometimes)
-- Canal Deployment
+- Model weights.
+- Model architecture or loading code.
+- Preprocessing and postprocessing code.
+- Input and output schema.
+- Tokenizer, vocabulary, label map, or feature definitions.
+- Dependency versions.
+- Training config.
+- Evaluation report.
+- Model version.
+- Data version.
+- Owner and approval status.
 
-### Step 6: Serving
+The artifact should answer a simple question: "Can this model be loaded and evaluated without guessing what produced it?"
 
-This is where the endpoint becomes crucial, you need to consider several components
+### Storage Choices
 
-- what is the backend api tool you use
-- do you containerize your api server?
-- do you make it a distributed system? are concurrency and parallelism available options?
-- whether the inference task will be cpu/gpu bound or io bound?
-- do you consider batch inference? streaming inference? (latency requirement)
-- will message queue become important for communication between api server and model server? (e.g. failure recovery)
-- are there ways to easily integrate the metrics from serving to the monitoring tool? (callback functions for example)
-- how do you handle the input data? (database management)
-- how to save the request/response information for future usage? (example: user feedback collection)
-- Is there a way to conduct quick test for serving before user acceptance test?
-- Security issues?
-- How do you direct traffic to different models and collect results from them? (e.g. paired t-test during shadow deployment)
+Common storage patterns:
 
-### Step 7: Monitoring
+- Object storage for raw artifacts.
+- Model registry for version, metadata, stage, and approval status.
+- Container image for runtime dependencies.
+- Package repository for shared model code.
+- Feature store or metadata store for feature contracts.
 
-Don\'t forget to do logging as it is super important. Make it structured with time stamps and severity levels. Some of the objects for the data and model components you should log include:
+Avoid mystery files. A file named `best_model_final_v7.pt` is not a deployment strategy.
 
-- Data pipeline events,
-- Production data (if possible, include the metadata alongside),
-- Model metadata; this includes the model version and configuration details,
-- Prediction results from the model,
-- Prediction results from shadow tests (challenger models); if applicable to your system,
-- Ground truth label (if available),
-- General operational performance (that is typical to standard monitoring systems).
+## Step 6: Deployment
 
-Some best practices include:
+Deployment is the process of promoting a model into an environment where it can be used.
 
-- For your pipeline, you should be logging runs from scheduled time to start time, end time, job failure errors, the number of runs; all to make an unhealthy pipeline easier to troubleshoot.
-- For your models, you should be logging the predictions alongside the ground truth (if available), a unique identifier for predictions (prediction_id), details on a prediction call, the model metadata (version, name, hyperparameters, signature), the time the model was deployed to production.
-- For your application, you should be logging the number of requests served by the champion model in production, average latency for every serving.
-- For your data, log the version of every preprocessed data for each pipeline run that was successful so that they can meet audited and their lineage can be traced.
-- For storing the structure of your logs, consider using a JSON format with an actual structure so they can be easily parsed and searched.
-- Consider rotating log files for better management; delete old and unnecessary logs that you\'re sure you won\'t need again for auditing or other reasons.
+Common patterns:
 
-#### System-related
+- **Direct replacement:** swap the old model for the new one.
+- **Shadow deployment:** run the new model beside production without affecting users.
+- **Canary deployment:** send a small amount of traffic to the new model.
+- **A/B test:** split traffic between variants and compare outcomes.
+- **Champion/challenger:** keep a production champion while evaluating challengers.
+- **Batch deployment:** run scheduled jobs and write predictions to storage.
 
-- Throughput
-- Latency
-- Endpoint Availability
-- System Error Rate (e.g. system overload time, number of failed requests)
-- Total number of API calls
-- CPU/GPU Utility
-- Disk I/O
-- Memory Utility
-- Dependency Health
-- Cloud Infra Health
-- Resource Cost
+The right pattern depends on risk. A low-stakes internal classifier may only need a simple rollout. A high-traffic ranking model should usually use shadowing, canaries, and rollback.
 
-#### Model-related
+### Deployment Checklist
 
-- Error Rate, Model Drifts
-- data drift between training data and request data
-- Data Quality Issues
-- Outliers Detection & Handling
-- Retraining Frequency
-- Model Versioniong
-- Prediction Metrics
-- Model Poisoning Attack Detection
-- Explainability
-- Audit Trails + Privacy
-- User Feedback
+Before rollout:
 
-### Conclusion
+- The artifact loads in the target environment.
+- Input schema validation is in place.
+- The model passes offline evaluation gates.
+- Latency and memory are measured.
+- Fallback behavior exists.
+- Rollback is tested.
+- Logs and metrics are connected.
+- The owner is clear.
 
-While a deep learning system can "almost" be always built following the checklist I made here, we must stay close to our business objective for the system to be truly useful. In that sense, a close connection to our user would be very important, and things like defensive programming, friendly UI and user feedbacks play super important roles. In future posts, I\'ll talk about some of them. Stay tuned ~
+## Step 7: Serving
 
-### References
+Serving turns the model into a callable capability.
 
-1. [A Comprehensive Guide on How to Monitor Your Models in Production - Neptune.ai](https://neptune.ai/blog/how-to-monitor-your-models-in-production-guide)
+Decide:
+
+- Online, batch, streaming, or offline inference.
+- REST, gRPC, WebSocket, queue, or scheduled job interface.
+- CPU, GPU, or specialized accelerator.
+- Single model server or separate application and model services.
+- Synchronous or asynchronous response.
+- Maximum request size.
+- Timeout and retry behavior.
+- Input validation and output validation.
+- Authentication and authorization.
+
+### Online Serving
+
+Online serving is request-response inference. It is appropriate when users or downstream services need fresh predictions immediately.
+
+Watch:
+
+- p50, p95, and p99 latency.
+- Error rate.
+- Timeout rate.
+- Cold starts.
+- GPU utilization.
+- Batch size and queue time.
+- Dependency failures.
+
+### Batch Serving
+
+Batch serving is useful when predictions can be computed on a schedule.
+
+Good use cases:
+
+- Daily risk scores.
+- Offline recommendations.
+- Document enrichment.
+- Embedding refresh.
+- Backfills.
+
+Batch jobs still need monitoring. Silent failure can be worse than an obvious API error.
+
+### Feedback Collection
+
+Serving should preserve enough information for debugging and improvement:
+
+- Request ID.
+- Model version.
+- Input metadata.
+- Prediction.
+- Confidence or score.
+- Latency.
+- User or system feedback when available.
+- Ground truth label when it arrives.
+
+Be careful with privacy. Log enough to debug, not everything by default.
+
+## Step 8: Monitoring
+
+Monitoring should cover both the system and the model.
+
+### System Metrics
+
+Track:
+
+- Throughput.
+- Latency distribution.
+- Availability.
+- Error rate.
+- Timeout rate.
+- CPU, GPU, memory, disk, and network usage.
+- Queue depth.
+- Dependency health.
+- Cost.
+
+These metrics tell you whether the service is operationally healthy.
+
+### Model Metrics
+
+Track:
+
+- Prediction distribution.
+- Confidence distribution.
+- Feature distribution.
+- Data drift.
+- Concept drift when labels arrive.
+- Slice-level performance.
+- Calibration.
+- Outlier rate.
+- Human review outcomes.
+- Feedback quality.
+
+These metrics tell you whether the model is still behaving well.
+
+### Logging
+
+Use structured logs with timestamps, severity, request IDs, model versions, and relevant metadata.
+
+Good logs make it possible to answer:
+
+- Which model produced this prediction?
+- Which input schema version did it use?
+- Which dependency failed?
+- Was latency caused by preprocessing, model inference, or downstream calls?
+- Did this issue affect one request, one customer, or the whole system?
+
+## Step 9: Updating the Model
+
+Model updates should be deliberate.
+
+Trigger retraining or replacement when:
+
+- Data drift is persistent.
+- Performance drops on important slices.
+- New labels show behavior has changed.
+- Product requirements change.
+- New data sources become available.
+- A security or safety issue appears.
+
+Do not retrain blindly on a schedule if nobody reviews whether the new model is better. Automated retraining still needs gates.
+
+## Production Quality Bar
+
+A production ML system should be:
+
+- **Scalable:** handles expected workload with margin.
+- **Maintainable:** code, data, and artifacts are understandable.
+- **Adaptable:** supports updates without rebuilding everything.
+- **Reliable:** fails safely and recovers predictably.
+- **Traceable:** decisions can be connected to data, code, and model version.
+
+The model is only one part of that quality bar.
+
+## Closing
+
+Deep learning systems become valuable when the model is surrounded by engineering discipline: packaged artifacts, tested deployment paths, clear serving contracts, monitoring, logs, and ownership.
+
+The checklist is not meant to slow the team down. It is meant to keep the team from discovering production requirements after users already depend on the system.
+
+## Reference
+
+- [Jeremy Jordan: Effective Testing for Machine Learning Systems](https://www.jeremyjordan.me/testing-ml/)
+- [Jeremy Jordan: ML Monitoring](https://www.jeremyjordan.me/ml-monitoring/)

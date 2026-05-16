@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">ResumeAssist clean workflow</title>
+  <desc id="desc">A clean preview of a resume UI, graph retrieval, review loop, and rendered PDF.</desc>
+  <defs>
+    <style>
+      .bg{fill:#eef1ed}.ink{fill:#243039;font:800 58px ui-monospace,SFMono-Regular,Menlo,monospace}.small{fill:#69736c;font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace}.label{fill:#243039;font:800 31px ui-monospace,SFMono-Regular,Menlo,monospace}.screen{fill:#ffffff;stroke:#b7c0b8;stroke-width:3}.side{fill:#25313a}.card{fill:#f7f4ee;stroke:#cbd0c9;stroke-width:3}.field{fill:#fff;stroke:#c6ccc5;stroke-width:3}.node{fill:#ffffff;stroke:#5f7f5d;stroke-width:5}.edge{fill:none;stroke:#4f7f95;stroke-width:5;stroke-linecap:round}.loop{fill:none;stroke:#b46d3a;stroke-width:5;stroke-linecap:round}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text class="ink" x="70" y="98">ResumeAssist</text>
+  <text class="small" x="74" y="138">resume agent with private context</text>
+
+  <rect class="screen" x="74" y="190" width="520" height="318" rx="20"/>
+  <rect class="side" x="74" y="190" width="128" height="318" rx="20"/>
+  <text class="small" x="102" y="258" fill="#eef1ed">job</text>
+  <text class="small" x="102" y="314" fill="#eef1ed">work</text>
+  <text class="small" x="102" y="370" fill="#eef1ed">skills</text>
+  <text class="small" x="102" y="426" fill="#eef1ed">pdf</text>
+  <rect class="field" x="238" y="242" width="296" height="54" rx="10"/>
+  <rect class="field" x="238" y="324" width="296" height="92" rx="10"/>
+  <rect class="card" x="238" y="446" width="130" height="46" rx="10"/>
+  <rect class="card" x="398" y="446" width="130" height="46" rx="10"/>
+  <text class="label" x="270" y="279">job</text>
+  <text class="label" x="270" y="380">resume</text>
+
+  <g transform="translate(720 195)">
+    <circle class="node" cx="72" cy="68" r="42"/><text class="small" x="45" y="77">RAG</text>
+    <circle class="node" cx="232" cy="68" r="42"/><text class="small" x="198" y="77">edit</text>
+    <circle class="node" cx="72" cy="220" r="42"/><text class="small" x="31" y="229">review</text>
+    <circle class="node" cx="232" cy="220" r="42"/><text class="small" x="198" y="229">PDF</text>
+    <path class="edge" d="M114 68H190M232 110V178M190 220H114"/>
+    <path class="loop" d="M72 178C28 144 28 104 72 110"/>
+  </g>
+</svg>

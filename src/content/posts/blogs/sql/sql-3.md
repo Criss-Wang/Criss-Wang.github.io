@@ -1,77 +1,110 @@
 ---
-title: "SQL: Going into Applications with MySQL and MongoDB"
-excerpt: "Going back to the technical details of what and how for popular SQL and NoSQL dbms"
+title: "SQL: Going Into Applications With MySQL and MongoDB"
 date: 2020/09/04
-updated: 2022/09/24
 categories:
   - Blogs
-tags: 
-  - Database System
+tags:
   - SQL
+  - Database
+excerpt: "A practical comparison of relational and document databases in application development, with notes on schemas, queries, transactions, and data modeling."
 layout: post
-mathjax: true
 toc: true
 ---
-### Introduction
-This is a blog to note down some important concepts revolving MongoDB and MySQL, two of the most popular databases reprensentative of their respective domains: NoSQL and SQL. Many people know how to use these DBMS, but fail to appreciate their characteristics, when and why they are used in certain business solutions. I try to give as much high level comparisons as possible. This ensures that People can at least answer some basic interview questions when they look for a job using these tools.
 
-### MongoDB
-- A NoSQL database for high volumn data storage
-- Dynamic schemas: creating entries without prior restriction of the data structure
-- Represent data as of JSON documents and use JSON Query (JavaScript)
-- Supports sharding and replication: it partitions data across multiple servers
+## Introduction
 
-#### 1. Sharding
-The components of a Shard include:
-1. A Shard – A MongoDB instance which holds the subset of the data. In production environments, **ALL** shards need to be part of replica sets.
-2. Config server – A mongodb instance which holds **metadata** about the cluster, basically information about the various mongodb instances which will hold the shard data.
-3. A Router – A mongodb instance responsible to re-directing the commands send by the client to the right servers.
+Application databases should be chosen by access pattern. MySQL and MongoDB represent two common choices: a relational database and a document database.
 
-#### 2. The benefits of NoSQL in MongoDB
-- Schema Free: MongoDB has a pre-defined structure that can be defined and adhered to, but also, if you need different documents in a collection, it can have different structures.
-- Scaled both **Horizontal** and **Vertical**: Improve system\'s processing power via
-	- **Horizontal**: Adding more machines to expand the pool of resources
-	- **Vertical**: Adding more power to a single machine (CPU/Storage)
-- Optimized for WRITE performances
+Neither is universally better. Each fits different modeling and operational needs.
 
-#### 3. The disadvantages of Non-SQL (without fixed schema) in MongoDB
-- Does not support use of Foreign Keys
-- Does not support optimization of JOIN operations 
-- MongoDB is not strong ACID (Atomic, Consistency, Isolation & Durability)
-- No Stored Procedure or functions, business logic must be implemented in the backend after data is retrieved (like Node.js). This may cause the operations to slow down.
+## MySQL
 
-### MySQL
-- Relational Database (RDBMS)
-- Represents data in tables and rows
-- Predefine the Schema for the tables in the database
-- Use SQL
-- Supports Master-slave replication and master-master replication, i.e. copy data from one server to another 
-- Optimized for high performance JOIN across multiple tables
+MySQL stores data in relational tables.
 
-#### 1. Disadvantages of MySQL (or traditional RDBMS)
-- Scaled Only Vertically
-- Transactions related to system catalog are not ACID compliant
-- Sometimes a server crash can corrupt the system catalog
-- Stored procedures are not cacheable
-- MYSQL tables which is used for the procedure or trigger are most pre-locked.
-- Risk of SQL injection attacks (if there is no predefined schema design, there is less of such a problem)
+Use it when:
 
-### Which to choose
+- Data has clear structure.
+- Relationships matter.
+- Joins are important.
+- Transactions are important.
+- Reporting queries are needed.
+- Constraints should be enforced by the database.
 
-| Characteristics  | MongDB                                                       | MySQL                                                                         |
-| ---              | ---                                                          | ---                                                                           |
-| Data nature      | A lot of unstructured data                                   | Mostly Structured data                                                        |
-| Application      | Real-time analytics, content management, various mobile apps |Applications that requires multi-row transactions such as an accounting system |
-| Service priority | Cloud Based                                                  | Security and ACID/BASE rules are very improtant                               |
-| Data Volumn      | Large, high-speed volumn of data                             | Stable data flow                                                              |
+Example:
 
+```sql
+SELECT users.id, users.email, orders.total_amount
+FROM users
+JOIN orders
+  ON users.id = orders.user_id
+WHERE orders.created_at >= '2024-01-01';
+```
 
-### TODO
-- Update content on MySQL (All the interview questions & all the basic knowledge)
-  - InnoDB storage engine
-  - Sharding
-  - Indexing
-  - B+Tree
-  - Red-Black Tree
-- Update MongoDB sharding policies
-- Discuss Distrbuted Concensus policies
+Relational modeling encourages normalized tables and explicit relationships.
+
+## MongoDB
+
+MongoDB stores document records, usually JSON-like documents.
+
+Use it when:
+
+- Records are naturally document-shaped.
+- Schema varies across records.
+- Reads usually need the whole document.
+- The application benefits from embedding related data.
+- Fast iteration on schema is valuable.
+
+Example document:
+
+```json
+{
+  "user_id": "u_123",
+  "email": "ada@example.com",
+  "settings": {
+    "theme": "dark",
+    "language": "en"
+  }
+}
+```
+
+Document modeling often embeds data that would be joined in a relational design.
+
+## Data Modeling Difference
+
+In relational databases, ask:
+
+```text
+What entities exist, and how do they relate?
+```
+
+In document databases, ask:
+
+```text
+What document shape does the application need to read and write?
+```
+
+If the app constantly reads a user and their settings together, a document can be convenient. If the app needs flexible joins across many entities, relational design is often cleaner.
+
+## Transactions and Consistency
+
+Relational databases are strong defaults for transactional workloads. MongoDB also supports transactions, but document databases are often best when the data model avoids frequent cross-document transactions.
+
+If the system handles money, inventory, or strong consistency requirements, start with a relational design unless there is a clear reason not to.
+
+## Choosing Between Them
+
+Use MySQL when:
+
+- The schema is structured.
+- Joins are central.
+- Data integrity constraints matter.
+- SQL reporting is important.
+
+Use MongoDB when:
+
+- The data is document-shaped.
+- Schema flexibility matters.
+- Related data is usually read together.
+- The app does not need many joins.
+
+The best database is the one whose data model matches the application, not the one with the most fashionable label.

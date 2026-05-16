@@ -1,26 +1,26 @@
 export const now = {
-  updated: "2026-05-14",
+  updated: "2026-05-16",
   items: [
     {
       label: "Building",
-      value: "Model iteration systems",
-      detail: "production ML infra",
+      value: "Next-gen LLM Reasoning Engine",
+      detail: "planner, memory, tool orchestration",
       tone: "highlight",
     },
     {
       label: "Research",
-      value: "OOD detection + bandits",
-      detail: "Bayesian optimization",
+      value: "Event-driven RL for agents",
+      detail: "asynchronous multi-agent coordination",
     },
     {
       label: "Reading",
-      value: "Post-training systems",
-      detail: "evaluation + infra",
+      value: "Agent performance evaluation",
+      detail: "task success, tool use, recovery",
     },
     {
-      label: "Listening",
-      value: "Research talks",
-      detail: "focus music",
+      label: "Exploring",
+      value: "Math research agents",
+      detail: "literature + proof workflows",
     },
   ],
 };

@@ -1,59 +1,90 @@
 ---
 title: "SQL: Index and Optimization"
-excerpt: "A short guide on optimizing query performances"
 date: 2020/08/31
-updated: 2022/8/19
 categories:
   - Blogs
-tags: 
+tags:
   - SQL
-  - Database System
+  - Database
+excerpt: "A concise guide to SQL indexes, query plans, filtering, joins, aggregation, and practical optimization habits."
 layout: post
-mathjax: true
 toc: true
 ---
-### Overview
-To be honest, I\'m not a pro-SQL programmer. I\'m still on my journey to learn more about database and query optimization. In this blog I will just give whatever I\'ve learnt about indexing and optimization and its mostly based on MySQL. Hope it helps!
-### Guidelines
-1. **Single Sheet** query is much better than **Multiple Sheet**
-2. If multiple sheet is needed, Use <kbd>JOIN</kbd> well:
-    - Small Sheet drive Large Sheet (for e.g. left join in this case)
-    - Establish proper indexing
-    - Don\'t JOIN too many sheets as well
-3. Try best NOT to use **subquery** or **Cartesian Product**
-4. Window Funtions can be very helpful
 
-### Indexes
-- Allow faster retrieval of data
-- **Question**: Why don\'t we just create loads of indexes?
-- **Ansewr**: There is a trade-off, if loads of indexes exists on a table then those indexes need to be updated or maintained. In this case, DML operations suffer.
+## Introduction
 
-#### 1. Index operations
+SQL optimization is about helping the database do less work. Indexes, query structure, and data layout all affect performance.
+
+The first rule: measure before optimizing.
+
+## Indexes
+
+An index is a data structure that helps the database find rows faster.
+
+Index columns used in:
+
+- Frequent filters.
+- Join keys.
+- Sorting.
+- Uniqueness constraints.
+
+Example:
+
 ```sql
--- show indices
-SHOW INDEX FROM your_db_name.customer;
-
--- Add index
-ALTER TABLE payment
-ADD INDEX idx_pay (payment_id);  -- [index] can be appended by [unique] to ensure each index is unique
-
-CREATE FULLTEXT INDEX idx_staff ON customer (email); -- [fulltext] only applicable to string data
-
--- Drop Index
-DROP INDEX idx_pay ON payment
+CREATE INDEX idx_orders_user_id ON orders(user_id);
 ```
-For the full list of operations, you may refer to the official documentation of MySQL<sup>[1]</sup>
 
-[1]: https://dev.mysql.com/doc/refman/8.0/en/create-index.html
+Indexes are not free. They take storage and slow writes because the index must be updated when data changes.
 
-#### 2. Clustered Indexes 
-- ALTER TABLE Permission
-- WHen a table does not have a clustered index then the table is stored as a heap, if the table has a clustered index it is stored as a B-tree
-- Data is stored in order of clustered index
-- Only one clustered index can exists on one table
-- Clustered indexes are effective on columns that consistent of unique increasing integers (like identity_set)
-- When a primary key is created a unique clustered index is automatically created - this can be beneficial for queries that involve joins on this column.
+## Composite Indexes
 
-### TODO
-- Discuss [B-Tree](geeksforgeeks.org/introduction-of-b-tree-2/?ref=leftbar-rightbar)
-- Study B+Tree and update
+A composite index covers multiple columns:
+
+```sql
+CREATE INDEX idx_orders_user_date ON orders(user_id, created_at);
+```
+
+Column order matters. This index helps queries filtering by `user_id`, and it may help queries filtering by `user_id` plus `created_at`.
+
+## Query Plans
+
+Use `EXPLAIN` to inspect how the database plans to run a query:
+
+```sql
+EXPLAIN
+SELECT *
+FROM orders
+WHERE user_id = 42;
+```
+
+Look for:
+
+- Full table scans on large tables.
+- Expensive sorts.
+- Join order.
+- Index usage.
+- Estimated vs actual row counts.
+
+## Optimization Habits
+
+Useful habits:
+
+- Filter early.
+- Select only needed columns.
+- Avoid unnecessary `DISTINCT`.
+- Avoid functions on indexed columns in filters when possible.
+- Check join keys.
+- Avoid accidental many-to-many joins.
+- Use pagination carefully.
+- Archive or partition old data when appropriate.
+
+## Common Mistakes
+
+- Adding indexes without checking query plans.
+- Indexing every column.
+- Joining tables at incompatible grains.
+- Using `SELECT *` in production queries.
+- Sorting huge result sets unnecessarily.
+- Filtering on transformed values instead of stored values.
+
+Optimization is a feedback loop: inspect the query, read the plan, change one thing, measure again.

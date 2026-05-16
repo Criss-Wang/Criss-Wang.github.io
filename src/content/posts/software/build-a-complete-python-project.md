@@ -1,6 +1,6 @@
 ---
-title: "A good Python projecttemplate to use as starting point"
-excerpt: "A summary of many masterminds' projects style"
+title: "A Good Python Project Template to Use as a Starting Point"
+excerpt: "A practical Python project scaffold for packaging, testing, linting, documentation, and CI."
 date: 2024/03/14
 categories:
   - Software
@@ -14,290 +14,322 @@ toc: true
 
 ## Overview
 
-When you build up an open source Python project, the first thing to keep in mind is its usefulness. It should really solve some unsolved problems. And right after this, is how you plan and build up a solution step by step. Designing the codebase is one big part of the planning. Everyone open source contributer should have his or her own way of starting a project, but not everyone is good at maintaining the codebase in the long run. One big reason for that is they lack the mindset of building a robust architecture for their code. In this blog, I will cover the major parts every python project (at least for me) should include. These components can be redundant. But redundancy is good to me, as subtraction is easier than addition especially when it comes to simple things.
+When starting an open-source Python project, usefulness comes first. The project should solve a real problem. Right after that comes structure: how the codebase is organized, tested, documented, packaged, and maintained.
 
-Heads up that this is more for references. Most of the content are inspired from other coders on GitHub who have accumulated the good habit of building robust codebase template over the years. I\'m here just to learn, ABSORB and implement them in my own style.
+This post is a reference template for the parts I usually want in a serious Python project. Not every project needs every file. A small script should stay small. But it is easier to remove unnecessary pieces from a complete template than to bolt them on after the project has already grown.
 
-## Project structure
+The recommendations here are inspired by experienced open-source maintainers and Python packaging conventions. I am collecting the habits that make a project easier to install, review, test, and extend.
 
-The first thing is actually codebase structure. My template structure looks like the following:
+## Project Structure
 
-```
-├── .github
-│   └── workflows
+A practical starting structure looks like this:
+
+```text
+.
+├── .github/
+│   └── workflows/
+│       └── tests.yml
+├── docs/
+├── src/
+│   └── your_package/
+│       └── __init__.py
+├── tests/
+├── .gitignore
 ├── .pre-commit-config.yaml
 ├── LICENSE
-├── README.md
-├── .gitignore
-├── pyproject.toml
-├── .readthedocs.yml
-├── MANIFEST.in
 ├── Makefile
-├── requirements.txt
-├── setup.py
-├── docs
-├── tests
-└── src
+├── README.md
+└── pyproject.toml
 ```
 
-Here:
+The core pieces are:
 
-- `src` contains your project code,
-- `tests` include all your test cases,
-- `docs` include your documentation of the code (very often used as the api doc, a common choice is `readthedoc` with `sphinx`).
-- `.gitignore, README.md, pyproject.toml, .readthedocs.yml, MANIFEST.in` are config and instruction files for you to setup your project and potentially make it into pypl. This also enables quick prototying of environment which I\'ll talk about later.
-- `requirements.txt` keeps a list of major packages/dependencies. This can be split into prod/dev/etc as you want.
-- `Makefile` is to automate many lengthy command-line code into short `make xxx` command.
-- `.github/workflow` is the CI/CD pipeline based on GitHub Actions/Jenkins and other integration tools
-- `.pre-commit-config.yaml` is the file the carries out pre-commit code validations
-- `LICENSE` is just there in case your code will be used by many people (which is gooood!)
+- `src/`: package source code. The `src` layout helps catch import mistakes because tests must import the installed package, not a convenient local module path.
+- `tests/`: unit, integration, and regression tests.
+- `docs/`: user documentation, API references, examples, or design notes.
+- `pyproject.toml`: project metadata, build configuration, dependencies, and tool configuration.
+- `README.md`: the first user-facing explanation of what the project does and how to try it.
+- `LICENSE`: the terms under which other people can use the code.
+- `.github/workflows/`: CI checks for tests, linting, type checking, and packaging.
+- `.pre-commit-config.yaml`: local checks that run before a commit.
+- `Makefile`: short aliases for common commands.
+
+Older projects often include `setup.py`, `setup.cfg`, `requirements.txt`, `MANIFEST.in`, and `.readthedocs.yml`. Those files can still be useful, but I would not add them by default. For a new package, start with `pyproject.toml` and add extra files only when a tool or workflow needs them.
 
 ## Environment
 
-A basic thing when it comes to setup environment is to always start with a new virtual environment. This helps separate dependencies for different projects. There are three major ways.
-
-1. direcly using virtualenv
+Start every project in a fresh virtual environment. It keeps dependencies isolated and makes debugging much less mysterious.
 
 ```shell
-# Create a virtual environment
 python -m venv .venv
-
-# Activate the virtual environment
 source .venv/bin/activate
-
-# Upgrade pip
-pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
-2. Use `poetry` dependency manager
-
-```python
-# Create a poetry project
-poetry init --no-interaction
-
-# Add numpy as dependency
-poetry add numpy
-
-# Recreate the project based on the pyproject.toml
-poetry install
-
-# To get the path to poetry venv (for PyCharm)
-poetry env info
-```
-
-With our (virtual) environment set up and activated, we can proceed to install python packages. To keep our production environment as light as possible, we’ll want to separate the packages needed for dev and prod:
-
-dev: These are only used for development (e.g., testing, linting, etc.) and are not required for production.
-prod: These are needed in production (e.g., data processing, machine learning, etc.).
+For a package managed through `pyproject.toml`, install the project in editable mode with development dependencies:
 
 ```shell
-# Install dev packages which we'll use for testing, linting, type-checking etc.
-pip install pytest pytest-cov pylint mypy codecov
-
-# Freeze dev requirements
-pip freeze > requirements.dev
-
-# Install prod packages
-pip install pandas
-
-# Freeze dev requirements
-pip freeze > requirements.prod
+python -m pip install -e ".[dev]"
 ```
 
-3. use Docker as a Dev Environment instead
+That assumes your `pyproject.toml` defines an optional `dev` dependency group:
+
+```toml
+[project]
+name = "your-package"
+version = "0.1.0"
+description = "A short description of the project"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+  "mypy",
+  "build",
+  "twine",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+```
+
+Tools such as Poetry, Hatch, PDM, and uv can also manage environments and dependencies. The exact tool matters less than having one repeatable way to create the environment.
+
+## Docker for Reproducible Development
+
+For projects with heavier system dependencies, Docker can make the development environment more reproducible.
 
 ```dockerfile
-ARG BASE_IMAGE=python:3.8
+ARG BASE_IMAGE=python:3.11-slim
 
-FROM ${BASE_IMAGE} as base
+FROM ${BASE_IMAGE} AS base
 
-LABEL maintainer='eugeneyan <dev@eugeneyan.com>'
+WORKDIR /opt/project
+ENV PYTHONUNBUFFERED=1
 
-# Use the opt directory as our dev directory
-WORKDIR /opt
+COPY pyproject.toml README.md ./
+COPY src ./src
 
-ENV PYTHONUNBUFFERED TRUE
-
-COPY requirements.dev .
-COPY requirements.prod .
-
-# Install python dependencies
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir wheel \
-    && pip install --no-cache-dir -r requirements.dev \
-    && pip install --no-cache-dir -r requirements.prod \
-    && pip list
+RUN python -m pip install --upgrade pip \
+    && python -m pip install -e ".[dev]"
 ```
 
-then run
+Build the image:
 
 ```shell
-DOCKER_BUILDKIT=1 docker build -t dev -f Dockerfile .
+DOCKER_BUILDKIT=1 docker build -t your-package-dev -f Dockerfile .
 ```
 
-to setup the environment.
-Now we can run `bash` using the docker container (after mounting current dir to `/opt` folder) via
+Run a shell with the current project mounted:
 
 ```shell
-docker run --rm -it -v $(pwd):/opt bash
+docker run --rm -it -v "$(pwd)":/opt/project your-package-dev bash
 ```
 
-## testing + coverage
+Docker is not required for every project. It becomes useful when contributors need the same OS-level dependencies, CUDA libraries, database clients, or build tools.
 
-You\'ll need to thoroughly test your code. In generally, when your codebase involve little infra dependency, and isn\'t heavy on data/model ingestion/output, most of tests will still be unit tests. `pytest` and `unittests` are your best friends. In the meantime, never forget to ensure high test coverage with the help of `coveragepy` and `codecov`. A little badge can be attached to `README.md` (check this [guide](https://stackoverflow.com/questions/54010651/how-to-display-codecov-io-badge-in-github-readme-md)) once you\'ve robustly tested your code, which actually suggests that you\'re a responsible engineer!
+## Testing and Coverage
 
-## linting + code quality
+A project should make correctness cheap to check. For most Python libraries, that starts with `pytest`.
 
-1. ensuring code consistency with linting
-   Linters analyze code to flag proramming errors, bugs, and deviations from standards. Linting leads to good code quality. As you use linting to correctly format your code, you are forming the good having of following a good coding style as well.
+Typical checks include:
 
-   Many people use either `pylint` and `flake8` for linting. Note that very often you may want to ignore certain patterns in linting standard that your project doesn\'t agree with. There are many ways to configure it properly. In the current folder structure I suggested, you should edit in `pyproject.toml`. Note, for `flake8`, you need to install `flake8-pyproject` package independently for the configuration to work property.
+- Unit tests for small functions and classes
+- Integration tests for file I/O, API clients, database access, or model pipelines
+- Regression tests for previously fixed bugs
+- Coverage reports for important modules
 
-2. python coding style (PEP8)
-   Sometimes linting also helps to check with particular function format. For example, `pylint` and `flake8` both require function/class annotations. But you\'ll need to style your annotations correctly:
+Run tests with coverage:
+
+```shell
+pytest tests --cov=src --cov-report=term-missing
+```
+
+Coverage is useful, but it should not become theater. A high percentage does not guarantee useful tests. I care more about tests that cover important behavior, edge cases, and failure modes.
+
+## Linting and Code Quality
+
+Linters and formatters keep a project consistent. They also reduce review noise because contributors do not spend time debating whitespace, imports, or small style issues.
+
+For new projects, I usually prefer `ruff` because it can replace several older tools in one fast command.
+
+```shell
+ruff check src tests
+ruff format src tests
+```
+
+You can configure it in `pyproject.toml`:
+
+```toml
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+```
+
+For type checking, `mypy` is still a common baseline:
+
+```shell
+mypy src
+```
+
+Type annotations are not enforced by the Python runtime, but they make code easier to read and easier to validate before release.
 
 ```python
-def sample_function(input1: int) -> Any:
-    """Description of what the function does
+from typing import Any
+
+
+def sample_function(input_value: int) -> dict[str, Any]:
+    """Convert an integer input into a structured result.
 
     Args:
-        input1: some input explanation
+        input_value: The integer to convert.
 
     Returns:
-        Some output explanation
+        A dictionary containing the original value and derived metadata.
     """
-    ...
+    return {"value": input_value, "is_positive": input_value > 0}
 ```
 
-3. typing checks
-   The Python runtime does not enforce type annotations; it’s dynamically typed and only verifies types (at runtime) via duck typing. Nonetheless, we can use type annotations and a static type checker to verify the type correctness of our code. `mypy` is the most widely adopted option from my impression. In the meantime, consider using `pydantic` for a more OOP styled typing.
+## Command Automation with Make
 
-## command automation with make
+A `Makefile` gives contributors short, memorable commands for common tasks.
 
-`Makefile` is a life-saver when we have many tasks to run before committing code. When each task is a long command-line code, it can be hard to remember and go through your terminal history to retrieve it. Hence we can just define tasks using the `Makefile` as follows:
+```makefile
+.PHONY: install test lint format typecheck build clean
 
-```shell
-.PHONY: refresh build install build_dist json release lint test clean
+install:
+	python -m pip install -e ".[dev]"
 
-refresh: clean build install lint
+test:
+	pytest tests --cov=src --cov-report=term-missing
+
+lint:
+	ruff check src tests
+
+format:
+	ruff format src tests
+
+typecheck:
+	mypy src
 
 build:
 	python -m build
 
-install:
-	pip install .
-
-build_dist:
-	make clean
-	python -m build
-	pip install dist/*.whl
-	make test
-
-json:
-	python example/generate_examples.py
-
-release:
-	python -m twine upload dist/*
-
-lint:
-	flake8 src/ tests/ example/ --exclude "src/db/*" --count --statistics
-	mypy src/ --exclude 'src/.*'
-
-test:
-	. .venv/bin/activate && py.test tests --cov=src --cov-report=term-missing --cov-fail-under 95
-
-clean-pyc:
-    find . -name '*.pyc' -exec rm -f {} +
-    find . -name '*.pyo' -exec rm -f {} +
-    find . -name '*~' -exec rm -f {} +
-    find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test:
-    rm -f .coverage
-    rm -f .coverage.*
-
-clean: clean-pyc clean-test
+clean:
+	rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache
+	find . -name "__pycache__" -type d -prune -exec rm -rf {} +
 ```
 
-and run any of `make test`, `make clean`, `make lint` tasks to complete the command-line code defined under it.
+Then the daily workflow becomes simple:
 
-## pre-commit and pre-push
+```shell
+make lint
+make typecheck
+make test
+```
 
-When it comes down to committing your code and pushing your code (via PR for e.g.), things get complicated as people often make mistakes in linting/typing/formatting. When it happends, pre-commit automations and checks help us resolve those problems to some extent. We can use a `.pre-commit-config.yaml` file to help us make corrections and find errors asap (may have overlap with the make-automation method) before we even commit our code to local branch.
+This is not about `make` specifically. The important part is that the project has one obvious set of commands.
+
+## Pre-Commit Checks
+
+Pre-commit hooks catch small problems before they reach CI.
 
 ```yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: check-toml
       - id: debug-statements
-      - id: double-quote-string-fixer
-      - id: name-tests-test
-      - id: requirements-txt-fixer
-  - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.5.0
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
     hooks:
-      - id: setup-cfg-fmt
-  - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.12.0
-    hooks:
-      - id: reorder-python-imports
-        exclude: ^(pre_commit/resources/|testing/resources/python3_hooks_repo/)
-        args: [--py39-plus, --add-import, "from __future__ import annotations"]
-  - repo: https://github.com/asottile/add-trailing-comma
-    rev: v3.1.0
-    hooks:
-      - id: add-trailing-comma
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.1
-    hooks:
-      - id: pyupgrade
-        args: [--py39-plus]
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.0.4
-    hooks:
-      - id: autopep8
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.11.2
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
-        exclude: ^testing/resources/
 ```
 
-For push actions, we can define a check in the `.github/workflow/test.yml` to run the checks:
+Install the hooks:
+
+```shell
+pre-commit install
+pre-commit run --all-files
+```
+
+Pre-commit checks should be fast. If a check takes too long, put it in CI or make it an explicit release command.
+
+## GitHub Actions
+
+CI should run the checks that reviewers care about before they review the code.
 
 ```yaml
-# .github/workflows/tests.yml
 name: Tests
-on: push
+
+on:
+  push:
+  pull_request:
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
-          architecture: x64
-      - run: make setup-venv
-      - run: make checks
+          python-version: "3.11"
+
+      - name: Install package
+        run: make install
+
+      - name: Lint
+        run: make lint
+
+      - name: Type check
+        run: make typecheck
+
+      - name: Test
+        run: make test
 ```
 
-This helps us find problems before reviewing any code to start with.
+For a library, I would eventually add a matrix across supported Python versions. For a small project, one supported version is enough until the maintenance burden is worth it.
 
 ## Summary
 
-These are the first few steps I take to build up a robust codebase. It came a long way from learning the codebase and blogs from smart and selfless engineers who\'re willing to share their experience and code online. I\'m truly grateful of these people.
+A good Python project template should make the common path obvious:
+
+- Install the project
+- Run tests
+- Format and lint code
+- Type-check important modules
+- Build the package
+- Publish documentation
+- Run the same checks in CI
+
+The point is not to add ceremony. The point is to make the project easy for future you, and for other contributors, to trust.
 
 ## References
 
-1. [Eugene Yan](https://eugeneyan.com/writing/setting-up-python-project-for-automation-and-collaboration/#set-up-a-virtualenv-and-install-packages)
-2. [Tian Gao](https://github.com/gaogaotiantian)
+- [Python Packaging User Guide: Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)
+- [Eugene Yan: Setting up a Python project for automation and collaboration](https://eugeneyan.com/writing/setting-up-python-project-for-automation-and-collaboration/#set-up-a-virtualenv-and-install-packages)
+- [Tian Gao](https://github.com/gaogaotiantian)

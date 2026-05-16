@@ -31,6 +31,8 @@ const reviewership = defineCollection({
   schema: z.object({
     year: z.coerce.string(),
     venue: z.string(),
+    kind: z.string().optional(),
+    role: z.string().optional(),
     order: z.number().optional(),
     draft: z.boolean().optional(),
   }),

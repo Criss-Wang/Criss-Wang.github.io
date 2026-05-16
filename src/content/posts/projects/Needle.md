@@ -9,7 +9,7 @@ categories:
   - CUDA
   - Deep Learning System
 excerpt: "A Deep Learning framework with customized GPU and CPU backend in C++ and Python"
-link: "/images/Projects/Needle2.png"
+link: "/images/Projects/needle-systems-diagram.svg"
 mathjax: true
 toc: true
 ---

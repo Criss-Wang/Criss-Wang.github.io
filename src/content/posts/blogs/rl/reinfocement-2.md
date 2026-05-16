@@ -1,77 +1,91 @@
 ---
-title: "Reinforcement Learning - Theoretical Foundations: Part II "
-excerpt: "RL Continued - Dynamic Programming"
+title: "Reinforcement Learning: Theoretical Foundations, Part II"
 date: 2021/01/05
-updated: 2022/8/19
 categories:
   - Blogs
-tags: 
+tags:
   - Reinforcement Learning
+  - Machine Learning
+excerpt: "A practical explanation of Markov decision processes, transition dynamics, rewards, policies, value functions, and Bellman equations."
 layout: post
 mathjax: true
 toc: true
 ---
-## Dynamic Programming in RL
-### Introduction
-- DP assumes full knowledge of the MDP
-- __A prediction problem__: The input is an MDP/MRP and a policy $\pi$. The output is a value function $v_{\pi}$.
-- __A control problem__: The input is an MDP. The output is the optimal value function $v_*$ and an optimal policy $\pi_{\star}$. 
 
-### Synchronous DP
-The following table summarizes the type of problems that is solved synchronously via iteration/evaluation algorithms:
+## Introduction
 
-| Problem       | Bellman Equation | Algorithm| 
-| ------------- | -------------    | -----    |
-| Prediction      | Bellman Expectation Equation| Iterative Policy Evaluation |
-| Control     | Bellman Expectation Equation Policy Iteration + Greedy Policy Improvement    |  Policy Iteration |
-| Control | Bellman Optimality Equation |    Value Iteration |
+The Markov decision process (MDP) is the standard mathematical framework for reinforcement learning.
 
-### Iterative Policy Evaluation
-- Problem: evaluate a given policy $\pi$
-- __Algo sketch__:
-	1. Assign each state with an initial value (for example: $v_0(s) = 0 \\;\\;\forall s\in S$)
-	2. Following the policy, compute the updated value function $v_i(s)$ using the Bellman Expectation Equation **$v^{k+1} = {\cal R}^{\pi} + \gamma {\cal P}^{\pi}v^k$**
-	3. Iterate until convergence (proven later)
+An MDP describes:
 
-### Policy Improvement
-- Upon Evaluation of a policy $\pi$, we can seek to greedily improve the policy such that we obtain $v_{\pi'}(s) \geq v_{\pi}(s)$. (**expr 1**)
-- The greedy approach acts as selecting $\pi '(s) = \arg\max\limits_{a \in {\cal A}}q_{\pi}(s,a)$. (**eq 1**)
-- We can prove that __eq 1__ leads to __expr 1__ as follows:
-	- In one step: $q_{\pi}(s,\pi '(s)) = \max\limits_{a \in {\cal A}}q_{\pi}(s,a) \geq q_{\pi}(s,\pi (s)) = v_{\pi}(s)$.
-	- Note that $\pi'$ is a deterministic policy. Observe that 
-	 
-	  $$q_{\pi}(s,\pi'(s)) = \mathbb{E}\_{\pi'}[R_{t+1} + \gamma v_{\pi}(S_{t+1}) \\| S_t = s, A_t = \pi'(s)] = \mathbb{E}\_{\pi'}[R_{t+1} + \gamma v_{\pi}(S_{t+1}) \\| S_t = s]$$
+- States.
+- Actions.
+- Transition probabilities.
+- Rewards.
+- Discount factor.
 
-	- Hence 
-	  
-    $$
-    \begin{align}
-      v_{\pi}(s) \leq q_{\pi}(s,\pi'(s)) &= \mathbb{E}\_{\pi'}[R_{t+1} + \gamma v_{\pi}(S_{t+1}) \| S_t = s] \\\\
-      &\leq \mathbb{E}\_{\pi'}[R_{t+1} + \gamma q_{\pi}(S_{t+1},\pi'(S_{t+1})) \| S_t = s] \\\\
-      &\leq \mathbb{E}\_{\pi'}[R_{t+1} + \gamma R_{t+2}  + \gamma^2 q_{\pi}(S_{t+2},\pi'(S_{t+2})) \| S_t = s] \\\\
-      &\leq \mathbb{E}\_{\pi'}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + ...\| S_t = s] = v_{\pi'}(s) \\\\
-    \end{align}
-    $$
+## Markov Property
 
-- Basically, we find that this method is equivalent to solving the Bellman Optimality equation. So we obtain $\pi$ as an optimal policy
-- Note that this process of policy iteration always converges to $\pi_*$. 
-- __Drawback__: Policy Iteration always Evaluation an entire Policy before it starts to improve on the policy. This may be highly inefficient if the evaluation of a policy takes very long time (e.g. infinite MDP)
-- To deal with the __Drawback__, we utilise __DP__ $\implies$ Value Iteration.
+The Markov property says the future depends on the current state and action, not the full past history:
 
-### Value Iteration
-- We improve the value function $v_i(s)$ in each iteration
-- Note that we are __only__ improving the value function, where this value function is based on any explicit policy
-- Intuition: start with final rewards (again all 0 for example) and work backwards
-- Now assume we know the solution to a subproblem $v_{\star}(s')$, then we can find $v_{\star}(s)$ by one-step look ahead:
-	- $v_{\star}(s) \gets\max\limits_{a \in {\cal A}}{\cal R}^a_s + \gamma \sum\limits_{s' \in S} {\cal P}^a_{ss'}v_{\star}(s')$
-- Therefore, we can always update the value function in each iteration backwards until convergence.
+$$
+P(s_{t+1} \mid s_t, a_t, s_{t-1}, a_{t-1}, \dots)
+=
+P(s_{t+1} \mid s_t, a_t)
+$$
 
-### Contraction Mapping Theorem
-- To be updated upon publishing the markdown 
-- Refer to page 28 - 42 [(DP)](https://www.davidsilver.uk/wp-content/uploads/2020/03/DP.pdf)
+This assumption lets us write efficient algorithms.
 
-### Asynchronous DP
-There are 3 simple ideas, which I haven\'t learning in detail:
-- In-place dynamic programming 
-- Prioritised sweeping 
-- Real-time dynamic programming 
+## Policy
+
+A policy maps states to actions.
+
+A deterministic policy:
+
+$$
+a = \pi(s)
+$$
+
+A stochastic policy:
+
+$$
+\pi(a \mid s) = P(a_t = a \mid s_t = s)
+$$
+
+The agent's goal is to find a policy with high expected return.
+
+## Value Function
+
+The state-value function is the expected return from state $s$ under policy $\pi$:
+
+$$
+V^\pi(s) = E_\pi[G_t \mid s_t=s]
+$$
+
+The action-value function is:
+
+$$
+Q^\pi(s,a) = E_\pi[G_t \mid s_t=s, a_t=a]
+$$
+
+Value functions estimate how good states or actions are.
+
+## Bellman Equation
+
+The Bellman equation expresses value recursively. In words:
+
+```text
+value now = expected immediate reward + discounted value later
+```
+
+A compact notation is:
+
+$$
+V^\pi(s) = E_\pi[r_{t+1} + \gamma V^\pi(s_{t+1}) \mid s_t=s]
+$$
+
+This recursion is the backbone of many RL algorithms. It says that a state's value can be estimated by looking one step ahead and then reusing the value estimate for the next state.
+
+## Closing
+
+MDPs give reinforcement learning its structure. Once states, actions, rewards, and transitions are defined, learning becomes the problem of estimating values or improving policies.

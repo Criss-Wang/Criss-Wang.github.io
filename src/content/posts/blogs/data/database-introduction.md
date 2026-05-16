@@ -1,36 +1,109 @@
 ---
-title: "Database: Intro"
-excerpt: "A brief introduction to database system"
+title: "Database Intro"
 date: 2020/07/01
-updated: 2022/06/12
 categories:
   - Blogs
-tags: 
-  - Database System
+tags:
+  - Data
+  - Database
+excerpt: "A compact introduction to databases, covering relational systems, NoSQL systems, transactions, schemas, indexes, and when each storage pattern fits."
 layout: post
-mathjax: true
 toc: true
 ---
 
-### Definition
-A database is a collection of information that is usually stored in computer systems. The information are usually data of various forms. The main function of database is for the managers of these information to better store and manipulate the data efficiently. 
+## Introduction
 
-A database can be either relational or non-relational.
+A database stores data so applications can read, write, update, query, and protect it reliably. The right database depends on the shape of the data and the workload.
 
-### Relational database
-In a relational database, each row in the table is a record with a \"unique ID\" called the __key__. The columns of the table hold attribute of the data, and each record usually has a value for each attribute, making it easy to establish the relationships among data points.
+The most important question is not "SQL or NoSQL?" It is:
 
-### Non-relational database
-A non-relational database is a database that does not use the tabular schema of rows and columns found in most traditional database systems. Instead, non-relational databases use a storage model that is optimized for the specific requirements of the type of data being stored. For example, data may be stored as simple key/value pairs, as JSON documents, or as a graph consisting of edges and vertices.<sup>[1]</sup>
+```text
+What access patterns must this system support?
+```
 
-**Note:** The 3 points above are for interview preparation. They are succint and clearly explains each part. You can directly use them or shorten them in interview.
+## Relational Databases
 
-## 4. DBMS (Database management system)
-I assume that most of you have some prior knowledge about SQL. Otherwise, you are welcome to review my posts on SQL. So I\'m not gonna explain what DBMS is and some examples of DBMS. 
-<br>
-To be updated...
-<br>
-<br>
+Relational databases store data in tables with rows and columns. They are a strong default when data has clear structure and relationships.
 
+Examples:
 
-[1]:https://docs.microsoft.com/en-us/azure/architecture/data-guide/big-data/non-relational-data
+- PostgreSQL.
+- MySQL.
+- SQLite.
+- SQL Server.
+
+Use relational databases when:
+
+- Data has a stable schema.
+- Transactions matter.
+- Joins are useful.
+- Consistency matters.
+- Reporting and ad hoc queries are needed.
+
+## NoSQL Databases
+
+NoSQL systems relax some relational assumptions to support different access patterns.
+
+Common types:
+
+- **Document databases:** JSON-like documents, useful for flexible records.
+- **Key-value stores:** fast lookup by key.
+- **Wide-column stores:** large-scale distributed tables.
+- **Graph databases:** relationships are the core data.
+- **Time-series databases:** metrics and events over time.
+
+NoSQL is not automatically more scalable. It is better when its data model matches the problem.
+
+## Transactions
+
+A transaction groups operations so they succeed or fail together.
+
+The classic ACID properties are:
+
+- **Atomicity:** all operations complete or none do.
+- **Consistency:** constraints remain valid.
+- **Isolation:** concurrent transactions do not corrupt each other.
+- **Durability:** committed data survives failures.
+
+Financial systems, order systems, and inventory systems usually need strong transaction guarantees.
+
+## Schema
+
+A schema defines the structure of data.
+
+Strong schemas help:
+
+- Validate data early.
+- Prevent inconsistent records.
+- Make queries predictable.
+- Improve documentation.
+
+Flexible schemas help when data changes often, but they move more validation responsibility into application code.
+
+## Indexes
+
+Indexes speed up reads by storing searchable structures for selected columns or fields.
+
+They are not free:
+
+- They consume storage.
+- They slow writes.
+- They need maintenance.
+- Poor indexes can mislead query planning.
+
+Index the queries that matter, not every column.
+
+## Choosing a Database
+
+Ask:
+
+- What are the read and write patterns?
+- Does the system need transactions?
+- Is the schema stable?
+- How large will the data become?
+- What latency is required?
+- Do queries need joins?
+- Is horizontal scaling required?
+- What failure modes are acceptable?
+
+Start with the simplest database that satisfies the system requirements. Complexity is easy to add and hard to remove.

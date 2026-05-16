@@ -14,6 +14,18 @@
     }
   },
   "repositories": {
+    "LLM Validator": {
+      "owner": "Criss-Wang",
+      "repo": "llm-validator"
+    },
+    "ResumeAssist": {
+      "owner": "Criss-Wang",
+      "repo": "ResumeAssist"
+    },
+    "Deployable AI": {
+      "owner": "Criss-Wang",
+      "repo": "dpai"
+    },
     "Needle: High-performance DL System": {
       "owner": "Criss-Wang",
       "repo": "needle"

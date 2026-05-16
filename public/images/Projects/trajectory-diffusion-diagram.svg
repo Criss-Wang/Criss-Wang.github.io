@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Trajectory diffusion clean forecast plot</title>
+  <desc id="desc">A clean road map with observed motion history and five candidate future trajectories.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fbfaf6}.ink{fill:#243039;font:800 58px ui-monospace,SFMono-Regular,Menlo,monospace}.small{fill:#6d7470;font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace}.map{fill:#edf0ed;stroke:#c4cbc4;stroke-width:3}.lane{fill:none;stroke:#d0d7d0;stroke-width:26;stroke-linecap:round}.dash{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-dasharray:22 22}.hist{fill:none;stroke:#25313a;stroke-width:8;stroke-linecap:round}.p1{fill:none;stroke:#4f7f95;stroke-width:7;stroke-linecap:round}.p2{fill:none;stroke:#b46d3a;stroke-width:7;stroke-linecap:round}.p3{fill:none;stroke:#657d57;stroke-width:7;stroke-linecap:round}.p4{fill:none;stroke:#8a6d9b;stroke-width:7;stroke-linecap:round}.p5{fill:none;stroke:#a55e65;stroke-width:7;stroke-linecap:round}.dot{fill:#25313a}.card{fill:#fffefa;stroke:#c8c0b4;stroke-width:3}.label{fill:#243039;font:800 34px ui-monospace,SFMono-Regular,Menlo,monospace}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text class="ink" x="70" y="98">Motion Forecasting</text>
+  <text class="small" x="74" y="138">observed track to K future paths</text>
+
+  <rect class="map" x="80" y="188" width="760" height="394" rx="24"/>
+  <path class="lane" d="M126 486C260 310 418 252 794 214"/>
+  <path class="dash" d="M126 486C260 310 418 252 794 214"/>
+  <path class="lane" d="M118 286C308 346 478 420 810 520"/>
+  <path class="dash" d="M118 286C308 346 478 420 810 520"/>
+
+  <path class="hist" d="M315 390c42-38 86-66 132-86"/>
+  <circle class="dot" cx="315" cy="390" r="13"/>
+  <circle class="dot" cx="376" cy="339" r="13"/>
+  <circle class="dot" cx="447" cy="304" r="16"/>
+  <path class="p1" d="M447 304c66-24 137-38 224-45"/>
+  <path class="p2" d="M447 304c80 7 143 46 196 112"/>
+  <path class="p3" d="M447 304c40 55 58 113 52 184"/>
+  <path class="p4" d="M447 304c51-62 118-99 210-120"/>
+  <path class="p5" d="M447 304c86 24 163 22 248-5"/>
+
+  <rect class="card" x="885" y="246" width="234" height="84" rx="18"/>
+  <text class="label" x="938" y="300">K = 5</text>
+  <rect class="card" x="885" y="368" width="234" height="84" rx="18"/>
+  <text class="label" x="932" y="422">ADE/FDE</text>
+</svg>

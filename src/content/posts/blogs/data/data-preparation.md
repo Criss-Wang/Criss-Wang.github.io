@@ -1,107 +1,112 @@
 ---
-title: "The Data Mining Triology: I. Preparation"
-excerpt: "Know how to get data from various sources and load them successfully"
+title: "The Data Mining Trilogy I: Preparation"
 date: 2019/08/25
-updated: 2022/8/19
 categories:
   - Blogs
-tags: 
-  - Data Mining/Data Engineering
+tags:
+  - Data Mining
+  - Data Preparation
+excerpt: "A practical overview of data preparation: defining the problem, collecting data, building schemas, splitting datasets, and preventing leakage."
 layout: post
-mathjax: true
 toc: true
 ---
-### Overview
-In this Data Mining triology, I\'m going to present the following critical steps each scientist should perform when handling the data:
-1. Data Preparation
-  Load and integrate data sources
-2. Data Cleaning
-  Prepocessing the data to make them meaningful and usable
-3. Exploratory Data Analysis
-  Analyze the data and understand its pattern. Make corresponding adjustments to data along the way
 
-In this blog, let\'s talk about the first one -- Data Preparation.
-### Sources of data
-There are indeed a great variety of data sources since the age of machine learning started. While we may come across a wide variety of data types (image, video, text, sheet, signal... you name it), we often can get these data from some popular website:
-1. [Google Datasets Search](https://toolbox.google.com/datasetsearch)
-   - Pros:
-     - Wide coverage, can find whatever dataset you want
-   - Cons:
-     - Some datasets are not actually accessible, and the website does not indicate that at all!
-2. Government Datasets
-   - Pros:
-     - Most of them are publically available, which is good
-     - Most of these data are well preprocessed, so you don\'t have to worry about it
-   - Cons:
-     - Sometimes, the size of the dataset is not large enough for meaningful projects
-     - Governments may not release the most up-to-date datasets. Hence the effectiveness of prediction models may be questionable
-3. [Kaggle Datasets](https://www.kaggle.com/datasets)
-   - Pros:
-     - Really easy to get the data: via command line. This often preferred by professional engineers. See [tutorial](https://www.kaggle.com/docs/api) on kaggle api
-     - Aside from the datasets themselves, you can often find a bunch of enthusiasts on machine learning in Kaggle and excellent tutorials on the datasets you found.
-   - Cons:
-     - It takes a bit of practice to get along with Kaggle. Passion and drive are the key to success in Kaggle
-4. [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
-   - Pros:
-     - One of the most widely used repository for machine learning datasets
-     - Very Often, the datasets are related to academic/industrial research projects, so it is extremely helpful to researchers
-   - Cons:
-     - As a well-aged repo, the datasetes there certainly have been studied extensively. So it may not be so useful for new breakthroughs (but still, it should be very helpful for beginners)
+## Introduction
 
-### Code for loading the data
-The most common format for machine learning data is CSV files, and we are using python 3.x here for actual code.
-This step should mark the start of your notebook (after `np/pd/sklearn/plt`). 
-```python
-import pandas as pd
-train = pd.read_csv('../input/train.csv')
-test = pd.read_csv('../input/test.csv')
-```
-Note that this is too widely abused that people forget about other ways to load data:
-#### Load CSV with Python Standard Library
-```python
-import csv
-import numpy as np
-raw_data = open("your filename here", 'rt')
-reader = csv.reader(raw_data, delimiter=',')
-x = list(reader)
-data = np.array(x).astype('float')
-```
-#### Load CSV with Numpy
-```python
-import numpy
-raw_data = open("your filename here", 'rt')
-reader = numpy.loadtxt(raw_data, delimiter=",")
-```
+Data preparation is the work before modeling: define the problem, collect the data, understand its structure, and create datasets that can support valid analysis or machine learning.
 
-#### Load CSV with URL
-```python
-from numpy import loadtxt
-from urllib.request import urlopen
-url = 'URL to a dataset'
-raw_data = urlopen(url)
-dataset = loadtxt(raw_data, delimiter=",")
-```
-Now be cautioned that this is just for CSV files. There are a lot of other data formats, and Google is always your best friend in finding methods to load datasets.
-{: .notice--info .notice--x-large}
+Poor preparation creates downstream confusion. Good preparation makes the rest of the project measurable.
 
-### That was input, how about output?
-Converting data from python objects into byte streams is known as Pickling or Serialization. This allows your own data to be passed around efficiently. Very often, they are stored as `.pkl` or `.json` files. 
+## Define the Question
 
+Start with the question:
 
-#### Python Pickle and JSON
-The following table is inspired by [this tutorial](https://www.educba.com/python-pickle-vs-json/)
+- What decision will this data support?
+- What is the target variable?
+- What is the prediction time?
+- What information is available at that time?
+- What population does the dataset represent?
+- What errors are costly?
 
-|                  | Python Pickle                                        | JSON | 
-| --------         | --------                                               | ------    | 
-| Definition       | Python Pickle is the process of converting python objects (list, dict, tuples, etc.) into byte streams which can be saved to disks or can be transferred over the network. The byte streams saved on the file contains the necessary information to reconstruct the original python object. The process of converting byte streams back to python objects is called de-serialization.                   | JSON stands for JavaScript Object Notation. Data Stored can be loaded without having the need to recreate the data again.| 
-| Storage format   | Binary serialization format                            | Simple text serialization format, human-readable  | 
-| Storage Versatility          | Not only data entries, but classes and methods can be serialized and de-serialized | JSON is limited to certain python objects, and it cannot serialize every python object, such as classes and functions| 
-| Language dependency| Very reliant on the language (Python specific) and versions (2.x pickle files may not be compatible in 3.x env)           | JSON is supported by almost all programming languages.|
-| Speed | Slower serialization and de-serialization in pickle | Lightweights, much faster than pickle|
-| Security | There is always security risks with pickle files | JSON is generally secure|
+For machine learning, the prediction time is critical. Any feature created after that time can leak future information.
 
-<br/>
-With the above table in mind, one can choose their outputs accordingly.
+## Collect the Data
 
-### Conclusion
-Loading data is merely the first step and people can quickly learn to apply them. However, I/O choices does matter, and one should be cautious about them. Now, lets step into the second step in data mining: cleaning data.
+Record:
+
+- Source.
+- Owner.
+- Refresh frequency.
+- Granularity.
+- Time range.
+- Known missing fields.
+- Access restrictions.
+- Privacy constraints.
+
+Do not treat data collection as a one-time download. Data sources change.
+
+## Understand Granularity
+
+Granularity defines what one row means.
+
+Examples:
+
+- One row per user.
+- One row per transaction.
+- One row per session.
+- One row per product per day.
+- One row per document chunk.
+
+Many bugs come from mixing granularities without noticing. For example, joining user-level features to transaction-level labels can duplicate values and distort metrics.
+
+## Create a Data Dictionary
+
+A useful data dictionary includes:
+
+- Column name.
+- Type.
+- Meaning.
+- Unit.
+- Allowed values.
+- Missing-value meaning.
+- Example.
+- Source.
+
+This is simple work, but it prevents many misunderstandings.
+
+## Split the Dataset
+
+Choose a split that matches reality:
+
+- Random split for independent examples.
+- Time-based split for future prediction.
+- Group split when records from the same entity could leak.
+
+Keep the test set untouched until final evaluation.
+
+## Prevent Leakage
+
+Watch for:
+
+- Features computed using future information.
+- Target-derived fields.
+- Duplicates across train and test.
+- Preprocessing fit before splitting.
+- Aggregates that include the target period.
+
+Leakage makes models look impressive in notebooks and disappointing in production.
+
+## Preparation Checklist
+
+Before analysis or modeling:
+
+- Problem is defined.
+- Target and prediction time are clear.
+- Data sources are documented.
+- Granularity is clear.
+- Schema is understood.
+- Split strategy matches the task.
+- Leakage risks are reviewed.
+- Privacy requirements are checked.
+
+Data preparation is not glamorous, but it decides whether the analysis can be trusted.

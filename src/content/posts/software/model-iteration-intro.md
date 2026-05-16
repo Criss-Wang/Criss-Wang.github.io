@@ -1,6 +1,6 @@
 ---
 title: "Model Iteration Series: Intro"
-excerpt: "An overview of industry-level model iteration procedure"
+excerpt: "A practical overview of how LLM model changes move from research validation to staging and production."
 date: 2024/06/01
 categories:
   - Software
@@ -12,103 +12,136 @@ mathjax: true
 toc: true
 ---
 
-## **Intro**
+## Intro
 
-After pausing the blog updates for a few months in order to fully focus on my LLM iteration work and my personal LLM project, I think it is about time to stop by and share my thoughts on an important topic for LLM - Model iteration.
+After a few months focused on LLM iteration work and a personal LLM project, I wanted to write down a practical workflow for model iteration. This series is about the engineering process around model changes: how a team evaluates them, integrates them, tests them, deploys them, and watches them after release.
 
-Model iteration refers to the update of models used in produciton-level services. When it comes to personal projects, model iteration can also be the attempt to include additional models into the pool of engines that supports the application logic. As we enter the era of AI boom, we are bound to be inundated by lots of new models, many claiming to be the SOTA and beating each other from time to time. Hence, rapid prototyping with the latest models become extremely important.
+In production systems, model iteration means updating the model, model provider, prompt, inference configuration, or serving path behind a product feature. In personal projects, it can be as simple as adding another model engine to the application. In both cases, the core challenge is the same: new models arrive quickly, but adopting them safely requires a repeatable process.
 
-Here I\'ll give a practical guide on model iteration process in tremendous depth based on my current experience with LLMs. It\'ll come in a series of blogs in Software Engineering sections, as it is more of an engineering architectural design rather than algorithmic details. This blog will just be an introductory guide, laying out the full pipeline step by step. For details on each step, stay tuned for future updates.
+This series focuses on LLM products. The details may differ for other ML systems, but the high-level workflow is still useful: validate the research, validate the infrastructure, test the full product path, then deploy with monitoring and rollback plans.
 
-<hr>
-
-## **Model Iteration Workflow**
+## Model Iteration Workflow
 
 <figure align="center">
-    <img src="//images/SWE/Model-Iteration-Flow.png" width="1200px">
+  <img src="/images/SWE/Model-Iteration-Flow.png" alt="Model iteration workflow across development, staging, and production" width="1200" />
 </figure>
 
-Like any SWE project's CICD, the entire iteration flow can be split into `Dev`/`Staging`/`Prod` sections. In **Development** section, engineers and scientists will collaborate to validate new models proposed, with a goal of satisfying the **CLASS** objective: _Cost, Latency, Accuracy, Security and Stability_. This entire process will include identifying the best model configurations, inference engines and optimizing the prompts for different tasks. Once these setups are finalized, we enter into the `Staging` section, where DevOp engineers or ML Infra engineers will be responsible for integration testing and E2E testing on various services, queries and tasks. More rigorous tests and more critical tests are required in this stage. Detailed reviews from leadership are also required to endorse the adoption of the model. Finally as we enter `prod` section for deployment, many operational tasks recently captured the attection of the LLM industry, and will be highlighted as we go through them in depth.
+Like a software CI/CD pipeline, a model iteration workflow can be split into three broad phases: **development**, **staging**, and **production**.
 
-For reference purpose, I\'ve drafted a simple workflow. You may use it at your discretion, and change any part as you deem necessary. In the upcoming sections, I will follow this chart and explain each component and their purposes.
+In **development**, data scientists, machine learning engineers, and infra engineers validate whether a proposed model change is worth moving forward. The goal is to satisfy the **CLASS** objective:
 
-<hr>
+- **Cost:** Can the system afford the change?
+- **Latency:** Can the user experience tolerate the change?
+- **Accuracy:** Does the change improve the task that matters?
+- **Security:** Does the change preserve product and data safety?
+- **Stability:** Does the change behave consistently enough for production?
 
-## **Development**
+In **staging**, the team prepares the full service path and runs deeper integration, end-to-end, security, and user-acceptance tests. This is where the model stops being a research artifact and starts behaving like part of the product.
 
-### **Model Investigation**
+In **production**, the team deploys gradually, monitors behavior, catches regressions, and prepares future training or evaluation data from observed failures.
+
+The rest of this post walks through each phase at a high level. The later posts in the series go deeper into [research validation](/writing/software/model-iteration-research-validation/) and [infra validation](/writing/software/model-iteration-infra/).
+
+## Development
+
+Development is where most model iteration ideas should either become stronger or die cheaply. The team should be able to answer whether the proposed change has enough evidence to justify infra, QA, and product testing.
+
+### Model Investigation
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_1.png" width="400px">
+  <img src="/images/SWE/model_iteration_1.png" alt="Model investigation stage" width="400" />
 </figure>
 
-To kickstart the process, data scientists and machine learning engineers in the team will keep themselves updated with the latest model progress in the field, and run model investigations periodically. This can come in the form of:
+The process usually begins with model investigation. Data scientists and machine learning engineers track new model releases, provider changes, architecture improvements, fine-tuning opportunities, quantization methods, and inference optimization options.
 
-1. Third Party API providers
-   This is often the most convenient and least secure option. Companies like [Together AI](https://www.together.xyz/), [Anyscale AI](https://www.anyscale.com/), [AWS Bedrock](https://aws.amazon.com/bedrock/), [Vertex AI](https://cloud.google.com/vertex-ai) often collaborate with model providers to offer the cheapest and most efficient inference options that beats many in-house models. Nonetheless, they often fall short when it comes to finetuned models.
-2. Finetuning Models
-   Finetuning models on production-level datasets are often the best options to improve model performance for specific services the company provides. However, this often requires much more dedicated efforts and costs a lot. Small startups may have less ability to conduct researches on a large scale over an extended period of time for any significant effects to be observed.
-3. Quantization and Inference Optimization
-   When it comes to in-house models serving with cloud GPU/in-house GPU servers, the right choice of model quantization, model architecture design and inference engine are of paramount importance. The ability to choose the most cost-effective options will save the company millions and even win more customers (via the latency reduction) over time.
+Common investigation paths include:
 
-<hr>
+1. **Third-party API providers:** Hosted providers are often the fastest path to a strong baseline. They can reduce setup time, but may introduce vendor dependency, privacy concerns, or long-term cost risk.
+2. **Fine-tuned models:** Fine-tuning can improve performance for a specific product task, but it requires high-quality data, careful evaluation, and more maintenance.
+3. **Quantization and inference optimization:** For in-house serving, the right quantization method, runtime, batching strategy, and inference engine can make a large difference in latency and cost.
 
-### **Model Configuration Optimization**
+The output of this stage should be a clear model-change proposal, not just an interesting experiment.
+
+### Model Configuration Optimization
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_2.png" width="250px">
+  <img src="/images/SWE/model_iteration_2.png" alt="Model configuration optimization stage" width="250" />
 </figure>
 
-Once ML/DS identified a new candidate model setup, they should immediately explore the right configurations for the setup, such as model temperature, maximum tokens and any pre/post-processing logic required. During the optimization process, two major tests are ran on some golden/sliver production-level datasets (golden: human-labeled, silver: AI-generated):
+Once the team has a candidate model setup, it should optimize the full inference configuration: model version, provider, prompt, temperature, maximum tokens, structured-output mode, streaming behavior, and any preprocessing or post-processing logic.
 
-- Accuracy Tests
-  The results generated from new model setup are evaluated against ground truth or baseline models (often the champion model in production). A configuration passes the tests only if it produces statistically significant improvement through A/B testing or some internal evaluation criteria. Some prompt engineering is required in this step during tests, but in my opinion, we should setup an automated prompt optimization step after all tests pass to further escalate the performance of the model. Based on past experiences, many attempts actually fail at stability tests or latency tests even with the optimized prompts.
-- Stability Tests
-  Stable results are often required in products and tasks like chatbot, classification model and data analysis. This is, however, a frequently ignored aspect for personal projects. Developers tend to encourage variations by not setting temperatures to a high value like `0.8` or `1`. There can be pros and cons in this side of story, but we will leave the discussion in the in-depth blogs.
+Two tests matter most at this stage:
 
-<hr>
+- **Accuracy tests:** Compare the candidate against ground truth or the current production baseline. A candidate should pass only if the improvement is meaningful for the product, not merely visible in a small sample.
+- **Stability tests:** Check whether similar inputs produce consistent outputs. This is especially important for classification, data analysis, chatbot workflows, and any product path where users expect predictable behavior.
 
-### **Moder Serving Tests**
+Prompt engineering often happens during this stage, but it should be disciplined. A prompt improvement that only works for a small handpicked set of examples can hide larger stability or latency issues.
+
+### Model Serving Tests
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_3.png" width="250px">
+  <img src="/images/SWE/model_iteration_3.png" alt="Model serving test stage" width="250" />
 </figure>
 
-Latency tests will start once the team finalize on the model configurations. This is the phase where ML Infra engineers will run load tests on various use cases and with varying input/output size. Usually it will be a systematic process and easily extensible.
+After the model configuration is stable enough, infra validation begins. ML infra engineers should test serving compatibility, load behavior, input/output-size sensitivity, failure modes, and cost impact.
 
-After the latency tests, the team should also consider the economic impact the model update will create. Usually it comes in the form of switching to cheaper vendor, reduced token usage, more efficient development cycle or model deals won due to better features.
+This is where latency and economic tradeoffs become concrete. The team should understand whether the model update reduces cost, increases cost, requires a new vendor, changes token usage, or demands a different serving stack.
 
-<hr>
-
-### **Prompt Optimization**
+### Prompt Optimization
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_4.png" width="200px">
+  <img src="/images/SWE/model_iteration_4.png" alt="Prompt optimization stage" width="200" />
 </figure>
 
-As a final step before staging, we try to further improve the prompts for the specific tasks the proposed model will work on. There are many ways this process can take place. We can setup a model-based optimizer, or improve the prompt via some UI-based prompt iteration strategy, or even come up with customized prompts with right in-context learning methods. We will go through this part with code afterwards.
+Before staging, the team can further optimize prompts for the tasks that the candidate model will handle. This may involve manual prompt review, UI-based prompt iteration, automated prompt search, or better in-context examples.
 
-<hr>
+The important principle is to optimize prompts after the team understands the model's baseline behavior. Otherwise, prompt changes and model changes become tangled, and it becomes difficult to know what actually improved the system.
 
-## **Staging**
+## Staging
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_5.png" width="300px">
+  <img src="/images/SWE/model_iteration_5.png" alt="Staging validation stage" width="300" />
 </figure>
 
-When it comes to UAT environment, the DevOps or ML Infra engineers need to get the full model setup ready, and update these info in the right DB/Cluster/LLM-gateway. Some additional configuration may also be needed for middlewares like streaming tools (e.g. Kafka) or caching (e.g Redis). Once the model is ready to be deployed on UAT environment, the engineers need to conduct end-to-end tests to ensure no security issues are found. This often happens at the request level, where guardrails take place at various checkpoints. Red teaming becomes important at this stage, and engineers may need to work with customer service engineers or product managers to detect additional model-specific loopholes. Any additional potential model/prompt/data drifts can also be identified during the tests to ensure model robustness. Therefore, data curation and engineering can play a critical role at this point. This will be a potential topic I\'ll share my experience on in the future as well.
+Staging is where the model setup is integrated into the full product environment. DevOps or ML infra engineers need to update the relevant database entries, clusters, model gateway, service configuration, cache behavior, streaming middleware, and routing logic.
 
-<hr>
+The staging phase should include:
 
-## **Production**
+- Integration tests across the services that call the model
+- End-to-end tests on realistic user workflows
+- Guardrail and security checks at the request and response level
+- Red-team or abuse-case testing when the product risk justifies it
+- Drift checks for model behavior, prompt behavior, and data distribution
+- Rollback and fallback validation
+
+This is also where product managers, customer-support engineers, or domain experts may notice loopholes that did not appear in research validation. Their feedback can become valuable evaluation data for later iterations.
+
+## Production
 
 <figure align="center">
-    <img src="//images/SWE/model_iteration_6.png" width="400px">
+  <img src="/images/SWE/model_iteration_6.png" alt="Production deployment and monitoring stage" width="400" />
 </figure>
 
-After the UAT tests are done and the model passes screening in staging environment, the code and the model are ready to be deployed. When it comes to deployment, there are two different strategies: static and dynamic. You can refer to my other post on ML deployment for more details. Otherwise, I would suggest starting with static deployment like canary deployment to iteratively route the requests to services utilizing the new model and observe its performance before full deployment. In the meantime, a complete stack of LLM performance monitoring + tracing + alert system should be setup. I I cannot stress more the importance of this part, and will definitely give a full guideline to this section in the future. One major point to mention here is that, once we have detected potential errors that cause any performance degradations, we need to carefully store these errors and augment them if possible. They will be used as valuable data points with negative labels for future finetuning and QA testing. The identified degradation will trigger model fallback or quickly roll back to MLE/DS for further prompt enhancement or configuratio adjustment.
+After staging approval, the model change can move to production. Deployment should usually be gradual. Static rollout strategies such as canary deployment are a good starting point because they let the team route a small portion of traffic to the new model, observe behavior, then expand or roll back.
 
-<hr>
-## **To be Continued...**
+Production also needs a complete monitoring stack:
 
-That wrappes up the first and the most important section of model iterations. Once we delve into details together with some coding exercises, we will find out how intricate the process can become, and there will be several major tradeoff you must make along the way. But before that, let\'s take a break, digest the content above well, and continue to build great products with great features.
+- Latency and error-rate dashboards
+- Cost and token-usage tracking
+- Model-output quality checks
+- Tracing across model calls and service dependencies
+- Alerts for degradation or abnormal behavior
+- Fallback paths when the candidate model fails
+
+When degradations happen, the team should preserve the failing inputs, outputs, traces, and labels. These failures become valuable data for future evaluation, fine-tuning, QA testing, and prompt improvement.
+
+## To Be Continued
+
+This wraps up the high-level map of model iteration. The process can look heavy at first, but the structure is what keeps model updates from becoming chaotic. Each stage answers a different question:
+
+- Research validation asks whether the idea is worth pursuing.
+- Infra validation asks whether the system can support it.
+- Staging asks whether the product path still works.
+- Production asks whether the change remains healthy under real traffic.
+
+The next posts go deeper into the first two stages: [validating model research](/writing/software/model-iteration-research-validation/) and [validating model infra](/writing/software/model-iteration-infra/).
