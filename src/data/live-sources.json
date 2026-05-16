@@ -1,0 +1,54 @@
+{
+  "publications": {
+    "Characterizing Out-of-Distribution Error via Optimal Transport": {
+      "semanticScholarId": "ARXIV:2305.15640"
+    },
+    "Predicting Out-of-Distribution Error with Confidence Optimal Transport": {
+      "semanticScholarId": "ARXIV:2302.05018"
+    },
+    "Best Arm Identification with Safety Constraints": {
+      "semanticScholarId": "ARXIV:2111.12151"
+    },
+    "Max-min Grouped Bandits": {
+      "semanticScholarId": "DOI:10.1609/aaai.v36i8.20838"
+    }
+  },
+  "repositories": {
+    "Needle: High-performance DL System": {
+      "owner": "Criss-Wang",
+      "repo": "needle"
+    },
+    "Motion Prediction with Guided Diffusion": {
+      "owner": "Criss-Wang",
+      "repo": "trajectory-diffusion"
+    },
+    "Starlink Tracking": {
+      "owner": "Criss-Wang",
+      "repo": "Satellite-Tracker"
+    },
+    "Travel Planner": {
+      "owner": "Criss-Wang",
+      "repo": "Travel-Planner"
+    },
+    "Twitch+": {
+      "owner": "Criss-Wang",
+      "repo": "twitch-plus"
+    },
+    "SmartMall Discounted Electronic Shopping": {
+      "owner": "Criss-Wang",
+      "repo": "Smart-Mall"
+    },
+    "Code Analyzer": {
+      "owner": "Criss-Wang",
+      "repo": "Code-Analyzer"
+    },
+    "CLI-nic": {
+      "owner": "AY2021S1-CS2103-W14-4",
+      "repo": "tp"
+    },
+    "MyPal": {
+      "owner": "Criss-Wang",
+      "repo": "MyPal-App"
+    }
+  }
+}

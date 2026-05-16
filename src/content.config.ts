@@ -26,4 +26,14 @@ const posts = defineCollection({
     .passthrough(),
 });
 
-export const collections = { posts };
+const reviewership = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/reviewership" }),
+  schema: z.object({
+    year: z.coerce.string(),
+    venue: z.string(),
+    order: z.number().optional(),
+    draft: z.boolean().optional(),
+  }),
+});
+
+export const collections = { posts, reviewership };

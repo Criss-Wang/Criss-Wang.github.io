@@ -2,62 +2,32 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
 
-const [local, domain] = profile.email.split("@");
+const findLink = (label: string) => profile.links.find((link) => link.label === label)?.href ?? "#";
+
+const contactRows = [
+  { label: "email", value: profile.email, href: `mailto:${profile.email}` },
+  { label: "github", value: "github.com/Criss-Wang", href: findLink("GitHub") },
+  { label: "linkedin", value: "linkedin.com/in/zhenlin-wang", href: findLink("LinkedIn") },
+  { label: "twitter", value: "twitter.com/CrissWang4", href: findLink("Twitter") },
+  { label: "scholar", value: "Google Scholar", href: findLink("Scholar") },
+];
 ---
 
 <BaseLayout title="Contact" description={`Contact ${profile.name}.`} section="contact">
-  <section class="page-head">
-    <div class="preheader">Contact</div>
-    <h1>Email is the <em>front door</em>.</h1>
-    <p class="lede">For research notes, project questions, paper pointers, and thoughtful technical conversations.</p>
-  </section>
-
-  <main class="container">
-    <section class="section">
-      <div class="section-head">
-        <div class="section-label"><span class="num">01</span>Email</div>
-        <h2>Best way to reach me</h2>
-      </div>
-      <div class="contact-row">
-        <div class="contact-label">address</div>
-        <div>
-          <p class="email-display">{local}<span>@</span>{domain}</p>
-          <button class="copy-btn" type="button" data-email={profile.email}>copy</button>
-        </div>
-      </div>
+  <main class="contact-page">
+    <section class="page-head contact-head">
+      <div class="preheader">Contact</div>
+      <h1>Reach out for <em>research</em>, projects, or notes.</h1>
+      <p class="lede">Paper pointers, project questions, corrections, and technical conversations are welcome.</p>
     </section>
 
-    <section class="section">
-      <div class="section-head">
-        <div class="section-label"><span class="num">02</span>Elsewhere</div>
-        <h2>Other channels</h2>
-      </div>
-      <ul class="inline-links">
-        {profile.links.filter((link) => link.label !== "Email").map((link) => <li><a href={link.href}>{link.label}</a></li>)}
-      </ul>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div class="section-label"><span class="num">03</span>Good fit</div>
-        <h2>Useful reasons to write</h2>
-      </div>
-      <ul class="drafts">
-        <li>Questions or corrections on the blog archive.</li>
-        <li>Research discussion around bandits, reinforcement learning, OOD detection, and ML systems.</li>
-        <li>Engineering conversations about production AI tools and model iteration.</li>
-      </ul>
+    <section class="contact-directory" aria-label="Contact links">
+      {contactRows.map((row) => (
+        <a class="contact-directory-row" href={row.href}>
+          <span>{row.label}</span>
+          <strong>{row.value}</strong>
+        </a>
+      ))}
     </section>
   </main>
-
-  <script is:inline>
-    document.querySelectorAll("[data-email]").forEach((button) => {
-      button.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(button.dataset.email);
-        const old = button.textContent;
-        button.textContent = "copied";
-        setTimeout(() => (button.textContent = old), 1400);
-      });
-    });
-  </script>
 </BaseLayout>

@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import Analytics from "../components/Analytics.astro";
 import "../styles/global.css";
 import { profile } from "../data/profile";
 
@@ -49,8 +50,9 @@ const fontUrl = postFonts
     <meta property="og:url" content={Astro.url.href} />
     <meta property="og:image" content={new URL("/images/bio-photo.png", Astro.site).href} />
     <meta name="twitter:card" content="summary_large_image" />
+    <Analytics />
   </head>
-  <body>
+  <body data-section={section}>
     <Header section={section} />
     <slot />
     <Footer section={section} />

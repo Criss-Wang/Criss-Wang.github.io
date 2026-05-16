@@ -1,10 +1,10 @@
 export const profile = {
   name: "Zhenlin Wang",
   displayName: "Zhenlin Wang (Criss)",
-  brand: "criss.wang",
-  glyph: "z",
+  brand: "zhenlin.wang",
+  glyph: "Z",
   domain: "criss-wang.com",
-  email: "zhenlinw@cs.cmu.edu",
+  email: "zhenlin.wang.criss@gmail.com",
   tagline:
     "Notes on machine learning systems, AI engineering, and the practical edge between research ideas and shipped software.",
   shortBio:
@@ -15,10 +15,10 @@ export const profile = {
     "Engineering is an integral part of my life. I built an event-driven signal generation system at J.P. Morgan Securities LLC for Agency RMBS trading using Python and C++. I also led the design, implementation, deployment, and monitoring of an ML-based price suggestion tool for eyos.one, an IT startup based in Singapore.",
   ],
   focus: [
-    "Performance optimization for deep learning systems",
-    "MLOps and model iteration for foundation models",
-    "Bandits, reinforcement learning, and Bayesian optimization",
-    "AI-powered software systems",
+    { label: "systems", detail: "Performance optimization for deep learning systems" },
+    { label: "mlops", detail: "MLOps and model iteration for foundation models" },
+    { label: "research", detail: "Bandits, reinforcement learning, and Bayesian optimization" },
+    { label: "software", detail: "AI-powered software systems" },
   ],
   background: [
     { when: "2023 - now", what: "Machine learning engineer", org: "AI / ML systems" },
@@ -31,6 +31,6 @@ export const profile = {
     { label: "Scholar", href: "https://scholar.google.com/citations?user=dbnNfj8AAAAJ" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/zhenlin-wang/" },
     { label: "Twitter", href: "https://twitter.com/CrissWang4" },
-    { label: "Email", href: "mailto:zhenlinw@cs.cmu.edu" },
+    { label: "Email", href: "mailto:zhenlin.wang.criss@gmail.com" },
   ],
 };

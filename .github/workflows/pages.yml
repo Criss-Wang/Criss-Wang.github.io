@@ -5,6 +5,10 @@ on:
     branches:
       - new_design
   workflow_dispatch:
+  # GitHub only runs scheduled workflows from the repository default branch.
+  # Set new_design as the default branch, or mirror this workflow there, for daily live-stat refreshes.
+  schedule:
+    - cron: "17 10 * * *"
 
 permissions:
   contents: write
@@ -25,7 +29,14 @@ jobs:
           corepack enable
           corepack prepare pnpm@10 --activate
           pnpm install --no-frozen-lockfile
+      - name: Refresh live stats
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
+        run: pnpm run refresh:stats
       - name: Build
+        env:
+          PUBLIC_CF_WEB_ANALYTICS_TOKEN: ${{ secrets.CF_WEB_ANALYTICS_TOKEN }}
         run: pnpm run build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

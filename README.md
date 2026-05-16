@@ -20,3 +20,14 @@ Markdown posts keep YAML front matter for `title`, `date`, `updated`, `categorie
 ## Prod
 
 - `npm run build`
+
+## Analytics
+
+Production analytics are wired for Cloudflare Web Analytics, but disabled unless a token is provided at build time.
+
+1. In Cloudflare, add Web Analytics for `criss-wang.com`.
+2. Copy only the beacon token from the Cloudflare snippet.
+3. In GitHub, add an Actions secret named `CF_WEB_ANALYTICS_TOKEN`.
+4. Push or manually rerun the Pages workflow.
+
+The deployed site will then record page-level traffic, including individual post URLs under `/writing/...`. Local development and builds without the secret do not emit the analytics script.

@@ -16,7 +16,8 @@ export const publications = [
   },
   {
     year: "2023",
-    venue: "ICLR Workshop",
+    venue: "ICLR",
+    track: "workshop",
     title: "Predicting Out-of-Distribution Error with Confidence Optimal Transport",
     authors:
       "Yuzhe Lu, Zhenlin Wang, Runtian Zhai, Soheil Kolouri, Joseph Campbell, Katia Sycara",

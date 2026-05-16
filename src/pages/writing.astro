@@ -4,13 +4,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { excerptFor, formatDate, postCategories, postDate, postTags, postUrl, readingMinutes, searchText, sortPosts } from "../lib/posts";
 
 const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft));
-const grouped = posts.reduce<Record<string, typeof posts>>((groups, post) => {
-  const year = String(postDate(post).getUTCFullYear());
-  groups[year] ||= [];
-  groups[year].push(post);
-  return groups;
-}, {});
-const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 ---
 
 <BaseLayout title="Writing" description="A searchable archive of all Markdown posts by Zhenlin Wang." section="writing">
@@ -33,29 +26,29 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
   </div>
 
   <main id="postList">
-    {years.map((year) => (
-      <section class="year-group" data-year={year}>
-        <div class="year-head">
-          <h2>{year}</h2>
+    {posts.map((post) => (
+      <article
+        class="post-card"
+        data-href={postUrl(post)}
+        data-search={searchText(post)}
+        role="link"
+        tabindex="0"
+        aria-label={`Read ${post.data.title}`}
+      >
+        <div class="post-meta">
+          <div>{formatDate(postDate(post))}</div>
+          <div>{readingMinutes(post.body)} min</div>
         </div>
-        {grouped[year].map((post) => (
-          <article class="post-card" data-search={searchText(post)}>
-            <div class="post-meta">
-              <div>{formatDate(postDate(post))}</div>
-              <div>{readingMinutes(post.body)} min</div>
-            </div>
-            <div>
-              <h2><a href={postUrl(post)}>{post.data.title}</a></h2>
-              <p>{excerptFor(post)}</p>
-              <div class="tag-list">
-                {[...postCategories(post), ...postTags(post)].slice(0, 6).map((tag) => (
-                  <button type="button" data-tag={tag}>{tag}</button>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
+        <div>
+          <h2><a href={postUrl(post)}>{post.data.title}</a></h2>
+          <p>{excerptFor(post)}</p>
+          <div class="tag-list">
+            {[...postCategories(post), ...postTags(post)].slice(0, 6).map((tag) => (
+              <button type="button" data-tag={tag}>{tag}</button>
+            ))}
+          </div>
+        </div>
+      </article>
     ))}
   </main>
 
@@ -67,14 +60,13 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 
   <script is:inline>
     (function () {
-      const pageSize = 5;
+      const pageSize = 8;
       const input = document.getElementById("search");
       const wrap = document.getElementById("searchWrap");
       const clear = document.getElementById("clearSearch");
       const count = document.getElementById("archiveCount");
       const list = document.getElementById("postList");
       const posts = Array.from(document.querySelectorAll(".post-card"));
-      const groups = Array.from(document.querySelectorAll(".year-group"));
       const prev = document.getElementById("prevPage");
       const next = document.getElementById("nextPage");
       const status = document.getElementById("pageStatus");
@@ -97,9 +89,6 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
 
         posts.forEach((post) => {
           post.hidden = !visible.has(post);
-        });
-        groups.forEach((group) => {
-          group.hidden = !Array.from(group.querySelectorAll(".post-card")).some((post) => !post.hidden);
         });
         wrap.classList.toggle("has-value", query.length > 0);
         count.textContent = query ? `${filtered.length} of ${posts.length} matching "${query}"` : `${posts.length} posts`;
@@ -128,6 +117,22 @@ const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
           setQuery(button.dataset.tag || "");
           input.focus();
           list.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+      posts.forEach((post) => {
+        const go = () => {
+          const href = post.dataset.href;
+          if (href) window.location.href = href;
+        };
+        post.addEventListener("click", (event) => {
+          if (event.target.closest("a, button, input, textarea, select")) return;
+          go();
+        });
+        post.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          if (event.target.closest("a, button, input, textarea, select")) return;
+          event.preventDefault();
+          go();
         });
       });
       prev.addEventListener("click", () => {

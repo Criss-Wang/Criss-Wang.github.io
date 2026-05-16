@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-05-15T00:27:17.273Z",
+  "publications": {
+    "Characterizing Out-of-Distribution Error via Optimal Transport": {
+      "citationCount": 20,
+      "source": "Semantic Scholar",
+      "sourceTitle": "Characterizing Out-of-Distribution Error via Optimal Transport",
+      "externalIds": {
+        "DBLP": "conf/nips/LuQZSCWKSCS23",
+        "ArXiv": "2305.15640",
+        "DOI": "10.48550/arXiv.2305.15640",
+        "CorpusId": 258887841
+      }
+    },
+    "Predicting Out-of-Distribution Error with Confidence Optimal Transport": {
+      "citationCount": 14,
+      "source": "Semantic Scholar",
+      "sourceTitle": "Predicting Out-of-Distribution Error with Confidence Optimal Transport",
+      "externalIds": {
+        "ArXiv": "2302.05018",
+        "DBLP": "journals/corr/abs-2302-05018",
+        "DOI": "10.48550/arXiv.2302.05018",
+        "CorpusId": 256808573
+      }
+    },
+    "Best Arm Identification with Safety Constraints": {
+      "citationCount": 25,
+      "source": "Semantic Scholar",
+      "sourceTitle": "Best Arm Identification with Safety Constraints",
+      "externalIds": {
+        "DBLP": "journals/corr/abs-2111-12151",
+        "ArXiv": "2111.12151",
+        "CorpusId": 244527619
+      }
+    },
+    "Max-min Grouped Bandits": {
+      "citationCount": 6,
+      "source": "Semantic Scholar",
+      "sourceTitle": "Max-Min Grouped Bandits",
+      "externalIds": {
+        "DBLP": "journals/corr/abs-2111-08862",
+        "ArXiv": "2111.08862",
+        "DOI": "10.1609/aaai.v36i8.20838",
+        "CorpusId": 244269965
+      }
+    }
+  },
+  "repositories": {
+    "Needle: High-performance DL System": {
+      "name": "needle",
+      "fullName": "Criss-Wang/needle",
+      "url": "https://github.com/Criss-Wang/needle",
+      "stars": 0,
+      "forks": 1,
+      "commits": 27,
+      "pushedAt": "2023-12-13T04:08:54Z",
+      "updatedAt": "2023-11-24T05:02:49Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Motion Prediction with Guided Diffusion": {
+      "name": "trajectory-diffusion",
+      "fullName": "Criss-Wang/trajectory-diffusion",
+      "url": "https://github.com/Criss-Wang/trajectory-diffusion",
+      "stars": 0,
+      "forks": 0,
+      "commits": 2,
+      "pushedAt": "2023-04-29T01:54:37Z",
+      "updatedAt": "2023-10-07T21:47:55Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Starlink Tracking": {
+      "name": "Satellite-Tracker",
+      "fullName": "Criss-Wang/Satellite-Tracker",
+      "url": "https://github.com/Criss-Wang/Satellite-Tracker",
+      "stars": 0,
+      "forks": 0,
+      "commits": 7,
+      "pushedAt": "2022-12-01T02:40:18Z",
+      "updatedAt": "2022-12-01T02:30:58Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Travel Planner": {
+      "name": "Travel-Planner",
+      "fullName": "Criss-Wang/Travel-Planner",
+      "url": "https://github.com/Criss-Wang/Travel-Planner",
+      "stars": 0,
+      "forks": 0,
+      "commits": null,
+      "pushedAt": "2023-01-02T23:12:57Z",
+      "updatedAt": "2023-01-02T23:12:56Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Twitch+": {
+      "name": "twitch-plus",
+      "fullName": "Criss-Wang/twitch-plus",
+      "url": "https://github.com/Criss-Wang/twitch-plus",
+      "stars": 0,
+      "forks": 0,
+      "commits": 14,
+      "pushedAt": "2023-02-18T05:35:49Z",
+      "updatedAt": "2023-02-18T05:37:18Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "SmartMall Discounted Electronic Shopping": {
+      "name": "Smart-Mall",
+      "fullName": "Criss-Wang/Smart-Mall",
+      "url": "https://github.com/Criss-Wang/Smart-Mall",
+      "stars": 0,
+      "forks": 0,
+      "commits": 16,
+      "pushedAt": "2023-10-06T17:34:20Z",
+      "updatedAt": "2023-10-06T01:41:40Z",
+      "defaultBranch": "main",
+      "source": "GitHub"
+    },
+    "Code Analyzer": {
+      "name": "Code-Analyzer",
+      "fullName": "Criss-Wang/Code-Analyzer",
+      "url": "https://github.com/Criss-Wang/Code-Analyzer",
+      "stars": 0,
+      "forks": 0,
+      "commits": 881,
+      "pushedAt": "2023-09-02T23:35:43Z",
+      "updatedAt": "2022-12-02T12:27:36Z",
+      "defaultBranch": "master",
+      "source": "GitHub"
+    },
+    "CLI-nic": {
+      "name": "tp",
+      "fullName": "AY2021S1-CS2103-W14-4/tp",
+      "url": "https://github.com/AY2021S1-CS2103-W14-4/tp",
+      "stars": 0,
+      "forks": 4,
+      "commits": 2424,
+      "pushedAt": "2020-11-09T13:50:43Z",
+      "updatedAt": "2020-11-09T11:57:44Z",
+      "defaultBranch": "master",
+      "source": "GitHub"
+    },
+    "MyPal": {
+      "name": "MyPal-App",
+      "fullName": "Criss-Wang/MyPal-App",
+      "url": "https://github.com/Criss-Wang/MyPal-App",
+      "stars": 0,
+      "forks": 0,
+      "commits": 33,
+      "pushedAt": "2023-03-02T16:07:58Z",
+      "updatedAt": "2022-12-03T15:25:44Z",
+      "defaultBranch": "master",
+      "source": "GitHub"
+    }
+  }
+}

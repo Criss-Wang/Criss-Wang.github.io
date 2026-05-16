@@ -1,0 +1,13 @@
+---
+const cloudflareToken = import.meta.env.PUBLIC_CF_WEB_ANALYTICS_TOKEN;
+---
+
+{
+  cloudflareToken && (
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: cloudflareToken })}
+    />
+  )
+}

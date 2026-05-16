@@ -1,51 +1,95 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
 import { publications, scholarProfileUrl } from "../data/publications";
 
-const grouped = publications.reduce<Record<string, typeof publications>>((groups, pub) => {
-  groups[pub.year] ||= [];
-  groups[pub.year].push(pub);
-  return groups;
-}, {});
-const years = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+const sortedPublications = [...publications].sort((a, b) => Number(b.year) - Number(a.year));
+const authorParts = (authors: string) => authors.split(profile.name);
+const publicationGroups = sortedPublications.reduce(
+  (groups, pub) => {
+    const group = groups.find((item) => item.year === pub.year);
+    if (group) {
+      group.items.push(pub);
+    } else {
+      groups.push({ year: pub.year, items: [pub] });
+    }
+    return groups;
+  },
+  [] as Array<{ year: string; items: typeof sortedPublications }>,
+);
+const reviewership = (await getCollection("reviewership", ({ data }) => !data.draft)).sort((a, b) => {
+  const yearDiff = Number(b.data.year) - Number(a.data.year);
+  if (yearDiff !== 0) return yearDiff;
+
+  const orderDiff = (a.data.order ?? 999) - (b.data.order ?? 999);
+  if (orderDiff !== 0) return orderDiff;
+
+  return a.data.venue.localeCompare(b.data.venue);
+});
 ---
 
-<BaseLayout title="Publications" description="Selected publications and research artifacts by Zhenlin Wang." section="publications">
+<BaseLayout title="Research" description="Research and publications by Zhenlin Wang." section="publications">
   <section class="page-head">
-    <div class="preheader">Publications · selected</div>
-    <h1>Papers on machine learning, <em>bandits</em>, and robustness.</h1>
+    <div class="preheader">Research</div>
+    <h1>Research on machine learning, <em>bandits</em>, and robustness.</h1>
     <p class="lede">
-      Conference papers, workshop papers, and research artifacts from CMU, NUS, and related collaborations.
-      <a href={scholarProfileUrl}>Google Scholar -></a>
+      Publications and paper reviews across applied ML systems, out-of-distribution detection, bandits, and optimization.
+      <a href={scholarProfileUrl}>google scholar -></a>
     </p>
   </section>
 
-  <main>
-    {years.map((year) => (
-      <section class="section">
-        <div class="section-head">
-          <div class="label">{grouped[year][0].venue.includes("Workshop") ? "workshop" : "research"}</div>
-          <h2>{year}</h2>
-        </div>
-        <div class="section-body">
-          {grouped[year].map((pub) => (
-            <article class="paper">
-              <div><span class:list={["venue", pub.venue.toLowerCase().includes("workshop") && "workshop"]}>{pub.venue}</span></div>
-              <div>
-                <h3>{pub.title}</h3>
-                <p class="meta">{pub.authors}</p>
-                <div class="actions">
-                  {pub.links.map((link) => <a href={link.href}>{link.label}</a>)}
-                  <a href={pub.scholarUrl}>scholar</a>
-                  {pub.citationCount !== null && (
-                    <a class="cites" href={pub.scholarUrl}><strong>{pub.citationCount}</strong> cited</a>
-                  )}
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    ))}
+  <main class="research-page">
+    <section class="section research-section">
+      <div class="section-head research-section-head">
+        <div class="section-label"><span class="num">01</span>Publications</div>
+      </div>
+      <div class="section-body publication-year-list">
+        {publicationGroups.map((group) => (
+          <section class="publication-year-group" aria-label={`${group.year} publications`}>
+            <h2>{group.year}</h2>
+            <div class="publication-year-papers">
+              {group.items.map((pub) => (
+                <article class="paper">
+                  <div class="venue-block">
+                    <span class:list={["venue", (pub.track === "workshop" || pub.venue.toLowerCase().includes("workshop")) && "workshop"]}>{pub.venue}</span>
+                    <span class="paper-year">{pub.track ?? "main"}</span>
+                  </div>
+                  <div>
+                    <h3>{pub.title}</h3>
+                    <p class="meta">
+                      {authorParts(pub.authors).map((part, index) => (
+                        <>
+                          {index > 0 && <strong>{profile.name}</strong>}
+                          {part}
+                        </>
+                      ))}
+                    </p>
+                    <div class="actions">
+                      {pub.links.map((link) => <a href={link.href}>{link.label}</a>)}
+                      <a href={pub.scholarUrl}>scholar</a>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
+
+    <section class="section research-section reviewership-section">
+      <div class="section-head research-section-head">
+        <div class="section-label"><span class="num">02</span>Reviewership</div>
+      </div>
+      <div class="section-body reviewership-list">
+        {reviewership.map((item) => (
+          <article class="review-line">
+            <span class="review-year">{item.data.year}</span>
+            <span class="review-conference">{item.data.venue}</span>
+          </article>
+        ))}
+      </div>
+    </section>
   </main>
 </BaseLayout>

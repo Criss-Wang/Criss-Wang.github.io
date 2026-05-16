@@ -1,9 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
-
-const emailLink = profile.links.find((link) => link.label === "Email");
-const socialLinks = profile.links.filter((link) => link.label !== "Email");
 ---
 
 <BaseLayout title="About" description={profile.shortBio} section="about">
@@ -30,28 +27,10 @@ const socialLinks = profile.links.filter((link) => link.label !== "Email");
       <h2>Focus</h2>
       {profile.focus.map((item) => (
         <div class="timeline-row">
-          <span class="when">topic</span>
-          <span class="what">{item}</span>
+          <span class="when">{item.label}</span>
+          <span class="what">{item.detail}</span>
         </div>
       ))}
-    </section>
-
-    <section class="block">
-      <h2>Elsewhere</h2>
-      <dl class="elsewhere">
-        {emailLink && (
-          <>
-            <dt>email</dt>
-            <dd><a href={emailLink.href}>{profile.email}</a></dd>
-          </>
-        )}
-        {socialLinks.map((link) => (
-          <>
-            <dt>{link.label}</dt>
-            <dd><a href={link.href}>{link.href.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></dd>
-          </>
-        ))}
-      </dl>
     </section>
   </main>
 </BaseLayout>

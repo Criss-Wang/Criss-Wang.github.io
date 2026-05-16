@@ -10,18 +10,21 @@ const { section = "home" } = Astro.props;
 const links = [
   { href: "/about/", label: "about", section: "about" },
   { href: "/writing/", label: "writing", section: "writing" },
-  { href: "/publications/", label: "publications", section: "publications" },
+  { href: "/publications/", label: "research", section: "publications" },
   { href: "/projects/", label: "projects", section: "projects" },
   { href: "/contact/", label: "contact", section: "contact" },
 ];
-const subtitle = section === "home" ? "/now" : `/${section}`;
+const subtitle = section === "home" ? "/now" : section === "publications" ? "/research" : `/${section}`;
 ---
 
 <header class="nav">
   <div class="nav-inner">
     <a href="/" class="brand" aria-label={`${profile.brand} index page`}>
       <span class="glyph" aria-hidden="true">{profile.glyph}</span>
-      <span>{profile.brand} <small>· {subtitle}</small></span>
+      <span class="brand-copy">
+        <span class="brand-name">{profile.brand}</span>
+        <small class="brand-path">· {subtitle}</small>
+      </span>
     </a>
     <ul aria-label="Primary navigation">
       {links.map((link) => (

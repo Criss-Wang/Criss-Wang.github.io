@@ -2,9 +2,13 @@
 Thumbs.db
 db.json
 *.log
+.env
+.env.local
+.env.*.local
 node_modules/
 dist/
 .astro/
+ux-review-screenshots/
 .deploy*/
 _multiconfig.yml
 *.txt

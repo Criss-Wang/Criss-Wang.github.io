@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "refresh:stats": "node scripts/refresh-live-stats.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "clean": "rm -rf dist .astro"

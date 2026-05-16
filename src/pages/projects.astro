@@ -1,75 +1,126 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { excerptFor, isProjectPost, postDate, postTags, postUrl, sortPosts } from "../lib/posts";
+import { homeProjectMeta } from "../data/home";
+import liveStatsJson from "../data/live-stats.json";
+import { excerptFor, isProjectPost, postCategories, postUrl, sortPosts } from "../lib/posts";
 
 const posts = sortPosts(await getCollection("posts", ({ data }) => !data.draft)).filter(isProjectPost);
-const recent = posts.slice(0, Math.ceil(posts.length / 2));
-const older = posts.slice(Math.ceil(posts.length / 2));
-const displayDate = (date: Date) => {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${year}·${month}·${day}`;
+const projectMeta = (title: string) => homeProjectMeta[title] ?? { status: "archived" as const };
+const techTags = (post: (typeof posts)[number], meta = projectMeta(post.data.title)) =>
+  (meta.featuredTags ?? postCategories(post))
+    .filter((tag) => tag.toLowerCase() !== "projects")
+    .slice(0, 3);
+const liveStats = liveStatsJson as {
+  repositories: Record<
+    string,
+    {
+      name?: string;
+      url?: string;
+      stars?: number;
+      commits?: number | null;
+      pushedAt?: string;
+      source?: string;
+    }
+  >;
 };
+const repoAge = (pushedAt?: string) => {
+  if (!pushedAt) return null;
+  const pushed = new Date(pushedAt);
+  const now = new Date();
+  const months =
+    (now.getUTCFullYear() - pushed.getUTCFullYear()) * 12 + now.getUTCMonth() - pushed.getUTCMonth();
+  if (months < 12) return `${Math.max(1, months)}mo`;
+  return `${Math.max(1, Math.floor(months / 12))}y`;
+};
+const actionLinks = (
+  meta: ReturnType<typeof projectMeta>,
+  repoUrl?: string,
+) => {
+  const links = [...(meta.links ?? [])];
+  if (repoUrl && !links.some((link) => link.href === repoUrl || link.label === "code")) {
+    links.unshift({ label: "code", href: repoUrl });
+  }
+  return links;
+};
+const projectImage = (link?: string) => {
+  if (!link) return null;
+  return link.startsWith("//images/") ? link.replace(/^\/\//, "/") : link;
+};
+const projectSections = [
+  { number: "01", status: "active", label: "active" },
+  { number: "02", status: "wip", label: "wip" },
+  { number: "03", status: "archived", label: "archived" },
+] as const;
 ---
 
 <BaseLayout title="Projects" description="Project writeups by Zhenlin Wang." section="projects">
-  <section class="page-head">
-    <div class="preheader">Projects · archive</div>
+  <section class="page-head projects-page-head">
+    <div class="preheader">Projects · collection</div>
     <h1>Things I have <em>built</em> and written up.</h1>
     <p class="lede"><a href="https://github.com/Criss-Wang/">GitHub -></a></p>
   </section>
 
-  <main>
-    <section class="section">
-      <div class="section-head">
-        <div class="label"><span class="num">01</span>Recent</div>
-        <h2>Project writeups</h2>
-      </div>
-      <div class="section-body">
-        {recent.map((post, index) => (
-          <a class:list={["project-rowline", index === 0 && "featured"]} href={postUrl(post)}>
-            <div class="left">
-              <div class="name">{post.data.title}</div>
-              <div class="status">writeup · {displayDate(postDate(post))}</div>
-            </div>
-            <div>
-              <p class="desc">{excerptFor(post)}</p>
-              <div class="links">
-                <span>read -></span>
-                {postTags(post).slice(0, 3).map((tag) => <span>{tag}</span>)}
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
+  <main class="home-main projects-page-main">
+    {projectSections.map((section) => {
+      const sectionPosts = posts.filter((post) => projectMeta(post.data.title).status === section.status);
+      if (sectionPosts.length === 0) return null;
 
-    {older.length > 0 && (
-      <section class="section">
-        <div class="section-head">
-          <div class="label"><span class="num">02</span>Older</div>
-          <h2>Maintained archive</h2>
-        </div>
-        <div class="section-body">
-          {older.map((post) => (
-            <a class="project-rowline" href={postUrl(post)}>
-              <div class="left">
-                <div class="name">{post.data.title}</div>
-                <div class="status archived">archived · {displayDate(postDate(post))}</div>
-              </div>
-              <div>
-                <p class="desc">{excerptFor(post)}</p>
-                <div class="links">
-                  <span>read -></span>
-                  {postTags(post).slice(0, 3).map((tag) => <span>{tag}</span>)}
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
+      return (
+        <section class="home-section projects-section projects-page-section">
+          <div class="home-section-head compact-section-head project-status-head">
+            <div class="section-kicker"><span>{section.number}</span>{section.label}</div>
+          </div>
+
+          <div class="project-archive-list">
+            {sectionPosts.map((post) => {
+              const meta = projectMeta(post.data.title);
+              const repoStats = liveStats.repositories[post.data.title];
+              const age = repoAge(repoStats?.pushedAt ?? meta.pushedAt);
+              const stars = repoStats?.stars ?? meta.stars;
+              const commits = repoStats?.commits;
+              const repoUrl = repoStats?.url ?? meta.repoUrl;
+              const repoTitle = repoStats?.name ?? meta.repoTitle ?? post.data.title;
+              const image = projectImage(post.data.link);
+              return (
+                <article class="project-archive-row">
+                  <div class="project-archive-meta">
+                    <h2>
+                      {repoUrl ? <a href={repoUrl}>{repoTitle}</a> : repoTitle}
+                    </h2>
+                    <div class="tags">
+                      {techTags(post, meta).map((tag) => <span>{tag}</span>)}
+                    </div>
+                    {(typeof stars === "number" || typeof commits === "number" || age) && (
+                      <div class="project-repo-stat" title={`Repo stats refreshed from ${repoStats?.source ?? "local data"}`}>
+                        {typeof stars === "number" && <span>★ {stars}</span>}
+                        {typeof stars === "number" && (typeof commits === "number" || age) && <span>·</span>}
+                        {typeof commits === "number" && <span>{commits} commits</span>}
+                        {typeof commits === "number" && age && <span>·</span>}
+                        {age && <span>◷ {age}</span>}
+                      </div>
+                    )}
+                  </div>
+                  <div class="project-archive-copy">
+                    <p>{excerptFor(post)}</p>
+                    <div class="links">
+                      <a href={postUrl(post)}>read</a>
+                      {actionLinks(meta, repoUrl).map((link) => <a href={link.href}>{link.label}</a>)}
+                    </div>
+                  </div>
+                  <a class="project-archive-visual" href={postUrl(post)} aria-label={`Open ${post.data.title}`}>
+                    {image ? (
+                      <img src={image} alt="" loading="lazy" />
+                    ) : (
+                      <span>{repoTitle}</span>
+                    )}
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      );
+    })}
   </main>
 </BaseLayout>
