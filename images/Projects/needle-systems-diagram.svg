@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Needle autograd and CUDA preview</title>
+  <desc id="desc">A clean dark preview with an autograd graph connected to CPU and CUDA backend chips.</desc>
+  <defs>
+    <style>
+      .bg{fill:#111b24}.ink{fill:#edf4f1;font:800 62px ui-monospace,SFMono-Regular,Menlo,monospace}.small{fill:#a8b6bc;font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace}.label{fill:#edf4f1;font:800 34px ui-monospace,SFMono-Regular,Menlo,monospace}.card{fill:#182630;stroke:#334754;stroke-width:3}.chip{fill:#20313b;stroke:#57717d;stroke-width:3}.node{fill:#111b24;stroke:#d08a55;stroke-width:6}.drop{fill:#111b24;stroke:#80aebe;stroke-width:6}.edge{fill:none;stroke:#90a878;stroke-width:5;stroke-linecap:round}.ghost{fill:none;stroke:#5b6e78;stroke-width:4;stroke-dasharray:12 12}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text class="ink" x="72" y="105">Needle</text>
+  <text class="small" x="78" y="146">autograd + native tensor backends</text>
+
+  <rect class="card" x="70" y="220" width="294" height="288" rx="20"/>
+  <text class="label" x="116" y="292">Tensor</text>
+  <text class="label" x="116" y="356">ops</text>
+  <text class="label" x="116" y="420">nn</text>
+
+  <g transform="translate(465 170)">
+    <circle class="node" cx="110" cy="80" r="30"/>
+    <circle class="drop" cx="220" cy="80" r="30"/>
+    <circle class="node" cx="330" cy="80" r="30"/>
+    <circle class="drop" cx="165" cy="205" r="30"/>
+    <circle class="node" cx="275" cy="205" r="30"/>
+    <circle class="drop" cx="220" cy="330" r="34"/>
+    <path class="edge" d="M133 101 154 177M220 112 178 180M244 101 264 177M313 105 288 178M178 232 208 300M262 232 232 300"/>
+    <path class="ghost" d="M80 392H360"/>
+    <text class="small" x="78" y="438">checkpoint graph</text>
+  </g>
+
+  <rect class="card" x="844" y="220" width="286" height="288" rx="20"/>
+  <rect class="chip" x="886" y="272" width="198" height="58" rx="12"/>
+  <text class="label" x="928" y="312">CPU</text>
+  <rect class="chip" x="886" y="376" width="198" height="58" rx="12"/>
+  <text class="label" x="918" y="416">CUDA</text>
+  <text class="small" x="862" y="553">drop, recompute, train larger</text>
+</svg>

@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Fine-tuning in LLM - Zhenlin Wang</title><meta name="description" content="Draft notes on LoRA, prompt tuning, adapter tuning, RLHF, and DPO."><meta property="og:title" content="Fine-tuning in LLM - Zhenlin Wang"><meta property="og:description" content="Draft notes on LoRA, prompt tuning, adapter tuning, RLHF, and DPO."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/temp/fine-tuning-in-llm/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Fine-Tuning in LLMs - Zhenlin Wang</title><meta name="description" content="A practical overview of supervised fine-tuning, LoRA, prompt tuning, adapters, RLHF, DPO, data quality, and evaluation for large language models."><meta property="og:title" content="Fine-Tuning in LLMs - Zhenlin Wang"><meta property="og:description" content="A practical overview of supervised fine-tuning, LoRA, prompt tuning, adapters, RLHF, DPO, data quality, and evaluation for large language models."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/temp/fine-tuning-in-llm/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,9 +29,125 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Draft Notes · LLM · Fine-tuning</div> <h1>Fine-tuning <em>in</em> LLM</h1> <p class="dek">Draft notes on LoRA, prompt tuning, adapter tuning, RLHF, and DPO.</p> <div class="byline"> <strong>2024.02.19</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>LoRA
-Soft Prompt Tuning
-Prefix Tuning
-Adapter
-RLHF
-DPO</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/project-considerations/"> <span class="dir">← previous</span> <span class="title">Starting your AI/ML Project: from research to engineering</span> </a> <a class="next" href="/writing/blogs/mlops/ml-training/"> <span class="dir">next →</span> <span class="title">DL Training: An in-depth discussion</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Draft Notes · LLM · Fine-tuning</div> <h1>Fine-Tuning <em>in</em> LLMs</h1> <p class="dek">A practical overview of supervised fine-tuning, LoRA, prompt tuning, adapters, RLHF, DPO, data quality, and evaluation for large language models.</p> <div class="byline"> <strong>2024.02.19</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Fine-tuning adapts a pretrained language model to a more specific task, behavior, style, or domain. It is not always necessary. Many problems are better solved with prompting, retrieval, tools, or product design.</p>
+<p>Fine-tune when you need:</p>
+<ul>
+<li>Consistent output format.</li>
+<li>Domain-specific style.</li>
+<li>Task behavior that examples cannot reliably induce.</li>
+<li>Lower latency or smaller prompts.</li>
+<li>A model that performs well on repeated, narrow workflows.</li>
+</ul>
+<p>Do not fine-tune to teach the model large amounts of changing factual knowledge. Retrieval is usually a better fit for that.</p>
+<h2 id="main-approaches">Main Approaches</h2>
+<h3 id="supervised-fine-tuning">Supervised Fine-Tuning</h3>
+<p>Supervised fine-tuning (SFT) trains the model on input-output examples.</p>
+<p>Use it for:</p>
+<ul>
+<li>Classification phrased as generation.</li>
+<li>Structured extraction.</li>
+<li>Customer support response style.</li>
+<li>Domain-specific summarization.</li>
+<li>Tool-call formatting.</li>
+<li>Instruction following in a narrow domain.</li>
+</ul>
+<p>The dataset matters more than the training trick. A few thousand clean examples can beat a much larger noisy dataset.</p>
+<h3 id="lora-and-qlora">LoRA and QLoRA</h3>
+<p>LoRA trains small low-rank adapter matrices while keeping most base-model weights frozen. It is popular because it reduces memory and makes multiple task adapters easier to manage.</p>
+<p>QLoRA goes further by loading the base model in low-bit precision, commonly 4-bit, while training adapters. This can make fine-tuning feasible on much smaller hardware.</p>
+<p>Use LoRA or QLoRA when:</p>
+<ul>
+<li>You want cheaper fine-tuning.</li>
+<li>You need multiple task-specific variants.</li>
+<li>You do not want to store a full copy of every model.</li>
+<li>You can accept adapter-based deployment complexity.</li>
+</ul>
+<h3 id="prompt-tuning-and-prefix-tuning">Prompt Tuning and Prefix Tuning</h3>
+<p>Prompt tuning trains a small set of continuous prompt embeddings. Prefix tuning trains learned prefix states that steer the model.</p>
+<p>These methods are parameter-efficient, but they can be less intuitive to debug than LoRA or supervised fine-tuning. They are useful when the base model should remain frozen and the task is narrow.</p>
+<h3 id="adapters">Adapters</h3>
+<p>Adapters insert small trainable modules inside the model. Like LoRA, they keep most pretrained weights frozen.</p>
+<p>Adapters are useful when:</p>
+<ul>
+<li>Multiple tasks share one base model.</li>
+<li>You want modular task-specific behavior.</li>
+<li>Full fine-tuning is too expensive.</li>
+</ul>
+<h2 id="preference-optimization">Preference Optimization</h2>
+<p>Instruction models often need preference data, not just correct answers.</p>
+<h3 id="rlhf">RLHF</h3>
+<p>Reinforcement learning from human feedback (RLHF) typically trains a reward model from preference comparisons, then optimizes the policy model against that reward model.</p>
+<p>It can improve helpfulness and alignment, but it is operationally complex:</p>
+<ul>
+<li>Human preference collection is expensive.</li>
+<li>Reward models can be gamed.</li>
+<li>Training can be unstable.</li>
+<li>Evaluation must include safety and quality review.</li>
+</ul>
+<h3 id="dpo">DPO</h3>
+<p>Direct Preference Optimization (DPO) optimizes directly from preference pairs without training a separate reward model in the classic RLHF style.</p>
+<p>It is often simpler to run than RLHF and is widely used for aligning model behavior with preference data. The dataset still matters: bad preference pairs create bad behavior.</p>
+<h2 id="data-quality">Data Quality</h2>
+<p>Fine-tuning data should be:</p>
+<ul>
+<li>Task-specific.</li>
+<li>Cleanly formatted.</li>
+<li>Deduplicated.</li>
+<li>Representative of production inputs.</li>
+<li>Reviewed for unsafe or private content.</li>
+<li>Split into train, validation, and test sets.</li>
+<li>Evaluated by slices, not only aggregate score.</li>
+</ul>
+<p>Common data mistakes:</p>
+<ul>
+<li>Training on outputs that are too verbose or inconsistent.</li>
+<li>Mixing incompatible instruction styles.</li>
+<li>Letting evaluation examples leak into training.</li>
+<li>Fine-tuning on stale facts.</li>
+<li>Forgetting refusals, edge cases, and malformed inputs.</li>
+</ul>
+<h2 id="evaluation">Evaluation</h2>
+<p>Evaluate the model before and after fine-tuning:</p>
+<ul>
+<li>Task success rate.</li>
+<li>Format validity.</li>
+<li>Factuality or source faithfulness.</li>
+<li>Safety behavior.</li>
+<li>Latency and cost.</li>
+<li>Regression on general capabilities.</li>
+<li>Performance on hard slices.</li>
+<li>Human preference review for subjective tasks.</li>
+</ul>
+<p>For structured outputs, add strict parsers and schema tests. For retrieval-augmented systems, evaluate retrieval and generation separately.</p>
+<h2 id="deployment-concerns">Deployment Concerns</h2>
+<p>Fine-tuning changes the operations story:</p>
+<ul>
+<li>Which base model and adapter version are active?</li>
+<li>How are adapters stored and promoted?</li>
+<li>Can the system roll back quickly?</li>
+<li>Does inference support adapter loading efficiently?</li>
+<li>Are prompts still needed?</li>
+<li>How are fine-tuning datasets tracked?</li>
+<li>How will new preference data be collected?</li>
+</ul>
+<p>The model registry should record base model, adapter, training data, training config, and evaluation report.</p>
+<h2 id="a-practical-decision-path">A Practical Decision Path</h2>
+<p>Use this order:</p>
+<ol>
+<li>Improve prompting.</li>
+<li>Add retrieval if knowledge is missing or changing.</li>
+<li>Add tools if the model needs external actions.</li>
+<li>Fine-tune with SFT if behavior is repeated and examples are available.</li>
+<li>Use LoRA or QLoRA if full fine-tuning is too expensive.</li>
+<li>Add preference optimization if output quality depends on subjective preferences.</li>
+</ol>
+<p>Fine-tuning is powerful, but it is not a substitute for product clarity, clean data, and good evaluation.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://huggingface.co/docs/peft/index">Hugging Face PEFT</a></li>
+<li><a href="https://huggingface.co/docs/trl/index">Hugging Face TRL</a></li>
+<li><a href="https://arxiv.org/abs/2106.09685">LoRA</a></li>
+<li><a href="https://arxiv.org/abs/2305.14314">QLoRA</a></li>
+<li><a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a></li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/project-considerations/"> <span class="dir">← previous</span> <span class="title">Starting Your AI/ML Project: From Research to Engineering</span> </a> <a class="next" href="/writing/blogs/mlops/ml-training/"> <span class="dir">next →</span> <span class="title">Deep Learning Training: A Practical Guide</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Recommender Systems: III. Deep-learning Methods - Zhenlin Wang</title><meta name="description" content="Applications of Deep learning in recommender systems"><meta property="og:title" content="Recommender Systems: III. Deep-learning Methods - Zhenlin Wang"><meta property="og:description" content="Applications of Deep learning in recommender systems"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/recom-sys/recommender-3/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Recommender Systems III: Deep Learning Methods - Zhenlin Wang</title><meta name="description" content="A practical overview of deep learning methods for recommender systems, including embeddings, two-tower retrieval, ranking models, sequence models, and evaluation."><meta property="og:title" content="Recommender Systems III: Deep Learning Methods - Zhenlin Wang"><meta property="og:description" content="A practical overview of deep learning methods for recommender systems, including embeddings, two-tower retrieval, ranking models, sequence models, and evaluation."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/recom-sys/recommender-3/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,40 +29,86 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep learning · Reinforcement Learning · Recommender Systems</div> <h1>Recommender <em>Systems:</em> III. Deep-learning Methods</h1> <p class="dek">Applications of Deep learning in recommender systems</p> <div class="byline"> <strong>2020.04.05</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-03-30</span>  </div> </header> <main class="article container-narrow"> <h2 id="a-brief-intro">A brief intro</h2>
-<p>There are a wide variety of DL tools used for recommendation systems, we will outline a few below. We cite various information from the paper <a href="https://arxiv.org/abs/1707.07435"><strong>Deep Learning based Recommender System: A Survey and New Perspectives</strong></a>. You may find more details from that paper.</p>
-<ul>
-<li>Multilayer Perceptron (MLP) is a feed-forward neural network with multiple (one or more) hidden layers between the input layer and output layer. Here, the perceptron can employ arbitrary activation function and does not necessarily represent strictly binary classier. MLPs can be intrepreted as stacked layers of nonlinear transformations, learning hierarchical feature representations. MLPs are also known to be universal approximators.</li>
-<li>Autoencoder (AE) is an unsupervised model aempting to reconstruct its input data in the output layer. In general, the bottleneck layer (the middle-most layer) is used as a salient feature representation of the input data. ere are many variants of autoencoders such as denoising autoencoder, marginalized denoising
-autoencoder, sparse autoencoder, contractive autoencoder and variational autoencoder (VAE).</li>
-<li>Convolutional Neural Network (CNN) is a special kind of feedforward neural network with convolution layers and pooling operations. It can capture the global and local features and significantly enhancing the eciency and accuracy. It performs well in processing data with grid-like topology.</li>
-<li>Recurrent Neural Network (RNN) is suitable for modelling sequential data. Unlike feedforward neural network, there are loops and memories in RNN to remember former computations. Variants such as Long Short Term Memory (LSTM) and Gated Recurrent Unit (GRU) network are oen deployed in practice to overcome the vanishing gradient problem.</li>
-<li>Restricted Boltzmann Machine (RBM) is a two layer neural network consisting of a visible layer and a hidden layer. It can be easily stacked to a deep net. Restricted here means that there are no intra-layer communications in visible layer or hidden layer.</li>
-<li>Neural Autoregressive Distribution Estimation (NADE) is an unsupervised neural network built atop autoregressive model and feedforward neural networks. It is a tractable and efficient estimator for modelling data distribution and densities.</li>
-<li>Adversarial Networks (AN) is a generative neural network which consists of a discriminator and a generator. The two neural networks are trained simultaneously by competing with each other in a minimax game framework.</li>
-<li>Attentional Models (AM) are dierentiable neural architectures that operate based on soft content addressing over an input sequence (or image). Attention mechanism is typically ubiquitous and was incepted in Computer Vision and Natural Language Processing domains. However, it has also been an emerging trend in deep recommender system research.</li>
-<li>Deep Reinforcement Learning (DRL) . Reinforcement learning operates on a trial-and-error paradigm. The whole framework mainly consists of the following components: agents, environments, states, actions and rewards. The combination between deep neural networks and reinforcement learning formulate DRL which have achieved human-level performance across multiple domains such as games and selfdriving cars. Deep neural networks enable the agent to get knowledge from raw data and derive efficient representations without handcrafted features and domain heuristics.</li>
-</ul>
-<h2 id="pros-and-cons">Pros and cons</h2>
-<p><strong>Pros</strong></p>
-<ul>
-<li><strong>Nonlinear Transformation</strong>: Contrary to linear models, deep neural networks is capable of modelling the non-linearity in data with nonlinear activations such as relu, sigmoid, tanh, etc. This property makes it possible to capture the complex and intricate user item interaction patterns. The linear assumption, acting as the basis of many traditional recommenders, is oversimplified and will greatly limit their modelling expressiveness. It is well-established that neural networks are able to approximate any continuous function with an arbitrary precision by varying the activation choices and combinations.</li>
-<li><strong>Representation Learning</strong>: Deep neural networks is efficacious in learning the underlying explanatory factors and useful representations from input data. In general, a large amount of descriptive information about items and users is available in real-world applications. Making use of this information provides a way to advance our understanding of items and users, thus, resulting in a better recommender. As such, it is a natural choice to apply deep neural networks to representation learning in recommendation models. The advantages of using deep neural networks to assist representation learning are in two-folds:
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Recommender Systems · Deep Learning</div> <h1>Recommender <em>Systems</em> III: Deep Learning Methods</h1> <p class="dek">A practical overview of deep learning methods for recommender systems, including embeddings, two-tower retrieval, ranking models, sequence models, and evaluation.</p> <div class="byline"> <strong>2020.04.05</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Deep learning is useful in recommender systems when raw features, sequence behavior, text, images, or large-scale embeddings can improve recommendations.</p>
+<p>Modern recommender systems often have two stages:</p>
 <ol>
-<li>it reduces the efforts in hand-craft feature design. Feature engineering is a labor intensive work, deep neural networks enable automatically feature learning from raw data in unsupervised or supervised approach;</li>
-<li>it enables recommendation models to include heterogeneous content information such as text, images, audio and even video. Deep learning networks have made breakthroughs in multimedia data processing and shown potentials in representations learning from various sources.</li>
+<li>Candidate generation: retrieve a small set of possible items.</li>
+<li>Ranking: score and order those candidates.</li>
 </ol>
-</li>
-<li><strong>Sequence Modelling</strong>: Deep neural networks have shown promising results on a number of sequential modelling tasks such as machine translation, natural language understanding, speech recognition, chatbots, and many others. RNN and CNN play critical roles in these tasks. RNN achives this with internal memory states while CNN achieves this with filters sliding along with time. Both of them are widely applicable flexible in mining sequential structure in data. Modelling sequential signals is an important topic for mining the temporal dynamics of user behaviour and item evolution. For example, next-item/basket prediction and session based recommendation are typical applications. As such, deep neural networks become a perfect fit for this sequential pattern mining task</li>
-<li><strong>Flexibility</strong>： Deep learning techniques possess high flexibility, especially with the advent of many popular deep learning frameworks.</li>
-</ul>
-<p><strong>Cons</strong></p>
+<p>Deep learning can help in both stages.</p>
+<h2 id="embeddings">Embeddings</h2>
+<p>Embeddings map users, items, and context features into dense vectors.</p>
+<p>Examples:</p>
 <ul>
-<li><strong>Interpretability</strong>: Despite its success, deep learning is well-known to behave as black boxes, and providing explainable predictions seem to be a really challenging task. A common argument against deep neural networks is that the hidden weights and activations are generally non-interpretable, limiting explainability. However, this concern has generally been eased with the advent of neural attention models and have paved the world for deep neural models that enjoy improved interpretability. While interpreting individual neurons still pose a challenge for neural models (not only in recommender systems), present state-of-the-art models are already capable of some extent of interpretability, enabling
-explainable recommendation. We discuss this issue in more detail in the open issues section.</li>
-<li><strong>Data Requirement</strong>: A second possible limitation is that deep learning is known to be data-hungry, in the sense that it requires sufficient data in order to fully support its rich parameterization. However, as compared with other domains (such as language or vision) in which labeled data is scarce, it is relatively easy to garner a significant amount of data within the context of recommender systems research. Million/billion scale datasets are commonplace not only in industry but also released as academic datasets.</li>
-<li><strong>Extensive Hyperparameter Tuning</strong>: A third well-established argument against deep learning is the need for extensive hyperparameter tuning. However, we note that hyperparameter tuning is not an exclusive problem of deep learning but machine learning in general (e.g., regularization factors and learning rate similarly have to be tuned for traditional matrix factorization etc) Granted, deep learning may introduce additional hyperparameters in some cases.</li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/recom-sys/recommender-2/"> <span class="dir">← previous</span> <span class="title">Recommender Systems: II. Factorization Machine</span> </a> <a class="next" href="/writing/blogs/data/big-data-spark/"> <span class="dir">next →</span> <span class="title">Apache Spark: Only the simple answer</span> </a> </nav>  <script>
+<li>User embedding.</li>
+<li>Item embedding.</li>
+<li>Query embedding.</li>
+<li>Category embedding.</li>
+<li>Text or image embedding.</li>
+</ul>
+<p>The model learns that similar users or items should have nearby representations.</p>
+<h2 id="two-tower-retrieval">Two-Tower Retrieval</h2>
+<p>A two-tower model has one tower for users or queries and one tower for items.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>user/context -> user tower -> user embedding</span></span>
+<span class="line"><span>item features -> item tower -> item embedding</span></span></code></pre>
+<p>Candidate retrieval uses similarity between embeddings, often dot product or cosine similarity.</p>
+<p>Two-tower models are popular because item embeddings can be precomputed and searched efficiently with approximate nearest neighbor indexes.</p>
+<h2 id="ranking-models">Ranking Models</h2>
+<p>Ranking models score a smaller candidate set with richer features.</p>
+<p>Inputs may include:</p>
+<ul>
+<li>User features.</li>
+<li>Item features.</li>
+<li>Context.</li>
+<li>Historical behavior.</li>
+<li>Candidate source.</li>
+<li>Price or freshness.</li>
+<li>Cross features.</li>
+</ul>
+<p>Ranking models can be gradient-boosted trees, wide-and-deep models, DeepFM-style models, transformers, or other neural architectures.</p>
+<h2 id="sequence-models">Sequence Models</h2>
+<p>User behavior is sequential. The next item a user wants often depends on the recent session.</p>
+<p>Sequence models use:</p>
+<ul>
+<li>Recent clicks.</li>
+<li>Recent purchases.</li>
+<li>Watch history.</li>
+<li>Search queries.</li>
+<li>Time gaps.</li>
+</ul>
+<p>Transformers and recurrent models can represent session intent, but they are more expensive than simple embedding averages. Use them when sequence behavior clearly matters.</p>
+<h2 id="content-understanding">Content Understanding</h2>
+<p>Deep learning also helps build item representations from content:</p>
+<ul>
+<li>Text descriptions.</li>
+<li>Images.</li>
+<li>Audio.</li>
+<li>Video.</li>
+<li>Reviews.</li>
+</ul>
+<p>This is especially helpful for cold-start items because the system can recommend a new item before much interaction data exists.</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>Offline metrics:</p>
+<ul>
+<li>Recall@k for candidate generation.</li>
+<li>nDCG for ranking.</li>
+<li>Precision@k.</li>
+<li>Coverage.</li>
+<li>Diversity.</li>
+</ul>
+<p>Online metrics:</p>
+<ul>
+<li>Click-through rate.</li>
+<li>Conversion.</li>
+<li>Watch time.</li>
+<li>Retention.</li>
+<li>Revenue.</li>
+<li>User satisfaction.</li>
+</ul>
+<p>Be careful: optimizing clicks alone can create shallow recommendations. Track long-term and quality guardrails.</p>
+<h2 id="closing">Closing</h2>
+<p>Deep recommender systems are powerful because they learn representations from users, items, context, and content. The engineering challenge is to keep retrieval fast, ranking accurate, and evaluation aligned with user value.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/recom-sys/recommender-2/"> <span class="dir">← previous</span> <span class="title">Recommender Systems II: Factorization Machines</span> </a> <a class="next" href="/writing/blogs/data/big-data-spark/"> <span class="dir">next →</span> <span class="title">Apache Spark: Only the Simple Answer</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

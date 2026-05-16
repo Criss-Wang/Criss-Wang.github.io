@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: Hierachial, BIRCH and Spectral - Zhenlin Wang</title><meta name="description" content="The nitty-gritty of 'brute-force'"><meta property="og:title" content="Clustering: Hierachial, BIRCH and Spectral - Zhenlin Wang"><meta property="og:description" content="The nitty-gritty of 'brute-force'"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: Hierarchical, BIRCH, and Spectral - Zhenlin Wang</title><meta name="description" content="A practical overview of hierarchical clustering, BIRCH, and spectral clustering, with guidance on when each method is useful."><meta property="og:title" content="Clustering: Hierarchical, BIRCH, and Spectral - Zhenlin Wang"><meta property="og:description" content="A practical overview of hierarchical clustering, BIRCH, and spectral clustering, with guidance on when each method is useful."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,461 +29,64 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Machine Learning · Clustering · Unsupervised Learning</div> <h1>Clustering: <em>Hierachial,</em> BIRCH and Spectral</h1> <p class="dek">The nitty-gritty of &#39;brute-force&#39;</p> <div class="byline"> <strong>2020.02.05</strong> <span>·</span> <span>14 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-08-21</span>  </div> </header> <main class="article container-narrow"> <h2 id="hierachial-clustering">Hierachial Clustering</h2>
-<h4 id="1-definition">1. Definition</h4>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Unsupervised Learning · Clustering</div> <h1>Clustering: <em>Hierarchical,</em> BIRCH, and Spectral</h1> <p class="dek">A practical overview of hierarchical clustering, BIRCH, and spectral clustering, with guidance on when each method is useful.</p> <div class="byline"> <strong>2020.02.05</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Not every clustering problem fits K-means. Hierarchical clustering, BIRCH, and spectral clustering offer different tradeoffs.</p>
+<p>Use these methods when the structure is nested, large-scale, or not well represented by spherical clusters.</p>
+<h2 id="hierarchical-clustering">Hierarchical Clustering</h2>
+<p>Hierarchical clustering builds a tree of clusters.</p>
+<p>Two main styles:</p>
 <ul>
-<li>
-<p><strong>2 Main approaches</strong></p>
+<li><strong>Agglomerative:</strong> start with each point as its own cluster, then merge.</li>
+<li><strong>Divisive:</strong> start with one cluster, then split.</li>
+</ul>
+<p>The result is often visualized as a dendrogram.</p>
+<p>Common linkage choices:</p>
 <ul>
-<li>Agglomerative : This is a “bottom-up” approach: each observation starts in its own cluster, and pairs of clusters are merged as one moves up the hierarchy.</li>
-<li>Divisive : This is a “top-down” approach: all observations start in one cluster, and splits are performed recursively as one moves down the hierarchy.</li>
+<li>Single linkage.</li>
+<li>Complete linkage.</li>
+<li>Average linkage.</li>
+<li>Ward linkage.</li>
 </ul>
-</li>
-<li>
-<p><strong>Agglomerative Clustering</strong></p>
+<p>Use hierarchical clustering when:</p>
 <ul>
-<li>Initially each data point is considered as an individual cluster. At each iteration, the most similar clusters merge with other clusters until 1/ K clusters are formed.</li>
-<li>No need to specify number of clusters, performance  $O(n^3)$</li>
-<li>In <code>sklearn</code>, if we specify the number of clusters, performance can be improved</li>
-<li><strong>Procedure</strong>
+<li>You want nested cluster structure.</li>
+<li>The dataset is not too large.</li>
+<li>Interpretability is important.</li>
+</ul>
+<p>Watch out for computational cost on large datasets.</p>
+<h2 id="birch">BIRCH</h2>
+<p>BIRCH builds a compact summary of the data using clustering features, then clusters the summaries.</p>
+<p>It is useful for large datasets because it avoids storing every point in memory during clustering.</p>
+<p>Use BIRCH when:</p>
 <ul>
-<li>Compute the proximity matrix</li>
-<li>Let each data point be a cluster</li>
-<li>Repeat: Merge two closest clusters and update the proximity matrix until 1/ K cluster remains</li>
+<li>The dataset is large.</li>
+<li>You need an efficient clustering summary.</li>
+<li>Incremental processing is useful.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>
-<p><strong>Divisive Clustering</strong></p>
-<ul>
-<li>Opposite of agglomerative clustering. We start with one giant cluster including all data points. Then data points are separated into different clusters.</li>
-</ul>
-</li>
-<li>
-<p><strong>Similarity score</strong>:</p>
-<ul>
-<li>Basically the proximity between two clusters</li>
-<li>Distance calculation
-<ul>
-<li><code>Euclidean Distance</code></li>
-<li><code>Squared Euclidean Distance</code></li>
-<li><code>Manhattan Distance</code></li>
-<li><code>Maximum Distance</code>: $\Vert a-b\Vert_{\infty} = \max_{i}|a_i - b_i|$</li>
-<li><code>Mahalanobis Distance</code>: $\sqrt{(a-b)^T S^{-1} (a-b)}$ where $S$ is Covariance matrix</li>
-<li>For text or other non-numeric data, metrics such as the <code>Hamming distance</code> or <code>Levenshtein distance</code> are often used.</li>
-<li>For details, see <strong>Distance metrics &#x26; Evaluation method</strong>[Unsupervised Learning/0. Distance metrics and Evaluation Methods/Distance_Metrics_Evaluation_Methods.ipynb]</li>
-</ul>
-</li>
-<li>Distance references
-<ul>
-<li><code>Complete-linkage</code>: The maximum distance between elements of each cluster</li>
-<li><code>Single-linkage</code>: The minimum distance between elements of each cluster</li>
-<li><code>Average linkage</code>: The mean distance between elements of each cluster</li>
-<li><code>Ward’s linkage</code>: Minimizes the variance of the clusters being merged. Least increase in total variance around cluster centroids is aimed.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Do not have to specify the number of clusters beforehand</li>
-<li>It is easy to implement and interpretable with the help of dendrograms</li>
-<li>Always generates the same clusters (Stability)</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Exponential runtime for larger datasets</li>
-</ul>
-<h4 id="3-application">3. Application</h4>
-<ul>
-<li>Text grouping: However, it is a highly complex task due the high-dimensionality of data.</li>
-<li>Social network analysis</li>
-<li>Outlier detection</li>
-</ul>
-<h4 id="4-code-implementation">4. Code Implementation</h4>
-<p>{% codeblock lang:python%}
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt</p>
-<p>from sklearn.cluster import AgglomerativeClustering
-from sklearn.preprocessing import StandardScaler, normalize
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score
-import scipy.cluster.hierarchy as shc</p>
-<p>raw_df = pd.read_csv(‘CC GENERAL.csv’)
-raw_df = raw_df.drop(‘CUST_ID’, axis = 1)
-raw_df.fillna(method =‘ffill’, inplace = True)</p>
-<h1 id="standardize-data">Standardize data</h1>
-<p>scaler = StandardScaler()
-scaled_df = scaler.fit_transform(raw_df)</p>
-<h1 id="normalizing-the-data">Normalizing the Data</h1>
-<p>normalized_df = normalize(scaled_df)</p>
-<h1 id="converting-the-numpy-array-into-a-pandas-dataframe">Converting the numpy array into a pandas DataFrame</h1>
-<p>normalized_df = pd.DataFrame(normalized_df)</p>
-<h1 id="reducing-the-dimensions-of-the-data">Reducing the dimensions of the data</h1>
-<p>pca = PCA(n_components = 2)
-X_principal = pca.fit_transform(normalized_df)
-X_principal = pd.DataFrame(X_principal)
-X_principal.columns = [‘P1’, ‘P2’]</p>
-<p>plt.figure(figsize =(6, 6))
-plt.title(‘Visualising the data’)
-Dendrogram = shc.dendrogram((shc.linkage(X_principal, method =‘ward’)))</p>
-<h1 id="determine-the-optimal-number-of-clusters-using-silhouette-score">Determine the optimal number of clusters using [Silhouette Score]</h1>
-<p>silhouette_scores = []</p>
-<p>for n_cluster in range(2, 8):
-silhouette_scores.append(
-silhouette_score(X_principal, AgglomerativeClustering(n_clusters = n_cluster).fit_predict(X_principal)))</p>
-<h1 id="plotting-a-bar-graph-to-compare-the-results">Plotting a bar graph to compare the results</h1>
-<p>k = [2, 3, 4, 5, 6,7]
-plt.bar(k, silhouette_scores)
-plt.xlabel(‘Number of clusters’, fontsize = 10)
-plt.ylabel(‘Silhouette Score’, fontsize = 10)
-plt.show()</p>
-<p>agg = AgglomerativeClustering(n_clusters=3)
-agg.fit(X_principal)</p>
-<h1 id="visualizing-the-clustering">Visualizing the clustering</h1>
-<p>plt.scatter(X_principal[‘P1’], X_principal[‘P2’],<br>
-c = AgglomerativeClustering(n_clusters = 3).fit_predict(X_principal), cmap =plt.cm.winter)
-plt.show()
-{% endcodeblock %}</p>
-<h2 id="birch-clustering">BIRCH Clustering</h2>
-<h3 id="1-definition-1">1. Definition</h3>
-<ul>
-<li>
-<p>Balanced Iterative Reducing and Clustering using Hierarchies (BIRCH)</p>
-</li>
-<li>
-<p>Rationale: Existing data clustering methods do not adequately address the problem of processing large datasets with a limited amount of resources (i.e. memory and cpu cycles). In consequence, as the dataset size increases, they scale poorly in terms of running time, and result quality.</p>
-</li>
-<li>
-<p>Main logic of BIRCH:</p>
-<ul>
-<li>Deals with large datasets by first generating a more compact summary that retains as much distribution information as possible, and then clustering the data summary instead of the original dataset</li>
-</ul>
-</li>
-<li>
-<p><strong>Metric attributes</strong></p>
-<ul>
-<li>Definition: values can be represented by explicit Euclidean coordinates (no categorical variables).</li>
-<li>BIRCH can only deal with metric attributes</li>
-</ul>
-</li>
-<li>
-<p><strong>Clustering Features</strong></p>
-<ul>
-<li>BIRCH summarize the information contained in dense regions as Clustering Feature (CF);</li>
-<li>$CF = (N, LS, SS)$ where $N$ = # of data points in a cluster, $LS$ = linear sum of data; $SS$ = square sum of data;</li>
-<li>CF additivity theorem: $CF_1 + CF_2 = (N_1 + N_2, LS_1 + LS_2, SS_1 + SS_2)$;</li>
-</ul>
-</li>
-<li>
-<p><strong>CF Tree</strong></p>
-<ul>
-<li>Clustering Feature tree structure is similar to the balanced B+ tree</li>
-<li>A very compact representation of the dataset because each entry in a leaf node is not a single data point but a subcluster.</li>
-<li>Each non-leaf node contains at most $B$ entries.</li>
-<li>Each leaf node contains at most $L$ entries, and each entry is a CF</li>
-<li>Threshold $T$ for leaf entry: all sample points in this CF must be in the radius In a hyper-sphere less than T.</li>
-</ul>
-</li>
-<li>
-<p><strong>Insertion Algo</strong>: (Insert a new CF/Point entry in to the tree)</p>
-<ol>
-<li>Starting from the root, recursively traverse down the tree by choosing the node that has shortest Euclidean distance to the inserted entry;</li>
-<li>Upon reaching a leaf node, find the shorest distance CF and see if it can include the new CF/Point into the cluster without radius threshold $T$ violation;
-If can: <strong>do not create a new leaf, but update all the CF triplets on the path, the insertion ends</strong>;
-If cannot: go to 3;</li>
-<li>If the number of CF nodes of the current leaf node is less than the threshold $L$, create a new CF node, put in a new sample and the new CF node into this leaf node, update all CF triplets on the path, and insertion Ends.
-Otherwise, go to 4</li>
-<li>If the leaf node has > L entires after addition, then split the leaf node by choosing the 2 entries that are farthest apart and redistribute CF based on distance to each of the 2 entries;</li>
-<li>Modify the path to leaf: Since the leaf node is updated, we need to update the entire path from root to leaf; In the event of split, we need to insert a nonleaf entry into the parent node, and if parent node has > $B$ nodes, then we need to split again; do so until it reaches the root</li>
-</ol>
-</li>
-<li>
-<p><strong>Complete procedure</strong></p>
-<ul>
-<li>Phase 1: The algorithm starts with an initial threshold value (ideally start from low), scans the data, and inserts points into the tree. If it runs out of memory before it finishes scanning the data, it increases the threshold value, and rebuilds a new, smaller CF-tree, by re-inserting the leaf entries of the old CF-tree into the new CF-tree. After all the old leaf entries have been re-inserted, the scanning of the data and insertion into the new CF-tree is resumed from the point at which it was interrupted.</li>
-<li>(Optional) Filter the CF Tree created in the first step to remove some abnormal CF nodes.</li>
-<li>(Optional) Use other clustering algorithms such as K-Means to cluster all CF tuples to get a better CF Tree.</li>
-<li>Phase 2: Given that certain clustering algorithms perform best when the number of objects is within a certain range, we can group crowded subclusters into larger ones resulting in an overall smaller CF-tree.</li>
-<li>Phase 3: Almost any clustering algorithm can be adapted to categorize Clustering Features instead of data points. For instance, we could use KMEANS to categorize our data, all the while deriving the benefits from BIRCH</li>
-<li>Additional passes over the data to correct inaccuracies caused by the fact that the clustering algorithm is applied to a coarse summary of the data.</li>
-</ul>
-</li>
-<li>
-<p>The complexity of the algorithm is $O(n)$</p>
-</li>
-</ul>
-<h3 id="2-pros--cons-1">2. Pros &#x26; Cons</h3>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Save memory, all samples are on disk, CF Tree only stores CF nodes and corresponding pointers.</li>
-<li>The clustering speed is fast, and it only takes one scan of the training set to build the CF Tree, and the addition, deletion, and modification of the CF Tree are very fast.</li>
-<li>Noise points can be identified, and preliminary classification pre-processing can be performed on the data set.</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>There is need to specify number of clusters;</li>
-<li>The clustering result may be different from the real category distribution.</li>
-<li>Does not perform well on non-convex dataset distribution</li>
-<li>Apart from number of clusters we have to specify two more parameters;</li>
-<li>Birch doesn’t perform well on high dimensional data (if there are >20 features, you’d better use something else).</li>
-</ul>
-<h3 id="3-applications">3. Applications</h3>
-<ul>
-<li>If the dimension of the data features is very large, such as greater than 20, BIRCH is not suitable. At this time, Mini Batch K-Means performs better.</li>
-</ul>
-<h3 id="4-code-implementation-1">4. Code implementation</h3>
-<p>{% codeblock lang:python%}
-import numpy as np
-from matplotlib import pyplot as plt
-import seaborn as sns
-sns.set()
-from sklearn.datasets import make_blobs
-from sklearn.cluster import Birch</p>
-<p>X, clusters = make_blobs(n_samples=450, centers=6, cluster_std=0.70, random_state=0)
-plt.scatter(X[:,0], X[:,1], alpha=0.7, edgecolors=‘b’)</p>
-<h1 id="predict-and-visualize">Predict and visualize</h1>
-<p>brc = Birch(branching_factor=50, n_clusters=None, threshold=1.5)
-brc.fit(X)
-labels = brc.predict(X)</p>
-<p>plt.scatter(X[:,0], X[:,1], c=labels, cmap=‘rainbow’, alpha=0.7, edgecolors=‘b’)
-{% endcodeblock %}</p>
+<p>It works best when clusters are reasonably compact.</p>
 <h2 id="spectral-clustering">Spectral Clustering</h2>
-<h3 id="1-definition-2">1. Definition</h3>
+<p>Spectral clustering builds a similarity graph, uses eigenvectors of a graph Laplacian, and clusters in the transformed space.</p>
+<p>It is useful for non-convex cluster shapes where distance-to-centroid methods fail.</p>
+<p>Use spectral clustering when:</p>
 <ul>
-<li>
-<p>In spectral clustering, data points are treated as nodes of a graph. Thus, spectral clustering is a graph partitioning problem.</p>
-</li>
-<li>
-<p>The nodes are mapped to a low-dimensional space that can be easily segregated to form clusters.</p>
-</li>
-<li>
-<p>No assumption is made about the shape/form of the clusters. The goal of spectral clustering is to cluster data that is connected but not necessarily compact or clustered within convex boundaries.</p>
-</li>
-<li>
-<p>In general, spectral clustering is a generalized version of k-means: it does not assume a circular shape, but apply different affinity functions in its similarity matrix</p>
-</li>
-<li>
-<p><strong>Procedures</strong></p>
+<li>Similarity graph structure matters.</li>
+<li>Clusters are not spherical.</li>
+<li>Dataset size is manageable.</li>
+</ul>
+<p>Watch out:</p>
 <ul>
-<li>Project data into $R^{n}$ matrix</li>
-<li>Define an Affinity  matrix A , using a Gaussian Kernel K  or an Adjacency matrix</li>
-<li>Construct the Graph Laplacian from A  (i.e. decide on a normalization)</li>
-<li>Solve the Eigenvalue problem</li>
-<li>Select k eigenvectors corresponding to the k lowest (or highest) eigenvalues to define a k-dimensional subspace</li>
-<li>Form clusters in this subspace using k-means</li>
+<li>Similarity graph construction can be expensive.</li>
+<li>Choice of similarity scale matters.</li>
+<li>Large datasets can be difficult.</li>
 </ul>
-</li>
-<li>
-<p><strong>Similarity Graph</strong><br>
-We first create an undirected graph G = (V, E) with vertex set V = {v1, v2, …, vn} = 1, 2, …, n observations in the data.</p>
+<h2 id="choosing-among-them">Choosing Among Them</h2>
+<p>Use:</p>
 <ul>
-<li><strong>$\epsilon$-neighbourhood Graph</strong>:
-<ul>
-<li>$\epsilon$: Each point is connected to all the points which lie in it’s $\epsilon$-radius.</li>
-<li>If all the distances between any two points are similar in scale then typically the weights of the edges (i.e. the distance between the two points) are not stored since they do not provide any additional information.</li>
-<li>Hence, the graph built is an <strong>undirected</strong> and <strong>unweighted</strong> graph.</li>
+<li><strong>Hierarchical clustering</strong> for nested structure and interpretability.</li>
+<li><strong>BIRCH</strong> for scalable clustering summaries.</li>
+<li><strong>Spectral clustering</strong> for graph-shaped or non-convex clusters.</li>
 </ul>
-</li>
-<li><strong>K-Nearest Neighbours</strong>:
-<ul>
-<li>$K$: For two vertices $u$ and $v$, an edge is directed from $u$ to $v$ only if $v$ is among the k-nearest neighbours of u.</li>
-<li>The graph is a <strong>weighted</strong> and <strong>directed</strong> graph because it is not always the case that for each u having v as one of the k-nearest neighbours, it will be the same case for v having u among its k-nearest neighbours. To make this graph undirected, one of the following approaches are followed:
-<ul>
-<li>Direct an edge from u to v and from v to u if either v is among the k-nearest neighbours of u OR u is among the k-nearest neighbours of v.</li>
-<li>Direct an edge from u to v and from v to u if v is among the k-nearest neighbours of u AND u is among the k-nearest neighbours of v.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>Fully-Connected Graph</strong>:
-<ul>
-<li>
-<p>Each point is connected with an undirected edge-weighted by the distance between the two points to every other point.</p>
-</li>
-<li>
-<p>Since this approach is used to model the local neighbourhood relationships thus typically the <strong>Gaussian similarity metric</strong> is used to calculate the distance:</p>
-<p>$$S(x_i, x_j) = exp(-\frac{\Vert x_i - x_j\Vert^2}{2\sigma^2})$$</p>
-<p>Thus, when we create an adjacency matrix for any of these graphs, $A_{ij} \approx 1$  when the points are close and $A_{ij} \to 0$ if the points are far apart.<br>
-Consider the following graph with nodes 1 to 4, weights (or similarity) wij and its adjacency matrix:</p>
-</li>
-</ul>
-  <figure align="center">
-  <img src="/images/Machine%20learning/adjacency%20matrix.png" width="500px">
-  <figcaption>Adjacency Matrix</figcaption>
-  </figure> 
-</li>
-</ul>
-</li>
-<li>
-<p><strong>Adjacency Matrix</strong></p>
-<ul>
-<li>
-<p>Affinity metric determines how close, or similar, two points our in our space. We will use a <strong>Gaussian Kernel</strong> and not the standard Euclidean metric.</p>
-</li>
-<li>
-<p>Given 2 data points $x_{i},x_{j}$  (projected in $R^{n}$ ), we define an Affinity $A_{i,j}$  that is positive, symmetric, and depends on the Euclidian distance $\Vert x_{i}-x_{j}\Vert$  between the data points</p>
-<p>$$A_{ij} = {e}^{-\alpha \Vert x_{i}-x_{j}\Vert^2 }$$</p>
-</li>
-<li>
-<p>We might provide a hard cut off threshold $T$, so that $A_{ij} = 0$  if $\Vert x_{i}-x_{j}\Vert^2 \geq T$</p>
-<ul>
-<li>$A_{i,j}\simeq 1$  when the points are close in $R^{n}$ , and $A_{i,j}\rightarrow 0$  if the points $x_{i}$, $x_{j}$ are far apart.</li>
-<li>Close data points are in the same cluster. Data points in different clusters are far away. But data points in the same cluster may also be far away–even farther away than points in different clusters. Our goal then is to transform the space so that when 2 points $x_{i}$, $x_{j}$ are close, they are always in same cluster, and when they are far apart, they are in different clusters. Generally we use the Gaussian Kernel K  directly, or we form the Graph Laplacian $A$.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><strong>Degree Matrix</strong><br>
-The degree matrix $D$ of a graph $G=(V,E)$ is the $|V|\times|V|$ matrix defined by</p>
-<p>$$ D_{i,j} =
-\begin{cases}
-deg(v_i)       &#x26; \quad \text{if } i = j \\
-0              &#x26; \quad \text{otherwise}
-\end{cases}
-$$</p>
-<p>where $deg(v_i)$ of a vertex $v_i \in V$ is the number of edges that terminate at $v_i$</p>
-</li>
-<li>
-<p><strong>Graph Laplacian</strong></p>
-<ul>
-<li>The whole purpose of computing the Graph Laplacian $L$ was to find <strong>eigenvalues and eigenvectors</strong> for it, in order to embed the data points into a low-dimensional space.</li>
-<li>Just another matrix representation of a graph. It can be computed as:
-<ul>
-<li>
-<p>Simple Laplacian $L=D-A$ where $A$ is the Adjacency matrix and $D$ is the Degree Matrix</p>
-<p>$$ L_{ij} =
-\begin{cases}
-d_i           &#x26; \quad \text{if } i = j \\
--w_{ij}       &#x26; \quad \text{if } i , j \in E \\
-0             &#x26; \quad \text{if } i , j \notin  E
-\end{cases}
-$$</p>
-</li>
-<li>
-<p>Normalized Laplacian $L_{N}=D^{-1/2}LD^{-1/2}$</p>
-</li>
-<li>
-<p>Generalized Laplacian $L_{G} = D^{-1}L$</p>
-</li>
-<li>
-<p>Relaxed Laplacian $L_{\rho} = L-\rho D $</p>
-</li>
-<li>
-<p>Ng, Jordan, &#x26; Weiss Laplacian $L_{NJW}=D^{-1/2}AD^{-1/2}$, where $A_{i,i}=0 $</p>
-</li>
-</ul>
-</li>
-</ul>
-  <figure align="center">
-    <img src="/images/Machine%20learning/spectral_2.png" width="500px">
-  </figure>  
-</li>
-<li>
-<p><strong>The Cluster Eigenspace Problem</strong></p>
-<ul>
-<li>To identify good clusters, Laplacian $L$ should be approximately a block-diagonal, with each block defining a cluster. If we have 3 major clusters (C1, C2, C3), we would expect</li>
-</ul>
-<p>$$\begin{matrix}
-L_{1,1} &#x26; L_{1,2} &#x26; L_{1,3} \\
-L_{2,1} &#x26; L_{2,2} &#x26; L_{2,3} \\
-L_{3,1} &#x26; L_{3,2} &#x26; L_{3,3}
-\end{matrix}
-\sim
-\begin{matrix}
-L_{1,1} &#x26; 0 &#x26; 0 \\
-0 &#x26; L_{2,2} &#x26; 0 \\
-0 &#x26; 0 &#x26; L_{3,3}
-\end{matrix}
-$$</p>
-  <figure align="center">
-    <img src="/images/Machine%20learning/spectral_3.png" width="500px">
-  </figure>
- - We also expect that the 3 lowest eigenvalues &#x26; eigenvectors $\lambda_{i,v_{i}}$ of $L$ each correspond to a different cluster.
- - For K clusters, compute the first K eigen vectors. ${v_1, v_2, ...v_k}$. Stack the vectors vertically to form the matrix with eigen vecttors as columns. Represent every node as the corresponding row of this new matrix, these rows form the feature vector of the nodes. Use Kmeans to cluster these points into k clusters $C_1, C_2 ...C_k$
-</li>
-</ul>
-<h3 id="2-pros--cons-2">2. Pros &#x26; Cons</h3>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Clusters not assumed to be any certain shape/distribution, in contrast to e.g. k-means. This means the spectral clustering algorithm can perform well with a wide variety of shapes of data.</li>
-<li>Works quite well when relations are approximately transitive (like similarity)</li>
-<li>Do not necessarily need the actual data set, just similarity/distance matrix, or even just Laplacian
-<ul>
-<li>Because of this, we can cluster one dimensional data as a result of this; other algos that can do this are k-medoids and heirarchical clustering.</li>
-</ul>
-</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Need to choose the number of clusters k, although there is a heuristic to help choose</li>
-<li>Can be costly to compute, although there are algorithms and frameworks to help</li>
-</ul>
-<h3 id="3-code-implementation">3. Code Implementation</h3>
-<p>{% codeblock lang:python%}
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.cluster import SpectralClustering
-from sklearn.preprocessing import StandardScaler, normalize
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score</p>
-<p>raw_df = pd.read_csv(‘CC GENERAL.csv’)
-raw_df = raw_df.drop(‘CUST_ID’, axis = 1)
-raw_df.fillna(method =‘ffill’, inplace = True)</p>
-<h1 id="preprocessing-the-data-to-make-it-visualizable">Preprocessing the data to make it visualizable</h1>
-<h1 id="scaling-the-data">Scaling the Data</h1>
-<p>scaler = StandardScaler()
-X_scaled = scaler.fit_transform(raw_df)</p>
-<h1 id="normalizing-the-data-1">Normalizing the Data</h1>
-<p>X_normalized = normalize(X_scaled)</p>
-<h1 id="converting-the-numpy-array-into-a-pandas-dataframe-1">Converting the numpy array into a pandas DataFrame</h1>
-<p>X_normalized = pd.DataFrame(X_normalized)</p>
-<h1 id="reducing-the-dimensions-of-the-data-1">Reducing the dimensions of the data</h1>
-<p>pca = PCA(n_components = 2)
-X_principal = pca.fit_transform(X_normalized)
-X_principal = pd.DataFrame(X_principal)
-X_principal.columns = [‘P1’, ‘P2’]</p>
-<h2 id="affinity-matrix-with-gaussian-kernel">Affinity matrix with Gaussian Kernel</h2>
-<h2 id="affinity--rbf">affinity = “rbf”</h2>
-<h1 id="building-the-clustering-model">Building the clustering model</h1>
-<p>spectral_model_rbf = SpectralClustering(n_clusters = 2, affinity =‘rbf’)</p>
-<h1 id="training-the-model-and-storing-the-predicted-cluster-labels">Training the model and Storing the predicted cluster labels</h1>
-<p>labels_rbf = spectral_model_rbf.fit_predict(X_principal)</p>
-<h1 id="visualizing-the-clustering-1">Visualizing the clustering</h1>
-<p>plt.scatter(X_principal[‘P1’], X_principal[‘P2’],<br>
-c = SpectralClustering(n_clusters = 2, affinity =‘rbf’) .fit_predict(X_principal), cmap =plt.cm.winter)
-plt.show()</p>
-<h2 id="affinity-matrix-with-eucledean-distance">Affinity matrix with Eucledean Distance</h2>
-<h2 id="affinity--nearest_neighbors">affinity = ‘nearest_neighbors’</h2>
-<h1 id="building-the-clustering-model-1">Building the clustering model</h1>
-<p>spectral_model_nn = SpectralClustering(n_clusters = 2, affinity =‘nearest_neighbors’)</p>
-<h1 id="training-the-model-and-storing-the-predicted-cluster-labels-1">Training the model and Storing the predicted cluster labels</h1>
-<p>labels_nn = spectral_model_nn.fit_predict(X_principal)</p>
-<h1 id="visualizing-the-clustering-2">Visualizing the clustering</h1>
-<p>plt.scatter(X_principal[‘P1’], X_principal[‘P2’],<br>
-c = SpectralClustering(n_clusters = 2, affinity =‘nearest_neighbors’) .fit_predict(X_principal), cmap =plt.cm.winter)
-plt.show()</p>
-<h3 id="evaluate-performance">Evaluate performance</h3>
-<h1 id="list-of-different-values-of-affinity">List of different values of affinity</h1>
-<p>affinity = [‘rbf’, ‘nearest-neighbours’]</p>
-<h1 id="list-of-silhouette-scores">List of Silhouette Scores</h1>
-<p>s_scores = []</p>
-<h1 id="evaluating-the-performance">Evaluating the performance</h1>
-<p>s_scores.append(silhouette_score(raw_df, labels_rbf))
-s_scores.append(silhouette_score(raw_df, labels_nn))</p>
-<h1 id="plotting-a-bar-graph-to-compare-the-models">Plotting a Bar Graph to compare the models</h1>
-<p>plt.bar(affinity, s_scores)
-plt.xlabel(‘Affinity’)
-plt.ylabel(‘Silhouette Score’)
-plt.title(‘Comparison of different Clustering Models’)
-plt.show()</p>
-<p>print(s_scores)
-{% endcodeblock %}</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-1/"> <span class="dir">← previous</span> <span class="title">Clustering: K Means and Gaussian Mixture Models</span> </a> <a class="next" href="/writing/blogs/unsupervised/clustering-3/"> <span class="dir">next →</span> <span class="title">Clustering: DBSCAN</span> </a> </nav>  <script>
+<p>Always inspect cluster stability and usefulness. The algorithm can produce clusters even when the structure is weak.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-1/"> <span class="dir">← previous</span> <span class="title">Clustering: K-Means and Gaussian Mixture Models</span> </a> <a class="next" href="/writing/blogs/unsupervised/clustering-3/"> <span class="dir">next →</span> <span class="title">Clustering: DBSCAN</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

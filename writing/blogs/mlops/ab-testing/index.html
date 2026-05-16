@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>A brief Intro to A/B Testing - Zhenlin Wang</title><meta name="description" content="A Recap of Fundamental Concept: A/B Testing "><meta property="og:title" content="A brief Intro to A/B Testing - Zhenlin Wang"><meta property="og:description" content="A Recap of Fundamental Concept: A/B Testing "><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ab-testing/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>A Brief Intro to A/B Testing - Zhenlin Wang</title><meta name="description" content="A practical introduction to A/B testing: hypotheses, metrics, randomization, sample size, statistical significance, and common experiment pitfalls."><meta property="og:title" content="A Brief Intro to A/B Testing - Zhenlin Wang"><meta property="og:description" content="A practical introduction to A/B testing: hypotheses, metrics, randomization, sample size, statistical significance, and common experiment pitfalls."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ab-testing/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,147 +29,97 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Statistics · A/B testing</div> <h1>A <em>brief</em> Intro to A/B Testing</h1> <p class="dek">A Recap of Fundamental Concept: A/B Testing </p> <div class="byline"> <strong>2019.12.20</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction">Introduction</h3>
-<p>A/B testing is a type of hypothesis testing commonly used in business. It is mainly useful on for products that are mature and is suitable for fast iterative product development. The main idea is to assume a new modification is useful and take trials/experiments upon the modified product. Next, using the old version as a reference, see how significant is the improvement brought by the new modification.</p>
-<p><strong>Note:</strong> When we say <em>new modification</em>, it must be warned that the change should contain only <strong>one</strong> factor, otherwise the influence can be compounded.</p>
-<h3 id="11-steps-in-ab-testing">11 Steps in A/B Testing</h3>
-<ol>
-<li>First time trying something new: run an A/A testing simultaneously to check for <code>systematic biases</code></li>
-</ol>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Statistics · Experimentation</div> <h1>A <em>Brief</em> Intro to A/B Testing</h1> <p class="dek">A practical introduction to A/B testing: hypotheses, metrics, randomization, sample size, statistical significance, and common experiment pitfalls.</p> <div class="byline"> <strong>2019.12.20</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>A/B testing compares two or more product variants by randomly assigning users or events to each variant and measuring whether the change improves a predefined metric.</p>
+<p>The core idea is simple:</p>
 <ul>
-<li><code>Systematic Bias</code>: is sampling error that stems from the way in which the research is conducted. There are three types: <br>
-a. Selection bias: Biased way to select the factors/samples. <br>
-b. Non-response bias: the participants/customers involved in your tests are different in their behavioral patterns from the people that are not involved in your study (other general public) <br>
-c. Response bias: The result/inference that are given does not follow the truth/real observations.</li>
+<li>Group A sees the current experience.</li>
+<li>Group B sees the new experience.</li>
+<li>Random assignment makes the groups comparable.</li>
+<li>A metric decides whether the change helped.</li>
 </ul>
-<ol start="2">
-<li>Define the goal and form <strong>hypothesis</strong></li>
-</ol>
+<p>The hard part is not the math. The hard part is choosing the right metric, avoiding biased assignment, and interpreting results without fooling yourself.</p>
+<h2 id="define-the-hypothesis">Define the Hypothesis</h2>
+<p>An experiment should start with a specific hypothesis:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Changing [feature] from [old behavior] to [new behavior] will improve [primary metric] for [population] because [reason].</span></span></code></pre>
+<p>Example:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Changing the signup button copy from "Submit" to "Create account" will improve completed signups for new visitors because the action is clearer.</span></span></code></pre>
+<p>If the hypothesis is vague, the result will be vague too.</p>
+<h2 id="choose-metrics">Choose Metrics</h2>
+<p>Pick one primary metric before the test starts. This is the metric used for the launch decision.</p>
+<p>Common primary metrics:</p>
 <ul>
-<li><code>Null hypothesis</code> $H_0$: a general statement or default position that there is <strong>no relationship</strong> between <strong>two measured phenomena</strong>. Often claimed to be the case when there is no association between the performance of product and the a feature change of the product. If we believe otherwise, then we are arguing for a <code>Alternative hypothesis</code> $H_a$.</li>
+<li>Conversion rate.</li>
+<li>Click-through rate.</li>
+<li>Revenue per user.</li>
+<li>Retention.</li>
+<li>Task completion.</li>
+<li>Latency.</li>
+<li>Error rate.</li>
 </ul>
-<ol start="3">
-<li>Identify <strong>control</strong> and <strong>treatment</strong> groups</li>
-</ol>
+<p>Also define guardrail metrics. A change might increase clicks while hurting retention, trust, or system performance.</p>
+<p>Good guardrails include:</p>
 <ul>
-<li>Determine factor to change (make sure no confounding factors are included)</li>
-<li>Determine sample size: general rule is $N =16 \sigma^2 / \delta^2$ where $\sigma$ is the sample standard deviation and $\delta$ is the difference between the control and treatment.</li>
-<li>Determine duration: usually about 1-2 weeks, but highly dependent on budget and nature of the business</li>
+<li>Page latency.</li>
+<li>Error rate.</li>
+<li>Refunds.</li>
+<li>Complaints.</li>
+<li>Unsubscribe rate.</li>
+<li>Downstream conversion.</li>
 </ul>
-<ol start="4">
-<li>Identify <strong>KPI/metrics</strong> to measure</li>
-</ol>
+<h2 id="randomization">Randomization</h2>
+<p>Randomization is what makes the comparison credible.</p>
+<p>Decide the unit of randomization:</p>
 <ul>
-<li>e.g: <em>click through rate</em>, <em>conversion rate</em>, <em>renewal rate</em>, <em>bounce rate</em>, <em>average retention</em>, etc…</li>
+<li>User-level randomization for user experience changes.</li>
+<li>Session-level randomization for short-lived experiences.</li>
+<li>Request-level randomization only when cross-request interference is not a concern.</li>
+<li>Cluster-level randomization when users influence each other.</li>
 </ul>
-<ol start="5">
-<li>Identify what data needs to be collected</li>
-</ol>
+<p>Do not mix units casually. If the same user can see both A and B, the test may measure confusion instead of product quality.</p>
+<h2 id="statistical-test">Statistical Test</h2>
+<p>For a conversion metric, the basic comparison is the difference in proportions:</p>
+<p>$$
+\Delta = p_B - p_A
+$$</p>
+<p>where $p_A$ is the conversion rate in control and $p_B$ is the conversion rate in treatment.</p>
+<p>The usual question is:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Is the observed difference large enough that random noise is an unlikely explanation?</span></span></code></pre>
+<p>Statistical significance is useful, but it is not the whole decision. Practical significance matters too. A tiny lift can be statistically significant and still not worth launching.</p>
+<h2 id="sample-size-and-power">Sample Size and Power</h2>
+<p>Small tests are noisy. Before running the experiment, estimate:</p>
 <ul>
-<li>Sometime people use the <strong>Customer Funnel analysis</strong>:</li>
+<li>Baseline conversion rate.</li>
+<li>Minimum detectable effect.</li>
+<li>Significance level.</li>
+<li>Desired power.</li>
+<li>Expected traffic.</li>
+<li>Experiment duration.</li>
 </ul>
-<figure align="center">
-  <img src="/images/Data Science Concept/funnel.png" width="300px">
-  <figcaption>credit: https://clevertap.com/blog/funnel-analysis.</figcaption>
-</figure>
+<p>If the test is underpowered, it may fail to detect a real improvement. If it runs too long, external seasonality and product changes can contaminate the result.</p>
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+<h3 id="peeking-too-often">Peeking Too Often</h3>
+<p>If you repeatedly check significance and stop the moment the result looks good, the false-positive rate increases. Use a planned duration or sequential testing method.</p>
+<h3 id="too-many-metrics">Too Many Metrics</h3>
+<p>If you test many metrics and only report the one that moved, you are likely overfitting the analysis. Decide the primary metric ahead of time.</p>
+<h3 id="sample-ratio-mismatch">Sample Ratio Mismatch</h3>
+<p>If the expected split is 50/50 but traffic lands 60/40, something may be wrong with assignment, logging, or filtering.</p>
+<h3 id="novelty-effects">Novelty Effects</h3>
+<p>Users may react differently simply because something is new. For retention or long-term behavior, short tests can mislead.</p>
+<h3 id="interference">Interference</h3>
+<p>One user’s treatment can affect another user’s outcome. Social feeds, marketplaces, ads, and recommendation systems are especially vulnerable.</p>
+<h2 id="launch-decision">Launch Decision</h2>
+<p>A good launch review asks:</p>
 <ul>
-<li>Example: [<strong>Netflix - Funnel Description</strong>] Customer will enter the home page, which invites customer to further enter via the button <code>free trial for one month</code>, then customer will try and then register and pay</li>
-<li>Example: [<strong>Netflix - Funnel Analysis</strong>]Funnel analysis: here the funnel will be how the product will affect each steps like <code>improving converted customer size</code> or <code>improving returning customer size</code>, during the procedure to reach <strong>click through/subscription</strong>, what side-effects/main effects are triggered
-<br></li>
+<li>Did the primary metric improve?</li>
+<li>Did guardrails stay healthy?</li>
+<li>Is the effect practically meaningful?</li>
+<li>Was the sample ratio correct?</li>
+<li>Were there logging or instrumentation issues?</li>
+<li>Is the result consistent across important slices?</li>
+<li>Are there product reasons to delay or roll out gradually?</li>
 </ul>
-<ol start="6">
-<li>Make sure that appropriate <strong>logging</strong> is in place to collect all necessary data</li>
-<li>Determine how small of a difference can be (<strong>define significance level</strong> and thus <strong>power</strong> of the experiment)</li>
-</ol>
-<ul>
-<li>
-<p><code>Significance Level</code>: the decision threshold and basically the probability that we reject the null hypothesis while it is true (type I error). <strong>A lower significance level indicates an underlying difference between the baseline and the control.</strong> In the majority of cases, the threshold $\alpha$ value is about 0.05.</p>
-</li>
-<li>
-<p><code>P-Value</code>: the probability that the difference between two values is related to random chance. <strong>The lower the p-value, the more likely H0 is to be discarded.</strong> As a result, what you saw did not happen randomly.</p>
-</li>
-<li>
-<p><code>Power</code>: is the probability of rejecting the null hypothesis while it is false (type II error).</p>
-</li>
-<li>
-<p>Example: $\alpha = 0.05$ + p-value is less than $0.05$ -> reject $H_0$ and Conclude $H_a$.</p>
-</li>
-</ul>
-<ol start="8">
-<li>Determine what fraction of visitors should be in the treatment group (<strong>control/treatment split ratio</strong>)</li>
-<li>Run a <a href="https://stats.idre.ucla.edu/other/mult-pkg/seminars/intro-power/">power analysis</a> to decie how much data is needed to collet and how long to run the test</li>
-</ol>
-<ul>
-<li>compute <strong>running time</strong> given customer flow</li>
-<li>Run the test for <strong>AT LEAST</strong> this <strong>running time</strong> long</li>
-</ul>
-<ol start="10">
-<li>(*) For comparing ML algorithms, consider <em>McNamer’s Test</em> or <em>5x2 CV</em> or <em>Nonparametric Paired Test</em>. You can find the details in <a href="https://machinelearningmastery.com/statistical-significance-tests-for-comparing-machine-learning-algorithms/">this post</a></li>
-<li>Sanity Checks and post-experiment validation: Ensure to take a review of all the executions, subjects and objectives are as expected.</li>
-</ol>
-<h3 id="before-you-run-ab-testing">Before you run A/B testing…</h3>
-<h4 id="1-why-should-you-run-a-ab-test">1. Why should you run a A/B test?</h4>
-<ul>
-<li>A/B testing is the key to understand what drives your business and make data-informed business decisions</li>
-<li>To understand the <strong>causal relationship</strong> and not simply the correlations</li>
-</ul>
-<h4 id="2-when-to-run-experiments">2. When to run experiments</h4>
-<ul>
-<li>Deciding whether or not to launch a new product or feature</li>
-<li>To quantify the impact of a feature or product</li>
-<li>Compare data with intuition (Understand how users respond to certain parts of a product)</li>
-</ul>
-<h4 id="3-when-not-to-run-experiments">3. When not to run experiments</h4>
-<ul>
-<li>No clear comparison between the control and experimental group</li>
-<li>Emotional changes need time: Logo/Brand name</li>
-<li>Response data hard to obtain</li>
-<li>Too time consuming/costly</li>
-</ul>
-<h3 id="a-closer-look-at-type-i-and-type-ii-errors">A closer look at Type I and Type II errors</h3>
-<h4 id="1-terminology">1. Terminology</h4>
-<ul>
-<li><code>significance level</code>: The significance level for a given hypothesis test is <strong>a value for which a <em>p</em>-value less than or equal to</strong> is considered <strong>statistically significant</strong>. Often denoted by <strong>α</strong></li>
-<li><code>region of acceptance</code>: The <strong>range of values</strong> that leads the researcher to <strong>accept the null hypothesis</strong>. [<code>significance level</code>↓ $\implies$ <code>region of acceptance</code>↑ : harsher condition to produce a winner]</li>
-<li><code>effective size</code>: The <strong>difference between the true value and the value specified in the null hypothesis</strong>. [Effect size = True value - Hypothesized value]</li>
-</ul>
-<h4 id="2-type-1-error">2. Type 1 Error</h4>
-<ul>
-<li>When the <code>Null Hypothesis</code> is true but rejected</li>
-<li>‘false positive’ - happen when the tester validates a <strong>statistically significant difference</strong> even though there isn’t one <strong>(no winner situation)</strong>. <code>positive</code> here means a <strong>valid winner</strong> concluded</li>
-<li>Type 1 errors have a probability of <strong>“α”</strong> correlated to the level of confidence that you set. A test with a 95% confidence level (<strong>α = 0.05</strong>) means that there is a <strong>5% chance of getting a type 1 error</strong>.</li>
-<li><strong>[In business sense]</strong> This means that you will wrongfully assume that your hypothesis testing has worked even though it hasn’t.</li>
-<li><strong>[The business consequence]</strong> Potential loss of money after adjustment is made, because <strong>your variation didn’t actually beat your control version in the long run</strong>.</li>
-</ul>
-<h4 id="3-type-2-error">3. Type 2 Error</h4>
-<ul>
-<li>When the <code>Null Hypothesis</code> is false but accepted</li>
-<li>‘false negative’ - Happens when you inaccurately assume that no winner has been declared between a control version and a variation <strong>although there actually is a winner (can be either)</strong></li>
-<li>The probability of a type 2 error is <strong>“β”</strong>. <strong>β</strong> depends on the <strong>power</strong> of the test (i.e the probability of not committing a type 2 error, which is equal to <strong>1-β</strong>).</li>
-<li>There are 3 parameters that can affect the power of a test:
-<ul>
-<li><code>Sample size (n)</code>: Other things being equal, the <em>greater the sample size</em>, <em>the greater the power of the test</em> (but also <em>the more expensive of the test</em>).</li>
-<li><code>Significance level of test (α)</code>: The lower the <code>significance level</code>, the lower the power of the test.
-<ul>
-<li>If you reduce the <code>significance level</code> (e.g., from 0.05 to 0.01), the <code>region of acceptance</code> gets bigger. As a result, you are less likely to reject the null hypothesis. This means you are less likely to reject the null hypothesis when it is false, so you are more likely to make a Type II error. In short, the power of the test is reduced when you reduce the significance level; and vice versa.</li>
-</ul>
-</li>
-<li>The “true” value of your tested parameter or <code>effective size</code>: The greater the difference between the “true” value of a parameter and the value specified in the null hypothesis, the greater the power of the test.</li>
-</ul>
-</li>
-<li><strong>[The business consequence]</strong> Potential loss of money after adjustment is made, because <strong>your variation didn’t actually beat your control version in the long run</strong></li>
-</ul>
-<h3 id="toolkits">Toolkits</h3>
-<ol>
-<li>Usually the test plan/create variation step can be executed with company’s own techpack, or using some popular tools</li>
-</ol>
-<ul>
-<li><strong>Google optimize</strong></li>
-<li><strong>optimizely</strong></li>
-</ul>
-<ol start="2">
-<li>For hypo testing and result analysis: online resources of excel’s A/B testing macro are widely available</li>
-</ol> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/data-cleaning/"> <span class="dir">← previous</span> <span class="title">The Data Mining Triology: II. Cleaning</span> </a> <a class="next" href="/writing/blogs/data/data-analytics/"> <span class="dir">next →</span> <span class="title">An overview of Big Data Analytics</span> </a> </nav>  <script>
+<p>The best A/B tests do not only answer “which button wins?” They build a habit of making product decisions with evidence.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/data-cleaning/"> <span class="dir">← previous</span> <span class="title">The Data Mining Trilogy II: Cleaning</span> </a> <a class="next" href="/writing/blogs/data/data-analytics/"> <span class="dir">next →</span> <span class="title">An Overview of Big Data Analytics</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

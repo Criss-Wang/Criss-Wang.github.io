@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Deep Learning System Design - A Checklist (Part I) - Zhenlin Wang</title><meta name="description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:title" content="Deep Learning System Design - A Checklist (Part I) - Zhenlin Wang"><meta property="og:description" content="An Overview of how to design a full-stack Deep Learning System"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/deep-learning-system-design-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Deep Learning System Design: A Checklist, Part I - Zhenlin Wang</title><meta name="description" content="A practical checklist for the early stages of a deep learning system: data, modeling, evaluation, training, and experiment tracking."><meta property="og:title" content="Deep Learning System Design: A Checklist, Part I - Zhenlin Wang"><meta property="og:description" content="A practical checklist for the early stages of a deep learning system: data, modeling, evaluation, training, and experiment tracking."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/deep-learning-system-design-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,487 +29,172 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · System Design</div> <h1>Deep <em>Learning</em> System Design - A Checklist (Part I)</h1> <p class="dek">An Overview of how to design a full-stack Deep Learning System</p> <div class="byline"> <strong>2024.02.09</strong> <span>·</span> <span>8 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction">Introduction</h3>
-<p>After reviewing many blog posts and working on several DL-based projects myself, I’ve compiled a list of must-do’s for a robust, complete Deep Learning System. In general, when we consider a DL system to be “complete”, it needs to have the following components:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · System Design</div> <h1>Deep <em>Learning</em> System Design: A Checklist, Part I</h1> <p class="dek">A practical checklist for the early stages of a deep learning system: data, modeling, evaluation, training, and experiment tracking.</p> <div class="byline"> <strong>2024.02.09</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>A deep learning system is more than a trained model. The model sits inside a system of data pipelines, evaluation rules, training infrastructure, experiment records, deployment paths, serving contracts, and monitoring loops.</p>
+<p>This first part focuses on the pre-deployment side:</p>
 <ol>
-<li>Data</li>
-<li>Modeling</li>
-<li>Training &#x26; Optimization</li>
-<li>Experiments</li>
-<li>Packaging and Deployment</li>
-<li>Serving</li>
-<li>Monitoring</li>
+<li>Data.</li>
+<li>Modeling.</li>
+<li>Evaluation.</li>
+<li>Training and optimization.</li>
+<li>Experiments.</li>
 </ol>
-<p>I’ll walk through each step and provide checklists for each of them, detailing rationales and provide examples wherever possible.</p>
-<h3 id="step-1-data">Step 1: Data</h3>
-<h4 id="data-source">Data Source</h4>
+<p>Part II covers packaging, serving, deployment, and monitoring.</p>
+<h2 id="step-1-data">Step 1: Data</h2>
+<p>Data quality decides how much intelligence the model can learn. Before modeling, answer the boring questions carefully.</p>
+<h3 id="data-source">Data Source</h3>
+<p>Check:</p>
 <ul>
-<li>What is the availability of data?</li>
-<li>What is the size/scale of data?</li>
-<li>Do we have user feedback data?</li>
-<li>Do we use system/operation data (logs? API req/resp?)</li>
-<li>Are there privacy issues?</li>
-<li>A note about logs: Store logs for as long as they are useful, and can discard them when they are no longer relevant for you to debug your current system</li>
+<li>What data exists?</li>
+<li>Who owns it?</li>
+<li>How is access granted?</li>
+<li>How fresh is it?</li>
+<li>How large is it?</li>
+<li>Which user groups, regions, languages, or edge cases are missing?</li>
+<li>Does it include sensitive or regulated information?</li>
+<li>Is there user feedback or operational data that can improve the system later?</li>
 </ul>
-<h4 id="data-etl">Data ETL</h4>
+<p>Logs are useful, but they should not be kept forever by default. Keep them long enough for debugging, audit, and monitoring needs, then apply retention rules.</p>
+<h3 id="data-format-and-storage">Data Format and Storage</h3>
+<p>The storage format should match the workload.</p>
 <ul>
-<li>What is the data size before/after transformation, this often involves granularity</li>
-<li>What is the data format?
+<li>Row-oriented formats are often convenient for transactional writes.</li>
+<li>Columnar formats such as Parquet are often better for analytical reads.</li>
+<li>Object storage is common for raw artifacts, training snapshots, and large files.</li>
+<li>Databases are useful for structured operational records and metadata.</li>
+</ul>
+<p>Separate app data from ML artifacts when the access patterns differ. A product database, feature store, model registry, and experiment tracker usually have different responsibilities.</p>
+<h3 id="etl-and-feature-pipelines">ETL and Feature Pipelines</h3>
+<p>A data pipeline should make transformations repeatable:</p>
 <ul>
-<li>JSON</li>
-<li>CSV (Row-format)</li>
-<li>Parquet (Column format, Hadoop, AWS Redshift)</li>
-<li>Row-major vs Column-major
+<li>Extract raw data from trusted sources.</li>
+<li>Validate schema and basic quality.</li>
+<li>Transform into model-ready features, examples, chunks, or embeddings.</li>
+<li>Write immutable or versioned outputs.</li>
+<li>Record lineage from raw source to training set.</li>
+</ul>
+<p>The question is not only “Can I make a training CSV?” It is “Can someone rebuild the same training data next month?”</p>
+<h3 id="data-quality">Data Quality</h3>
+<p>Validate:</p>
 <ul>
-<li>Overall, row-major formats are better when you have to do a lot of writes, whereas column-major ones are better when you have to do a lot of column-based reads.</li>
-<li>Note: <code>Pandas</code> is column-major, <code>NumPy</code> is row-major by default (if not specified). Access <code>Pandas DataFrame</code> rows are faster after we do <code>df.to_numpy()</code></li>
+<li>Missing values.</li>
+<li>Duplicate records.</li>
+<li>Invalid ranges.</li>
+<li>Broken categorical values.</li>
+<li>Unexpected schema changes.</li>
+<li>Label distribution changes.</li>
+<li>Train/test leakage.</li>
+<li>Personally identifiable information.</li>
+<li>Outliers that are real but rare.</li>
+<li>Outliers caused by data errors.</li>
 </ul>
-</li>
-<li>Model related:
+<p>For tabular pipelines, libraries such as Pandera or Great Expectations can make these checks explicit. For unstructured data, the same principle applies: validate document metadata, file integrity, language, length, source, and parsing success.</p>
+<h2 id="step-2-modeling">Step 2: Modeling</h2>
+<p>Start with the task, not with the model.</p>
+<h3 id="task-definition">Task Definition</h3>
+<p>Clarify:</p>
 <ul>
-<li>Metadata</li>
-<li>Training data</li>
-<li>Monitoring data (sometimes for iterative deployment with model updates)</li>
+<li>Is the output a class, score, ranking, text, image, embedding, action, or forecast?</li>
+<li>Are labels available?</li>
+<li>Are labels reliable?</li>
+<li>Does the model need to explain its output?</li>
+<li>Does the output trigger an automatic action or human review?</li>
+<li>What latency and cost are acceptable?</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>Where is the data stored (Cloud? Local? Edge?)
+<p>These answers narrow the model family before architecture debates begin.</p>
+<h3 id="baselines">Baselines</h3>
+<p>Every project needs a baseline:</p>
 <ul>
-<li>Most of the time, it is cloud. Afterall, it costs little for school-level project to store data in AWS S3.</li>
-<li>Consider spliting app-related dat from model-related data (e.g. WandB vs MongoDB)</li>
+<li>Random baseline.</li>
+<li>Majority-class or simple heuristic baseline.</li>
+<li>Existing production workflow.</li>
+<li>Classical ML model.</li>
+<li>Small neural network.</li>
+<li>Retrieval-only or rules-only baseline for LLM systems.</li>
 </ul>
-</li>
-<li>Processing
+<p>Baselines protect the team from celebrating a complex model that barely beats a simple solution.</p>
+<h3 id="metric-selection">Metric Selection</h3>
+<p>Pick metrics that match the failure cost.</p>
 <ul>
-<li>Recall <strong>ACID</strong> and <strong>BASE</strong></li>
-<li>Tranactional: OLTP
-<ol>
-<li>low latency (often for streaming service)</li>
-<li>high availability</li>
-<li>transaction won’t go through if system cannot process it</li>
-<li>Often row-major</li>
-<li>Eventual consistency</li>
-</ol>
-</li>
-<li>Analytical: OLAP
-<ol>
-<li>Tolerant to higher query latency (often require trasnformation)</li>
-<li>less available: can afford some downtime</li>
-<li>delayed operation, but will go through during system overload</li>
-<li>Often uses a columnar storage format for better query performance.</li>
-<li>Strong consistency</li>
-</ol>
-</li>
+<li>Classification: precision, recall, F1, ROC-AUC, PR-AUC, calibration, confusion matrix.</li>
+<li>Regression: MAE, RMSE, MAPE, pinball loss, error by segment.</li>
+<li>Ranking and retrieval: recall@k, precision@k, MRR, nDCG.</li>
+<li>Generation: task success, factuality, citation quality, refusal behavior, style, latency, cost.</li>
+<li>Segmentation: IoU, Dice, pixel accuracy, per-class scores.</li>
+<li>Forecasting: error by horizon, seasonality, and segment.</li>
+<li>Reinforcement learning: average return, success rate, safety constraints, sample efficiency.</li>
 </ul>
-</li>
-</ul>
-<h4 id="data-routine">Data Routine</h4>
+<p>Do not stop at one metric. Add slice-level evaluation for important user groups, data sources, and edge cases.</p>
+<h3 id="model-comparison">Model Comparison</h3>
+<p>When comparing models, make the comparison fair:</p>
 <ul>
-<li>ETL daily routine</li>
-<li>Example: using Airflow</li>
+<li>Same train/validation/test split.</li>
+<li>Same data version.</li>
+<li>Same evaluation code.</li>
+<li>Same inference constraints.</li>
+<li>Confidence intervals or repeated runs when randomness matters.</li>
+<li>Human review for qualitative tasks.</li>
 </ul>
-<h4 id="data-quality--data-validation">Data Quality &#x26; Data Validation</h4>
+<p>Useful checks include perturbation tests, invariance tests, directional expectation tests, calibration checks, and slice-based evaluation.</p>
+<h2 id="step-3-training-and-optimization">Step 3: Training and Optimization</h2>
+<p>Training quality depends on stability, memory, throughput, and observability.</p>
+<p>Before scaling up:</p>
 <ul>
-<li>Are the feature information complete? Any missing data?</li>
-<li>Is the training/testing data fully labeled? (can we use self-supervised to do ML-based annotation?)</li>
-<li>Are there data drifts? Are there bias in the data? Packages to detect them?</li>
-<li>Routine to validate data?</li>
-<li>Example: use <code>pandera</code> package</li>
+<li>Overfit a tiny batch to catch implementation bugs.</li>
+<li>Confirm the loss decreases.</li>
+<li>Confirm labels and predictions are aligned.</li>
+<li>Set seeds where reproducibility matters.</li>
+<li>Log gradient norms and learning rate.</li>
+<li>Validate checkpoint resume.</li>
 </ul>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandera </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pa</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> azureml.core </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Run</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">run </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Run.get_context(</span><span style="color:#F69D50">allow_offline</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">if</span><span style="color:#ADBAC7"> run.id.startswith(</span><span style="color:#96D0FF">"OfflineRun"</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">    import</span><span style="color:#ADBAC7"> os</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">    from</span><span style="color:#ADBAC7"> azureml.core.dataset </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Dataset</span></span>
-<span class="line"><span style="color:#F47067">    from</span><span style="color:#ADBAC7"> azureml.core.workspace </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Workspace</span></span>
-<span class="line"><span style="color:#F47067">    from</span><span style="color:#ADBAC7"> dotenv </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> load_dotenv</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">    load_dotenv()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">    ws </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Workspace.from_config(</span><span style="color:#F69D50">path</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">os.getenv(</span><span style="color:#96D0FF">"AML_CONFIG_PATH"</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">    liko_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Dataset.get_by_name(</span><span style="color:#96D0FF">"liko_data"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">else</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#ADBAC7">    liko_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> run.input_datasets[</span><span style="color:#96D0FF">"liko_data"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> liko_data.to_pandas_dataframe()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># ---------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Include code to prepare data here</span></span>
-<span class="line"><span style="color:#768390"># ---------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">liko_data_schema </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pa.DataFrameSchema({</span></span>
-<span class="line"><span style="color:#96D0FF">    "Id"</span><span style="color:#ADBAC7">: pa.Column(pa.Int, </span><span style="color:#F69D50">nullable</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#96D0FF">    "AccountNo"</span><span style="color:#ADBAC7">: pa.Column(pa.Bool, </span><span style="color:#F69D50">nullable</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#96D0FF">    "BVN"</span><span style="color:#ADBAC7">: pa.Column(pa.Bool, </span><span style="color:#F69D50">nullable</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">required</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#96D0FF">    "IdentificationType"</span><span style="color:#ADBAC7">: pa.Column(pa.String </span><span style="color:#F69D50">checks</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pa.Check.isin([</span></span>
-<span class="line"><span style="color:#96D0FF">        "NIN"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Passport"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Driver's license"</span></span>
-<span class="line"><span style="color:#ADBAC7">    ]),</span></span>
-<span class="line"><span style="color:#96D0FF">    "Nationality"</span><span style="color:#ADBAC7">: pa.Column(pa.String, pa.Check.isin([</span></span>
-<span class="line"><span style="color:#96D0FF">        "NG"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"GH"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"UG"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"SA"</span></span>
-<span class="line"><span style="color:#ADBAC7">    ]),</span></span>
-<span class="line"><span style="color:#96D0FF">    "DateOfBirth"</span><span style="color:#ADBAC7">: pa.Column(</span></span>
-<span class="line"><span style="color:#ADBAC7">        pa.DateTime,</span></span>
-<span class="line"><span style="color:#F69D50">        nullable</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">        checks</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pa.Check.less_than_or_equal_to(</span><span style="color:#96D0FF">'2000-01-01'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ),</span></span>
-<span class="line"><span style="color:#96D0FF">    "*_Risk"</span><span style="color:#ADBAC7">: pa.Column(</span></span>
-<span class="line"><span style="color:#ADBAC7">        pa.Float,</span></span>
-<span class="line"><span style="color:#F69D50">        coerce</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">        regex</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span></span>
-<span class="line"><span style="color:#ADBAC7">    )</span></span>
-<span class="line"><span style="color:#ADBAC7">}, </span><span style="color:#F69D50">ordered</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">strict</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">run.log_table(</span><span style="color:#96D0FF">"liko_data_schema"</span><span style="color:#ADBAC7">, liko_data_schema)</span></span>
-<span class="line"><span style="color:#ADBAC7">run.parent.log_table(</span><span style="color:#96D0FF">"liko_data_schema"</span><span style="color:#ADBAC7">, liko_data_schema)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># -----------------------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Include code to save dataframe to output folder</span></span>
-<span class="line"><span style="color:#768390"># -----------------------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">##### Downstream task</span></span>
-<span class="line"><span style="color:#ADBAC7">liko_data_schema.validate(data_sample)</span></span></code></pre>
-<h3 id="step-2-modeling">Step 2: Modeling</h3>
-<h4 id="model-selection">Model selection</h4>
+<p>Common training choices:</p>
 <ul>
-<li>Start with model suitable for the task -> task categorization
-<ol>
-<li>with/without label/partial label</li>
-<li>numeric/categorical output</li>
-<li>generation/prediction (for generation you need to learn the latent space)</li>
-</ol>
-</li>
-<li>Baseline selection
-<ol>
-<li>Random Baseline</li>
-<li>Human Heuristic</li>
-<li>Simplest ML model</li>
-</ol>
-</li>
+<li>Optimizer: SGD, Adam, AdamW, Adafactor, or task-specific variants.</li>
+<li>Scheduler: warmup plus cosine decay, linear decay, step decay, or reduce-on-plateau.</li>
+<li>Precision: FP32, FP16, BF16, or mixed precision.</li>
+<li>Memory strategy: smaller micro-batch, gradient accumulation, activation checkpointing, sharding, or offload.</li>
+<li>Scale strategy: single GPU, DDP, FSDP, tensor parallelism, or pipeline parallelism.</li>
 </ul>
-<h4 id="metric-selection">Metric Selection</h4>
+<p>For deeper training notes, see <a href="/writing/blogs/mlops/ml-training/">Deep Learning Training: A Practical Guide</a>.</p>
+<h2 id="step-4-experiments">Step 4: Experiments</h2>
+<p>Experiment tracking is not optional once runs become expensive, collaborative, or user-facing.</p>
+<p>Track:</p>
 <ul>
-<li>
-<p>What is the task type</p>
-  <details>
-    <summary>Classification Metrics: Binary Classification</summary>
-    <ul>
-        <li>Accuracy</li>
-        <li>Precision</li>
-        <li>Recall</li>
-        <li>F1 Score</li>
-        <li>Area Under the Receiver Operating Characteristic curve (AUC-ROC)</li>
-        <li>Area Under the Precision-Recall curve (AUC-PR)</li>
-        <li>True Positive Rate (Sensitivity or Recall)</li>
-        <li>True Negative Rate (Specificity)</li>
-        <li>False Positive Rate</li>
-        <li>False Negative Rate</li>
-    </ul>
-</details>
-  <details>
-      <summary>Classification Metrics: Multi-Class Classification</summary>
-      <ul>
-          <li>Micro/Macro/Average Precision</li>
-          <li>Micro/Macro/Average Recall</li>
-          <li>Micro/Macro/Average F1 Score</li>
-          <li>Confusion Matrix</li>
-          <li>Multi-class Log Loss</li>
-          <li>Cohen\'s Kappa</li>
-          <li>Jaccard Similarity Score</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Regression Metrics</summary>
-      <ul>
-          <li>Mean Squared Error (MSE)</li>
-          <li>Root Mean Squared Error (RMSE)</li>
-          <li>Mean Absolute Error (MAE)</li>
-          <li>R-squared (Coefficient of Determination)</li>
-          <li>Mean Squared Logarithmic Error (MSLE)</li>
-          <li>Mean Absolute Percentage Error (MAPE)</li>
-          <li>Huber Loss</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Clustering Metrics</summary>
-      <ul>
-          <li>Silhouette Score</li>
-          <li>Davies-Bouldin Index</li>
-          <li>Calinski-Harabasz Index</li>
-          <li>Inertia (within-cluster sum of squares)</li>
-          <li>Adjusted Rand Index</li>
-          <li>Normalized Mutual Information (NMI)</li>
-          <li>Homogeneity, Completeness, and V-Measure</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Anomaly Detection Metrics</summary>
-      <ul>
-          <li>Precision at a given recall</li>
-          <li>Area Under the Precision-Recall curve (AUC-PR)</li>
-          <li>F1 Score</li>
-          <li>Receiver Operating Characteristic curve (ROC)</li>
-          <li>Area Under the Receiver Operating Characteristic curve (AUC-ROC)</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Natural Language Processing (NLP) Metrics</summary>
-      <ul>
-          <li>BLEU Score</li>
-          <li>ROUGE Score</li>
-          <li>METEOR Score</li>
-          <li>CIDEr Score</li>
-          <li>Perplexity</li>
-          <li>Accuracy, Precision, Recall for NER tasks</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Ranking Metrics</summary>
-      <ul>
-          <li>Mean Reciprocal Rank (MRR)</li>
-          <li>Normalized Discounted Cumulative Gain (NDCG)</li>
-          <li>Mean Average Precision</li>
-          <li>Precision at K</li>
-          <li>Recall at K</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Recommender System Metrics</summary>
-      <ul>
-          <li>Precision at K</li>
-          <li>Recall at K</li>
-          <li>Mean Average Precision (MAP)</li>
-          <li>Bayesian Personalized Ranking (BPR)</li>
-          <li>Root Mean Squared Error (RMSE) for collaborative filtering</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Image Segmentation Metrics</summary>
-      <ul>
-          <li>Intersection over Union (IoU)</li>
-          <li>Dice Coefficient</li>
-          <li>Pixel Accuracy</li>
-          <li>Mean Intersection over Union (mIoU)</li>
-          <li>F1 Score</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Time Series Forecasting Metrics</summary>
-      <ul>
-          <li>Mean Absolute Error (MAE)</li>
-          <li>Mean Squared Error (MSE)</li>
-          <li>Root Mean Squared Error (RMSE)</li>
-          <li>Mean Absolute Percentage Error (MAPE)</li>
-          <li>Symmetric Mean Absolute Percentage Error (SMAPE)</li>
-          <li>Mean Directional Accuracy (MDA)</li>
-      </ul>
-  </details>
-  <details>
-      <summary>Reinforcement Learning Metrics</summary>
-      <ul>
-          <li>Average Reward</li>
-          <li>Discounted Sum of Rewards</li>
-          <li>Entropy of Policy</li>
-          <li>Exploration-Exploitation Tradeoff Metrics</li>
-      </ul>
-  </details>
-</li>
-<li>
-<p>What is the business objective</p>
-</li>
-<li>
-<p>Imbalance and Cost Sensitivtiy</p>
-</li>
-<li>
-<p>Threshold Selection</p>
-</li>
-<li>
-<p>Data Type</p>
-</li>
-<li>
-<p>Interpretability</p>
-</li>
-<li>
-<p>Robustness</p>
-</li>
+<li>Code version.</li>
+<li>Config and command-line arguments.</li>
+<li>Data version.</li>
+<li>Environment or container image.</li>
+<li>Hyperparameters.</li>
+<li>Metrics.</li>
+<li>Slice metrics.</li>
+<li>Evaluation artifacts.</li>
+<li>Checkpoints.</li>
+<li>Logs and errors.</li>
+<li>Hardware and runtime.</li>
 </ul>
-<h4 id="impt-evaluation-methods-for-model-comparison--model-quality-control">(IMPT!) Evaluation methods for Model comparison &#x26; Model quality control</h4>
-<ol>
-<li>When drawing conclusion about model performance, consider <strong>Students t-test</strong></li>
-<li>Perturbation test (corruption, adversarial attack)</li>
-<li>Invariance test (Bias removal)</li>
-<li>Directional Expectation test (Common sense directions. E.g.: rainy season shouldn’t have much higher temperature than dry season)</li>
-<li>Model calibration (when standalone probability in the output matters) <a href="https://docs.google.com/document/d/1_kxf0xRAushBEepKh57mHubWCkVuS37iAqwmJcYFoJE/edit">see page 10</a></li>
-<li>Confidence Evaluation (usefulness threshold for each individual prediction)</li>
-<li>Slice-based Evaluation (model performance on subgroups)</li>
-</ol>
-<h3 id="step-3-training--optimization">Step 3: Training &#x26; Optimization</h3>
+<p>Tools such as MLflow, Weights &#x26; Biases, Neptune, and cloud-native trackers can help, but the tool is less important than the record. A run should answer:</p>
 <ul>
-<li>On what platform is the model trained?</li>
-<li>Do we use distribtued training?</li>
-<li>What are the potential issues
-<ol>
-<li>Hardware (GPU memory, inter-GPU communication speed)</li>
-<li>Overfitting/underfitting</li>
-<li>Concept Drift</li>
-<li>training stability (less fluctuations)</li>
-<li>dead neuron</li>
-<li>Local minima</li>
-<li>vanishing/exploding gradients</li>
-</ol>
-</li>
-<li>How to do debugging
-<ol>
-<li>Start simple and gradually add more components</li>
-<li>(*)Overfit a single batch: If model can’t overfit a small amount of data, there’s something wrong with your implementation.</li>
-<li>Set seed properly</li>
-</ol>
-</li>
-<li>Is hyperparameter tuning needed? Setup routine for tuning?</li>
-<li>How to optimize the training to make it feasible/efficient/fault tolerant?
-<ol>
-<li>Mixed Precision</li>
-<li>Quantization</li>
-<li>FSDP/DDP/Tensor/Model/Pipeline</li>
-<li>Checkpointing</li>
-<li>Accumulation</li>
-<li>Knowledge Distillation</li>
-<li>PEFT? (LoRA, Prefix Tuning)</li>
-</ol>
-</li>
-<li>What optimizer do we use? its scheduler?</li>
-<li>What loss do we use?
+<li>What did we try?</li>
+<li>What data did it use?</li>
+<li>What code produced it?</li>
+<li>What changed from the previous run?</li>
+<li>Did it improve the metric that matters?</li>
+<li>Is it reproducible?</li>
+</ul>
+<h3 id="task-specific-artifacts">Task-Specific Artifacts</h3>
+<p>Different tasks need different artifacts:</p>
 <ul>
-<li>Most of the time it is just same as metrics</li>
-<li>other scenarios include:
-<ul>
-<li>Reconstruction loss: mean squared error (MSE) for continuous data or binary cross-entropy for binary data</li>
-<li>KL Divergence</li>
-<li>Contrastive Loss: Encourages similarity between augmented versions of the same sample and dissimilarity between different samples. (Siamese Networks / Triplet Loss / SimCLR / Contrastive Divergence Loss (restricted boltzmann machine))</li>
+<li>Classification: confusion matrix, ROC/PR curves, misclassified examples.</li>
+<li>Computer vision: predictions, masks, bounding boxes, overlays.</li>
+<li>NLP and LLM: prompts, retrieved context, generated outputs, refusal cases, citation checks.</li>
+<li>Ranking: top-k examples, failed queries, query slices.</li>
+<li>Tabular ML: feature importance, calibration plots, partial dependence, SHAP summaries when useful.</li>
+<li>Reinforcement learning: episode return, episode length, environment seed, videos or trajectories.</li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="step-4-experiments">Step 4: Experiments</h3>
-<p>Experiment tracking are important, especially when the scale of training is large, and teamwork is involved. There are a lot of tracking tools available out there. <code>kubeflow</code>, <code>mlflow</code>, <code>wandb</code>, <code>neptune.ai</code>… you name it. When using these tools, what’s critical is to consider things to keep track of.</p>
-<h4 id="must-haves">Must-have’s</h4>
-<ul>
-<li><strong>Code</strong>:
-<ul>
-<li>Preprocessing + training + evaluation scripts,</li>
-<li>Notebooks for feature engineering</li>
-<li>Other util codes</li>
-</ul>
-</li>
-<li><strong>Environment</strong>:
-<ul>
-<li>Save the environment configuration files like <code>Dockerfile</code> (Docker), <code>requirements.txt</code> (pip), <code>pyproject.toml</code> (e.g., hatch and poetry), or <code>conda.yml</code> (conda).</li>
-<li>(IMPT) Save Docker images on Docker Hub or your own container repository is always a good practice before running experiment</li>
-</ul>
-</li>
-<li><strong>Data</strong>:
-<ul>
-<li>Saving data versions (as a hash or locations of immutable data resources)</li>
-<li>You can also use modern data versioning tools like DVC (and save the .dvc files to your experiment tracking tool).</li>
-</ul>
-</li>
-<li><strong>Parameters</strong>:
-<ul>
-<li>Experiment run’s configuration</li>
-<li>Save parameters used via the command line (e.g., through argparse, click, or hydra)</li>
-</ul>
-</li>
-<li><strong>Metrics</strong>:
-<ul>
-<li>Logging evaluation metrics on train, validation, and test sets for every run.</li>
-</ul>
-</li>
-</ul>
-<h4 id="task-specific">Task-specific</h4>
-<ol>
-<li>Traditional ML</li>
-</ol>
-<ul>
-<li>Model weights</li>
-<li>Evaluation charts (ROC curves, Confusion matrix)</li>
-<li>Prediction distributions</li>
-</ul>
-<ol start="2">
-<li>Deep Learning</li>
-</ol>
-<ul>
-<li>Model checkpoints (both during and after training, but beware of the cost)</li>
-<li>Gradient norms (to control for vanishing or exploding gradient problems)</li>
-<li>Best/worst predictions on the validation and test set after training</li>
-<li>Hardware resources: CPU/GPU Utility, Memory Utility, Disk I/O, Network Utility, throughput</li>
-</ul>
-<ol start="3">
-<li>Computer Vision</li>
-</ol>
-<ul>
-<li>Model predictions after every epoch (labels, overlayed masks or bounding boxes)</li>
-</ul>
-<ol start="4">
-<li>NLP, LLM</li>
-</ol>
-<ul>
-<li>Inference time</li>
-<li>Prompts (in the case of generative LLMs)</li>
-<li>Specific evaluation metrics (e.g., ROUGE for text summarization or BLEU for translation between languages)</li>
-<li>Embedding size and dimensions, type of tokenizer, and number of attention heads (when training transformer models from scratch)</li>
-<li>Feature importance, attention-based, or example-based explanations (see this <a href="https://arxiv.org/pdf/2309.01029.pdf">overview</a> for specific algorithms and more ideas)</li>
-</ul>
-<ol start="5">
-<li>Structure Data</li>
-</ol>
-<ul>
-<li>Input data snapshot ( <code>.head()</code> on DataFrames if you are using pandas)</li>
-<li>Feature importance (e.g., permutation importance)</li>
-<li>Prediction explanations like SHAP or partial dependence plots (they are all available in DALEX)</li>
-</ul>
-<ol start="6">
-<li>RL</li>
-</ol>
-<ul>
-<li>Episode info: return, length, intermediate states</li>
-<li>Total environment steps, wall time, steps per second</li>
-<li>Value and police function losses</li>
-<li>Aggregate statistics over multiple environments and/or runs</li>
-</ul>
-<ol start="7">
-<li>Hyper Optim</li>
-</ol>
-<ul>
-<li>Run score: the metric you are optimizing after every iteration</li>
-<li>Run parameters: parameter configuration tried at each iteration</li>
-<li>Best parameters: best parameters so far and overall best parameters after all runs have concluded</li>
-<li>Parameter comparison charts: there are various visualizations that you may want to log during or after training, like parallel coordinates plot or slice plot (they are all available in Optuna, by the way)</li>
-</ul>
-<h4 id="final-thoughts-on-ml-training-aka-model-exploration">Final thoughts on ML training (aka model exploration)</h4>
-<p>when developing ML models with exploratory experiments, I’ve always enjoyed the pseudocode from this <a href="https://neptune.ai/blog/experiment-management">blog post</a>. This is really what it means to do ML in a real industrial setup.</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">time, budget, business_goal </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> business_specification()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">creative_idea </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> initial_research(business_goal)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">while</span><span style="color:#ADBAC7"> time </span><span style="color:#F47067">and</span><span style="color:#ADBAC7"> budget </span><span style="color:#F47067">and</span><span style="color:#F47067"> not</span><span style="color:#ADBAC7"> business_goal:</span></span>
-<span class="line"><span style="color:#ADBAC7">   solution </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> develop(creative_idea)</span></span>
-<span class="line"><span style="color:#ADBAC7">   metrics </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> evaluate(solution, validation_data)</span></span>
-<span class="line"><span style="color:#F47067">   if</span><span style="color:#ADBAC7"> metrics </span><span style="color:#F47067">></span><span style="color:#ADBAC7"> best_metrics:</span></span>
-<span class="line"><span style="color:#ADBAC7">      best_metrics </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> metrics</span></span>
-<span class="line"><span style="color:#ADBAC7">      best_solution </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> solution</span></span>
-<span class="line"><span style="color:#ADBAC7">   creative_idea </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> explore_results(best_solution)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">   time.update()</span></span>
-<span class="line"><span style="color:#ADBAC7">   budget.update()</span></span></code></pre>
-<h3 id="to-be-continued">To be continued…</h3>
-<p>Usually this is where the school-based projects will end. However, to fully develop a system based on the model and the idea you derive, you still need some engineering skills in building the pipeline for deployment, serving and performance monitoring. Luckily we have a lot of tools for these that do the dirty works for us. Nonetheless, not paying attention to some details in these steps could lead to serious bugs or even cost you thousands of dollars!</p>
-<p>Hence to both remind myself and give some suggestions for the readers, I’ve created a part II for the checklist for these steps. Please check it out if you are interested!</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/nn-optimizers/"> <span class="dir">← previous</span> <span class="title">Neural Network Applied: Optimizer Selection</span> </a> <a class="next" href="/writing/blogs/mlops/deep-learning-system-design-2/"> <span class="dir">next →</span> <span class="title">Deep Learning System Design - A Checklist (Part II)</span> </a> </nav>  <script>
+<p>The goal is to make debugging possible without rerunning every experiment.</p>
+<h2 id="closing">Closing</h2>
+<p>The early system-design work is about discipline: reliable data, honest baselines, meaningful evaluation, stable training, and complete experiment records.</p>
+<p>If these pieces are weak, deployment will only make the weakness more expensive. Once they are solid, move to packaging, serving, and monitoring in <a href="/writing/blogs/mlops/deep-learning-system-design-2/">Part II</a>.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/nn-optimizers/"> <span class="dir">← previous</span> <span class="title">Neural Network Applied: Optimizer Selection</span> </a> <a class="next" href="/writing/blogs/mlops/deep-learning-system-design-2/"> <span class="dir">next →</span> <span class="title">Deep Learning System Design: A Checklist, Part II</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

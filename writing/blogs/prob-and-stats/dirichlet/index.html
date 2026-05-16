@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Stats in ML: Dirichlet Distribution - Zhenlin Wang</title><meta name="description" content="A 'popular' distribution not widely known"><meta property="og:title" content="Stats in ML: Dirichlet Distribution - Zhenlin Wang"><meta property="og:description" content="A 'popular' distribution not widely known"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/dirichlet/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Stats in ML: Dirichlet Distribution - Zhenlin Wang</title><meta name="description" content="A practical explanation of the Dirichlet distribution, its relationship to categorical probabilities, conjugacy with the multinomial, and why it appears in topic models."><meta property="og:title" content="Stats in ML: Dirichlet Distribution - Zhenlin Wang"><meta property="og:description" content="A practical explanation of the Dirichlet distribution, its relationship to categorical probabilities, conjugacy with the multinomial, and why it appears in topic models."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/dirichlet/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,66 +29,78 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Statistics · Machine Learning</div> <h1>Stats <em>in</em> ML: Dirichlet Distribution</h1> <p class="dek">A &#39;popular&#39; distribution not widely known</p> <div class="byline"> <strong>2021.07.21</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-03-28</span>  </div> </header> <main class="article container-narrow"> <h2 id="dirichlet">Dirichlet</h2>
-<p>Before university, I’ve never heard of Dirichlet distribution. It seemed to me like a loner in the family of statistics when I first saw it. But soon I discovered that this is a huge misunderstanding. Dirichlet is way too important, too usful in the field of machine learning and statistical learning theories to be ignored by any interested scholars. I know deep down in my heart that I must dedicate one whole blog for it to stress its significance. As we walk along the path, we shall see why it is so great (in the past, present and future). Let’s begin with a general definition of it.</p>
-<h3 id="formal-definition">Formal definition</h3>
-<p>The Dirichlet distribution Dir($\alpha$) is a family of continuous multivariate probability distributions parameterized by a vector $\alpha$ of positive reals. It is a <em>multivariate generalisation</em> of the Beta distribution. Dirichlet distributions are commonly used as prior distributions (e.g. for <em>categorical</em> and <em>multinomial</em> distributions) in Bayesian statistics.</p>
-<h3 id="conjugate-prior-and-its-usage">Conjugate Prior and its usage.</h3>
-<p>In Bayesian probability theory, we have <strong>Posterior $P(\theta \mid X)$</strong>, <strong>Prior $P(\theta)$</strong> and <strong>Likelihood $P(X|\theta)$</strong> related via the Bayes’ theorem:</p>
-<p>$$P(\theta \mid X) = \frac{P(\theta) \cdot P(X\mid\theta)}{P(X)} $$</p>
-<p>If the posterior distribution $P(\theta \mid X)$ and the prior distribution $P(\theta)$ are from the same probability distribution family, then the prior and posterior are called <em>conjugate distributions</em>, and the prior is the <em>conjugate prior</em> for the likelihood function $P(X|\theta)$.</p>
-<p>Note that in many algorithm, we want to find the value of $X$ that maximizes the posterior (Maximum a posteriori). If the prior is some weird distribution, we may not get an analytical form for the posterior. Consequently, more complicated optimization strategies like interior point method may need to be applied, which can be computationally expensive. If both the prior and posterior have the same algebraic form, applying bayes rule to find $P(\theta \mid X)$ is much easier.</p>
-<h3 id="expression">Expression</h3>
-<p>Analogous to multinomial distribution to binomial distribution, Dirichlet is the multinomial version for the beta distribution. Dirichlet distribution is a family of continuous probability distribution for a discrete probability distribution for $k$ categories $\boldsymbol{\theta} = {\theta_1, \theta_2, \cdots, \theta_k}$, where $0 \leq \theta_i \leq 1$ for $i \in [1,k]$ and $\sum_{i=1}^k \theta_i = 1$, denoted by $k$ parameters $\boldsymbol{\alpha} = {\alpha_1, \alpha_2, \cdots, \alpha_k}$. Formally, we denote $P(\boldsymbol{\theta}|\boldsymbol{\alpha}) \sim \text{Dir}(\boldsymbol{\alpha})$.</p>
-<p>The expression is then $P(\boldsymbol{\theta}|\boldsymbol{\alpha}) = \frac1{B(\boldsymbol{\alpha})}\prod_{i=1}^k {\theta_i}^{\alpha_i-1}$ where $B(\boldsymbol{\alpha}) = \frac{\prod_{i=1}^k\Gamma(\alpha_i)}{\Gamma(\sum_{i=1}^k\alpha_i)}$ is some constant <strong>normalizer</strong>.</p>
-<p>Think of $P(\boldsymbol{\theta}|\boldsymbol{\alpha})$ as the probability density associated with <strong><em>θ</em></strong> which is used for a multinomial distribution, given that our Dirichlet distribution has parameter $\alpha$.</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Probability · Machine Learning</div> <h1>Stats <em>in</em> ML: Dirichlet Distribution</h1> <p class="dek">A practical explanation of the Dirichlet distribution, its relationship to categorical probabilities, conjugacy with the multinomial, and why it appears in topic models.</p> <div class="byline"> <strong>2021.07.21</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>The Dirichlet distribution is a probability distribution over probability vectors. It is useful when the object you want to model is itself a set of probabilities that sum to one.</p>
+<p>Examples:</p>
 <ul>
-<li>Moments explicit expressions
-<ul>
-<li>$E\left(p_i\right) =\frac{\alpha_i}{\sigma}=\alpha_i^{\prime}$</li>
-<li>$\operatorname{Var}\left(p_i\right) =\frac{\alpha_i(\sigma-\alpha)}{\sigma^{2}(\sigma+1)}=\frac{\alpha_i^{\prime}\left(1-\alpha_i^{\prime}\right)}{(\sigma+1)}$</li>
-<li>$\operatorname{Cov}\left(p_i, p_j\right) =\frac{-\alpha_i \alpha_j}{\sigma^{2}(\sigma+1)}$</li>
+<li>Topic proportions in a document.</li>
+<li>Class probabilities.</li>
+<li>Mixture weights.</li>
+<li>Category preferences.</li>
 </ul>
-</li>
-</ul>
-<p>To see that Dirichlet distribution is the conjugate prior for multinomial distribution, consider prior $P(\boldsymbol{\theta}|\boldsymbol{\alpha}) \sim \text{Dir}(\boldsymbol{\alpha})$, and likelihood $P(\boldsymbol{x}|\boldsymbol{\theta};n) \sim \text{Mult}(n,\boldsymbol{\theta})$, where $\boldsymbol{x} = {x_1,x_2,\cdots,x_k}$ is the sample/result representing $x_i$ success out of $n$ trials for each object $i$.</p>
+<p>If a categorical distribution chooses one category, a Dirichlet distribution can describe uncertainty over the categorical probabilities.</p>
+<h2 id="definition">Definition</h2>
+<p>For a vector $\theta = (\theta_1, \dots, \theta_K)$:</p>
 <p>$$
-\begin{align}
-P(\boldsymbol{\theta}|\boldsymbol{x};n,\boldsymbol{\alpha}) &#x26;\propto P(\boldsymbol{x}|\boldsymbol{\theta};n) P(\boldsymbol{\theta}|\boldsymbol{\alpha}) \\
-&#x26;=\prod_{i=1}^k \binom{n - \sum_{j=1}^{i-1}x_j}{x_i} \prod_{i=1}^k {\theta_i}^{x_i} \frac1{B(\boldsymbol{\alpha})}\prod_{i=1}^k {\theta_i}^{\alpha_i-1} \\
-&#x26;= \frac{\prod_{i=1}^k \binom{n - \sum_{j=1}^{i-1}x_j}{x_i}}{B(\boldsymbol{\alpha})}\prod_{i=1}^k {\theta_i}^{x_i + \alpha_i-1} \\
-&#x26;\propto \prod_{i=1}^k {\theta_i}^{x_i + \alpha_i-1}
-\end{align}
+\theta_i \ge 0,\quad \sum_{i=1}^{K}\theta_i = 1
 $$</p>
-<p>Therefore, $P(\boldsymbol{\theta}|\boldsymbol{x};n,\boldsymbol{\alpha}) \sim \text{Dir}(\boldsymbol{x} + \boldsymbol{\alpha})$. We can intrepret this as “given prior Dirichlet distribution (with param $\boldsymbol{\alpha}$) of probability vector $\boldsymbol{\theta}$ for a total of $k$ objects and an observation vector $\boldsymbol{x}$, the posterior belief of the $\boldsymbol{\theta}$ is a new Dirichlet Distribution with param ($\boldsymbol{\alpha + x}$)”.</p>
-<p>Note the key points here are:</p>
-<ul>
-<li>
-<p>Distributino has 2 parameters: the scale (or concentration) $\sigma=\sum_i \alpha_i$, and the base measure $\left(\alpha_1^{\prime}, \ldots, \alpha_k^{\prime}\right), \alpha_i^{\prime}=\alpha_i / \sigma$. A Dirichlet with small concentration $\sigma$ favors extreme distributions, but this prior belief is very weak and is easily overwritten by data.</p>
-</li>
-<li>
-<p>It shall be seen as a generalization of Beta:</p>
-<ul>
-<li>Beta is a distribution over binomials (in an interval $p \in[0,1]$ );</li>
-<li>Dirichlet is a distribution over Multinomials (in the so-called simplex $\sum_i p_i=1 ; p_i \geq 0$ ).</li>
-</ul>
-</li>
-</ul>
-<p>If we want to marginalize the parameters out (often used in ML models for parameter optimization) we can use the following formula:</p>
+<p>The Dirichlet distribution is parameterized by $\alpha = (\alpha_1, \dots, \alpha_K)$:</p>
 <p>$$
-p\left(x_1, \ldots, x_k \mid \alpha_1, \ldots, \alpha_k\right)=\frac{\left\{\prod_i \alpha_i^{x_i}\right\}}{\sigma^N}
+\theta \sim Dirichlet(\alpha)
 $$</p>
-<p>If we want to make prediction via conditional pdf of new data given previous data, we can use the following formula instead:</p>
-<p>$$
-p\left(\text{new-result}=j \mid x_1, \ldots, x_k, \alpha_1, \ldots, \alpha_k \right)=\frac{\alpha_j+x_j}{\sigma+N}
-$$</p>
-<h3 id="side-note">Side note</h3>
-<p>The above section gives a comprehensive view of dirichlet distribution. However, a more widely applied technique is <strong>Dirichlet Process</strong>. It is similar to <em>Gaussian Process</em>, but uses Dirichlet as conjugate prior instead on problems with multinomial likelihood (e.g. Latent Dirichlet Allocation). We’ve discussed this idea in the topic modeling blog. Interested readers can go that that blog for details.</p>
-<h3 id="references">References</h3>
+<p>Each $\alpha_i$ controls how much mass the distribution gives to category $i$.</p>
+<h2 id="intuition">Intuition</h2>
+<p>Think of $\alpha_i$ as pseudo-counts.</p>
 <ul>
-<li><a href="towardsdatascience.com/dirichlet-distribution-a82ab942a879">Dirichlet distribution</a></li>
-<li><a href="https://leimao.github.io/blog/Introduction-to-Dirichlet-Distribution/">Lei Mao’s Blog</a></li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/hidden-markov-models/"> <span class="dir">← previous</span> <span class="title">An overview of Hidden markov model and its algorithms</span> </a> <a class="next" href="/writing/blogs/prob-and-stats/variational-inference/"> <span class="dir">next →</span> <span class="title">Variational Inference</span> </a> </nav>  <script>
+<li>If all $\alpha_i$ are small, samples are sparse and often put most mass on a few categories.</li>
+<li>If all $\alpha_i$ are large, samples concentrate near the average proportions.</li>
+<li>If one $\alpha_i$ is larger than the others, samples tend to assign more probability to that category.</li>
+</ul>
+<p>For a symmetric Dirichlet where all $\alpha_i = \alpha$:</p>
+<ul>
+<li>$\alpha &#x3C; 1$: sparse probability vectors.</li>
+<li>$\alpha = 1$: roughly uniform over the simplex.</li>
+<li>$\alpha > 1$: probability vectors near uniform.</li>
+</ul>
+<h2 id="conjugacy">Conjugacy</h2>
+<p>The Dirichlet is conjugate to the categorical and multinomial distributions. This means that if the prior over category probabilities is Dirichlet, and we observe category counts, the posterior is also Dirichlet.</p>
+<p>If:</p>
+<p>$$
+\theta \sim Dirichlet(\alpha)
+$$</p>
+<p>and the observed category counts are:</p>
+<p>$$
+n = (n_1, \dots, n_K)
+$$</p>
+<p>then:</p>
+<p>$$
+\theta \mid n \sim Dirichlet(\alpha_1+n_1, \dots, \alpha_K+n_K)
+$$</p>
+<p>This is one reason the Dirichlet appears so often in Bayesian models.</p>
+<h2 id="connection-to-topic-models">Connection to Topic Models</h2>
+<p>Latent Dirichlet Allocation (LDA) uses Dirichlet distributions in two important places:</p>
+<ul>
+<li>A document has a distribution over topics.</li>
+<li>A topic has a distribution over words.</li>
+</ul>
+<p>Sparse Dirichlet priors encourage each document to focus on a small number of topics and each topic to focus on a subset of words.</p>
+<p>This matches the intuition that most documents are about a few themes, not every possible theme equally.</p>
+<h2 id="practical-notes">Practical Notes</h2>
+<p>Use a Dirichlet when:</p>
+<ul>
+<li>You need a distribution over category probabilities.</li>
+<li>Components must be nonnegative and sum to one.</li>
+<li>You want a Bayesian prior for categorical or multinomial probabilities.</li>
+<li>You are modeling mixture weights.</li>
+</ul>
+<p>Be careful:</p>
+<ul>
+<li>Dirichlet components are negatively correlated because they must sum to one.</li>
+<li>The parameters are not direct probabilities.</li>
+<li>Very small concentration values can produce extremely sparse samples.</li>
+</ul>
+<h2 id="closing">Closing</h2>
+<p>The Dirichlet distribution is easiest to remember as a distribution over probability vectors. It gives a principled way to represent uncertainty about category proportions, especially when paired with multinomial observations.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/hidden-markov-models/"> <span class="dir">← previous</span> <span class="title">An Overview of Hidden Markov Models and Their Algorithms</span> </a> <a class="next" href="/writing/blogs/prob-and-stats/variational-inference/"> <span class="dir">next →</span> <span class="title">Variational Inference</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

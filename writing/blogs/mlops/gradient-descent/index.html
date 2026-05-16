@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Gradient Descent Algorithm and Its Variants! - Zhenlin Wang</title><meta name="description" content="The most important technique in neural networks (as of now)"><meta property="og:title" content="Gradient Descent Algorithm and Its Variants! - Zhenlin Wang"><meta property="og:description" content="The most important technique in neural networks (as of now)"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/gradient-descent/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Gradient Descent Algorithm and Its Variants - Zhenlin Wang</title><meta name="description" content="A practical explanation of gradient descent, stochastic gradient descent, mini-batch training, momentum, adaptive learning rates, and common optimization issues."><meta property="og:title" content="Gradient Descent Algorithm and Its Variants - Zhenlin Wang"><meta property="og:description" content="A practical explanation of gradient descent, stochastic gradient descent, mini-batch training, momentum, adaptive learning rates, and common optimization issues."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/gradient-descent/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,187 +29,117 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Optimization</div> <h1>Gradient <em>Descent</em> Algorithm and Its Variants!</h1> <p class="dek">The most important technique in neural networks (as of now)</p> <div class="byline"> <strong>2020.11.13</strong> <span>·</span> <span>9 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h2 id="overview-of-gradient-descent">Overview of Gradient Descent</h2>
-<p><strong>Optimization</strong> refers to the task of minimizing/maximizing an objective function \(f(x)\) parameterized by $x$. In machine/deep learning terminology, it’s the task of minimizing the cost/loss function $J(w)$ parameterized by the model’s parameters \(w \in \mathbb{R}^d\). Optimization algorithms (in case of minimization) have one of the following goals:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Optimization · Machine Learning</div> <h1>Gradient <em>Descent</em> Algorithm and Its Variants</h1> <p class="dek">A practical explanation of gradient descent, stochastic gradient descent, mini-batch training, momentum, adaptive learning rates, and common optimization issues.</p> <div class="byline"> <strong>2020.11.13</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Gradient descent is the basic optimization idea behind many machine learning algorithms. It updates model parameters in the direction that reduces the loss.</p>
+<p>For parameters $\theta$, loss $J(\theta)$, and learning rate $\alpha$:</p>
+<p>$$
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t)
+$$</p>
+<p>The gradient points toward the steepest increase in the loss, so subtracting it moves toward lower loss.</p>
+<h2 id="batch-gradient-descent">Batch Gradient Descent</h2>
+<p>Batch gradient descent computes the gradient using the entire training dataset before each update.</p>
+<p>Pros:</p>
 <ul>
-<li>Find the global minimum of the objective function. This is feasible if the objective function is convex, i.e. any local minimum is a global minimum.</li>
-<li>Find the lowest possible value of the objective function within its neighbor. That’s usually the case if the objective function is not convex as the case in most deep learning problems.</li>
+<li>Stable gradient estimate.</li>
+<li>Easy to reason about.</li>
+<li>Useful for small datasets and convex problems.</li>
 </ul>
-<p>There are three kinds of optimization algorithms:</p>
+<p>Cons:</p>
 <ul>
-<li>Optimization algorithm that is not iterative and simply solves for one point.</li>
-<li>Optimization algorithm that is iterative in nature and converges to acceptable solution regardless of the parameters initialization such as gradient descent applied to logistic regression.</li>
-<li>Optimization algorithm that is iterative in nature and applied to a set of problems that have non-convex cost functions such as neural networks. Therefore, parameters’ initialization plays a critical role in speeding up convergence and achieving lower error rates.</li>
+<li>Expensive on large datasets.</li>
+<li>Requires more memory.</li>
+<li>Updates happen slowly when the dataset is large.</li>
 </ul>
-<p><strong>Gradient Descent</strong> is the most common optimization algorithm in <em>machine learning</em> and <em>deep learning</em>. It is a first-order optimization algorithm. This means it only takes into account the first derivative when performing the updates on the parameters. On each iteration, we update the parameters in the opposite direction of the gradient of the objective function $J(w)$ w.r.t to the parameters where the gradient gives the direction of the steepest ascent. The size of the step we take on each iteration to reach the local minimum is determined by the learning rate $\alpha$. Therefore, we follow the direction of the slope downhill until we reach a local minimum.</p>
-<p>In this notebook, we’ll cover gradient descent algorithm and its variants: <em>Batch Gradient Descent, Mini-batch Gradient Descent, and Stochastic Gradient Descent</em>.</p>
-<p>Let’s first see how gradient descent and its associated steps works on logistic regression before going into the details of its variants. For the sake of simplicity, let’s assume that the logistic regression model has only two parameters: weight $w$ and bias $b$.</p>
+<h2 id="stochastic-gradient-descent">Stochastic Gradient Descent</h2>
+<p>Stochastic gradient descent (SGD) updates parameters using one example at a time:</p>
+<p>$$
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t; x_i, y_i)
+$$</p>
+<p>Pros:</p>
+<ul>
+<li>Fast updates.</li>
+<li>Low memory.</li>
+<li>Noise can help escape shallow local minima.</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>Noisy training curve.</li>
+<li>Sensitive to learning rate.</li>
+<li>Can bounce around near a minimum.</li>
+</ul>
+<h2 id="mini-batch-gradient-descent">Mini-Batch Gradient Descent</h2>
+<p>Mini-batch gradient descent uses a small batch of examples for each update. This is the standard approach for deep learning.</p>
+<p>It balances:</p>
+<ul>
+<li>More stable gradients than pure SGD.</li>
+<li>More efficient hardware use than single-example SGD.</li>
+<li>Lower memory than full-batch training.</li>
+</ul>
+<p>The batch size affects optimization, memory, throughput, and generalization. Changing batch size often means retuning the learning rate.</p>
+<h2 id="learning-rate">Learning Rate</h2>
+<p>The learning rate controls step size.</p>
+<p>If it is too small:</p>
+<ul>
+<li>Training is slow.</li>
+<li>The model may appear stuck.</li>
+</ul>
+<p>If it is too large:</p>
+<ul>
+<li>Loss may diverge.</li>
+<li>Training may oscillate.</li>
+<li>NaNs can appear.</li>
+</ul>
+<p>Learning-rate schedules help:</p>
+<ul>
+<li>Step decay.</li>
+<li>Exponential decay.</li>
+<li>Cosine decay.</li>
+<li>Warmup plus decay.</li>
+<li>Reduce on plateau.</li>
+</ul>
+<p>Warmup is especially useful for large neural networks where early gradients can be unstable.</p>
+<h2 id="momentum">Momentum</h2>
+<p>Momentum smooths noisy gradients by accumulating a velocity term:</p>
+<p>$$
+v_t = \gamma v_{t-1} + \alpha \nabla J(\theta_t)
+$$</p>
+<p>$$
+\theta_{t+1} = \theta_t - v_t
+$$</p>
+<p>Momentum helps in ravines where gradients oscillate in one direction but consistently move in another. A common value is $\gamma = 0.9$.</p>
+<h2 id="adaptive-methods">Adaptive Methods</h2>
+<p>Adaptive optimizers adjust effective learning rates per parameter.</p>
+<h3 id="adagrad">AdaGrad</h3>
+<p>AdaGrad accumulates squared gradients. It works well with sparse features, but its effective learning rate can shrink too much.</p>
+<h3 id="rmsprop">RMSProp</h3>
+<p>RMSProp uses a moving average of squared gradients, reducing AdaGrad’s aggressive decay.</p>
+<h3 id="adam">Adam</h3>
+<p>Adam combines momentum-like first moment estimates with RMSProp-like second moment estimates. It is a common default for neural networks.</p>
+<h3 id="adamw">AdamW</h3>
+<p>AdamW decouples weight decay from the adaptive update. It is widely used for transformer training and fine-tuning.</p>
+<p>For optimizer selection, see <a href="/writing/blogs/mlops/nn-optimizers/">Neural Network Applied: Optimizer Selection</a>.</p>
+<h2 id="common-optimization-problems">Common Optimization Problems</h2>
+<h3 id="vanishing-or-exploding-gradients">Vanishing or Exploding Gradients</h3>
+<p>Gradients may become too small or too large in deep networks. Use normalization, residual connections, careful initialization, gradient clipping, or architecture changes.</p>
+<h3 id="saddle-points">Saddle Points</h3>
+<p>High-dimensional loss surfaces often contain saddle points. Momentum and adaptive methods can help move through flat regions.</p>
+<h3 id="poor-scaling">Poor Scaling</h3>
+<p>Features with very different scales can slow optimization. Standardization often helps classical models and some neural network inputs.</p>
+<h3 id="bad-loss-or-label-issues">Bad Loss or Label Issues</h3>
+<p>Optimization cannot fix broken targets. If loss does not decrease, check data, labels, output shapes, and whether the model can overfit a tiny batch.</p>
+<h2 id="practical-checklist">Practical Checklist</h2>
+<p>When training behaves badly:</p>
 <ol>
-<li>
-<p>Initialize weight $w$ and bias $b$ to any random numbers.</p>
-</li>
-<li>
-<p>Pick a value for the learning rate $\alpha$. The learning rate determines how big the step would be on each iteration.</p>
-<ul>
-<li>
-<p>If $\alpha$ is very small, it would take long time to converge and become computationally expensive.</p>
-</li>
-<li>
-<p>IF $\alpha$ is large, it may fail to converge and overshoot the minimum.</p>
-<p>Therefore, plot the cost function against different values of $\alpha$ and pick the value of $\alpha$ that is right before the first value that didn’t converge so that we would have a very fast learning algorithm that converges (Figure 1).</p>
-<figure align="center">
-  <img src="/images/Machine%20learning/learning_rate.png" width="300px">
-  <figcaption>Figure 2</figcaption>
-</figure>
-</li>
-<li>
-<p>The most commonly used rates are : <em>0.001, 0.003, 0.01, 0.03, 0.1, 0.3</em>.</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Make sure to scale the data if it’s on very different scales. If we don’t scale the data, the level curves (contours) would be narrower and taller which means it would take longer time to converge (Figure 2).</p>
- <figure align="center">
-   <img src="/images/Machine%20learning/normalized-vs-unnormalized.png" width="500px">
-   <figcaption>Figure 2</figcaption>
- </figure>
-<ul>
-<li>
-<p>Scale the data to have $\mu = 0$ and $\sigma = 1$. Below is the formula for scaling each example:</p>
-<p>$$\frac{x_i - \mu}{\sigma}\tag{1} $$</p>
-</li>
-</ul>
-</li>
-<li>
-<p>On each iteration, take the partial derivative of the cost function $J(w)$ w.r.t each parameter (gradient):</p>
-<p>$$\frac{\partial}{\partial w}J(w) = \nabla_w J\tag{2}$$</p>
-<p>$$\frac{\partial}{\partial b}J(w) = \nabla_b J\tag{3}$$</p>
-<p>The update equations are:</p>
-<p>$$w = w - \alpha \nabla_w J\tag{4}$$</p>
-<p>$$b = b - \alpha \nabla_b J\tag{5}$$</p>
-<ul>
-<li>For the sake of illustration, assume we don’t have bias. If the slope of the current values of $w > 0$, this means that we are  to the right of optimal $w^{\star}$. Therefore, the update will be negative, and will start getting close to the optimal values of $w^*$. However, if it’s negative, the update will be positive and will increase the current values of $w$ to converge to the optimal values of $w^{\star}$ (Figure 3):</li>
-</ul>
- <figure align="center">
-   <img src="/images/Machine%20learning/gradients.png" width="500px">
-   <figcaption>Figure 3</figcaption>
- </figure>
-<ul>
-<li>Continue the process until the cost function converges. That is, until the error curve becomes flat and doesn’t change.</li>
-<li>In addition, on each iteration, the step would be in the direction that gives the maximum change since it’s perpendicular to level curves at each step.</li>
-</ul>
-</li>
+<li>Verify the data and labels.</li>
+<li>Overfit a tiny batch.</li>
+<li>Lower the learning rate.</li>
+<li>Add warmup.</li>
+<li>Track gradient norm.</li>
+<li>Try gradient clipping.</li>
+<li>Compare SGD, Adam, and AdamW.</li>
+<li>Check whether batch size changed the effective learning rate.</li>
 </ol>
-<p>Now let’s discuss the three variants of gradient descent algorithm. The main difference between them is the amount of data we use when computing the gradients for each learning step. The trade-off between them is the accuracy of the gradient versus the time complexity to perform each parameter’s update (learning step).</p>
-<h3 id="batch-gradient-descent">Batch Gradient Descent</h3>
-<p>Batch Gradient Descent is when we sum up over all examples on each iteration when performing the updates to the parameters. Therefore, for each update, we have to sum over all examples:</p>
-<p>$$w = w - \alpha \nabla_w J(w)\tag{6}$$</p>
-<p>{% codeblock manual gradient update lang:python%}
-for i in range(num_epochs):
-grad = compute_gradient(data, params)
-params = params - learning_rate * grad
-{% endcodeblock %}</p>
-<p>The main advantages:</p>
-<ul>
-<li>We can use fixed learning rate during training without worrying about learning rate decay.</li>
-<li>It has straight trajectory towards the minimum and it is guaranteed to converge in theory to the global minimum if the loss function is convex and to a local minimum if the loss function is not convex.</li>
-<li>It has unbiased estimate of gradients. The more the examples, the lower the standard error.</li>
-</ul>
-<p>The main disadvantages:</p>
-<ul>
-<li>Even though we can use vectorized implementation, it may still be slow to go over all examples especially when we have large datasets.</li>
-<li>Each step of learning happens after going over all examples where some examples may be redundant and don’t contribute much to the update.</li>
-</ul>
-<h3 id="mini-batch-gradient-descent">Mini-Batch Gradient Descent</h3>
-<p>Instead of going over all examples, Mini-batch Gradient Descent sums up over lower number of examples based on batch size. Therefore, learning happens on each mini-batch of $b$ examples:</p>
-<p>$$w = w - \alpha \nabla_w J(x^{\{i:i + b\}}, y^{\{i: i + b\}}; w)\tag{7}$$</p>
-<ul>
-<li>Shuffle the training dataset to avoid pre-existing order of examples.</li>
-<li>Partition the training dataset into $b$ mini-batches based on the batch size. If the training set size is not divisible by batch size, the remaining will be its own batch.</li>
-</ul>
-<p>{% codeblock manual gradient update minibatch lang:python%}
-for i in range(num_epochs):
-np.random.shuffle(data)
-for batch in radom_minibatches(data, batch_size=32):
-grad = compute_gradient(batch, params)
-params = params - learning_rate * grad
-{% endcodeblock %}</p>
-<p>The batch size is something we can tune. It is usually chosen as power of 2 such as 32, 64, 128, 256, 512, etc. The reason behind it is because some hardware such as GPUs achieve better runtime with common batch sizes such as power of 2.</p>
-<p>The main advantages:</p>
-<ul>
-<li>Faster than Batch version because it goes through a lot less examples than Batch (all examples).</li>
-<li>Randomly selecting examples will help avoid redundant examples or examples that are very similar that don’t contribute much to the learning.</li>
-<li>With batch size &#x3C; size of training set, it adds noise to the learning process that helps improving generalization error.</li>
-<li>Even though with more examples the estimate would have lower standard error, the return is less than linear compared to the computational burden we incur.</li>
-</ul>
-<p>The main disadvantages:</p>
-<ul>
-<li>
-<p>It won’t converge. On each iteration, the learning step may go back and forth due to the noise. Therefore, it wanders around the minimum region but never converges.</p>
-</li>
-<li>
-<p>Due to the noise, the learning steps have more oscillations (see figure 5) and requires adding learning-decay to decrease the learning rate as we become closer to the minimum.</p>
-  <figure align="center">
-    <img src="/images/Machine%20learning/batch-vs-minibatch.png" width="500px">
-    <figcaption>Figure 4</figcaption>
-  </figure>
-</li>
-</ul>
-<p>With large training datasets, we don’t usually need more than 2-10 passes over all training examples (epochs). Note: with batch size $b = m$, we get the Batch Gradient Descent.</p>
-<h3 id="stochastic-gradient-descent">Stochastic Gradient Descent</h3>
-<p>Instead of going through all examples, Stochastic Gradient Descent (SGD) performs the parameters update on each example $(x^i, y^i)$. Therefore, learning happens on every example:</p>
-<p>$$w = w - \alpha \nabla_w J(x^i, y^i; w)\tag{7}$$</p>
-<ul>
-<li>Shuffle the training dataset to avoid pre-existing order of examples.</li>
-<li>Partition the training dataset into $m$ examples.</li>
-</ul>
-<p>{% codeblock manual gradient update stochastic lang:python%}
-for i in range(num_epochs):
-np.random.shuffle(data)
-for example in data:
-grad = compute_gradient(example, params)
-params = params - learning_rate * grad
-{% endcodeblock %}</p>
-<p>It shares most of the advantages and the disadvantages with mini-batch version. Below are the ones that are specific to SGD:</p>
-<ul>
-<li>It adds even more noise to the learning process than mini-batch that helps improving generalization error. However, this would increase the run time.</li>
-<li>We can’t utilize vectorization over 1 example and becomes very slow. Also, the variance becomes large since we only use 1 example for each learning step.</li>
-</ul>
-<p>Below is a graph that shows the gradient descent’s variants and their direction towards the minimum:</p>
-  <figure align="center">
-    <img src="/images/Machine%20learning/batch-vs-minibatch-vs-stochastic.png" width="500px">
-    <figcaption>Figure 5</figcaption>
-  </figure>
-<p>As the figure above shows, SGD direction is very noisy compared to mini-batch.</p>
-<h2 id="areas-for-advancement">Areas for advancement</h2>
-<p>Below are some challenges regarding gradient descent algorithm in general as well as its variants - mainly batch and mini-batch:</p>
-<ul>
-<li>
-<p>Gradient descent is a first-order optimization algorithm, which means it doesn’t take into account the second derivatives of the cost function. However, the curvature of the function affects the size of each learning step. The gradient measures the steepness of the curve but the second derivative measures the curvature of the curve. Therefore, if:</p>
-<ul>
-<li>Second derivative = 0 $\rightarrow$ the curvature is linear. Therefore, the step size = the learning rate $\alpha$.</li>
-<li>Second derivative > 0 $\rightarrow$ the curvature is going upward. Therefore, the step size &#x3C; the learning rate $\alpha$ and may lead to divergence.</li>
-<li>Second derivative &#x3C; 0 $\rightarrow$ the curvature is going downward. Therefore, the step size > the learning rate $\alpha$.</li>
-</ul>
-<p>As a result, the direction that looks promising to the gradient may not be so and may lead to slow the learning process or even diverge.</p>
-</li>
-<li>
-<p>If Hessian matrix has poor conditioning number, i.e. the direction of the most curvature has much more curvature than the direction of the lowest curvature. This will lead the cost function to be very sensitive in some directions and insensitive in other directions. As a result, it will make it harder on the gradient because the direction that looks promising for the gradient may not lead to big changes in the cost function.</p>
-</li>
-</ul>
-<figure align="center">
-  <img src="/images/Machine%20learning/curvature.png" width="500px">
-</figure>
-- The norm of the gradient $g^Tg$ is supposed to decrease slowly with each learning step because the curve is getting flatter and steepness of the curve will decrease. However, we see that the norm of the gradient is increasing, because of the curvature of the curve. Nonetheless, even though the gradients' norm is increasing, we're able to achieve a very low error rates  (see figure 8).
-<figure align="center">
-  <img src="/images/Machine%20learning/gradient_norm.png" width="500px">
-</figure>
-- In small dimensions, local minimum is common; however, in large dimensions, saddle points are more common. Saddle point is when the function curves up in some directions and curves down in other directions. In other words, saddle point looks a minimum from one direction and a maximum from other direction (see figure 9). This happens when at least one eigenvalue of the hessian matrix is negative and the rest of eigenvalues are positive.
-<figure align="center">
-  <img src="/images/Machine%20learning/saddle.png" width="500px">
-</figure>
-- As discussed previously, choosing a proper learning rate is hard. Also, for mini-batch gradient descent, we have to adjust the learning rate during the training process to make sure it converges to the local minimum and not wander around it. Figuring out the decay rate of the learning rate is also hard and changes with different datasets.
-- All parameter updates have the same learning rate; however, we may want to perform larger updates to some parameters that have their directional derivatives more inline with the trajectory towards the minimum than other parameters. </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/sql/sql-3/"> <span class="dir">← previous</span> <span class="title">SQL: Going into Applications with MySQL and MongoDB</span> </a> <a class="next" href="/writing/blogs/rl/reinfocement-1/"> <span class="dir">next →</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part I </span> </a> </nav>  <script>
+<p>Gradient descent is simple in equation form, but real training is a system of choices. The learning rate, batch size, optimizer, schedule, and data quality all interact.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/sql/sql-3/"> <span class="dir">← previous</span> <span class="title">SQL: Going Into Applications With MySQL and MongoDB</span> </a> <a class="next" href="/writing/blogs/rl/reinfocement-1/"> <span class="dir">next →</span> <span class="title">Reinforcement Learning: Theoretical Foundations, Part I</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

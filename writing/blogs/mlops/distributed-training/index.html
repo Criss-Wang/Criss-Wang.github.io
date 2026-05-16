@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Understanding Distributed Training in Deep Learning - Zhenlin Wang</title><meta name="description" content="What's important in industry AND research, not taught in school???"><meta property="og:title" content="Understanding Distributed Training in Deep Learning - Zhenlin Wang"><meta property="og:description" content="What's important in industry AND research, not taught in school???"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/distributed-training/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Understanding Distributed Training in Deep Learning - Zhenlin Wang</title><meta name="description" content="A practical map of data parallelism, model sharding, pipeline parallelism, launch tools, and the bottlenecks that usually decide whether distributed training is worth it."><meta property="og:title" content="Understanding Distributed Training in Deep Learning - Zhenlin Wang"><meta property="og:description" content="A practical map of data parallelism, model sharding, pipeline parallelism, launch tools, and the bottlenecks that usually decide whether distributed training is worth it."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/distributed-training/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,750 +29,205 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Distributed Systems · Deep Learning</div> <h1>Understanding <em>Distributed</em> Training in Deep Learning</h1> <p class="dek">What&#39;s important in industry AND research, not taught in school???</p> <div class="byline"> <strong>2024.03.04</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
-<p>Since last year, the quest for large X models have been nonstop, and people kept exploring the possibility to build more universal and robust models. While some still put a doubt if models with more parameters will be effective, most have faith in the <a href="https://arxiv.org/pdf/2001.08361.pdf">scaling law</a> proposed by DeepMind and OpenAI researchers. The progress in 1 year is promising, as it seems that we are steadily moving towards the era of AGI. However, the education barely follows. College and Unversity are still bound by the budget to enable students to get in touch to large model training, especially when it comes to multi-gpu / multi-node distributed training. In light of this, I would love to share what I understand about distributed training, and how can we get started in this domain to catch up with recent industrial progress.</p>
-<h2 id="1-definition">1. Definition</h2>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Distributed Systems · Deep Learning</div> <h1>Understanding <em>Distributed</em> Training in Deep Learning</h1> <p class="dek">A practical map of data parallelism, model sharding, pipeline parallelism, launch tools, and the bottlenecks that usually decide whether distributed training is worth it.</p> <div class="byline"> <strong>2024.03.04</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Distributed training is not just “training on more GPUs.” It is a set of tradeoffs between memory, compute, communication, engineering complexity, and failure recovery.</p>
+<p>The motivation is simple:</p>
 <ul>
-<li>Leverages multiple compute resources—often across multiple nodes or GPUs—simultaneously, accelerating the model training process.</li>
-<li>Mainly a form of parallelism, requires some understanding of low-level operation system (memory, communication and GPU architecture)</li>
-<li>For those interested, I will recommend taking <a href="https://www.cs.cmu.edu/~15418/index.html">CMU 15-418 Parallel Computer Architecture and Programming</a> to get an in-depth understanding.</li>
+<li>A model may not fit on one device.</li>
+<li>A dataset may take too long to train on one device.</li>
+<li>A training run may need more throughput to make iteration possible.</li>
+<li>A production team may need fault tolerance, repeatability, and predictable cost.</li>
 </ul>
-<h2 id="2-parallelism-in-training">2. Parallelism in Training</h2>
-<ul>
-<li>
-<p>Two primary forms of parallelism: <strong>model parallelism</strong> and <strong>data parallelism</strong></p>
-</li>
-<li>
-<p><strong>Model Parallelism</strong>:</p>
-<ul>
-<li>Used when a model doesn’t fit into the memory of a single device.</li>
-<li>Different parts of the model are placed on different devices, enabling the training process to occur across multiple GPUs or nodes. This approach is particularly useful for exceptionally large models.</li>
-</ul>
-</li>
-<li>
-<p><strong>Data Parallelism</strong>:</p>
-<ul>
-<li>Split the dataset across various devices, with each processing a unique subset of the data.</li>
-<li>The model’s parameters are then updated based on the collective gradients computed from these subsets (with different strategies).</li>
-</ul>
-</li>
-</ul>
-<h2 id="3-strategies-in-detail">3. Strategies in detail</h2>
-<p><strong>[Note]</strong>: I’ll mainly use PyTorch in this blog as it is the most popular and convenient choice. It is mainly based on <code>torch.distributed</code> package. In the meantime, some convenient scripts are created by <em>Lightning AI</em> with their own libraries. I’ll show some code using their library for people who just want a shortcut and get rid of the details behind distributed training.</p>
-<ol>
-<li>
-<p>Data Parallelism</p>
-<ul>
-<li>How <code>DistributedDataParallel</code> works:
-<ul>
-<li>NCCL: multi-GPU, multi-node <strong>communication</strong> primitives. all-gather, all-reduce, broadcast, reduce-scatter, reduce routines, point-to-point send/receive. High bandwidth, low latency on <strong>PCIe</strong> and <strong>NVLink</strong> interconnects</li>
-<li>All GPUs share same initial weights. Aggregate all gradients in different GPUs and update the weight collectively.</li>
-<li>Need to update optimizer state and weights after AllReduce.</li>
-</ul>
-</li>
-<li>DDP Implementation</li>
-</ul>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">### DDP - PyTorch Version</span></span>
+<p>The hard part is that every form of parallelism moves the bottleneck somewhere else. Data parallelism increases gradient communication. Tensor and pipeline parallelism reduce memory pressure but add scheduling and synchronization overhead. Offloading saves GPU memory but increases CPU-GPU or network traffic.</p>
+<p>This post is a practical map of the major strategies and the mistakes that usually matter in real projects.</p>
+<h2 id="what-gets-parallelized">What Gets Parallelized</h2>
+<p>Most distributed training systems combine several forms of parallelism.</p>
+<h3 id="data-parallelism">Data Parallelism</h3>
+<p>Data parallelism replicates the model on each worker and splits batches across workers. Each process computes gradients on its local mini-batch, then the workers synchronize gradients, usually with an all-reduce.</p>
+<p>This is the first strategy to try when the model fits on a single GPU and the bottleneck is throughput.</p>
+<p>In PyTorch, the standard tool is <code>DistributedDataParallel</code> (DDP). One important detail: DDP synchronizes gradients, but it does not split the input data for you. You still need a <code>DistributedSampler</code> or equivalent data sharding.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> os</span></span>
+<span class="line"></span>
 <span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
 <span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.distributed </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> dist</span></span>
 <span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.nn.parallel </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DistributedDataParallel </span><span style="color:#F47067">as</span><span style="color:#6CB6FF"> DDP</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.utils.data.distributed </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DistributedSampler</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.utils.data </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DataLoader, DistributedSampler</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> main</span><span style="color:#ADBAC7">():</span></span>
-<span class="line"><span style="color:#768390">   # Initialize distributed environment</span></span>
-<span class="line"><span style="color:#ADBAC7">   dist.init_process_group(</span><span style="color:#F69D50">backend</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'nccl'</span><span style="color:#ADBAC7">)</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390">   # Create model</span></span>
-<span class="line"><span style="color:#ADBAC7">   model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> YourModel()</span></span>
-<span class="line"><span style="color:#ADBAC7">   model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DDP(model)</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> setup_distributed</span><span style="color:#ADBAC7">() -> </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">    local_rank </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> int</span><span style="color:#ADBAC7">(os.environ[</span><span style="color:#96D0FF">"LOCAL_RANK"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">    torch.cuda.set_device(local_rank)</span></span>
+<span class="line"><span style="color:#ADBAC7">    dist.init_process_group(</span><span style="color:#F69D50">backend</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"nccl"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> local_rank</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390">   # Load data and distribute it across processes</span></span>
-<span class="line"><span style="color:#ADBAC7">   train_loader </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DistributedSampler(YourDataset())</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390">   # Training loop</span></span>
-<span class="line"><span style="color:#F47067">   for</span><span style="color:#ADBAC7"> epoch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(epochs):</span></span>
-<span class="line"><span style="color:#F47067">      for</span><span style="color:#ADBAC7"> data </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> train_loader:</span></span>
-<span class="line"><span style="color:#ADBAC7">            inputs, labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> data</span></span>
-<span class="line"><span style="color:#ADBAC7">            outputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(inputs)</span></span>
-<span class="line"><span style="color:#ADBAC7">            loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> YourLoss(outputs, labels)</span></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> train</span><span style="color:#ADBAC7">(model, dataset, optimizer, loss_fn, epochs: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">) -> </span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">    local_rank </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> setup_distributed()</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390">            # Backward and optimize</span></span>
-<span class="line"><span style="color:#ADBAC7">            optimizer.zero_grad()</span></span>
+<span class="line"><span style="color:#ADBAC7">    sampler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DistributedSampler(dataset)</span></span>
+<span class="line"><span style="color:#ADBAC7">    loader </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DataLoader(dataset, </span><span style="color:#F69D50">batch_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">32</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">sampler</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">sampler, </span><span style="color:#F69D50">num_workers</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.to(local_rank)</span></span>
+<span class="line"><span style="color:#ADBAC7">    model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DDP(model, </span><span style="color:#F69D50">device_ids</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[local_rank])</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> epoch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(epochs):</span></span>
+<span class="line"><span style="color:#ADBAC7">        sampler.set_epoch(epoch)</span></span>
+<span class="line"><span style="color:#F47067">        for</span><span style="color:#ADBAC7"> inputs, labels </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> loader:</span></span>
+<span class="line"><span style="color:#ADBAC7">            inputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> inputs.to(local_rank, </span><span style="color:#F69D50">non_blocking</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">            labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> labels.to(local_rank, </span><span style="color:#F69D50">non_blocking</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">            optimizer.zero_grad(</span><span style="color:#F69D50">set_to_none</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">            loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_fn(model(inputs), labels)</span></span>
 <span class="line"><span style="color:#ADBAC7">            loss.backward()</span></span>
-<span class="line"><span style="color:#ADBAC7">            optimizer.step()</span></span></code></pre>
+<span class="line"><span style="color:#ADBAC7">            optimizer.step()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    dist.destroy_process_group()</span></span></code></pre>
+<p>Launch a single-node run with <code>torchrun</code>:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#F69D50">torchrun</span><span style="color:#6CB6FF"> --standalone</span><span style="color:#6CB6FF"> --nnodes=1</span><span style="color:#6CB6FF"> --nproc-per-node=4</span><span style="color:#96D0FF"> train.py</span></span></code></pre>
+<h3 id="fully-sharded-data-parallelism">Fully Sharded Data Parallelism</h3>
+<p>Fully Sharded Data Parallelism (FSDP) shards model parameters, gradients, and optimizer state across workers. It is useful when the model is too large for regular DDP, especially with optimizers like AdamW where optimizer state can be several times larger than the raw parameters.</p>
+<p>FSDP works by gathering parameter shards when a module needs them, computing forward or backward work, and then freeing or re-sharding the full parameters. This saves memory at the cost of more communication.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.distributed </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> dist</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.distributed.fsdp </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> FullyShardedDataParallel </span><span style="color:#F47067">as</span><span style="color:#6CB6FF"> FSDP</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">dist.init_process_group(</span><span style="color:#F69D50">backend</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"nccl"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MyModel().to(torch.cuda.current_device())</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> FSDP(model)</span></span>
+<span class="line"><span style="color:#ADBAC7">optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.optim.AdamW(model.parameters(), </span><span style="color:#F69D50">lr</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1e-4</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Use FSDP when memory is the blocker. If the model already fits comfortably on one GPU, plain DDP is usually simpler and often faster.</p>
+<h3 id="tensor-parallelism">Tensor Parallelism</h3>
+<p>Tensor parallelism splits individual tensor operations across devices. Instead of giving each GPU a full copy of a layer, the layer’s matrix multiplications are partitioned across GPUs.</p>
+<p>This matters for very large transformer models where a single attention or feed-forward block may be too large or too slow on one device. It often requires model-aware implementation, so it is less plug-and-play than DDP.</p>
+<h3 id="pipeline-parallelism">Pipeline Parallelism</h3>
+<p>Pipeline parallelism splits the model into stages. Stage 1 runs the first set of layers, stage 2 runs the next set, and so on. Micro-batches keep the pipeline busy.</p>
+<p>The main risk is idle time. If one stage is slower than the others, the faster stages wait. That idle period is called a pipeline bubble. Good pipeline training depends on balanced stage assignment, sensible micro-batch size, and careful scheduling.</p>
+<h3 id="offloading">Offloading</h3>
+<p>Offloading moves parameters, gradients, or optimizer state from GPU memory to CPU memory or storage when they are not immediately needed. It can make otherwise impossible runs feasible, but it almost always increases latency.</p>
+<p>Use offloading when memory is the hard limit. Do not expect it to be free.</p>
+<h2 id="tooling-choices">Tooling Choices</h2>
+<h3 id="native-pytorch">Native PyTorch</h3>
+<p>Native PyTorch gives the most control. Use it when you need to understand the system, customize training deeply, or debug low-level distributed behavior.</p>
+<p>The main building blocks are:</p>
 <ul>
-<li>
-<p>For more advanced details like <strong>RPC-Based Distributed Training (RPC)</strong> and <strong>Collective Communication (c10d)</strong>, refer to <code>torch.distributed</code> <a href="https://pytorch.org/tutorials/beginner/dist_overview.html">original docs</a></p>
-</li>
-<li>
-<p>Fully Sharded DP (FSDP)</p>
-<ol>
-<li>What is in the GPU memory (x params, FP16)
-<ol>
-<li>Params: 2x (fp16 with 2 bytes)</li>
-<li>Gradients: 2x</li>
-<li>Optimizer (AdamW)
-<ul>
-<li>Param copy: 4x (float32)</li>
-<li>Momentum: 4x</li>
-<li>Variance: 4x</li>
+<li><code>torchrun</code> for launching distributed processes.</li>
+<li><code>torch.distributed</code> for process groups and collectives.</li>
+<li><code>DistributedDataParallel</code> for replicated data parallel training.</li>
+<li><code>FullyShardedDataParallel</code> for sharded training.</li>
+<li><code>torch.distributed.checkpoint</code> for distributed checkpointing.</li>
 </ul>
-</li>
-</ol>
-</li>
-<li>How FSDP works
-<ol>
-<li>FSDP unit (vertical splitting), can be:
-<ul>
-<li>A layer splitted</li>
-<li>A stage splitted</li>
-<li>A group of layers splitted</li>
-</ul>
-</li>
-<li>Sharding
-<ul>
-<li>Storing the FSDP unit on <code>FlatParameter</code></li>
-<li>Split <code>FlatParameter</code> on multiple nodes (after zero padding for divisible property)</li>
-</ul>
-</li>
-<li>All-Gather
-<ul>
-<li>performed by NCCL</li>
-<li>gather all parts and sync across all nodes</li>
-<li>Done before both forward and backwards</li>
-<li>discard peer parts after forward/backward</li>
-</ul>
-</li>
-<li>Reduce-scatter
-<ul>
-<li>performed via NCCL</li>
-<li>Each node gets part of the result of gradient (backward only)</li>
-<li>Note that All-Reduce is not used coz it broadcast same results to all nodes</li>
-<li>E.g. Each node <code>i</code> has all gradients <code>G_i1, G_i2, ..., G_in</code>, after reduce-scatter, each node will have gradient redistributed, with node <code>i</code> getting <code>sum of G_ki</code>, where k spans from 1 to n</li>
-</ul>
-</li>
-</ol>
-</li>
-<li>Reason to use/not to use FSDP
-<ol>
-<li>When to use
-<ul>
-<li>Model size is too large (not data size)</li>
-<li>More communication between GPUs</li>
-<li>Hence trade memory for speed: more GPU memory cost due to communication, however, communication overhead reduced via NCCL acceleration</li>
-<li>If want to trade speed for memory, see <strong>activation checkpointing</strong></li>
-</ul>
-</li>
-<li>When not to use
-<ul>
-<li>For models &#x3C; 100 million params, consider activation-checkpointing and reversible layers</li>
-<li>Recommend to use BFloat16 instead of Float16 (Float16 requires ShardedGradScaler)</li>
-<li>Mixed Precision Training Concern (Package compatibility)</li>
-</ul>
-</li>
-</ol>
-</li>
-<li>FSDP Implementation</li>
-</ol>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">### FSDP Version</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.distributed.fsdp </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> (</span></span>
-<span class="line"><span style="color:#ADBAC7">   FullyShardedDataParallel,</span></span>
-<span class="line"><span style="color:#ADBAC7">   CPUOffload,</span></span>
+<h3 id="lightning">Lightning</h3>
+<p>Lightning is useful when you want a higher-level training loop with standard strategies:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> lightning </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> L</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> L.Trainer(</span></span>
+<span class="line"><span style="color:#F69D50">    accelerator</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"gpu"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    devices</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    strategy</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"ddp"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    precision</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"bf16-mixed"</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    max_epochs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span></span>
 <span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.distributed.fsdp.wrap </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> (</span></span>
-<span class="line"><span style="color:#ADBAC7">   default_auto_wrap_policy,</span></span>
-<span class="line"><span style="color:#ADBAC7">   enable_wrap,</span></span>
-<span class="line"><span style="color:#ADBAC7">   wrap</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.nn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> nn</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> model</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">nn</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Module</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self):</span></span>
-<span class="line"><span style="color:#6CB6FF">      super</span><span style="color:#ADBAC7">().</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">8</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer3 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DistributedDataParallel(model())</span></span>
-<span class="line"><span style="color:#ADBAC7">fsdp_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> FullyShardedDataParallel(</span></span>
-<span class="line"><span style="color:#ADBAC7">   model(),</span></span>
-<span class="line"><span style="color:#F69D50">   fsdp_auto_wrap_policy</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">default_auto_wrap_policy,</span></span>
-<span class="line"><span style="color:#F69D50">   cpu_offload</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">CPUOffload(</span><span style="color:#F69D50">offload_params</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Custom wrap</span></span>
-<span class="line"><span style="color:#ADBAC7">wrapper_kwargs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Dict(</span><span style="color:#F69D50">cpu_offload</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">CPUOffload(</span><span style="color:#F69D50">offload_params</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> enable_wrap(</span><span style="color:#F69D50">wrapper_cls</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">FullyShardedDataParallel, </span><span style="color:#F47067">**</span><span style="color:#ADBAC7">wrapper_kwargs):</span></span>
-<span class="line"><span style="color:#ADBAC7">   fsdp_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> wrap(model())</span></span></code></pre>
-</li>
-</ul>
-</li>
-<li>
-<p>Model Parallelism</p>
-<ul>
-<li>split horizontally</li>
-<li>Implementation</li>
-</ul>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> model_parallel</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">nn</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Module</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self):</span></span>
-<span class="line"><span style="color:#6CB6FF">      super</span><span style="color:#ADBAC7">().</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer_1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Sequential(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer_2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Sequential(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer_1.cuda(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer_2.cude(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(self, x):</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> x.cuda(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.layer_1(x)</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> x.cuda(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.layer_2(x)</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> x</span></span></code></pre>
-<ul>
-<li>Inefficient sometimes: in the code above, GPU may be idle if layer 2 is not run during training</li>
-<li>Does not work well if the model architecture does not naturally lend itself to being divided into parallelizable segments.</li>
-</ul>
-</li>
-<li>
-<p>Pipeline Parallelism
-<img src="https://www.mishalaskin.com/_next/image?url=%2Fimages%2Fpipeline_parallel.png&#x26;w=3840&#x26;q=75" alt=""></p>
-<ul>
-<li>Mixed data and model parallelism, involves scheduling of data flow</li>
-<li>Split into multiple stages, and each stage is assigned to a different device</li>
-<li>The output of one stage is fed as input to the next stage.</li>
-<li>Sometimes inefficient and suffers from idle time when machines are waiting for other machines to finish their stages: pipeline is waiting for a stage to finish in both the forward and backward pass, the period when some machine are idle aer referred to as a <em>bubble</em>.</li>
-</ul>
-</li>
-<li>
-<p>Tensor parallelism</p>
-<ul>
-<li>Split vertically + horizontally (in units of a tensor)</li>
-<li>Can be more effective as it leverages efficiencies within matrix multiplication by spliting a tensor up into smaller fractions and expedite the computation</li>
-<li>The detail can be expanded into another blog, however, I will refer you to this <a href="https://www.mishalaskin.com/posts/tensor_parallel">excellent blog</a> instead of reinventing the wheel myself again.</li>
-<li>Might require models specifically designed to take advantage of this form of parallelism. It may not be as universally applicable as data or model parallelism.</li>
-</ul>
-</li>
-<li>
-<p><code>torchrun</code></p>
-<ul>
-<li>An elegant way to run distributed training using <code>torch.distributed</code> package. Please refer to details <a href="https://pytorch.org/docs/stable/elastic/run.html">here</a></li>
-<li>Make use of rendezvous backend to achieve high availability and failure recovery</li>
-<li>A few major advantages include:
-<ul>
-<li>Single-node multi-worker</li>
-<li>Multi-node</li>
-<li>Multi-GPU</li>
-<li>Fault tolerant</li>
-<li>Elastic</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>Distributed Training on the Cloud</p>
-<ul>
-<li>Since most of the resources are available from the cloud, and they are on-demand, it is common practice to migrate local code to be run on remote servers. You can spin up GPU resources (usually more capable than your local version) yourself and manage the dependencies/monitoring independenly, or you can resort to integrated solutions like AWS SageMaker or Azure ML or Google AI Studio as they often provide convenient API endpoints to interact with those GPU instances. In many scenarios, their management include inter-gpu/inter-node communication as well, which is a big plus.</li>
-<li>As an example, you can setup AWS accordingly and run your distributed training using SageMaker via <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/distributed-training.html">this tutorial</a></li>
-<li>A sample script is as follows:</li>
-</ul>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sagemaker.pytorch </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> PyTorch</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">estimator </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> PyTorch(</span></span>
-<span class="line"><span style="color:#6CB6FF">   ...</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   instance_count</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   instance_type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"ml.p4d.24xlarge"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#768390">   # Activate distributed training with SMDDP</span></span>
-<span class="line"><span style="color:#F69D50">   distribution</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">{ </span><span style="color:#96D0FF">"pytorchddp"</span><span style="color:#ADBAC7">: { </span><span style="color:#96D0FF">"enabled"</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7"> } }  </span><span style="color:#768390"># mpirun, activates SMDDP AllReduce OR AllGather</span></span>
-<span class="line"><span style="color:#768390">   # distribution={ "torch_distributed": { "enabled": True } }  # torchrun, activates SMDDP AllGather</span></span>
-<span class="line"><span style="color:#768390">   # distribution={ "smdistributed": { "dataparallel": { "enabled": True } } }  # mpirun, activates SMDDP AllReduce OR AllGather</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-</li>
-<li>
-<p>Other packages</p>
-<ul>
-<li>
-<p>PyTorch Lightning - a lightweight PyTorch wrapper that provides a high-level interface for researchers and practitioners to streamline the training of deep learning models. It abstracts away many of the boilerplate code components traditionally required for training models, making the code cleaner, more modular, and more readable. It requires little setup of code and just need to insert a few parameters to the trainer</p>
-<ul>
-<li>Example</li>
-</ul>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> L.Trainer(</span></span>
-<span class="line"><span style="color:#F69D50">   max_epochs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   callbacks</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">callbacks,</span></span>
-<span class="line"><span style="color:#F69D50">   accelerator</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"gpu"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   devices</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">,  </span><span style="color:#768390"># &#x3C;-- NEW</span></span>
-<span class="line"><span style="color:#F69D50">   strategy</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"ddp"</span><span style="color:#ADBAC7">,  </span><span style="color:#768390"># &#x3C;-- NEW</span></span>
-<span class="line"><span style="color:#F69D50">   precision</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"16"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   logger</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">logger,</span></span>
-<span class="line"><span style="color:#F69D50">   log_every_n_steps</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">   deterministic</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-</li>
-<li>
-<p>Hugging Face <code>Accelerate</code>: a library that enables the same PyTorch code to be run across any distributed configuration by adding just four lines of code. It is still built on <code>torch_xla</code> and <code>torch.distributed</code>, but have get users rid of writing custom code to adapt to these platforms.</p>
-<ul>
-<li>Benefits include easy utilization of ZeRO Optimizer from DeepSpeed, achieve FSDP and mixed-precision training as well.</li>
-<li>Example</li>
-</ul>
+<span class="line"><span style="color:#ADBAC7">trainer.fit(model, </span><span style="color:#F69D50">datamodule</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">data)</span></span></code></pre>
+<p>Switching <code>strategy="ddp"</code> to <code>strategy="fsdp"</code> can be a good starting point for memory-constrained runs, but the model still needs careful validation.</p>
+<h3 id="hugging-face-accelerate">Hugging Face Accelerate</h3>
+<p>Accelerate is helpful when you want to keep a mostly plain PyTorch loop while letting the library handle device placement and distributed wrapping.</p>
 <pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> accelerate </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Accelerator</span></span>
-<span class="line"><span style="color:#ADBAC7">accelerator </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Accelerator()</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">model, optimizer, training_dataloader, scheduler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> accelerator.prepare(</span></span>
-<span class="line"><span style="color:#ADBAC7">    model, optimizer, training_dataloader, scheduler</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">accelerator </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Accelerator()</span></span>
+<span class="line"><span style="color:#ADBAC7">model, optimizer, train_loader, scheduler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> accelerator.prepare(</span></span>
+<span class="line"><span style="color:#ADBAC7">    model,</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer,</span></span>
+<span class="line"><span style="color:#ADBAC7">    train_loader,</span></span>
+<span class="line"><span style="color:#ADBAC7">    scheduler,</span></span>
 <span class="line"><span style="color:#ADBAC7">)</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> batch </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> training_dataloader:</span></span>
-<span class="line"><span style="color:#ADBAC7">      optimizer.zero_grad()</span></span>
-<span class="line"><span style="color:#ADBAC7">      inputs, targets </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> batch</span></span>
-<span class="line"><span style="color:#ADBAC7">      inputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> inputs.to(device)</span></span>
-<span class="line"><span style="color:#ADBAC7">      targets </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> targets.to(device)</span></span>
-<span class="line"><span style="color:#ADBAC7">      outputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(inputs)</span></span>
-<span class="line"><span style="color:#ADBAC7">      loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_function(outputs, targets)</span></span>
-<span class="line"><span style="color:#ADBAC7">      accelerator.backward(loss)</span></span>
-<span class="line"><span style="color:#ADBAC7">      optimizer.step()</span></span>
-<span class="line"><span style="color:#ADBAC7">      scheduler.step()</span></span></code></pre>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> batch </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> train_loader:</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer.zero_grad()</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_fn(model(batch[</span><span style="color:#96D0FF">"inputs"</span><span style="color:#ADBAC7">]), batch[</span><span style="color:#96D0FF">"labels"</span><span style="color:#ADBAC7">])</span></span>
+<span class="line"><span style="color:#ADBAC7">    accelerator.backward(loss)</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer.step()</span></span>
+<span class="line"><span style="color:#ADBAC7">    scheduler.step()</span></span></code></pre>
+<p>Launch it with:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#F69D50">accelerate</span><span style="color:#96D0FF"> config</span></span>
+<span class="line"><span style="color:#F69D50">accelerate</span><span style="color:#96D0FF"> launch</span><span style="color:#96D0FF"> train.py</span></span></code></pre>
+<h2 id="common-bottlenecks">Common Bottlenecks</h2>
+<h3 id="communication-overhead">Communication Overhead</h3>
+<p>More workers do not automatically mean faster training. At some point, gradient synchronization, parameter gathering, or pipeline communication can dominate the step time.</p>
+<p>Watch these signals:</p>
 <ul>
-<li>In terminal, run <code>accelerate launch {my_script.py}</code></li>
+<li>GPU utilization drops while network utilization rises.</li>
+<li>Step time stops improving as you add GPUs.</li>
+<li>Small batches scale poorly.</li>
+<li>Profiler traces show long all-reduce or all-gather blocks.</li>
 </ul>
-</li>
+<p>Common fixes include larger per-device batches, gradient accumulation, faster interconnects, mixed precision, communication overlap, and reducing the frequency or size of synchronization.</p>
+<h3 id="data-loading">Data Loading</h3>
+<p>Distributed training can expose a data pipeline that was “fast enough” on one GPU. If workers wait for batches, scaling compute will not help.</p>
+<p>Check:</p>
+<ul>
+<li>Data loader worker count.</li>
+<li>Object storage latency.</li>
+<li>On-the-fly decoding or tokenization.</li>
+<li>Dataset sharding.</li>
+<li>Host-to-device transfer time.</li>
+<li>Whether <code>pin_memory</code> and <code>non_blocking</code> transfers help.</li>
 </ul>
-</li>
-</ol>
-<h2 id="4-challenges-and-solutions">4. Challenges and Solutions</h2>
+<h3 id="memory">Memory</h3>
+<p>GPU memory is consumed by parameters, gradients, activations, optimizer state, temporary buffers, and framework overhead. For AdamW, optimizer state can be a major part of memory use.</p>
+<p>The usual memory levers are:</p>
+<ul>
+<li>Mixed precision, often BF16 when hardware supports it.</li>
+<li>Activation checkpointing.</li>
+<li>Smaller micro-batches plus gradient accumulation.</li>
+<li>FSDP or ZeRO-style sharding.</li>
+<li>CPU offload.</li>
+<li>Quantization or smaller model variants.</li>
+</ul>
+<h3 id="fault-tolerance">Fault Tolerance</h3>
+<p>Long distributed jobs fail. Machines preempt, network links flap, and workers hit data-specific errors.</p>
+<p>Make failure recovery boring:</p>
+<ul>
+<li>Save checkpoints regularly.</li>
+<li>Save optimizer, scheduler, scaler, and RNG state when reproducibility matters.</li>
+<li>Test resume before the expensive run.</li>
+<li>Log rank-specific errors.</li>
+<li>Keep the same container image across workers.</li>
+<li>Store config, git commit, data version, and launch command.</li>
+</ul>
+<h2 id="mistakes-to-avoid">Mistakes To Avoid</h2>
+<h3 id="changing-the-model-after-wrapping">Changing the Model After Wrapping</h3>
+<p>Wrap the model with DDP or FSDP after the model structure is final. Changing parameters afterward can break gradient synchronization assumptions.</p>
+<h3 id="forgetting-samplerset_epoch">Forgetting <code>sampler.set_epoch</code></h3>
+<p>With <code>DistributedSampler</code>, call <code>sampler.set_epoch(epoch)</code> each epoch so shuffling changes across epochs consistently.</p>
+<h3 id="comparing-runs-with-different-effective-batch-sizes">Comparing Runs With Different Effective Batch Sizes</h3>
+<p>The effective batch size is:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>per_device_batch_size * number_of_processes * gradient_accumulation_steps</span></span></code></pre>
+<p>If this changes, learning rate, warmup, convergence, and generalization can change too.</p>
+<h3 id="ignoring-pipeline-balance">Ignoring Pipeline Balance</h3>
+<p>Pipeline parallelism needs roughly balanced stages. If one stage is much slower, the rest of the pipeline waits. Profile the model before deciding where to split it.</p>
+<h3 id="treating-multi-node-as-single-node-but-bigger">Treating Multi-Node as “Single-Node, But Bigger”</h3>
+<p>Multi-node training adds rendezvous, network topology, firewalls, hostnames, clock drift, shared storage, rank assignment, and failure modes. Test a tiny job across the same topology before paying for a full run.</p>
+<h2 id="a-practical-decision-path">A Practical Decision Path</h2>
+<p>Start with the least complex strategy that addresses the actual bottleneck:</p>
 <ol>
-<li>Communication Overhead:</li>
+<li>One GPU baseline: confirm the model, data, loss, and metrics work.</li>
+<li>Single-node DDP: use this when the model fits but training is too slow.</li>
+<li>Mixed precision and activation checkpointing: use these before adding complex sharding.</li>
+<li>FSDP or ZeRO-style sharding: use when model, gradients, or optimizer state do not fit.</li>
+<li>Tensor or pipeline parallelism: use when individual layers or model stages need to be split.</li>
+<li>Multi-node training: use when one machine is not enough and you can afford the operational complexity.</li>
 </ol>
-<ul>
-<li>
-<p>In distributed training, the exchange of information between devices becomes a potential bottleneck. As the number of devices increases, coordinating updates and sharing gradients become more complex.</p>
-</li>
-<li>
-<p>Solutions:</p>
-<ul>
-<li>
-<p>Optimized Communication Protocols: Leveraging optimized communication protocols, such as NVIDIA NCCL for GPU communication, helps minimize the latency associated with inter-device communication.</p>
-</li>
-<li>
-<p>Gradient Accumulation: By accumulating gradients locally on each device before synchronization, communication frequency is reduced. This strategy can be beneficial in scenarios where frequent synchronization is not necessary.</p>
-</li>
-</ul>
-</li>
-</ul>
-<ol start="2">
-<li>Fault Tolerance:</li>
-</ol>
-<ul>
-<li>
-<p>In distributed environments, hardware failures or network issues are inevitable. Ensuring fault tolerance is essential to maintain the integrity of the training process.</p>
-</li>
-<li>
-<p>Solutions</p>
-<ul>
-<li>
-<p>Checkpointing: Regularly saving model checkpoints allows training to resume from the most recent checkpoint in case of a failure. This practice minimizes data loss and ensures continuity.</p>
-</li>
-<li>
-<p>Redundancy: Introducing redundancy by running multiple instances of the training job across different nodes adds a layer of resilience. Load balancing techniques can be employed to distribute tasks effectively.</p>
-</li>
-</ul>
-</li>
-</ul>
-<ol start="3">
-<li>Scaling Issues:</li>
-</ol>
-<ul>
-<li>Scaling distributed training to a large number of nodes presents challenges in terms of efficiency and resource management.</li>
-<li>Strategies
-<ul>
-<li>Dynamic Resource Allocation: Implementing dynamic resource allocation ensures that resources are allocated efficiently based on the current load. Kubernetes and other orchestration tools can facilitate dynamic scaling.</li>
-<li>Parameter Servers: Utilizing parameter servers, which are dedicated servers responsible for storing and distributing model parameters, can enhance the scalability of distributed training.</li>
-</ul>
-</li>
-</ul>
-<h2 id="5-common-mistakes">5. Common Mistakes</h2>
-<ol>
-<li>Not pipelining</li>
-</ol>
-<ul>
-<li>Pipeline Parallelism is always something to include. Notice the use of ZeRO-3 also uses pipeline parallelism</li>
-</ul>
-<ol start="2">
-<li>Not balancing pipeline stages</li>
-</ol>
-<ul>
-<li>There will be some brief periods where either a machine is idle and waiting on the next minibatch from the previous machine or takes longer than other machines to execute its computation, thus slowing down the pipeline.</li>
-<li>You should ideally construct your pipeline such that each machine does as close to the same amount of computation as possible. This means timing how long it takes data to get through different layers in the model, timing how long forward and backward propagation takes for each model partition, and ensuring roughly equivalent data sizes across mini-batches. This is critical for optimizing pipeline efficiency.</li>
-<li>To achieve this, setting up profiler like PyTorch Profiler is critical for evaluation of computations done during model training</li>
-</ul>
-<ol start="3">
-<li>Weight staleness</li>
-</ol>
-<ul>
-<li>When model training is pipelined across multiple machines, there is a delay that happens between when the forward computation on data occurs and when the gradients based on that computation are backpropagated to update the model weights. As a result, forward propagation are calculated using weights that aren’t updated with the latest gradients.</li>
-<li>Solution: <strong>weight stashing</strong>
-A system “maintains multiple versions of a model’s weights, one for each minibatch.” After the completion of each forward pass, the system can store a model’s weights as part of the state associated with that minibatch. When the time comes for backpropagation, the weights associated with that minibatch are retrieved from the stash and used for the gradient computation. This ensures that the same version of weights are used for the forward and backward pass over a single minibatch of data within a pipelined stage, and statistical convergence is improved.</li>
-</ul>
-<ol start="4">
-<li>Driver and library inconsistencies between machines</li>
-</ol>
-<ul>
-<li>Containerization / Virtualization using tools like Docker solves the problem</li>
-</ul>
-<ol start="5">
-<li>Wrong type of Optimizer Update</li>
-</ol>
-<ul>
-<li>Example: Synchronous vs Asynchronous SGD</li>
-<li>Asynchronous SGD (<a href="https://people.eecs.berkeley.edu/~brecht/papers/hogwildTR.pdf">HogWild</a> as a popular choice) which showed that SGD could be run in parallel, without locks, and without too much effect on algorithm convergence. Asynchronous SGD allows weight updates to proceed without each machine waiting for the other to send their gradients.</li>
-</ul>
-<ol start="6">
-<li>Network issues, firewalls, ports, and communication errors</li>
-</ol>
-<ul>
-<li>Solutions:
-<ul>
-<li>Relying less on network for communication</li>
-<li>If necessary to communicate, a process must specify the IP address and port number across which to transmit this information</li>
-<li>Backup Frequently</li>
-<li>Better logging</li>
-</ul>
-</li>
-</ul>
-<ol start="7">
-<li>Slow data transmission</li>
-</ol>
-<ul>
-<li>Solutions:
-<ul>
-<li>Avoid making RPC calls</li>
-<li>Try higher bandwidth interconnects like NVLink and Infini-band</li>
-<li>FP32 -> FP16 / Mixed precision</li>
-<li>transmit a subset of gradients as soon as they are calculated (i.e. sending the gradients of a single layer) while at the same time, backpropagation is being performed on subsequent layers.</li>
-</ul>
-</li>
-</ul>
-<h2 id="6-a-complete-distributed-dl-pipeline">6. A complete Distributed DL pipeline</h2>
-<ol>
-<li>
-<p>Distributed Training Setup:</p>
-<ul>
-<li>Set up a distributed computing environment, typically using a cluster or cloud infrastructure like AWS, Google Cloud, or Azure.</li>
-<li>Ensure that all nodes in the cluster have the necessary libraries (TensorFlow, PyTorch, etc.) and dependencies installed.</li>
-<li>Split the training dataset across nodes to distribute the workload.</li>
-</ul>
-</li>
-<li>
-<p>Synchronization and Communication:</p>
-<ul>
-<li>Implement a synchronization mechanism to ensure that the model’s weights are updated consistently across all nodes.</li>
-<li>Choose a communication protocol (e.g., Parameter Server, AllReduce) for aggregating gradients and exchanging model updates.</li>
-</ul>
-</li>
-<li>
-<p>Model Initialization:</p>
-<ul>
-<li>Initialize the same model architecture with random weights on all nodes.</li>
-<li>Setup model to follow data parallelism</li>
-</ul>
-</li>
-<li>
-<p>Training Loop (The main discussion we had in the blog):</p>
-<ul>
-<li>Start the training loop on each node with its batch of data.</li>
-<li>Compute gradients for the batch, update local weights, and synchronize with other nodes.</li>
-<li>Repeat this process for a predefined number of epochs.</li>
-<li>Implement early stopping to prevent overfitting and save the best-performing model checkpoint during training.</li>
-<li>Periodically evaluate the model’s performance on the validation dataset to ensure it’s learning effectively.</li>
-<li>Save model checkpoints at regular intervals during training to resume from a specific point in case of interruptions.</li>
-<li>If necessary, scale up the distributed training environment by adding more nodes to further accelerate training or handle larger datasets.</li>
-</ul>
-</li>
-<li>
-<p>Monitoring and Logging:</p>
-<ul>
-<li>Implement monitoring and logging to track training progress, including loss, accuracy, and other relevant metrics.</li>
-<li>Use tools like TensorBoard or custom logging solutions to visualize training statistics.</li>
-</ul>
-</li>
-<li>
-<p>Hyperparameter Tuning:</p>
-<ul>
-<li>Perform hyperparameter tuning, which may include learning rate adjustments, batch sizes, and other parameters, to optimize the model’s performance.</li>
-<li><strong>Note</strong>: you should set a budget alert before this, as running multiple experiments (on a large model) in a distributed setting can be very COSTLY!!!</li>
-</ul>
-</li>
-<li>
-<p>Post-training Analysis:</p>
-<ul>
-<li>This can go before/after/hand-in-hand with step 6, as part of model tuning</li>
-<li>Analyze the trained model’s performance on the test dataset to assess its generalization capabilities.</li>
-</ul>
-</li>
-<li>
-<p>Deployment:</p>
-<ul>
-<li>Deploy the trained model for inference in your production environment, whether it’s on the cloud or at the edge.</li>
-<li>Sometime this requires distributing model weights across servers as well</li>
-</ul>
-</li>
-<li>
-<p>Additional Fine-tuning (Optional):</p>
-<ul>
-<li>Fine-tune the model as needed based on deployment feedback or new data.</li>
-<li>Checkout Hugging Face’s <a href="https://huggingface.co/docs/trl/en/index">TRL library</a> &#x26; its tutorials to understand more.</li>
-</ul>
-</li>
-<li>
-<p>Documentation:</p>
-</li>
-</ol>
-<ul>
-<li>Document the entire distributed training process, including configuration settings, data preprocessing steps, and model architecture, for future reference.</li>
-</ul>
-<ol start="11">
-<li>Maintenance and Updates:</li>
-</ol>
-<ul>
-<li>Regularly update and maintain the distributed training system, including libraries, dependencies, and data pipelines, to ensure its reliability and performance.</li>
-</ul>
-<p>For the basic scripts without distributed training and with basic DDP. You may refer to the <a href="https://theaisummer.com/distributed-training-pytorch/">tutorial here</a>. If you want a one-off solution, please refer to the code below.</p>
-<h2 id="7-a-more-challenging-code-using-native-pytorch">7. A more challenging code using native PyTorch</h2>
-<p>If you are interested in building it from scratch with PyTorch directly, checkout the following code (if you don’t understand the syntax, please DIY)</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#96D0FF">"""A demo on how to setup custom trainer with efficient training"""</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> os</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> argparse</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> apex.amp </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> amp</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.nn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> nn</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.distributed </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> dist</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.multiprocessing </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> mp</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.nn.parallel </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DistributedDataParallel </span><span style="color:#F47067">as</span><span style="color:#6CB6FF"> DDP</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.utils.data </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Dataset, DataLoader</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.utils.data.distributed </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> DistributedSampler</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> ConvNet</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">nn</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Module</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self, num_classes</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#6CB6FF">      super</span><span style="color:#ADBAC7">(ConvNet, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">).</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Sequential(</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.Conv2d(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">kernel_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stride</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">padding</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.BatchNorm2d(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.ReLU(),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.MaxPool2d(</span><span style="color:#F69D50">kernel_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stride</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.layer2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Sequential(</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.Conv2d(</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">32</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">kernel_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stride</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">padding</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.BatchNorm2d(</span><span style="color:#6CB6FF">32</span><span style="color:#ADBAC7">),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.ReLU(),</span></span>
-<span class="line"><span style="color:#ADBAC7">            nn.MaxPool2d(</span><span style="color:#F69D50">kernel_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">stride</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.fc </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">7</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">7</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">32</span><span style="color:#ADBAC7">, num_classes)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(self, x):</span></span>
-<span class="line"><span style="color:#ADBAC7">      out </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.layer1(x)</span></span>
-<span class="line"><span style="color:#ADBAC7">      out </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.layer2(out)</span></span>
-<span class="line"><span style="color:#ADBAC7">      out </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> out.reshape(out.size(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">), </span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">      out </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.fc(out)</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> out</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> ddp_setup</span><span style="color:#ADBAC7">()  </span><span style="color:#768390">#(rank: int, world_size: int):</span></span>
-<span class="line"><span style="color:#96D0FF">   """</span></span>
-<span class="line"><span style="color:#96D0FF">   Args:</span></span>
-<span class="line"><span style="color:#96D0FF">      rank: Unique ID of each</span></span>
-<span class="line"><span style="color:#96D0FF">      world_size: Total number of processes</span></span>
-<span class="line"><span style="color:#96D0FF">   """</span></span>
-<span class="line"><span style="color:#768390">   # multi-gpu setup</span></span>
-<span class="line"><span style="color:#768390">   # os.environ['MASTER_ADDR'] = 'your master node ip'</span></span>
-<span class="line"><span style="color:#768390">   # os.environ['MASTER_PORT'] = '8888'</span></span>
-<span class="line"><span style="color:#768390">   # dist.init_process_group(</span></span>
-<span class="line"><span style="color:#768390">   #     backend='nccl',</span></span>
-<span class="line"><span style="color:#768390">   #     init_method='env://',</span></span>
-<span class="line"><span style="color:#768390">   #     world_size=world_size,</span></span>
-<span class="line"><span style="color:#768390">   #     rank=rank</span></span>
-<span class="line"><span style="color:#768390">   # )</span></span>
-<span class="line"><span style="color:#ADBAC7">   dist.init_process_group(</span><span style="color:#F69D50">backend</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"nccl"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> Trainer</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(</span></span>
-<span class="line"><span style="color:#ADBAC7">      self,</span></span>
-<span class="line"><span style="color:#ADBAC7">      model: torch.nn.Module,</span></span>
-<span class="line"><span style="color:#ADBAC7">      train_data: DataLoader,</span></span>
-<span class="line"><span style="color:#ADBAC7">      optimizer: torch.optim.Optimizer,</span></span>
-<span class="line"><span style="color:#ADBAC7">      criterion: torch.nn.Module,</span></span>
-<span class="line"><span style="color:#768390">      # gpu_id: int,</span></span>
-<span class="line"><span style="color:#ADBAC7">      save_every: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#ADBAC7">      snapshot_path: </span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#ADBAC7">   ) -> </span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#768390">      # self.gpu_id = gpu_id</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.local_rank </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> int</span><span style="color:#ADBAC7">(os.environ[</span><span style="color:#96D0FF">"LOCAL_RANK"</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.global_rank </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> int</span><span style="color:#ADBAC7">(os.environ[</span><span style="color:#96D0FF">"RANK"</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model.to(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.local_rank)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.train_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_data</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> optimizer</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.criterion </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> criterion</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.epochs_run </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.save_every </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> save_every</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> amp.initialize(</span></span>
-<span class="line"><span style="color:#6CB6FF">            self</span><span style="color:#ADBAC7">.model, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.optimizer, </span><span style="color:#F69D50">opt_level</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'O1'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">      if</span><span style="color:#ADBAC7"> os.path.exists(snapshot_path):</span></span>
-<span class="line"><span style="color:#6CB6FF">            print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Loading Snapshot"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">            self</span><span style="color:#ADBAC7">._load_snapshot(snapshot_path)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DDP(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model, </span><span style="color:#F69D50">device_ids</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.local_rank])</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> _load_snapshot</span><span style="color:#ADBAC7">(self, snapshot_path):</span></span>
-<span class="line"><span style="color:#96D0FF">      """Resume training from previous checkpoint"""</span></span>
-<span class="line"><span style="color:#ADBAC7">      snapshot </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.load(snapshot_path)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model.load_state_dict(snapshot[</span><span style="color:#96D0FF">'model'</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.optimizer.load_state_dict(snapshot[</span><span style="color:#96D0FF">'optimizer'</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.epochs_run </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> snapshot[</span><span style="color:#96D0FF">"epochs_resume"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">      amp.load_state_dict(snapshot[</span><span style="color:#96D0FF">'amp'</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#6CB6FF">      print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">"Resuming training from snapshot at Epoch </span><span style="color:#F47067">{</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.epochs_run</span><span style="color:#F47067">}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> _run_batch</span><span style="color:#ADBAC7">(self, source, targets):</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.optimizer.zero_grad()</span></span>
-<span class="line"><span style="color:#ADBAC7">      output </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.model(source)</span></span>
-<span class="line"><span style="color:#ADBAC7">      loss </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.criterion(output, targets)</span></span>
-<span class="line"><span style="color:#ADBAC7">      loss.backward()</span></span>
-<span class="line"><span style="color:#F47067">      with</span><span style="color:#ADBAC7"> amp.scale_loss(loss, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.optimizer) </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> scaled_loss:</span></span>
-<span class="line"><span style="color:#ADBAC7">            scaled_loss.backward()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.optimizer.step()</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> loss.item()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> _run_epoch</span><span style="color:#ADBAC7">(self, epoch: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, total_epochs: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model.train()</span></span>
-<span class="line"><span style="color:#F47067">      for</span><span style="color:#ADBAC7"> i, (source, targets) </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.train_data):</span></span>
-<span class="line"><span style="color:#ADBAC7">            source </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> source.to(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.local_rank)</span></span>
-<span class="line"><span style="color:#ADBAC7">            targets </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> targets.to(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.local_rank)</span></span>
-<span class="line"><span style="color:#ADBAC7">            loss </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">._run_batch(source, targets)</span></span>
-<span class="line"><span style="color:#F47067">            if</span><span style="color:#ADBAC7"> (i </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">%</span><span style="color:#6CB6FF"> 100</span><span style="color:#F47067"> ==</span><span style="color:#6CB6FF"> 0</span><span style="color:#F47067"> and</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.local_rank </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#6CB6FF">               print</span><span style="color:#ADBAC7">(</span></span>
-<span class="line"><span style="color:#F47067">                  f</span><span style="color:#96D0FF">'[GPU</span><span style="color:#F47067">{</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.global_rank</span><span style="color:#F47067">}</span><span style="color:#96D0FF">] Epoch [</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">epoch </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#F47067">}</span><span style="color:#96D0FF">/</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">total_epochs</span><span style="color:#F47067">}</span><span style="color:#96D0FF">], Step [</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">i </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#F47067">}</span><span style="color:#96D0FF">/</span><span style="color:#F47067">{</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.train_data)</span><span style="color:#F47067">}</span><span style="color:#96D0FF">], Loss: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">loss</span><span style="color:#F47067">:.4f}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.model.eval()</span></span>
-<span class="line"><span style="color:#F47067">      with</span><span style="color:#ADBAC7"> torch.no_grad():</span></span>
-<span class="line"><span style="color:#F47067">            for</span><span style="color:#ADBAC7"> i, (source, targets) </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.val_data):</span></span>
-<span class="line"><span style="color:#ADBAC7">               source </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> source.</span></span>
-<span class="line"><span style="color:#ADBAC7">               targets </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> targets.</span></span>
-<span class="line"><span style="color:#ADBAC7">               loss </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> ...</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> _save_snapshot</span><span style="color:#ADBAC7">(self, save_dir, epoch, model_seed):</span></span>
-<span class="line"><span style="color:#ADBAC7">      path </span><span style="color:#F47067">=</span><span style="color:#F47067"> f</span><span style="color:#96D0FF">"</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">save_dir</span><span style="color:#F47067">}</span><span style="color:#96D0FF">/base_model_seed=</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">model_seed</span><span style="color:#F47067">}</span><span style="color:#96D0FF">_epoch=</span><span style="color:#F47067">{</span><span style="color:#ADBAC7">epoch</span><span style="color:#F47067">}</span><span style="color:#96D0FF">.pt"</span></span>
-<span class="line"><span style="color:#ADBAC7">      torch.save({</span></span>
-<span class="line"><span style="color:#96D0FF">            'model'</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.model,  </span><span style="color:#768390"># if saving state_dict, use .module.state_dict()</span></span>
-<span class="line"><span style="color:#96D0FF">            'optimizer_state_dict'</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.optimizer.state_dict(),</span></span>
-<span class="line"><span style="color:#96D0FF">            'scheduler_state_dict'</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.scheduler.state_dict(),</span></span>
-<span class="line"><span style="color:#96D0FF">            'amp'</span><span style="color:#ADBAC7">: amp.state_dict(),</span></span>
-<span class="line"><span style="color:#96D0FF">            'epochs_resume'</span><span style="color:#ADBAC7">: </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.epochs_run</span></span>
-<span class="line"><span style="color:#ADBAC7">      }, path)</span></span>
-<span class="line"><span style="color:#6CB6FF">      print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">"Epoch </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">epoch</span><span style="color:#F47067">}</span><span style="color:#96D0FF"> | Training snapshot saved at </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">path</span><span style="color:#F47067">}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> train</span><span style="color:#ADBAC7">(self, total_epochs: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, model_seed: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, save_dir: </span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#96D0FF">      """Training script"""</span></span>
-<span class="line"><span style="color:#F47067">      for</span><span style="color:#ADBAC7"> epoch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.epochs_run, total_epochs):</span></span>
-<span class="line"><span style="color:#6CB6FF">            self</span><span style="color:#ADBAC7">._run_epoch(epoch, total_epochs)</span></span>
-<span class="line"><span style="color:#F47067">            if</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.local_rank </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0</span><span style="color:#F47067"> and</span><span style="color:#ADBAC7"> epoch </span><span style="color:#F47067">%</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.save_every </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#6CB6FF">               self</span><span style="color:#ADBAC7">._save_snapshot(save_dir, epoch, model_seed)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> load_train_params</span><span style="color:#ADBAC7">():</span></span>
-<span class="line"><span style="color:#ADBAC7">   train_set </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MyTrainDataset(</span><span style="color:#6CB6FF">2048</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ConvNet()</span></span>
-<span class="line"><span style="color:#ADBAC7">   optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.optim.SGD(model.parameters(), </span><span style="color:#F69D50">lr</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1e-3</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   criterion </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.nn.CrossEntropyLoss()</span></span>
-<span class="line"><span style="color:#F47067">   return</span><span style="color:#ADBAC7"> train_set, model, optimizer, criterion</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> prepare_dataloader</span><span style="color:#ADBAC7">(dataset: Dataset, batch_size: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, num_workers: </span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, sampler: DistributedSampler):</span></span>
-<span class="line"><span style="color:#F47067">   return</span><span style="color:#ADBAC7"> DataLoader(</span></span>
-<span class="line"><span style="color:#ADBAC7">      dataset,</span></span>
-<span class="line"><span style="color:#F69D50">      batch_size</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">batch_size,</span></span>
-<span class="line"><span style="color:#F69D50">      pin_memory</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">      shuffle</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">      num_workers</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">num_workers,</span></span>
-<span class="line"><span style="color:#F69D50">      sampler</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">sampler</span></span>
-<span class="line"><span style="color:#ADBAC7">   )</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> run</span><span style="color:#ADBAC7">(args):</span></span>
-<span class="line"><span style="color:#96D0FF">   """Run entire pipeline"""</span></span>
-<span class="line"><span style="color:#ADBAC7">   torch.manual_seed(args.seed)</span></span>
-<span class="line"><span style="color:#768390">   # rank = args.nr * args.gpus + gpu</span></span>
-<span class="line"><span style="color:#768390">   # ddp_setup(rank, args.world_size)</span></span>
-<span class="line"><span style="color:#ADBAC7">   ddp_setup()</span></span>
-<span class="line"><span style="color:#ADBAC7">   dataset, model, optimizer, criterion </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> load_train_params()</span></span>
-<span class="line"><span style="color:#768390">   # sampler = DistributedSampler(</span></span>
-<span class="line"><span style="color:#768390">   #     dataset, num_replicas=args.world_size, rank=rank)</span></span>
-<span class="line"><span style="color:#ADBAC7">   sampler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DistributedSampler(dataset)</span></span>
-<span class="line"><span style="color:#ADBAC7">   train_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> prepare_dataloader(</span></span>
-<span class="line"><span style="color:#ADBAC7">      dataset, </span><span style="color:#F69D50">batch_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">32</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">num_workers</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">sampler</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">sampler)</span></span>
-<span class="line"><span style="color:#ADBAC7">   trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Trainer(model, train_data, optimizer,</span></span>
-<span class="line"><span style="color:#ADBAC7">                     criterion, args.save_every, args.snapshot_path)</span></span>
-<span class="line"><span style="color:#ADBAC7">   trainer.train(args.total_epochs, args.seed, args.save_dir)</span></span>
-<span class="line"><span style="color:#ADBAC7">   dist.destroy_process_group()</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> main</span><span style="color:#ADBAC7">():</span></span>
-<span class="line"><span style="color:#96D0FF">   """Entry point</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#96D0FF">   to call the script using torchrun (which manages the )</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#96D0FF">   e.g: 4 GPU per machine, 50 epochs, saving every 10 epoch</span></span>
-<span class="line"><span style="color:#96D0FF">   torchrun </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --nproc_per_node=4 </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --nnodes=2 </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --node_rank=0 </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --rdzv_id=456 </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --rdzv_backend=c10d </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   --rdzv_endpoint=HOST_MACHINE:PORT </span><span style="color:#6CB6FF">\</span></span>
-<span class="line"><span style="color:#96D0FF">   FILE_NAME.py --epochs=50 --save_every=10</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#96D0FF">   nproc_per_node: usually num of GPUs per machine</span></span>
-<span class="line"><span style="color:#96D0FF">   nnodes: num of machines</span></span>
-<span class="line"><span style="color:#96D0FF">   node_rank: ID: 0/1/2/.... for each machine</span></span>
-<span class="line"><span style="color:#96D0FF">   Notes on endpoint: choose endpoint whose machine has high network bandwidth</span></span>
-<span class="line"><span style="color:#96D0FF">   Note: Multi-GPU on single machine is much faster than Multi-node each with single GPU due to bandwidth limit over TCP</span></span>
-<span class="line"><span style="color:#96D0FF">   """</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> argparse.ArgumentParser()</span></span>
-<span class="line"><span style="color:#768390">   # parser.add_argument('-n', '--nodes', default=1,</span></span>
-<span class="line"><span style="color:#768390">   #                     type=int, metavar='N')</span></span>
-<span class="line"><span style="color:#768390">   # parser.add_argument('-g', '--gpus', default=1, type=int,</span></span>
-<span class="line"><span style="color:#768390">   #                     help='number of gpus per node')</span></span>
-<span class="line"><span style="color:#768390">   # parser.add_argument('-nr', '--nr', default=0, type=int,</span></span>
-<span class="line"><span style="color:#768390">   #                     help='ranking within the nodes')</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser.add_argument(</span><span style="color:#96D0FF">'--epochs'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">default</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">type</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        metavar</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'N'</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        help</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'number of total epochs to run'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser.add_argument(</span><span style="color:#96D0FF">'-s'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'--seed'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">default</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">42</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        type</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">metavar</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'N'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser.add_argument(</span><span style="color:#96D0FF">'--save_every'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">default</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">type</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        help</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'interval to save the snapshot'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser.add_argument(</span><span style="color:#96D0FF">'--save_dir'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">default</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'.'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">type</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        help</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'directory to save the snapshot'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   parser.add_argument(</span><span style="color:#96D0FF">'--snapshot_path'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">default</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'.'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">type</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                        help</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'path of the snapshot to restore training from'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">   args </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> parser.parse_args()</span></span>
-<span class="line"><span style="color:#768390">   #########################################################</span></span>
-<span class="line"><span style="color:#ADBAC7">   args.world_size </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> args.gpus </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> \</span></span>
-<span class="line"><span style="color:#ADBAC7">      args.nodes </span><span style="color:#F47067">if</span><span style="color:#ADBAC7"> args.gpus </span><span style="color:#F47067">>=</span><span style="color:#6CB6FF"> 0</span><span style="color:#F47067"> else</span><span style="color:#ADBAC7"> torch.cuda.device_count()</span></span>
-<span class="line"><span style="color:#ADBAC7">   args.total_epochs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> args.epochs</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">   # mp.spawn(main, nprocs=args.world_size, args=(args,))</span></span>
-<span class="line"><span style="color:#ADBAC7">   run(args)</span></span>
-<span class="line"><span style="color:#768390">   #########################################################</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">########## POST MORTEM ###################</span></span>
-<span class="line"><span style="color:#96D0FF">"""</span></span>
-<span class="line"><span style="color:#96D0FF">Common Troubleshooting</span></span>
-<span class="line"><span style="color:#96D0FF">1. Check nodes can communicate through **TCP**</span></span>
-<span class="line"><span style="color:#96D0FF">2. Check inbound rules on a security group (on AWS)</span></span>
-<span class="line"><span style="color:#96D0FF">3. export NCCL_DEBUG=INFO to set verbose logs</span></span>
-<span class="line"><span style="color:#96D0FF">4. export NCCL_SOCKET_IFNAME to ensure TCP connection is correct</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#96D0FF">SLURM work scheduler setup </span><span style="color:#F47067">TODO</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#96D0FF">"""</span></span></code></pre>
+<p>For most teams, the best first distributed setup is boring: DDP, <code>torchrun</code>, a pinned container image, strong logging, and tested checkpoint resume.</p>
 <h2 id="references">References</h2>
 <ul>
-<li><a href="https://neptune.ai/blog/distributed-training-errors">https://neptune.ai/blog/distributed-training-errors</a></li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/temp/some-tricks-in-real-world-mle/"> <span class="dir">← previous</span> <span class="title">Some Tricks in Real-world Machine Learning Engineering</span> </a> <a class="next" href="/writing/blogs/mlops/ml-post-training/"> <span class="dir">next →</span> <span class="title">MLOps Post Training Considerations</span> </a> </nav>  <script>
+<li><a href="https://docs.pytorch.org/docs/2.12/generated/torch.nn.parallel.DistributedDataParallel.html">PyTorch DistributedDataParallel</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.12/elastic/run.html">PyTorch torchrun</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.9/fsdp.html">PyTorch FullyShardedDataParallel</a></li>
+<li><a href="https://lightning.ai/docs/pytorch/stable/extensions/strategy.html">Lightning strategies</a></li>
+<li><a href="https://huggingface.co/docs/accelerate/main/en/basic_tutorials/migration">Hugging Face Accelerate migration guide</a></li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/temp/some-tricks-in-real-world-mle/"> <span class="dir">← previous</span> <span class="title">Some Tricks in Real-World Machine Learning Engineering</span> </a> <a class="next" href="/writing/blogs/mlops/ml-post-training/"> <span class="dir">next →</span> <span class="title">MLOps Post-Training Considerations</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

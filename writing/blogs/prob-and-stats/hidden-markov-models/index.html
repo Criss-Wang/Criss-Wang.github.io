@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>An overview of Hidden markov model and its algorithms - Zhenlin Wang</title><meta name="description" content="Learning stochastic process with more details"><meta property="og:title" content="An overview of Hidden markov model and its algorithms - Zhenlin Wang"><meta property="og:description" content="Learning stochastic process with more details"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/hidden-markov-models/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>An Overview of Hidden Markov Models and Their Algorithms - Zhenlin Wang</title><meta name="description" content="A practical overview of hidden Markov models, including states, observations, transition probabilities, emission probabilities, forward-backward, Viterbi, and Baum-Welch."><meta property="og:title" content="An Overview of Hidden Markov Models and Their Algorithms - Zhenlin Wang"><meta property="og:description" content="A practical overview of hidden Markov models, including states, observations, transition probabilities, emission probabilities, forward-backward, Viterbi, and Baum-Welch."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/hidden-markov-models/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,181 +29,75 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Hidden Markov Models · Statistics · Dynamic Programming</div> <h1>An <em>overview</em> of Hidden markov model and its algorithms</h1> <p class="dek">Learning stochastic process with more details</p> <div class="byline"> <strong>2021.06.22</strong> <span>·</span> <span>9 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>Stochastic Process is a critical piece of knowledge in statistical learning. It’s also an important piece in the increasing popular reinforcement learning field. I feel like I might apply its algorithms or do research work on it in the future. Hence, I create this blog to introduce an important concept, hidden markov model (HMM), and some useful algorithms and their intuitions for HMM.</p>
-<h3 id="markov-chain">Markov Chain</h3>
-<p>The HMM is based on augmenting the Markov Chain(MC), which is a type of a random process about a set of states. The transition from one state to another depends on certain probabilities $P(X_t = v_i | X_{t-1} = v_j,\ldots ,X_{1} = v_k)$, which we define as <strong>transition probability</strong>. The nice property of an MC is that the transition probability of $X_t$ only depends on the previous state $X_{t-1}$, i.e. $P(X_t = v_i | X_{t-1} = v_j)$. We call it the <strong>Markov Assumption</strong>. This property allows us to produce an each transition graph like this<sup>[1]</sup>
-[1]:<a href="https://web.stanford.edu/~jurafsky/slp3/A.pdf">https://web.stanford.edu/~jurafsky/slp3/A.pdf</a></p>
-  <figure align="center">
-    <img src="/images/AI/HMM_1.png" width="600px">
-  </figure>
-<h3 id="hmm-definition">HMM Definition</h3>
-<p>A Markov chain is useful when we need to compute a probability for a sequence of observable events. In many cases, however, the events we are interested in are hidden: we don’t observe them directly. For example we don’t normally observe part-of-speech tags in a text. Rather, we see words, and must infer the tags from the word sequence. We call the tags hidden because they are not observed. A hidden Markov model (HMM) allows us to talk about both observed events (like words that we see in the input) and hidden events (like part-of-speech tags) that we think of as causal factors in our probabilistic model. In HMM, we use <strong>observations</strong> $X_t$ to describe observed events with values denoted by $o_t$, and <strong>states</strong> $H_t$ to describe hidden events with values denoted by $q_t$. Note that <strong>Markov Assumption</strong> still holds. In addition, we have output independence $P\left(o_{i} \mid q_{1} \ldots q_{i}, \ldots, q_{T}, o_{1}, \ldots, o_{i}, \ldots, o_{T}\right)=P\left(o_{i} \mid q_{i}\right)$. In HMM, we try to solve the following problems:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Probability · Machine Learning</div> <h1>An <em>Overview</em> of Hidden Markov Models and Their Algorithms</h1> <p class="dek">A practical overview of hidden Markov models, including states, observations, transition probabilities, emission probabilities, forward-backward, Viterbi, and Baum-Welch.</p> <div class="byline"> <strong>2021.06.22</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>A hidden Markov model (HMM) models a sequence where the observed data is generated by hidden states that evolve over time.</p>
+<p>Examples:</p>
 <ul>
-<li>Problem 1 (Likelihood): Given an HMM with transition probabilities ${P_{ij} = P(H_t = q_j | H_{t-1} = q_i)}$ and observation probabilities ${P^H_{ik}=P(X_t = o_i | H_t = q_k)}$ and an observation sequence $O$, determine the likelihood $P(O \mid P_{ij}, P^H_{ik})$.</li>
-<li>Problem 2 (Decoding): Given an observation sequence $O$ and an HMM $(P_{ij}, P^H_{ik})$, discover the best hidden state sequence $Q$.</li>
-<li>Problem 3 (Learning): Given an observation sequence $O$ and the set of states in the HMM, learn the HMM parameters $P_{ij}$ and $P^H_{ik}$.</li>
+<li>Speech recognition.</li>
+<li>Part-of-speech tagging.</li>
+<li>Biological sequence analysis.</li>
+<li>User behavior states.</li>
+<li>Machine health monitoring.</li>
 </ul>
-<h3 id="algorithms">Algorithms</h3>
-<h4 id="1-the-forward-algorithm---likelihood-solver">1. The Forward Algorithm - Likelihood solver</h4>
-<p>The forward algorithm is a dynamic programming method that computes the observation probability by summing over the probabilities of all possible hidden state paths that could generate the observation sequence, but it does so efficiently by implicitly folding each of these paths into a single forward trellis, which computes the probability of being in state $q_j$ after seeing the first $t$ observations, given the parameteres $(P_{ij}, P^H_{ik})$, i.e.</p>
-<p>$$
-\alpha_t(j)=P\left(o_{1}, o_{2} \ldots o_t, q_t=j \mid P_{ij}, P^H_{ik} \right) =\sum\limits_{i=1}^{N} \alpha_{t-1}(i) P_{i j} P^{H}_{j}\left(o_t\right) \tag{1}
-$$</p>
-<p>From above, we can quickly derive the result by:</p>
+<p>The key assumption is Markovian: the next hidden state depends on the current hidden state, not the full history.</p>
+<h2 id="components">Components</h2>
+<p>An HMM has:</p>
+<ul>
+<li><strong>Hidden states:</strong> the unobserved state at each time step.</li>
+<li><strong>Observations:</strong> the visible data emitted at each time step.</li>
+<li><strong>Initial distribution:</strong> probability of starting in each state.</li>
+<li><strong>Transition matrix:</strong> probability of moving from one hidden state to another.</li>
+<li><strong>Emission model:</strong> probability of observing data given a hidden state.</li>
+</ul>
+<p>Notation:</p>
+<ul>
+<li>Hidden state: $z_t$</li>
+<li>Observation: $x_t$</li>
+<li>Transition: $P(z_t \mid z_{t-1})$</li>
+<li>Emission: $P(x_t \mid z_t)$</li>
+</ul>
+<h2 id="three-core-questions">Three Core Questions</h2>
+<h3 id="evaluation">Evaluation</h3>
+<p>Given model parameters and observations, what is the probability of the observed sequence?</p>
+<p>This is solved with the forward algorithm.</p>
+<h3 id="decoding">Decoding</h3>
+<p>Given model parameters and observations, what is the most likely hidden state sequence?</p>
+<p>This is solved with the Viterbi algorithm.</p>
+<h3 id="learning">Learning</h3>
+<p>Given observations but unknown parameters, how do we estimate transition and emission probabilities?</p>
+<p>This is solved with Baum-Welch, an expectation-maximization algorithm for HMMs.</p>
+<h2 id="forward-algorithm">Forward Algorithm</h2>
+<p>The forward algorithm computes the probability of observations up to time $t$ while ending in each hidden state.</p>
+<p>It avoids enumerating every possible hidden state sequence, which would be exponential in sequence length.</p>
+<p>At each step:</p>
 <ol>
-<li>first initialize $\alpha_{1}(j)=\pi_{j} P^H_{j}\left(o_{1}\right), \quad 1 \leq j \leq N$.</li>
-<li>Recrusively apply the above expression (1) for $1 \leq j \leq N, 1&#x3C;t \leq T$.</li>
-<li>Compute $P(O \mid P_{ij}, P^H_{ik})=\sum_{i=1}^{N} \alpha_{T}(i)$</li>
+<li>Combine previous state probabilities with transition probabilities.</li>
+<li>Multiply by the emission probability of the current observation.</li>
+<li>Continue forward through the sequence.</li>
 </ol>
-<h4 id="2-the-viterbi-algorithm---decoding-solver">2. The Viterbi Algorithm - Decoding solver</h4>
-<p>Like forwarding algorithm, Viterbi is also DP that makes uses of a dynamic programming Viterbi trellis. The idea is to process the observation sequence left to right, filling out the trellis. Each cell of the trellis, $v_t(j)$, represents the probability that the HMM is in state $j$ after seeing the first $t$ observations and passing through the most probable state sequence $q_{1}, \ldots, q_{t-1}$, given the parameters $(P_{ij}, P^H_{ik})$. The value of each cell $v_t(j)$ is computed by recursively taking the most probable path that could lead us to this cell.</p>
-<p>$$
-v_t(j)=\max\limits_{q_1, \ldots, q_{t-1}} P\left(q_1 \ldots q_{t-1}, o_1, o_2 \ldots o_t, q_t=j \mid (P_{ij}, P^H_{ik})\right) =\max\limits_{i=1,\ldots, N} v_{t-1}(i) P_{ij}P^H_{j}\left(o_t\right)\tag{2}
-$$</p>
-<p>Here, a major difference from (1) is that we now take the most probable of the extensions of the paths that lead to the current cell. In addition to the max value $v_t(j)$, we shall also keep track of the solution</p>
-<p>$$bp_t(j) = \underset{i=1,\ldots,N}{\operatorname{argmax}}v_{t-1}(i) P_{i j}P^H_{j}\left(o_t\right) \qquad (bp_1(j) = 0)$$</p>
-<p>This is called backpointers. We need this value because while the forward algorithm needs to produce an observation likelihood, the Viterbi algorithm must produce a probability and also the most likely state sequence. We compute this best state sequence by keeping track of the path of hidden states that led to each state, and Viterbi backtrace then at the end backtracing the best path to the beginning (the Viterbi backtrace).</p>
-<p>Finally, we can compute the optimal score and path</p>
-<p>$$
-V^* = \max _{i=1,\ldots, N}v_T(i)$$</p>
-<p>$$P^* = \underset{i=1,\ldots,N}{\operatorname{argmax}} v_T(i)
-$$</p>
-<p>We use a demo code to illustrate the process. The code for <em>forwarding</em> algorithm and <em>Forward-Backward</em> Algorithm can be implmented in a similar fashion.</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Define the problem setup</span></span>
-<span class="line"><span style="color:#ADBAC7">obs_map </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#96D0FF">'Cold'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Hot'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">}</span></span>
-<span class="line"><span style="color:#ADBAC7">obs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array([</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">inv_obs_map </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> dict</span><span style="color:#ADBAC7">((v,k) </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> k, v </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> obs_map.items())</span></span>
-<span class="line"><span style="color:#ADBAC7">obs_seq </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [inv_obs_map[v] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> v </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(obs)]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Simulated Observations:</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">,pd.DataFrame(np.column_stack([obs, obs_seq]),</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'Obs_code'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Obs_seq'</span><span style="color:#ADBAC7">]) )</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">pi </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.6</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.4</span><span style="color:#ADBAC7">] </span><span style="color:#768390"># initial probabilities vector</span></span>
-<span class="line"><span style="color:#ADBAC7">states </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'Cold'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Hot'</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">hidden_states </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'Snow'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Rain'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'Sunshine'</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">pi </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.8</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">state_space </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.Series(pi, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">hidden_states, </span><span style="color:#F69D50">name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'states'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">a_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">hidden_states, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">hidden_states)</span></span>
-<span class="line"><span style="color:#ADBAC7">a_df.loc[hidden_states[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.4</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">a_df.loc[hidden_states[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.45</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.45</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">a_df.loc[hidden_states[</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.5</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"</span><span style="color:#F47067">\n</span><span style="color:#96D0FF"> HMM matrix:</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">, a_df)</span></span>
-<span class="line"><span style="color:#ADBAC7">a </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> a_df.values</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">observable_states </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> states</span></span>
-<span class="line"><span style="color:#ADBAC7">b_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame(</span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">observable_states, </span><span style="color:#F69D50">index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">hidden_states)</span></span>
-<span class="line"><span style="color:#ADBAC7">b_df.loc[hidden_states[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">b_df.loc[hidden_states[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.8</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.2</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">b_df.loc[hidden_states[</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">]] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.3</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.7</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"</span><span style="color:#F47067">\n</span><span style="color:#96D0FF"> Observable layer  matrix:</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">,b_df)</span></span>
-<span class="line"><span style="color:#ADBAC7">b </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> b_df.values</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Apply the Viterbi Algorithm based on http://www.blackarbs.com/blog/introduction-hidden-markov-models-python-networkx-sklearn/2/9/2017</span></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> viterbi</span><span style="color:#ADBAC7">(pi, a, b, obs):</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#ADBAC7">    nStates </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.shape(b)[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">    T </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.shape(obs)[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#768390">    # init blank path</span></span>
-<span class="line"><span style="color:#ADBAC7">    path </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> path </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros(T,</span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">int</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#768390">    # delta --> highest probability of any path that reaches state i</span></span>
-<span class="line"><span style="color:#ADBAC7">    delta </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((nStates, T))</span></span>
-<span class="line"><span style="color:#768390">    # phi --> argmax by time step for each state</span></span>
-<span class="line"><span style="color:#ADBAC7">    phi </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((nStates, T))</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#768390">    # init delta and phi </span></span>
-<span class="line"><span style="color:#ADBAC7">    delta[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pi </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> b[:, obs[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]]</span></span>
-<span class="line"><span style="color:#ADBAC7">    phi[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">Start Walk Forward</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)    </span></span>
-<span class="line"><span style="color:#768390">    # the forward algorithm extension</span></span>
-<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> t </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, T):</span></span>
-<span class="line"><span style="color:#F47067">        for</span><span style="color:#ADBAC7"> s </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(nStates):</span></span>
-<span class="line"><span style="color:#ADBAC7">            delta[s, t] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.max(delta[:, t</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> a[:, s]) </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> b[s, obs[t]] </span></span>
-<span class="line"><span style="color:#ADBAC7">            phi[s, t] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.argmax(delta[:, t</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">*</span><span style="color:#ADBAC7"> a[:, s])</span></span>
-<span class="line"><span style="color:#6CB6FF">            print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'s=</span><span style="color:#F47067">{s}</span><span style="color:#96D0FF"> and t=</span><span style="color:#F47067">{t}</span><span style="color:#96D0FF">: phi[</span><span style="color:#F47067">{s}</span><span style="color:#96D0FF">, </span><span style="color:#F47067">{t}</span><span style="color:#96D0FF">] = </span><span style="color:#F47067">{phi}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">.format(</span><span style="color:#F69D50">s</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">s, </span><span style="color:#F69D50">t</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">t, </span><span style="color:#F69D50">phi</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">phi[s, t]))</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#768390">    # find optimal path</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'-'</span><span style="color:#F47067">*</span><span style="color:#6CB6FF">50</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'Start Backtrace</span><span style="color:#F47067">\n</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    path[T</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.argmax(delta[:, T</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> t </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(T</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F47067">-</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#ADBAC7">        path[t] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> phi[path[t</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], [t</span><span style="color:#F47067">+</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]]</span></span>
-<span class="line"><span style="color:#6CB6FF">        print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">'path[</span><span style="color:#F47067">{}</span><span style="color:#96D0FF">] = </span><span style="color:#F47067">{}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">.format(t, path[t]))</span></span>
-<span class="line"><span style="color:#ADBAC7">        </span></span>
-<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> path, delta, phi</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Run the algo</span></span>
-<span class="line"><span style="color:#ADBAC7">path, delta, phi </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> viterbi(pi, a, b, obs)</span></span>
-<span class="line"><span style="color:#ADBAC7">state_map </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'Snow'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'Rain'</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'Sunshine'</span><span style="color:#ADBAC7">}</span></span>
-<span class="line"><span style="color:#ADBAC7">state_path </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [state_map[v] </span><span style="color:#F47067">for</span><span style="color:#ADBAC7"> v </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> path]</span></span>
-<span class="line"><span style="color:#ADBAC7">pd.DataFrame().assign(</span><span style="color:#F69D50">Observation</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">obs_seq).assign(</span><span style="color:#F69D50">Best_Path</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">state_path)</span></span></code></pre>
-<h4 id="3-forward-backward-algorithm---learning-solver">3. Forward-backward algorithm - Learning solver</h4>
-<p>The standard algorithm for HMM training is the forward-backward, or Baum-Welch Welch algorithm, a special case of the <em>Expectation-Maximization</em> (EM) algorithm. The algorithm will let us train both the transition probabilities $P_{ij}$ and the emission probabilities $P^H_{ik}$ of the HMM. EM is an iterative algorithm, computing an initial estimate for the probabilities, then using those estimates to computing a better estimate, and so on, iteratively improving the probabilities that it learns.</p>
-<p>For a real HMM, we only get observations, and cannot compute which observation is from which state directly from an observation sequence since we don’t know which path of states was taken through the machine for a given input. What’s more, we don’t even know when is a hidden state present. The Baum-Welch algorithm solves this by iteratively estimating the number of times a state occurs. We will start with an estimate for the transition and observation probabilities and then use these estimated probabilities to derive better and better probabilities. And we’re going to do this by computing the forward probability for an observation and then dividing that probability mass among all the different paths that contributed to this forward probability.</p>
-<p>First, we define backward probability $\beta$, the probability of seeing the observations from time $t+1$ to the end, given that we are in state $i$ at time $t$ (and given the automaton $\lambda$ ):</p>
-<p>$$
-\beta_t(i)=P\left(o_{t+1}, o_{t+2} \ldots o_{T} \mid q_t=i, \lambda\right)
-$$</p>
-<p>We can actually think of it as a reverse of the forwarding probability $\alpha_t(j)$, and the computation is just the “reverse” of that for $\alpha_t(j)$, so now the computation of $P(O|P_{ij}, P^H_{ik})$:</p>
-<ol>
-<li>First initialize $\beta_{T}(i)=1, \quad 1 \leq i \leq N$.</li>
-<li>Recrusively apply $\beta_t(i)=\sum_{j=1}^{N} P_{i j} P^H_{j}\left(o_{t+1}\right) \beta_{t+1}(j), \quad 1 \leq i \leq N, 1 \leq t&#x3C;T$.</li>
-<li>Compute $P(O \mid \lambda)=\sum_{j=1}^{N} \pi_{j} P^H_{j}\left(o_{1}\right) \beta_{1}(j)$</li>
-</ol>
-<p>Now, we start the actual work. To estimate the $P_{ij}, P^H_{ik}$, we may adopt a simple maximum likelihood estimation</p>
-<p>$$
-\begin{align}\widehat{P}_{ij}=&#x26;\frac{\text{ expected number of transitions from state } i \text{ to state } j}{\text{ expected number of transitions from state } i} \\
-\widehat{P^H}_j\left(v_k\right)=&#x26;\frac{\text { expected number of times in state } j \text { and observing symbol } v_k}{\text { expected number of times in state } j}\end{align}
-$$</p>
-<p>How do we compute the expected number of transitions from state $i$ to state $j$? Here’s the intuition. Assume we had some estimate of the probability that a given transition $i \rightarrow j$ was taken at a particular point in time $t$ in the observation sequence. If we knew this probability for each particular time $t$, we could sum over all times $t$ to estimate the total count for the transition $i \rightarrow j$. We can then compute probability $\xi_t$ of being in state $i$ at time $t$ and state $j$ at time $t+1$, given the observation sequence and of course the model via bayes’ rule:</p>
-<p>$$
-\xi_t(i, j)=P\left(q_t=i, q_{t+1}=j \mid O, P_{ij}, P^H_{ik}\right) = \frac{P\left(q_t=i, q_{t+1}=j, O \mid P_{ij}, P^H_{ik}  \right)}{P(O \mid P_{ij}, P^H_{ik} )}
-$$</p>
-<p>since we can easily compute</p>
-<p>$$
-P\left(q_t=i, q_{t+1}=j, O \mid P_{ij}, P^H_{ik}  \right)=\alpha_t(i) P_{i j} P^H_{j}\left(o_{t+1}\right) \beta_{t+1}(j); \
-P(O \mid P_{ij}, P^H_{ik} )=\sum_{j=1}^{N} \alpha_t(j) \beta_t(j);
-$$</p>
-<p>we get</p>
-<p>$$
-\widehat{P}_{ij}=\frac{\sum\limits_{t=1}^{T-1} \xi_t(i, j)}{\sum\limits_{t=1}^{T-1} \sum\limits_{k=1}^N \xi_t(i, k)} \tag{3}.
-$$</p>
-<p>Similarly, by considering expected number of times in state $j$ and observing symbol $v_k$. Define the probability of being in state $j$ at time $t$ as $\gamma_t(j)$, compute</p>
-<p>$$
-\gamma_t(j)=\frac{P\left(q_t=j, O \mid P_{ij}, P^H_{ik}\right)}{P(O \mid P_{ij}, P^H_{ik})} = \frac{\alpha_t(j) \beta_t(j)}{P(O \mid P_{ij}, P^H_{ik})}
-$$</p>
-<p>We are ready to compute $b$. For the numerator, we sum $\gamma_t(j)$ for all time steps $t$ in which the observation $o_t$ is the symbol $v_{k}$ that we are interested in. For the denominator, we sum $\gamma_t(j)$ over all time steps $t$. The result is the percentage of the times that we were in state $j$ and saw symbol $v_{k}$ (the notation $\sum_{t=1 \text { s.t. } O_t=v_{k}}^{T}$ means “sum over all $t$ for which the observation at time $t$ was $\left.v_{k} “\right)$</p>
-<p>$$
-\widehat{P^H}_j\left(v_k\right) = \frac{\sum_{t=1\text { s.t. $O_t=v_k$}}^T \gamma_t(j) }{\sum_{t=1}^T \gamma_t(j)} \tag{4}
-$$</p>
-<p>Using (3), (4), we can apply EM algorithm easily, as demonstrated below:</p>
+<h2 id="viterbi-algorithm">Viterbi Algorithm</h2>
+<p>The Viterbi algorithm finds the most likely hidden state path.</p>
+<p>It is similar to the forward algorithm, but instead of summing over possible previous states, it takes the maximum and stores backpointers.</p>
+<p>Use Viterbi when you need a single best explanation of the observed sequence.</p>
+<h2 id="baum-welch">Baum-Welch</h2>
+<p>Baum-Welch estimates HMM parameters when the hidden states are unknown.</p>
+<p>It alternates:</p>
 <ul>
-<li>Initialize $P_{ij}, P^H_{ik}$</li>
-<li>iterate until Convergence:
+<li><strong>E-step:</strong> estimate expected state occupancies and transitions using current parameters.</li>
+<li><strong>M-step:</strong> update transition and emission probabilities using those expectations.</li>
+</ul>
+<p>Like other EM methods, it can converge to local optima, so initialization matters.</p>
+<h2 id="practical-considerations">Practical Considerations</h2>
+<p>HMMs are useful when:</p>
 <ul>
-<li>
-<p>E-step:</p>
-<p>$$
-\gamma_t(j) = \frac{\alpha_t(j) \beta_t(j)}{\sum_{j=1}^N \alpha_t(j) \beta_t(j)} \;\forall t \; \text{and} \; j$$</p>
-<p>$$\xi_t(i, j) = \frac{\alpha_t(i) \widehat{P}_{ij} \widehat{P^H}<em>j\left(o</em>{t+1}\right) \beta_{t+1}(j)}{\sum_{j=1}^N \alpha_t(j) \beta_t(j)} \; \forall t, i \; \text{and} j
-$$</p>
-</li>
-<li>
-<p>M-step:</p>
-<p>$$
-\widehat{P}_{i j}=\frac{\sum_{t=1}^{T-1} \xi_t(i, j)}{\sum_{t=1}^{T-1} \sum_{k=1}^N \xi_t(i, k)} $$</p>
-<p>$$\widehat{P^H}_j\left(v_k\right)=\frac{\sum_{t=1\text { s.t. $O_t=v_k$} }^T \gamma_t(j) }{\sum_{t=1}^T \gamma_t(j)}
-$$</p>
-</li>
+<li>The process is sequential.</li>
+<li>Hidden states are meaningful.</li>
+<li>State transitions are relatively simple.</li>
+<li>The Markov assumption is reasonable.</li>
 </ul>
-</li>
-</ul>
-<h4 id="this-concludes-the-blog-thank-you">This concludes the blog, thank you!</h4> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/smartmall/"> <span class="dir">← previous</span> <span class="title">SmartMall Discounted Electronic Shopping</span> </a> <a class="next" href="/writing/blogs/prob-and-stats/dirichlet/"> <span class="dir">next →</span> <span class="title">Stats in ML: Dirichlet Distribution</span> </a> </nav>  <script>
+<p>They are less suitable when long-range context dominates. In those cases, recurrent networks, transformers, or state-space models may be better.</p>
+<h2 id="closing">Closing</h2>
+<p>Hidden Markov models are a clean framework for sequence data with latent states. Their main value is the combination of interpretable structure and efficient dynamic programming algorithms.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/smartmall/"> <span class="dir">← previous</span> <span class="title">SmartMall Discounted Electronic Shopping</span> </a> <a class="next" href="/writing/blogs/prob-and-stats/dirichlet/"> <span class="dir">next →</span> <span class="title">Stats in ML: Dirichlet Distribution</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

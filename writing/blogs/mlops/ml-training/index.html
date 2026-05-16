@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>DL Training: An in-depth discussion - Zhenlin Wang</title><meta name="description" content="Training can be hard a lot of time. But the bottlenecks vary"><meta property="og:title" content="DL Training: An in-depth discussion - Zhenlin Wang"><meta property="og:description" content="Training can be hard a lot of time. But the bottlenecks vary"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ml-training/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Deep Learning Training: A Practical Guide - Zhenlin Wang</title><meta name="description" content="A practical guide to optimizer choice, learning-rate schedules, stability, memory pressure, throughput, checkpointing, and experiment management during deep learning training."><meta property="og:title" content="Deep Learning Training: A Practical Guide - Zhenlin Wang"><meta property="og:description" content="A practical guide to optimizer choice, learning-rate schedules, stability, memory pressure, throughput, checkpointing, and experiment management during deep learning training."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ml-training/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,420 +29,222 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Distributed Training</div> <h1>DL <em>Training:</em> An in-depth discussion</h1> <p class="dek">Training can be hard a lot of time. But the bottlenecks vary</p> <div class="byline"> <strong>2024.02.19</strong> <span>·</span> <span>16 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
-<p>Training in the field of Deep Learning has been a well-studied component which contributed significantly to the development of large-scale models. As a pivotal part of model research, optimizing training of a model can lead of numerous benefits including cost saving, energy consumption reduction and expedition of effective model discovery. Personally I feel that it can be taught as an actual coursework due to the load of content it has and the fact that every DL researcher and engineer should master training thoroughly to be truly productive. Unfortunately, no school or even online coursework has considered this, partly because that the overhead cost of leveraging multi-gpu or gpu cluster can be high. Nonetheless, I’m optimistic that as we further scale the gpu resources and advent our cloud computing technology, my proposal will soon become feasible. But before that happens, let’s have a simplified “course” on it in this blog post.</p>
-<h2 id="assumptions">Assumptions</h2>
-<p>This blog assumes the mastery of basic training pipeline and will only focus on advanced training techniques. We would also assume that data is clean and preprocessed. So anything related to data quality, feature transformation, tokenization or data loader definitions will be out of the scope of this blog. Instead, we focus on a training of a single (usually large scale) model with a given set of hyperparameters. In the meantime, we also have a fixed loss/evaluation metric for a given task during training. To learn more about these components. Checkout my post on <a href="http://www.criss-wang.com/post/blogs/mlops/deep-learning-system-design-1/">designing a large-scale deep learning system</a></p>
-<h2 id="optimization">Optimization</h2>
-<h3 id="optimizers">Optimizers</h3>
-<p>The basic form of an optimizer is often basic gradient descent (GD) and its variants stochastic gradient descent and mini-batch gradient descent. They are often considered to be rooted from convex optimization, but adapt to nonconvex cases greatly. Both from a theoretical and practical aspects, I’d recommend spending several hours studying the first few lectures of <a href="https://www.stat.cmu.edu/~siva/teaching/725/"><strong>Convex Optimization</strong> course from CMU</a> to have a deep understanding of this canonical optimization technique.</p>
-<p>On the other hand, there are several key optimizers need to be further mentioned with their motivations, pros and cons and update formulas. I’ve listed them below for your convenient references, if you are interested in more details, please refer to a dedicated <a href="http://www.criss-wang.com/post/blogs/mlops/nn-optimizers/">post about optimizer selections</a>.</p>
-<h4 id="adagrad-adaptive-gradient-algorithm">AdaGrad (Adaptive Gradient Algorithm):</h4>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Distributed Training</div> <h1>Deep <em>Learning</em> Training: A Practical Guide</h1> <p class="dek">A practical guide to optimizer choice, learning-rate schedules, stability, memory pressure, throughput, checkpointing, and experiment management during deep learning training.</p> <div class="byline"> <strong>2024.02.19</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Training is where research ideas meet hardware limits. A model can be architecturally clever and still fail because the learning rate is unstable, the data loader is slow, the checkpoint cannot resume, or the GPU memory budget is wrong.</p>
+<p>This post focuses on the practical decisions inside a deep learning training run:</p>
 <ul>
-<li><strong>Adaptive Learning Rates:</strong> AdaGrad adapts the learning rates for each parameter based on historical gradients. Parameters that receive large gradients get smaller learning rates, and vice versa.</li>
-<li><strong>Advantages:</strong>
+<li>How to choose optimizers and schedules.</li>
+<li>How to detect instability early.</li>
+<li>How to reduce memory use without hiding accuracy regressions.</li>
+<li>How to improve throughput before adding more machines.</li>
+<li>How to make training resumable and observable.</li>
+</ul>
+<p>I assume the basic pipeline already exists: dataset, model, loss function, evaluation metric, and a working single-device training loop.</p>
+<h2 id="start-with-the-contract">Start With the Contract</h2>
+<p>Before tuning anything, write down the training contract:</p>
 <ul>
-<li>Effective for sparse data.</li>
-<li>Automatic adjustment of learning rates.</li>
+<li><strong>Task:</strong> classification, ranking, generation, retrieval, regression, or another objective.</li>
+<li><strong>Metric:</strong> the validation metric that decides whether a run improved.</li>
+<li><strong>Slices:</strong> important subgroups or scenarios where regressions are unacceptable.</li>
+<li><strong>Budget:</strong> maximum GPU hours, wall-clock time, and cloud cost.</li>
+<li><strong>Target:</strong> research checkpoint, production candidate, fine-tuned adapter, or benchmark result.</li>
+<li><strong>Resume rule:</strong> what state must be saved to continue after interruption.</li>
 </ul>
-</li>
-<li><strong>Limitations:</strong>
+<p>This contract prevents a common failure mode: optimizing training speed while forgetting what the trained model must actually prove.</p>
+<h2 id="optimizer-choice">Optimizer Choice</h2>
+<p>Most training runs start with one of these optimizers:</p>
 <ul>
-<li>The accumulation of squared gradients in the denominator can lead to a diminishing learning rate, making it less effective for non-convex problems.</li>
+<li><strong>SGD with momentum:</strong> simple, memory efficient, and still strong for many vision tasks.</li>
+<li><strong>Adam:</strong> adaptive and forgiving, useful for many deep learning settings.</li>
+<li><strong>AdamW:</strong> Adam with decoupled weight decay, a common default for transformers.</li>
+<li><strong>Adafactor:</strong> memory-efficient for very large models, but more sensitive to configuration.</li>
 </ul>
-</li>
-<li><strong>Update Rule:</strong> $\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{G_{t} + \epsilon}} \nabla J(\theta_t)$
-<ul>
-<li>$\theta_{t+1}$: Updated parameter at time (t+1).</li>
-<li>$\theta_t$: Current parameter at time (t).</li>
-<li>$\eta): Learning rate.</li>
-<li>$G_{t}$: Sum of squared gradients up to time (t).</li>
-<li>$\nabla J(\theta_t)$: Gradient of the objective function (J) with respect to parameters at time (t).</li>
-<li>$\epsilon$: Smoothing term to avoid division by zero.</li>
-</ul>
-</li>
-</ul>
-<h4 id="rmsprop-root-mean-square-propagation">RMSProp (Root Mean Square Propagation):</h4>
-<ul>
-<li>RMSProp addresses the diminishing learning rate problem in AdaGrad by introducing a decay term. It uses a moving average of squared gradients to adjust learning rates.</li>
-<li><strong>Advantages:</strong>
-<ul>
-<li>Improved adaptability to different types of data.</li>
-<li>Mitigates the diminishing learning rate problem.</li>
-</ul>
-</li>
-<li><strong>Limitations:</strong>
-<ul>
-<li>Does not have built-in momentum, which can be a limitation in certain cases.</li>
-</ul>
-</li>
-<li><strong>Update Rule:</strong> $\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{E[G^2]_t + \epsilon}} \nabla J(\theta_t)$
-<ul>
-<li>$E[G^2]_t$: Exponential moving average of squared gradients up to time (t).</li>
-<li>Other symbols are the same as in AdaGrad.</li>
-</ul>
-</li>
-</ul>
-<h4 id="adam-adaptive-moment-estimation">Adam (Adaptive Moment Estimation):</h4>
-<ul>
-<li><strong>Combination of Momentum and RMSProp:</strong> Adam combines the concepts of momentum and RMSProp. It maintains both a moving average of gradients and a moving average of squared gradients.</li>
-<li><strong>Advantages:</strong>
-<ul>
-<li>Effective in practice for a wide range of applications.</li>
-<li>Combines benefits of momentum and adaptive learning rates.</li>
-</ul>
-</li>
-<li><strong>Limitations:</strong>
-<ul>
-<li>Sensitive to hyperparameter choices.</li>
-<li>Can exhibit noisy behavior on certain types of data.</li>
-</ul>
-</li>
-<li><strong>Update Rule:</strong> $\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$
-<ul>
-<li>$\hat{m}_t$: Bias-corrected moving average of gradients.</li>
-<li>$\hat{v}_t$: Bias-corrected moving average of squared gradients.</li>
-<li>Other symbols are the same as in AdaGrad and RMSProp.
-<strong>Computation of $\hat{m}_t$ and $\hat{v}_t$:</strong>
-$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}$
-$\hat{v}_t = \frac{v_t}{1 - \beta_2^t}$</li>
-<li>$m_t$: Exponential moving average of gradients.</li>
-<li>$v_t$: Exponential moving average of squared gradients.</li>
-<li>$\beta_1$ and $\beta_2$: Decay rates for the moving averages.
-<strong>Final Update Rule:</strong>
-$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$</li>
-<li>$\epsilon$: Small constant (to avoid division by zero).</li>
-</ul>
-</li>
-</ul>
-<h4 id="adamw">AdamW</h4>
-<ul>
-<li>The inclusion of weight decay in AdamW allows for more effective regularization, and it is often preferred when regularization is a concern.</li>
-<li><strong>Update Rule:</strong> $\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t - \eta \lambda \theta_t$</li>
-<li>$\lambda$: Weight decay coefficient.</li>
-</ul>
-<h3 id="schedulers">Schedulers</h3>
-<p>Very often, one would also need to consider the scheduling of learning rate. The purpose is to prevent the model from converging too quickly and getting stuck in local minima. In the case of large-scale models, this is less of a problem. As studies have shown, the proximity of local minima to the global answer is generally good when model size is big enough. However, it has also been shown that warming up the gradients and rate scheduling will help stabilize training, leading to easier experiment monitoring as a consequence. Here are the overview of a few common schedulers.</p>
-<ol>
-<li>
-<p><strong>Inverse Square Root (ISR)</strong>: this is one of the simplest and most common learning rate schedules, where the learning rate is set to 0 at the beginning of training and then increased by a fixed factor each epoch until reaching a maximum value, after which it remains constant for the rest of training. This helps prevent overfitting by gradually increasing the learning rate as the model becomes more efficient during early stages of training, while maintaining a steady pace throughout the remaining period.</p>
-</li>
-<li>
-<p><strong>Exponential Decay (ED)</strong> - this is another simple and popular learning rate schedule that involves using an exponential function to adjust the learning rate over time. The learning rate is set to 0 at the beginning of training and then increased exponentially until reaching a maximum value, after which it remains constant for the rest of training. The allows for faster descent at early stage and more refined exploration at a later stage</p>
-</li>
-<li>
-<p><strong>Stepwise Schedule</strong> - this is another simple and popular learning rate schedule that involves using discrete steps to adjust the learning rate over time. The learning rate is set to 0 at the beginning of training and then increased by a fixed factor each step until reaching a maximum value, after which it remains constant for the rest of training.</p>
-</li>
-</ol>
-<h2 id="memory-reduction-in-training">Memory Reduction in Training</h2>
-<p>As DL model sizes grow bigger and bigger in recent years, our hardware (GPU, TPU) can hardly handle the amount of parameters in the model. Caching everything direclty in-memory is no longer a viable option, especially for individual researchers/engineers with limited support of GPU. Therefore, reducing memory consumption in training becomes extremely important. Using the following techniques, we can reduce the size of weights, biases and activations while maintaining accuracy, and hence enable smooth training without the heinous “Out-Of-Memory” error.</p>
-<ol>
-<li>
-<p><strong>Automatic Mixed Precision (AMP)</strong>
-When working with large datasets or deep models where computing gradients on all data points can become computationally expensive, using a higher precision (e.g., floating-point) during training may result in slower convergence times due to the increased computational cost. On the other hand, using fixed-point arithmetic may not be able to capture fine details of the model’s behavior and lead to lower accuracy.</p>
-<p>To address this trade-off, automatic mixed precision algorithms select a precision level based on various factors such as memory usage, computation time, and accuracy requirements. In general, floating-point is used during training when more precision is needed (e.g., large weights or small gradients) while fixed-point arithmetic is used for inference when lower precision can result in faster performance (e.g., smaller models).</p>
-</li>
-<li>
-<p><strong>True Low-Precision Training</strong>
-In contrary to AMP, true low-precision training is needed when size of parameters are still too big. This is one of the last resorts to sacrifice accuracy for training completeness. In this process, all parameters and gradients are in lower precision and are converted back to higher precision after training.</p>
-</li>
-<li>
-<p><strong>Reduce Batch Size</strong>
-One of the easiest strategies to adopt when OOM appears is to use a smaller batch size. By doing so, we have much less data saved in cache, as the matrix used to compute gradient is much smaller (a scale of O(N) where N is number of parameters). However, the risk of slower convergence, unstable training and lower accuracy is closely related to a small batch size as well. When mini-batch SGD is “too close” to SGD, the benefits brought multicore processing will also diminsh. So be careful when using it.</p>
-</li>
-<li>
-<p><strong>Gradient Accumulation</strong>
-When reducing batch size leads to severely poorer performance, and increasing it causes infeasible training, we have a work-around, gradient accumulation, which virtually increase the batch size during training. This is easily achievable (see following code):</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> batch_idx, batch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(train_loader):</span></span>
-<span class="line"><span style="color:#ADBAC7">   model.train()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">   # FORWARD AND BACK PROP</span></span>
-<span class="line"><span style="color:#ADBAC7">   outputs </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(</span></span>
-<span class="line"><span style="color:#ADBAC7">      batch[</span><span style="color:#96D0FF">"input_ids"</span><span style="color:#ADBAC7">],</span></span>
-<span class="line"><span style="color:#F69D50">      attention_mask</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">batch[</span><span style="color:#96D0FF">"attention_mask"</span><span style="color:#ADBAC7">],</span></span>
-<span class="line"><span style="color:#F69D50">      labels</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">batch[</span><span style="color:#96D0FF">"label"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">   )</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">   outputs[</span><span style="color:#96D0FF">"loss"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> outputs[</span><span style="color:#96D0FF">"loss"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> accumulation_steps </span><span style="color:#768390"># accumulate loss</span></span>
-<span class="line"><span style="color:#ADBAC7">   fabric.backward(outputs[</span><span style="color:#96D0FF">"loss"</span><span style="color:#ADBAC7">])  </span><span style="color:#768390"># optimizer accumulate the gradient derived from this loss</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">   ### UPDATE MODEL PARAMETERS</span></span>
-<span class="line"><span style="color:#F47067">   if</span><span style="color:#F47067"> not</span><span style="color:#ADBAC7"> batch_idx </span><span style="color:#F47067">%</span><span style="color:#ADBAC7"> accumulation_steps </span><span style="color:#F47067">or</span><span style="color:#ADBAC7"> (batch_idx </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#F47067"> ==</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(train_loader)):</span></span>
-<span class="line"><span style="color:#768390">      # update every accumulation_steps iterations</span></span>
-<span class="line"><span style="color:#ADBAC7">      optimizer.step()</span></span>
-<span class="line"><span style="color:#ADBAC7">      optimizer.zero_grad()</span></span></code></pre>
-<p>Note that this method is at a cost of slower training due to the sequential update within the “larger” batch.</p>
-</li>
-<li>
-<p><strong>Optimizer</strong></p>
-<p>Sometimes, choose a stateless optimizer like SGD instead of Adam/AdamW will also help reduce memory consumption. Optimizer states can take up a significant amount of memory. For example, Adam optimizer requires first+second-order derivatives to be stored in the state for future updates. This is a additional storage term, as you can see from <a href="https://docs.oneflow.org/en/master/cookies/imgs/Three_Stages_of_ZeRO-DP_Optimizations.jpg">this image</a>. On the other hand, SGD is simply stateless, and requires only an O(N) temporary storage of first-order gradients. Hence, you can consider switching from the commonly used Adam to SGD if it doens’t result in significant performance drops.</p>
-</li>
-<li>
-<p><strong>Distributed Training and Tensor Sharding</strong>
-Perhaps the most widely used strategy in industry when it comes to memory optimization is the use of sharding and distributed training. Companies have the resources and compute to perform model training on multiple GPUs and distribute the tensors across multiple servers. This is closely tied to the concept of parallelism. There are many forms of parallelisms in distributed training:</p>
-<ul>
-<li>Data Parallelism</li>
-<li>Model Parallelism</li>
-<li>Tensor Parallelism</li>
-<li>Pipeline Parallelism</li>
-</ul>
-<p>Each of them aims to fix some inefficiencies in the training pipeline. Many packages have been developed to implement these strategies for the benefits of DL researchers and engineers. I provide a more in-depth discussion in a different <a href="http://www.criss-wang.com/post/blogs/mlops/distributed-training">post</a>, together with discussion about the common errors people face during distributing training.</p>
-</li>
-<li>
-<p><strong>Gradient Checkpointing</strong></p>
-<p>Gradient Checkpointing is an ingenious method to reduce memory usage by repeated discard . It comes from the observation that the most memory intensive part of training deep neural networks is computing the gradient of the loss by backpropagation. By checkpointing nodes in the computation graph defined by your model, and recomputing the parts of the graph in between those nodes during backpropagation, it is possible to calculate this gradient at reduced memory cost. THe selected checkpoint nodes in the computational graph are kept in memory after the forward pass, while the remaining nodes are recomputed at most once. After being recomputed, the non-checkpoint nodes are kept in memory until they are no longer required. It does slow down training, but the benefit is a reduction to square-root scale of memory.</p>
-<p>You may resort to PyTorch’s <code>autograd</code> library to easily craft a simple Checkpoint feature (note how the <code>ctx</code> has enable saving of function and args from <code>forward</code> method to be applied in <code>backward</code> later):</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.nn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> nn</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.autograd </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> autograd</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> CheckpointFunction</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">autograd</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Function</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#DCBDFB">   @</span><span style="color:#6CB6FF">staticmethod</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(ctx, func, </span><span style="color:#F47067">*</span><span style="color:#ADBAC7">args):</span></span>
-<span class="line"><span style="color:#ADBAC7">      ctx.func </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> func</span></span>
-<span class="line"><span style="color:#ADBAC7">      ctx.args </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> args</span></span>
-<span class="line"><span style="color:#F47067">      with</span><span style="color:#ADBAC7"> torch.no_grad():</span></span>
-<span class="line"><span style="color:#ADBAC7">            ctx.save_for_backward(</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">args)</span></span>
-<span class="line"><span style="color:#ADBAC7">            result </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> func(</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">args)</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> result</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#DCBDFB">   @</span><span style="color:#6CB6FF">staticmethod</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> backward</span><span style="color:#ADBAC7">(ctx, grad_output):</span></span>
-<span class="line"><span style="color:#ADBAC7">      args </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ctx.saved_tensors</span></span>
-<span class="line"><span style="color:#ADBAC7">      func </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ctx.func</span></span>
-<span class="line"><span style="color:#ADBAC7">      f_args </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> tuple</span><span style="color:#ADBAC7">(args)</span></span>
-<span class="line"><span style="color:#ADBAC7">      f_args </span><span style="color:#F47067">+=</span><span style="color:#ADBAC7"> (grad_output,)</span></span>
-<span class="line"><span style="color:#F47067">      with</span><span style="color:#ADBAC7"> torch.enable_grad():</span></span>
-<span class="line"><span style="color:#ADBAC7">            grad_input </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.autograd.grad(func(</span><span style="color:#F47067">*</span><span style="color:#ADBAC7">f_args), f_args, </span><span style="color:#F69D50">allow_unused</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> (</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">,) </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> grad_input[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">:]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> CheckpointModule</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">nn</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Module</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self, module):</span></span>
-<span class="line"><span style="color:#6CB6FF">      super</span><span style="color:#ADBAC7">(CheckpointModule, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">).</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.module </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> module</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(self, </span><span style="color:#F47067">*</span><span style="color:#ADBAC7">args):</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> CheckpointFunction.apply(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.module, </span><span style="color:#F47067">*</span><span style="color:#ADBAC7">args)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Define a simple feed-forward network</span></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> SimpleNet</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">nn</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">Module</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#6CB6FF"> __init__</span><span style="color:#ADBAC7">(self):</span></span>
-<span class="line"><span style="color:#6CB6FF">      super</span><span style="color:#ADBAC7">(SimpleNet, </span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">).</span><span style="color:#6CB6FF">__init__</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.fc1 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">500</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.fc2 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">500</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">200</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">      self</span><span style="color:#ADBAC7">.fc3 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> nn.Linear(</span><span style="color:#6CB6FF">200</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">   def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(self, x):</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.relu(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.fc1(x))</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.relu(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.fc2(x))</span></span>
-<span class="line"><span style="color:#ADBAC7">      x </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.fc3(x)</span></span>
-<span class="line"><span style="color:#F47067">      return</span><span style="color:#ADBAC7"> x</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Wrap the network with checkpointing</span></span>
-<span class="line"><span style="color:#ADBAC7">checkpointed_net </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> CheckpointModule(SimpleNet())</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Example usage</span></span>
-<span class="line"><span style="color:#ADBAC7">input_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.randn(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1000</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">requires_grad</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">output </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> checkpointed_net(input_data)</span></span>
-<span class="line"><span style="color:#ADBAC7">loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> output.sum()</span></span>
-<span class="line"><span style="color:#ADBAC7">loss.backward()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Gradients w.r.t input_data:"</span><span style="color:#ADBAC7">, input_data.grad)</span></span>
-<span class="line"></span></code></pre>
-<p>A simple example using Hugging Face’s <code>transformer</code> library looks like this:</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> Trainer(</span></span>
-<span class="line"><span style="color:#6CB6FF">   ...</span></span>
-<span class="line"><span style="color:#F69D50">   args</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">TrainingArguments(</span></span>
-<span class="line"><span style="color:#6CB6FF">      ...</span></span>
-<span class="line"><span style="color:#F69D50">      gradient_checkpointing</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#ADBAC7">   ),</span></span>
-<span class="line"><span style="color:#6CB6FF">   ...</span></span>
+<p>AdamW is often the pragmatic default for modern transformer training:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.optim.AdamW(</span></span>
+<span class="line"><span style="color:#ADBAC7">    model.parameters(),</span></span>
+<span class="line"><span style="color:#F69D50">    lr</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3e-4</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    betas</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0.9</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.95</span><span style="color:#ADBAC7">),</span></span>
+<span class="line"><span style="color:#F69D50">    weight_decay</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">,</span></span>
 <span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-</li>
-</ol>
-   <details>
-      <summary><b>(For those interested) A more rigorous version with analysis</b></summary>
-      <ul>
-      <li>Usually a hook-based non-reentrant is used</li>
-      <li>Instead of saving the “large” tensor, we only store its (lightweight) index in the graph, and use that index to reconstruct it later</li>
-      <li>When the non-reentrant activation checkpoint is called, the function’s forward pass is run in a CheckpointHook context manager. Under this context manager, any tensor packed and saved for the backward pass is discarded and replaced with a placeholder (here we arbitrarily use its index i).</li>
-      <li>During the backward pass, the first backward function that tries to access and unpack its saved tensors, triggers the forward function to be recomputed under a RecomputationHook, which intercepts any tensors saved to store them in the recomputed list (detached from the computational graph to avoid reference cycles).</li>
-      <li>It is important to note that the whole mechanism relies on the recomputed tensors being accessed in the same order in both forward and backward. To make sure that is the case, the real implementation also contains the code to save/restore the global state (e.g. preserving RNG states, which is important to ensure that modules such as Dropout produce the same output in both calls to run_function).</li>
-      </ul>
-      <p>A high level construct of the non-reentrant version is as follows</p>
-         ```python
-         class Frame:  # a struct for shared variables
-            def __init__(self):
-                  self.recomputed = []
-                  self.count = 0
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="plaintext"><code><span class="line"><span>     class RecomputationHook(torch.autograd.graph.saved_tensors_hooks):</span></span>
-<span class="line"><span>        def __init__(self, frame):</span></span>
-<span class="line"><span>           def pack(x):</span></span>
-<span class="line"><span>              frame.recomputed.append(x.detach())</span></span>
-<span class="line"><span>              return x.detach()</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>           def unpack(X):  # is only relevant for more complex scenarios</span></span>
-<span class="line"><span>              return x</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>           super().__init__(pack, unpack)</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>     class CheckpointHook(torch.autograd.graph.saved_tensors_hooks):</span></span>
-<span class="line"><span>        def __init__(self, frame, run_function, args):</span></span>
-<span class="line"><span>           def pack(unused_x):</span></span>
-<span class="line"><span>              i = frame.count</span></span>
-<span class="line"><span>              frame.count += 1</span></span>
-<span class="line"><span>              return i</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>           def unpack(i):</span></span>
-<span class="line"><span>              if not frame.recomputed:  # only once, while unpacking the first tensor during backward</span></span>
-<span class="line"><span>                 with RecomputationHook(frame), torch.autograd.enable_grad():</span></span>
-<span class="line"><span>                    run_function(*args)</span></span>
-<span class="line"><span>              res = frame.recomputed[i]</span></span>
-<span class="line"><span>              frame.recomputed[i] = None</span></span>
-<span class="line"><span>              return res</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>           super().__init__(pack, unpack)</span></span>
-<span class="line"><span></span></span>
-<span class="line"><span>        def checkpoint_without_reentrant(run_function, *args):</span></span>
-<span class="line"><span>           with CheckpointHook(Frame(), run_function, args):</span></span>
-<span class="line"><span>              res = run_function(*args)</span></span>
-<span class="line"><span>           return res</span></span>
-<span class="line"><span>     ```</span></span></code></pre>
-   </details>
-<ol start="8">
-<li>
-<p><strong>Parameter offloading</strong>
-While the model is training via gradient updates, it is usually a subsection of the parameters in the model that gets updated every time. This leads to idleness of GPU memory, which simply stores the result of the unused parameters before their turn of update. To further utilize this segment of the memory, people found a way to offload some parameters from GPU to CPU, and only reload it for update/computation whenever necessary. While this definitely increases communication cost and slows training down, it reduces memory usage by a large scale. In some other scenarios (e.g. ZeRO-3), optimizers states are also offloaded to save memory, which further reduces memory consumption.</p>
-</li>
-<li>
-<p><strong>Flash Attention</strong>
-To improve the performance of Transformer-based models, flash attention was introduced by researchers at Google and Stanford University as an alternative to traditional self-attention mechanisms, which can be computationally expensive and prone to vanishing gradients.</p>
-<p>In essence, Flash Attention works by using a small window size (e.g., 512) to capture local context within the input sequence. The model then applies two separate attention mechanisms: one that uses full-length self-attention to capture long-range dependencies, and another that uses Flash Attention to focus on shorter-range patterns.</p>
-<p>The idea is that by using a smaller window size for the latter mechanism, the model can achieve better performance while still capturing important local features of the input sequence. This allows for more efficient computation and improved performance in downstream tasks like text classification or machine translation.</p>
-</li>
-<li>
-<p><strong>Model Distillation</strong>
-Sometimes, it is just easier to reduce the model size when memory constraint is hit. This had long been a success aside from techiniques such as model pruning from the invention of Jeffery Hinton. Model Distillation, or knowledge distillation, transfers knowledge from a larger and more complex model to a smaller and simpler one. Intuitively, the larger model is trained on a given dataset. Then it will act as a “teacher” to generate output representations that can be interpreted by the smaller model. These output representations are often in the form of probability distributions over the original input data, which allows for easier interpretation and use in downstream tasks. On the other hand, the smaller “student” model will try to predict outputs based on these probability distributions. Distillation is an enormous field of study in DL, and people often use existing libraries and distilled models made available by thousands of generous researchers who willingly release their trained model weights to the public.</p>
-</li>
-<li>
-<p><strong>Quantization</strong>
-Another way to directly reduce model size is via quantization. Quantization typically involves mapping each value in the input to a range of possible output values, using techniques like thresholding or rounding. This is done by defining a set of bins that cover the entire range of possible outputs for a given input, and then assigning each output to its corresponding bin based on some threshold value.</p>
-<p>During training, the weights and activations are typically quantized before being stored on disk or transmitted over networks in order to reduce their size without sacrificing too much accuracy. Additionally, the gradients of the loss function can be computed using an approximate gradient method called stochastic gradient descent with quantization
-(SGD-Q), which allows for faster convergence and improved performance compared to standard SGD methods.</p>
-<p>Do note that this method is slightly different from the low-precision or mixed precision strategy, as the former often recovers the precision after training, but this method allows the model trained to stay in the same precision during inference, which effecitvely reduced persistent model storage requirement as well. To learn more about quantization, checkout <a href="http://www.criss-wang.com/post/blogs/mlops/quantization">this blog</a></p>
-<p>A sample code implementation looks like this:</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> transformers </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> AutoModelForCausalLM, BitsAndBytesConfig</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> peft </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> prepare_model_for_kbit_training, get_peft_model</span></span>
+<p>Optimizer choice affects memory. Adam-style optimizers keep extra state, commonly first and second moment estimates, so optimizer state can be much larger than the model weights alone. If memory is tight, optimizer choice is part of the memory plan, not only the convergence plan.</p>
+<h2 id="learning-rate-schedules">Learning-Rate Schedules</h2>
+<p>The learning rate is usually more important than the optimizer name. A good schedule controls both early instability and late convergence.</p>
+<p>Common schedules:</p>
+<ul>
+<li><strong>Warmup plus cosine decay:</strong> a strong default for transformer-style training.</li>
+<li><strong>Linear warmup plus linear decay:</strong> common in fine-tuning.</li>
+<li><strong>Step decay:</strong> simple and useful when training behavior is well understood.</li>
+<li><strong>Reduce on plateau:</strong> useful when validation metrics are noisy but meaningful.</li>
+<li><strong>One-cycle:</strong> can work well when you want fast convergence and have a tuned range.</li>
+</ul>
+<p>Warmup matters because early gradients can be volatile. For large models, skipping warmup can produce immediate loss spikes or NaNs.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> transformers </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> get_cosine_schedule_with_warmup</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">model_name </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'gpt2-large'</span></span>
-<span class="line"><span style="color:#ADBAC7">quantization_config </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> BitsAndBytesConfig(</span></span>
-<span class="line"><span style="color:#F69D50">  load_in_4bit</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">  bnb_4bit_quant_type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"nf4"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">  bnb_4bit_use_double_quant</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">  bnb_4bit_compute_dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.bfloat16,</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#768390"># load model</span></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> AutoModelForCausalLM.from_pretrained(</span></span>
-<span class="line"><span style="color:#ADBAC7">     model_name,</span></span>
-<span class="line"><span style="color:#F69D50">     device_map</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"auto"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">     quantization_config</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">quantization_config,</span></span>
-<span class="line"><span style="color:#F69D50">     trust_remote_code</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scheduler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> get_cosine_schedule_with_warmup(</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer,</span></span>
+<span class="line"><span style="color:#F69D50">    num_warmup_steps</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1_000</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    num_training_steps</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">50_000</span><span style="color:#ADBAC7">,</span></span>
 <span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-<p>Note that if you are using <code>peft</code> (e.g. for LoRA), you should also consider a quantized version for it using <code>prepare_model_for_kbit_training</code>:</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6CB6FF">...</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> peft </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> prepare_model_for_kbit_training</span></span>
-<span class="line"><span style="color:#768390"># preprocess the quantized model for traininng</span></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> prepare_model_for_kbit_training(model)</span></span></code></pre>
-</li>
-</ol>
-<h2 id="using-pytorch-lightning-for-simplified-training">Using PyTorch Lightning for simplified training</h2>
-<p>Here we use lightning as an example to show how to quickly scale up training using the points mentioned above.</p>
+<p>Track the learning rate in your experiment logs. It is hard to debug training curves without knowing which schedule was active.</p>
+<h2 id="stability-signals">Stability Signals</h2>
+<p>Training instability is easier to fix when caught early. Log these signals:</p>
+<ul>
+<li>Training loss and validation loss.</li>
+<li>Validation metric and important slice metrics.</li>
+<li>Learning rate.</li>
+<li>Gradient norm.</li>
+<li>Weight norm or selected layer norms.</li>
+<li>Number of NaN or Inf events.</li>
+<li>GPU memory and step time.</li>
+<li>Data loading time.</li>
+</ul>
+<p>Gradient clipping is a common guardrail:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">torch.nn.utils.clip_grad_norm_(model.parameters(), </span><span style="color:#F69D50">max_norm</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.0</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Do not use clipping to hide a broken run. If clipping activates constantly, the learning rate, loss scaling, data, or model initialization may be wrong.</p>
+<h2 id="effective-batch-size">Effective Batch Size</h2>
+<p>The effective batch size is:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>per_device_batch_size * number_of_devices * gradient_accumulation_steps</span></span></code></pre>
+<p>Changing this value can change convergence. If you use more GPUs and keep the same per-device batch size, the effective batch size grows. You may need to retune learning rate, warmup, regularization, or number of training steps.</p>
+<p>Gradient accumulation is useful when the target batch size does not fit in memory:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">accumulation_steps </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 4</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> step, batch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(train_loader):</span></span>
+<span class="line"><span style="color:#F47067">    with</span><span style="color:#ADBAC7"> torch.amp.autocast(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.bfloat16):</span></span>
+<span class="line"><span style="color:#ADBAC7">        loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(</span><span style="color:#F47067">**</span><span style="color:#ADBAC7">batch).loss</span></span>
+<span class="line"><span style="color:#ADBAC7">        loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> accumulation_steps</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    loss.backward()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    if</span><span style="color:#ADBAC7"> (step </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">) </span><span style="color:#F47067">%</span><span style="color:#ADBAC7"> accumulation_steps </span><span style="color:#F47067">==</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">:</span></span>
+<span class="line"><span style="color:#ADBAC7">        optimizer.step()</span></span>
+<span class="line"><span style="color:#ADBAC7">        scheduler.step()</span></span>
+<span class="line"><span style="color:#ADBAC7">        optimizer.zero_grad(</span><span style="color:#F69D50">set_to_none</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>The tradeoff is wall-clock time. Gradient accumulation reduces memory pressure, but it does not create the same parallelism as a larger physical batch.</p>
+<h2 id="memory-reduction">Memory Reduction</h2>
+<p>When a run hits out-of-memory errors, use the least invasive fix first.</p>
+<h3 id="smaller-micro-batches">Smaller Micro-Batches</h3>
+<p>Reducing per-device batch size is the simplest fix. Combine it with gradient accumulation if you need to preserve effective batch size.</p>
+<h3 id="mixed-precision">Mixed Precision</h3>
+<p>Mixed precision reduces activation memory and can improve throughput. BF16 is often the preferred choice when hardware supports it because it has a wider exponent range than FP16.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> torch.amp.autocast(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.bfloat16):</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(</span><span style="color:#F47067">**</span><span style="color:#ADBAC7">batch).loss</span></span></code></pre>
+<p>FP16 may require gradient scaling:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.amp.GradScaler(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> torch.amp.autocast(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.float16):</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> model(</span><span style="color:#F47067">**</span><span style="color:#ADBAC7">batch).loss</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scaler.scale(loss).backward()</span></span>
+<span class="line"><span style="color:#ADBAC7">scaler.step(optimizer)</span></span>
+<span class="line"><span style="color:#ADBAC7">scaler.update()</span></span></code></pre>
+<h3 id="activation-checkpointing">Activation Checkpointing</h3>
+<p>Activation checkpointing saves memory by not storing every intermediate activation during the forward pass. During backward, selected parts of the forward computation are recomputed.</p>
+<p>This trades compute for memory. It is often a good fit when memory is the blocker and extra compute is acceptable.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.utils.checkpoint </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> checkpoint</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> forward</span><span style="color:#ADBAC7">(self, x):</span></span>
+<span class="line"><span style="color:#ADBAC7">    x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> checkpoint(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.block1, x, </span><span style="color:#F69D50">use_reentrant</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> checkpoint(</span><span style="color:#6CB6FF">self</span><span style="color:#ADBAC7">.block2, x, </span><span style="color:#F69D50">use_reentrant</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">False</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#6CB6FF"> self</span><span style="color:#ADBAC7">.head(x)</span></span></code></pre>
+<h3 id="sharding-and-offloading">Sharding and Offloading</h3>
+<p>When optimizer state, gradients, or parameters are too large, use sharding strategies such as FSDP or ZeRO-style training. CPU offload can help fit the run, but it increases communication cost and can slow training substantially.</p>
+<p>Use sharding after the single-device loop is correct. Distributed memory tricks make debugging harder.</p>
+<h3 id="quantization">Quantization</h3>
+<p>Quantization is usually a deployment or fine-tuning technique, but low-bit loading can also make large-model adapter training possible. Evaluate carefully, because low-bit training changes the numerical behavior of the model.</p>
+<p>For a deeper overview, see <a href="/writing/blogs/mlops/quantization/">Quantization in Deep Learning</a>.</p>
+<h2 id="throughput-improvements">Throughput Improvements</h2>
+<p>Before adding GPUs, make sure one GPU is not waiting on the rest of the system.</p>
+<p>Check:</p>
+<ul>
+<li>Data loader worker count and prefetching.</li>
+<li>Tokenization or image decoding inside the training step.</li>
+<li>Host-to-device transfer time.</li>
+<li>GPU utilization.</li>
+<li>Sequence length distribution.</li>
+<li>Padding waste.</li>
+<li>Checkpoint save time.</li>
+<li>Evaluation frequency.</li>
+</ul>
+<p>PyTorch Profiler is useful when intuition is not enough:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.profiler</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> torch.profiler.profile(</span></span>
+<span class="line"><span style="color:#F69D50">    activities</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span></span>
+<span class="line"><span style="color:#ADBAC7">        torch.profiler.ProfilerActivity.</span><span style="color:#6CB6FF">CPU</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">        torch.profiler.ProfilerActivity.</span><span style="color:#6CB6FF">CUDA</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">    ],</span></span>
+<span class="line"><span style="color:#F69D50">    record_shapes</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">) </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> prof:</span></span>
+<span class="line"><span style="color:#ADBAC7">    train_one_epoch()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(prof.key_averages().table(</span><span style="color:#F69D50">sort_by</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"cuda_time_total"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">row_limit</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span></code></pre>
+<p><code>torch.compile</code> can improve throughput for some models, especially when the workload is compute-bound and graph breaks are limited:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.compile(model)</span></span></code></pre>
+<p>Do not assume it will always help. Measure step time before and after.</p>
+<h2 id="distributed-training">Distributed Training</h2>
+<p>Distributed training is the right answer when the bottleneck is either throughput or memory and simpler fixes are exhausted.</p>
+<p>Use this progression:</p>
 <ol>
-<li>Lightning Module
-<ul>
-<li><code>ModelCheckpoint</code>, <code>CSVLogger</code></li>
-</ul>
-</li>
-<li>Automatic Mixed Precision Training</li>
+<li>Single GPU baseline.</li>
+<li>Mixed precision and data pipeline cleanup.</li>
+<li>Single-node DDP for throughput.</li>
+<li>Activation checkpointing for memory.</li>
+<li>FSDP or ZeRO-style sharding for larger models.</li>
+<li>Multi-node only when one node is not enough.</li>
 </ol>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Lightning </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> L</span></span>
-<span class="line"><span style="color:#F47067">class</span><span style="color:#F69D50"> LightningModel</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">L</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">LightningModule</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#6CB6FF">	...</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> SomeModelLoader.from_pretrained(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">lightning_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LightningModel(model)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">callbacks </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span></span>
-<span class="line"><span style="color:#ADBAC7">	ModelCheckpoint(</span><span style="color:#F69D50">save_top_k</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">mode</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"max"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">monitor</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"val_acc"</span><span style="color:#ADBAC7">)  </span><span style="color:#768390"># save top 1 model</span></span>
-<span class="line"><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">logger </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> CSVLogger(</span><span style="color:#F69D50">save_dir</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"logs/"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">name</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"my-model"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> L.Trainer(</span></span>
-<span class="line"><span style="color:#F69D50">	max_epochs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	callbacks</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">callbacks,</span></span>
-<span class="line"><span style="color:#F69D50">	accelerator</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"gpu"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	precision</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"16"</span><span style="color:#ADBAC7">,  </span><span style="color:#768390"># &#x3C;-- NEW</span></span>
-<span class="line"><span style="color:#F69D50">	devices</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">],</span></span>
-<span class="line"><span style="color:#F69D50">	logger</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">logger,</span></span>
-<span class="line"><span style="color:#F69D50">	log_every_n_steps</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	deterministic</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
+<p>For details, see <a href="/writing/blogs/mlops/distributed-training/">Understanding Distributed Training in Deep Learning</a>.</p>
+<h2 id="checkpointing">Checkpointing</h2>
+<p>A checkpoint should contain enough state to resume training, not just enough state to run inference.</p>
+<p>Save:</p>
+<ul>
+<li>Model state.</li>
+<li>Optimizer state.</li>
+<li>Scheduler state.</li>
+<li>Mixed precision scaler state, if used.</li>
+<li>Epoch and step.</li>
+<li>Random number generator state when reproducibility matters.</li>
+<li>Config and data version.</li>
+</ul>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">torch.save(</span></span>
+<span class="line"><span style="color:#ADBAC7">    {</span></span>
+<span class="line"><span style="color:#96D0FF">        "model"</span><span style="color:#ADBAC7">: model.state_dict(),</span></span>
+<span class="line"><span style="color:#96D0FF">        "optimizer"</span><span style="color:#ADBAC7">: optimizer.state_dict(),</span></span>
+<span class="line"><span style="color:#96D0FF">        "scheduler"</span><span style="color:#ADBAC7">: scheduler.state_dict(),</span></span>
+<span class="line"><span style="color:#96D0FF">        "step"</span><span style="color:#ADBAC7">: global_step,</span></span>
+<span class="line"><span style="color:#96D0FF">        "config"</span><span style="color:#ADBAC7">: config,</span></span>
+<span class="line"><span style="color:#ADBAC7">    },</span></span>
+<span class="line"><span style="color:#96D0FF">    "checkpoint.pt"</span><span style="color:#ADBAC7">,</span></span>
 <span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-<ol start="3">
-<li>Static Graphs with <code>Torch.Compile</code>
+<p>For distributed training, use distributed checkpoint tooling or save only on rank 0 when appropriate. Test resume before running an expensive job.</p>
+<h2 id="managing-the-run">Managing the Run</h2>
+<p>A training run should leave behind a record that another engineer can understand.</p>
+<p>Log:</p>
 <ul>
-<li>New feature in Torch 2.0</li>
-<li>speed up PyTorch code execution by generating optimized static graphs instead of running PyTorch code with dynamic graphs</li>
-<li>Under the hood, this is a 3-step process including graph acquisition, graph lowering, and graph compilation. <a href="https://pytorch.org/get-started/pytorch-2.0/#pytorch-2x-faster-more-pythonic-and-as-dynamic-as-ever">see official explanation</a></li>
-<li>May not speed up necessarily (use it when dominated by model runtime rather than graph computation) -> initial optimization compilation step takes a few minutes but eventually accelerates the model training</li>
-<li>Code may break down in distributed settings</li>
+<li>Config.</li>
+<li>Git commit.</li>
+<li>Dataset version.</li>
+<li>Environment or container image.</li>
+<li>Hardware.</li>
+<li>Metrics and slice metrics.</li>
+<li>Evaluation artifacts.</li>
+<li>Checkpoints.</li>
+<li>Failure logs.</li>
 </ul>
-</li>
-</ol>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#6CB6FF">...</span></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> SomeModelLoader.from_pretrained(</span><span style="color:#6CB6FF">...</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.compile(model)</span></span>
-<span class="line"><span style="color:#ADBAC7">lightning_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> LightningModel(model)</span></span>
-<span class="line"><span style="color:#6CB6FF">...</span></span></code></pre>
-<ol start="4">
-<li>DDP (model + data parallel -> pipeline parallel)</li>
-</ol>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">trainer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> L.Trainer(</span></span>
-<span class="line"><span style="color:#F69D50">	max_epochs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	callbacks</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">callbacks,</span></span>
-<span class="line"><span style="color:#F69D50">	accelerator</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"gpu"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	devices</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">,  </span><span style="color:#768390"># &#x3C;-- NEW</span></span>
-<span class="line"><span style="color:#F69D50">	strategy</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"ddp"</span><span style="color:#ADBAC7">,  </span><span style="color:#768390"># &#x3C;-- NEW</span></span>
-<span class="line"><span style="color:#F69D50">	precision</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"16"</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	logger</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">logger,</span></span>
-<span class="line"><span style="color:#F69D50">	log_every_n_steps</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">	deterministic</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
-<ol start="5">
-<li>Sharding
+<p>This is where post-training workflow begins: experiment tracking, model registry, serving, and monitoring. See <a href="/writing/blogs/mlops/ml-post-training/">MLOps Post-Training Considerations</a>.</p>
+<h2 id="closing">Closing</h2>
+<p>Good training is disciplined iteration. Start with the simplest reliable run, add complexity only when the bottleneck is visible, and measure each change against the training contract.</p>
+<p>The best training system is not the most elaborate one. It is the one that helps you make valid decisions quickly, recover from failures, and know why a model improved.</p>
+<h2 id="references">References</h2>
 <ul>
-<li><code>strategy="deepspeed_stage_2"</code> to replace <code>strategy="ddp"</code></li>
-<li>note that <code>deepspeed_stage_2</code> refers to the stage two of <a href="https://docs.oneflow.org/en/master/cookies/zero.html#:~:text=Specifically%2C%20ZeRO%2DDP%20has%20three,of%20traffic%20as%20data%20parallel.">Zero Redundancy Optimizer (ZeRO)</a>, which effectively achieves the tensor sharding for optimizer states and gradients.</li>
-<li>note that here stages mean different sharding strategies. Consider optimizer states/gradients/weights to be sharded and optimizer state to be offloaded to CPU (refer to Paged Optimizers if can’t remember) if necessary. This corresponds to different stages of ZeRO method as well.</li>
-</ul>
-</li>
-<li>Use Lightning <code>Fabric</code> module (faster than <code>Trainer</code>). You may look it up online for further references.</li>
-</ol>
-<h2 id="manage-your-training-process">Manage your training process</h2>
-<p>After all these training optimizations, it would be wasteful not to save your experiment data. Therefore, post-training processing becomes extremely important. Here is a brief list of actions to take note of:</p>
-<ul>
-<li>Metrics Monitoring: keeping the experiment data in persistent storage like MongoDB or SQL DB via mature mlops platforms like <em>MLflow</em>, <em>Weights and Biases</em> or <em>Kubeflow</em> is a convenient and important step to further analyse progress in model training and debugging potential bottlenecks/errors.</li>
-<li>Performance Monitoring: finding inefficiencies in hardward utilization (idle processes, slow hardware communication, low memory usage) can help further speed up your training and saving you tons of money. Your choice of server communication tools become important in this sense as well, and monitoring that part can be very tricky to carry out if you don’t have sufficient low-level knowledge.</li>
-<li>Logging: error logging is not an easy thing when it comes to model training. Problems often can only be found from a parameter/matrix level, and the fact that training is distributed accross servers make it even harder to achieve.</li>
-<li>Model Checkpointing: saving you model half way during the training is critical to achieve fault-tolerant training. PyTorch maintainers has developed a thorough set of tools like <code>dcp</code>, <code>elastic</code>, <code>rendezvous</code> and <code>torchrun</code> in collaboration with deepspeed to help achieve that.</li>
-</ul>
-<p>If you are really into completing the full training cycle and squeezing every last sip of the resources you’ve paid for, I would urge you to check out <a href="https://criss-wang.com/post/blogs/mlops/ml-post-training">my other post</a> to learn more about it.</p>
-<h2 id="to-conclude">To conclude…</h2>
-<p>Training a model involves significant amount of design decisions that vary based on model, domain and data. It requires many years of experiences and mistake-making to form the right intuitions for model training setups. That said, constantly practicing it using some personal projects is what I did, and what I would recommend every passionate ML researcher/engineer should do to keep themselves updated with the latest progress in DL training. It might not “make perfect”, but it certainly saves you and your company enormous time and money in the day-to-day interactions with every-bloating monsterous models.</p>
-<h2 id="references-and-further-readings">References and Further Readings</h2>
-<ol>
-<li><a href="https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention">https://huggingface.co/docs/text-generation-inference/conceptual/flash_attention</a></li>
-<li><a href="https://sebastianraschka.com/blog/2023/pytorch-faster.html">https://sebastianraschka.com/blog/2023/pytorch-faster.html</a></li>
-<li><a href="https://medium.com/pytorch/how-activation-checkpointing-enables-scaling-up-training-deep-learning-models-7a93ae01ff2d">How Activation Checkpointing enables scaling up training deep learning models</a></li>
-</ol> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/temp/fine-tuning-in-llm/"> <span class="dir">← previous</span> <span class="title">Fine-tuning in LLM</span> </a> <a class="next" href="/writing/blogs/mlops/quantization/"> <span class="dir">next →</span> <span class="title">Quantization in Deep Learning</span> </a> </nav>  <script>
+<li><a href="https://docs.pytorch.org/docs/2.12/amp.html">PyTorch Automatic Mixed Precision</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.12/checkpoint.html">PyTorch Activation Checkpointing</a></li>
+<li><a href="https://docs.pytorch.org/tutorials/recipes/recipes/profiler_recipe.html">PyTorch Profiler</a></li>
+<li><a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile</a></li>
+<li><a href="https://lightning.ai/docs/pytorch/stable/common/trainer.html">Lightning Trainer</a></li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/temp/fine-tuning-in-llm/"> <span class="dir">← previous</span> <span class="title">Fine-Tuning in LLMs</span> </a> <a class="next" href="/writing/blogs/mlops/quantization/"> <span class="dir">next →</span> <span class="title">Quantization in Deep Learning</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

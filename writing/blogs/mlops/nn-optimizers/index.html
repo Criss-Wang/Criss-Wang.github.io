@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Neural Network Applied: Optimizer Selection - Zhenlin Wang</title><meta name="description" content="Choose a good optimization strategy is as important as selecting the right model"><meta property="og:title" content="Neural Network Applied: Optimizer Selection - Zhenlin Wang"><meta property="og:description" content="Choose a good optimization strategy is as important as selecting the right model"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/nn-optimizers/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Neural Network Applied: Optimizer Selection - Zhenlin Wang</title><meta name="description" content="A practical guide to choosing SGD, momentum, RMSProp, Adam, AdamW, and related optimizers for neural network training."><meta property="og:title" content="Neural Network Applied: Optimizer Selection - Zhenlin Wang"><meta property="og:description" content="A practical guide to choosing SGD, momentum, RMSProp, Adam, AdamW, and related optimizers for neural network training."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/nn-optimizers/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,109 +29,148 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Optimization</div> <h1>Neural <em>Network</em> Applied: Optimizer Selection</h1> <p class="dek">Choose a good optimization strategy is as important as selecting the right model</p> <div class="byline"> <strong>2023.12.15</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h3 id="background">Background</h3>
-<p>As one starts to use Neural Networks in their data models, he will inevitably encounter code of form like this:</p>
-<figure align="center">
-  <img src="/images/Machine%20learning/optimization.png" width="700px">
-</figure>
-<p>One might be quickly puzzled by the 3 terms <code>optimizer</code>, <code>adam</code> and <code>sparse_categorical_crossentropy</code> here. The first 2 are part of this blog’s focus, which is about the optimization strategy applied in a Neural Network execution, and the <code>sparse_categorical_crossentropy</code> is a loss function used to help with the optimization.</p>
-<p>To understand the relevance of optimizer, one must first understand how an NN is trained. During the training of an NN, the weights of each neuron keeps getting updated so that the <code>loss</code> can be minimized. However, randomly updating the weights is not really feasible as there are hundreds of thousands of weights. Hence our smart scientists came up with a backward propagation (BP) algorithm for updating the weights. One may learn more about BP <a href="https://towardsdatascience.com/how-does-back-propagation-in-artificial-neural-networks-work-c7cad873ea7">here</a>. Behind BP we now require the <code>optimizer</code> to facilitate the updating of weights in each iteration.</p>
-<p>Right below we discuss a few most commonly used optimizers:</p>
-<h3 id="gradient-descent">Gradient Descent</h3>
-<p>Gradient Descent is the most basic optimization strategy which is based on the first order derivative of a loss function. The first order derivative serves as a guide on the direction to modify the weight so as to minimize the loss function. We’ve discussed its variant in details in an earlier post. To refresh our memory and make this blog more coherent, let’s quickly recap here.</p>
-<p>Analytic form: $\theta = \theta - \alpha * \nabla J(\theta)$</p>
-<p>Characteristics of Gradient Descent include:</p>
-<ul>
-<li>It’s used heavily in linear regression and classification algorithms.</li>
-<li>Easy computation and implementatoin (<code>Pros</code>)</li>
-<li>May trap at local minima (<code>Cons</code>)</li>
-<li>Weights are changed only after calculating gradient on the whole dataset. So, if the dataset is too large then the convergence may take very long time (<code>Cons</code>)</li>
-<li>Requires large memory to calculate gradient on the whole dataset (<code>Cons</code>)</li>
-</ul>
-<h3 id="stochastic-gradient-descent">Stochastic Gradient Descent</h3>
-<p>Gradient Descent has the problem of calculate gradient on the whole dataset in each itearation for weight update. Here Stochastic Gradient Descent aims to resolve this issue by processing data in random batches.</p>
-<p>As the model parameters are frequently updated parameters have high variance and fluctuations in loss functions at different intensities.</p>
-<p>Analytic form: $\theta = \theta - \alpha * \nabla J(\theta; x_i; y_i)$</p>
-<p>Characteristics of SGD include:</p>
-<ul>
-<li>The learning rate needs to be updated in each iteartion to aviod over-fitting</li>
-<li>Faster convergence rate and less memory used (<code>Pros</code>)</li>
-<li>High variance in model parameters. (<code>Cons</code>)</li>
-<li>May continue to run even when global minima is achieved. (<code>Cons</code>)</li>
-<li>To reduce the variance we further have the <code>mini-batch Gradient Descent</code> which divides the data into mutiple batches and updates the model parameters after every batch (vs 1 data entry per update in SGD).</li>
-</ul>
-<p><strong>In general</strong>, Gradient Descent method has the challenge of</p>
-<ul>
-<li>Choosing an optimum value of the learning rate. If the learning rate is too small than gradient descent may take ages to converge.</li>
-<li>Have a constant learning rate for all the parameters. There may be some parameters which we may not want to change at the same rate.</li>
-<li>May get trapped at local minima.</li>
-</ul>
-<h3 id="momentum">Momentum</h3>
-<p>Momentum was invented for reducing high variance in SGD and softens the convergence. It takes advantage of information from previous directions via a formula $V(t) = \gamma V(t) + \alpha * \nabla J(\theta)$</p>
-<p>Analytic form: $\theta = \theta - V(t)$</p>
-<p>Characteristics of Momentum include:</p>
-<ul>
-<li>The momentum term $\gamma$ is usually set to 0.9 or a similar value.</li>
-<li>Faster Convergence and smaller variance (<code>pros</code>)</li>
-<li>Less Oscilliation &#x26; more smooth shifting of direction (<code>pros</code>)</li>
-</ul>
-<h3 id="adagrad">Adagrad</h3>
-<p>Often, the learning rate $\alpha$ of the optimizer is a constant. However, one may expect the optimizer to explore faster at the start and slower at the end to quickly converge to an optimum. Hence the learning rate may subject to change as iteration goes. <code>Adagrad</code> aims to achieve such effect. If we use low learning rates for parameters associated with most frequently occurring features, and high learning rates for parameters associated with infrequent features. We can get a good model.</p>
-<p>Analytic form: $$\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + diag(G_t)}}\cdot g_t$$</p>
-<p>where $g_t = [g_{t,i}], \; g_{t,i} = \nabla_{\theta} J(\theta_{t,i})$ and $G_t = \sum*{n = 1}^{t} g_n$</p>
-<p>Here $\epsilon$ is a smoothing term that avoids division by zero (usually on the order of 1e−8)</p>
-<p>Characteristics of Adagrad include:</p>
-<ul>
-<li>Learning rate changes for each training parameter.</li>
-<li>Don’t need to manually tune the learning rate. (<code>pros</code>)</li>
-<li>Able to train and performs well on sparse data. (<code>pros</code>)</li>
-<li>Computationally expensive as a need to calculate the second order derivative. (<code>cons</code>)</li>
-<li>Learning rate is monotone decreasing as iteration $t$ increases. (<code>cons</code>)</li>
-</ul>
-<h3 id="adadelta">AdaDelta</h3>
-<p>It is an extension of <strong>AdaGrad</strong> which tends to remove the <em>decaying learning Rate</em> problem of it. Instead of accumulating all previously squared gradients, Adadelta limits the window of accumulated past gradients to some fixed size $w$. In this optimizer, exponentially moving average is used rather than the sum of all the gradients.</p>
-<p>By the idea above, we reducing the window size of $G_t = \sum_{n = 1}^{t} g_n$ from $t$ to $w$:</p>
-<p>$$G_t^w = \sum_{n = t-w+1}^{w} g_n$$</p>
-<p>Analytic form:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Optimization</div> <h1>Neural <em>Network</em> Applied: Optimizer Selection</h1> <p class="dek">A practical guide to choosing SGD, momentum, RMSProp, Adam, AdamW, and related optimizers for neural network training.</p> <div class="byline"> <strong>2023.12.15</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="background">Background</h2>
+<p>An optimizer is the part of training that updates model parameters after gradients are computed. The loss function says what the model should improve. Backpropagation computes gradients. The optimizer decides how to use those gradients.</p>
+<p>The simplest update is gradient descent:</p>
 <p>$$
-\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + diag(G_t^w)}}\cdot g_t
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t)
 $$</p>
-<p>Characteristics of AdaDelta include:</p>
-<ul>
-<li>Learning rate does not decay necessarily (<code>pros</code>)</li>
-<li>More computationally expensive as expectation is involved (<code>cons</code>)</li>
-</ul>
-<h3 id="rmsprop">RMSProp</h3>
-<p>The RMSProp algorithm full form is called Root Mean Square Prop, which is an adaptive learning rate optimization algorithm proposed by Geoffery Hinton.</p>
-<p>RMSProp is another strategy that tries to resolve <code>Adagrad</code>’s radically diminishing learning rates problem by using a moving average of the squared gradient. It utilizes the magnitude of the recent gradient descents to normalize the gradient.</p>
-<p>While Adagrad accumulates all previous gradient squares, RMSprop just calculates the corresponding average value, so it can eliminate the problem of quickly dropping of learning rate of the Adagrad.</p>
-<p>By the idea above, we replace the $G_t = \sum_{n = 1}^{t} g_n$ with an expectation formula:</p>
-<p>$$\mathbb{E}[g_t^2] = \gamma \mathbb{E}[g_{t-1}^2] + (1-\gamma)g_t^2 .$$</p>
-<p>Analytic form:</p>
+<p>Here $\theta$ is the parameter vector, $\alpha$ is the learning rate, and $J$ is the objective function.</p>
+<p>In neural networks, the practical question is not “Which optimizer is theoretically best?” It is “Which optimizer is stable, efficient, and well matched to this model and data?”</p>
+<h2 id="gradient-descent-and-mini-batch-sgd">Gradient Descent and Mini-Batch SGD</h2>
+<p>Full-batch gradient descent computes gradients over the whole dataset before each update. That is usually too expensive for deep learning.</p>
+<p>Mini-batch stochastic gradient descent (SGD) updates the model after each mini-batch:</p>
 <p>$$
-\begin{equation}
-\theta_t = \theta_{t-1} - \frac{\alpha}{\sqrt{\epsilon I + \mathbb{E}[g_t^2])}}\cdot g_t
-\end{equation}
+\theta_{t+1} = \theta_t - \alpha \nabla J(\theta_t; x_b, y_b)
 $$</p>
-<p><strong>Conclusion</strong> for the dynamic learning rate optimizer:</p>
+<p>SGD is simple and memory efficient. It often generalizes well, especially in vision workloads, but it can require careful learning-rate tuning and scheduling.</p>
+<p>Use SGD when:</p>
 <ul>
-<li>Good for sparse data</li>
-<li>Be careful of the diminishing speed of learning rate</li>
-<li>More expensive computationally in general</li>
+<li>You want a simple, memory-light optimizer.</li>
+<li>The model and task are known to work well with SGD.</li>
+<li>You can afford learning-rate tuning.</li>
+<li>Generalization matters more than fast early progress.</li>
 </ul>
-<h3 id="adam">Adam</h3>
-<p>Adam (Adaptive Moment Estimation) works with momentums of first and second order. The intuition behind the Adam is that we don’t want to roll so fast just because we can jump over the minimum, we want to decrease the velocity a little bit for a careful search. In addition to storing an exponentially decaying average of past squared gradients like AdaGrad, Adam also keeps an exponentially decaying average of past gradients M(t). In summary, Adam can be looked at as a combination of RMSprop and Stochastic Gradient Descent with momentum.</p>
-<p>Note that although the name <code>momentum</code> looks fancy, the terms we need to consider are just first and second order momentum, which are essentially <code>mean</code> and <code>variance</code> of the gradients. Afterwards, we can consider 2 terms $m_t$ and $v_t$ as follows</p>
-<p>Hence the formula is as follows:</p>
-<p>$$m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t $$</p>
-<p>$$v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$$</p>
-<p>These 2 terms are used to approximate the first and second moments, that is:</p>
-<p>$$\mathbb{E}[m_t] \approx \mathbb{E}[g_t]\;\;;\; \mathbb{E}[v_t] \approx \mathbb{E}[g_t^2]$$</p>
-<p>Although we have $\mathbb{E}[\cdot]$ above, theorem suggests that we can use the observed $m_t$ and $v_t$ to approximate $\mathbb{E}[g_t]$ and $\mathbb{E}[g_t^2]$ directly.</p>
-<p>After bias correction, we derive the terms</p>
-<p>$$\hat{m_t} = \frac{m_t}{1-\beta_1^2}\;\; ;\; \hat{v_t} = \frac{v_t}{1-\beta_2^2}$$</p>
-<p>Here $\beta_1$ and $\beta_2$ have really good default values of 0.9 and 0.999 respectively.</p>
-<p>Finally the update formula is just $\theta_t = \theta*{t-1} - \alpha * \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} $</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/needle/"> <span class="dir">← previous</span> <span class="title">Needle: High-performance DL System</span> </a> <a class="next" href="/writing/blogs/mlops/deep-learning-system-design-1/"> <span class="dir">next →</span> <span class="title">Deep Learning System Design - A Checklist (Part I)</span> </a> </nav>  <script>
+<h2 id="momentum">Momentum</h2>
+<p>Momentum smooths updates by accumulating a velocity term:</p>
+<p>$$
+v_t = \gamma v_{t-1} + \alpha \nabla J(\theta_t)
+$$</p>
+<p>$$
+\theta_{t+1} = \theta_t - v_t
+$$</p>
+<p>Momentum helps reduce oscillation and can accelerate progress in consistent descent directions. A common value is $\gamma = 0.9$.</p>
+<p>Use SGD with momentum as a strong baseline when plain SGD is too noisy.</p>
+<h2 id="adagrad">AdaGrad</h2>
+<p>AdaGrad adapts the learning rate for each parameter based on the sum of squared historical gradients:</p>
+<p>$$
+\theta_{t+1} =
+\theta_t -
+\frac{\alpha}{\sqrt{G_t + \epsilon}} g_t
+$$</p>
+<p>It works well for sparse features because frequently updated parameters receive smaller effective learning rates. Its weakness is that the accumulated denominator only grows, so learning can slow too much over long training.</p>
+<p>Use AdaGrad when sparse features are central and the training run is not extremely long.</p>
+<h2 id="rmsprop">RMSProp</h2>
+<p>RMSProp fixes AdaGrad’s aggressively shrinking learning rate by using an exponential moving average of squared gradients:</p>
+<p>$$
+E[g^2]<em>t = \rho E[g^2]</em>{t-1} + (1 - \rho)g_t^2
+$$</p>
+<p>$$
+\theta_{t+1} =
+\theta_t -
+\frac{\alpha}{\sqrt{E[g^2]_t + \epsilon}} g_t
+$$</p>
+<p>RMSProp adapts learning rates without letting the denominator grow forever. It is historically important and still useful, though Adam-style optimizers are more common defaults today.</p>
+<h2 id="adam">Adam</h2>
+<p>Adam combines momentum-like first moment estimates with RMSProp-like second moment estimates:</p>
+<p>$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t
+$$</p>
+<p>$$
+v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2
+$$</p>
+<p>Bias-corrected estimates are then used for the update:</p>
+<p>$$
+\hat{m}_t = \frac{m_t}{1-\beta_1^t}
+$$</p>
+<p>$$
+\hat{v}_t = \frac{v_t}{1-\beta_2^t}
+$$</p>
+<p>$$
+\theta_{t+1} =
+\theta_t -
+\alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\epsilon}
+$$</p>
+<p>Adam is a good default when you need fast, stable progress and do not want to hand-tune as much as SGD. Common defaults are $\beta_1 = 0.9$, $\beta_2 = 0.999$, and $\epsilon = 10^{-8}$.</p>
+<h2 id="adamw">AdamW</h2>
+<p>AdamW decouples weight decay from the Adam gradient update. This matters because L2 regularization and weight decay are not equivalent under adaptive optimizers.</p>
+<p>AdamW is a common default for transformer training and fine-tuning:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">optimizer </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.optim.AdamW(</span></span>
+<span class="line"><span style="color:#ADBAC7">    model.parameters(),</span></span>
+<span class="line"><span style="color:#F69D50">    lr</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3e-4</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#F69D50">    betas</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0.9</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.95</span><span style="color:#ADBAC7">),</span></span>
+<span class="line"><span style="color:#F69D50">    weight_decay</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">,</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Use AdamW when:</p>
+<ul>
+<li>Training transformers.</li>
+<li>Fine-tuning pretrained neural networks.</li>
+<li>Weight decay is part of the regularization plan.</li>
+<li>You want a strong modern default.</li>
+</ul>
+<h2 id="adafactor">Adafactor</h2>
+<p>Adafactor reduces optimizer memory by factorizing second-moment estimates. This can be useful for very large language models where AdamW optimizer state is expensive.</p>
+<p>The tradeoff is that Adafactor can be more sensitive to configuration. Use it when optimizer memory is a real bottleneck, not just because it exists.</p>
+<h2 id="optimizer-selection-heuristics">Optimizer Selection Heuristics</h2>
+<p>Use this as a starting point:</p>
+<ul>
+<li><strong>Classical deep vision baseline:</strong> SGD with momentum or AdamW.</li>
+<li><strong>Transformer training or fine-tuning:</strong> AdamW.</li>
+<li><strong>Very large model with optimizer-memory pressure:</strong> Adafactor or sharded AdamW.</li>
+<li><strong>Sparse features:</strong> AdaGrad or an adaptive optimizer.</li>
+<li><strong>Small noisy dataset:</strong> AdamW with careful weight decay, early stopping, and validation monitoring.</li>
+<li><strong>Memory-constrained training:</strong> consider SGD, Adafactor, optimizer sharding, or offload.</li>
+</ul>
+<p>Then tune the learning rate. Optimizer choice matters, but a bad learning rate can make any optimizer look broken.</p>
+<h2 id="scheduler-pairing">Scheduler Pairing</h2>
+<p>Optimizers and schedules should be chosen together.</p>
+<p>Common pairings:</p>
+<ul>
+<li>SGD with momentum plus step decay or cosine decay.</li>
+<li>AdamW plus warmup and cosine decay.</li>
+<li>AdamW plus linear warmup and linear decay for fine-tuning.</li>
+<li>Reduce-on-plateau when validation metrics are meaningful and training is slower.</li>
+</ul>
+<p>Always log the learning rate. It is part of the experiment state.</p>
+<h2 id="practical-debugging">Practical Debugging</h2>
+<p>If training is unstable:</p>
+<ul>
+<li>Lower the learning rate.</li>
+<li>Add warmup.</li>
+<li>Check data and labels.</li>
+<li>Check for NaNs or Infs.</li>
+<li>Track gradient norm.</li>
+<li>Clip gradients if spikes are rare.</li>
+<li>Confirm loss reduction on a tiny batch.</li>
+<li>Try BF16 or FP32 if FP16 is unstable.</li>
+</ul>
+<p>If training is too slow:</p>
+<ul>
+<li>Profile the data loader.</li>
+<li>Increase batch size if memory allows.</li>
+<li>Use mixed precision.</li>
+<li>Try <code>torch.compile</code> if the model is a fit.</li>
+<li>Improve the scheduler before changing architectures.</li>
+</ul>
+<h2 id="closing">Closing</h2>
+<p>Optimizer selection is a practical decision. Start with a strong default, tune the learning rate and schedule, measure stability, and only switch optimizers when the symptoms point to a real bottleneck.</p>
+<p>For a broader training workflow, see <a href="/writing/blogs/mlops/ml-training/">Deep Learning Training: A Practical Guide</a>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/2.12/optim.html">PyTorch Optimizers</a></li>
+<li><a href="https://arxiv.org/abs/1412.6980">Adam: A Method for Stochastic Optimization</a></li>
+<li><a href="https://arxiv.org/abs/1711.05101">Decoupled Weight Decay Regularization</a></li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/projects/needle/"> <span class="dir">← previous</span> <span class="title">Needle: High-performance DL System</span> </a> <a class="next" href="/writing/blogs/mlops/deep-learning-system-design-1/"> <span class="dir">next →</span> <span class="title">Deep Learning System Design: A Checklist, Part I</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

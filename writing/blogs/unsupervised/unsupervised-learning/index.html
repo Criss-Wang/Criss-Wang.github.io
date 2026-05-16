@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Unsupervised Learning: Measures about Clustering - Zhenlin Wang</title><meta name="description" content="We have clusters, and then?"><meta property="og:title" content="Unsupervised Learning: Measures about Clustering - Zhenlin Wang"><meta property="og:description" content="We have clusters, and then?"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/unsupervised-learning/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Unsupervised Learning: Measures About Clustering - Zhenlin Wang</title><meta name="description" content="A practical guide to evaluating clustering with silhouette score, Davies-Bouldin index, Calinski-Harabasz score, external labels, stability, and business usefulness."><meta property="og:title" content="Unsupervised Learning: Measures About Clustering - Zhenlin Wang"><meta property="og:description" content="A practical guide to evaluating clustering with silhouette score, Davies-Bouldin index, Calinski-Harabasz score, external labels, stability, and business usefulness."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/unsupervised-learning/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,271 +29,68 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Evaluation Methods · Clustering · Unsupervised Learning</div> <h1>Unsupervised <em>Learning:</em> Measures about Clustering</h1> <p class="dek">We have clusters, and then?</p> <div class="byline"> <strong>2020.02.15</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-10-04</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>Unsupervised learning is a vast topic, and clustering is really a big part (yet not all) of it. Whenever we have some ideas about clusteirng, we should first ask: is this idea comparable to some existing works? Now to answer this, we need some evaluation strategies and choose measures for such evaluations. This is what today’s blog will talk about.</p>
-<h3 id="distance-metrics">Distance Metrics</h3>
-<p>We have four most popular distance metrics outlined below. In essense, one should understand the structure of each metric, and when to use them.</p>
-<ol>
-<li>
-<p>Minkowski Distance:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Unsupervised Learning · Clustering</div> <h1>Unsupervised <em>Learning:</em> Measures About Clustering</h1> <p class="dek">A practical guide to evaluating clustering with silhouette score, Davies-Bouldin index, Calinski-Harabasz score, external labels, stability, and business usefulness.</p> <div class="byline"> <strong>2020.02.15</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Unsupervised learning finds structure without target labels. Clustering is one of the most common unsupervised tasks: grouping similar examples together.</p>
+<p>The challenge is evaluation. Without labels, there is no obvious “accuracy.”</p>
+<h2 id="internal-metrics">Internal Metrics</h2>
+<p>Internal metrics evaluate clusters using only the input data and cluster assignments.</p>
+<h3 id="silhouette-score">Silhouette Score</h3>
+<p>Silhouette score compares how close a point is to its own cluster versus other clusters.</p>
+<p>Values range from -1 to 1:</p>
 <ul>
-<li>Minkowski distance is a metric in Normed vector space.</li>
-<li>Formula $\text{Minkowski Distance} = (\sum_{i = 1}^{n} |x_i - y_i|^p)^\frac{1}{p}$
+<li>Near 1: well matched to its cluster.</li>
+<li>Near 0: near a boundary.</li>
+<li>Negative: possibly assigned to the wrong cluster.</li>
+</ul>
+<h3 id="davies-bouldin-index">Davies-Bouldin Index</h3>
+<p>Davies-Bouldin measures average cluster similarity. Lower is better.</p>
+<p>It rewards compact clusters that are far apart.</p>
+<h3 id="calinski-harabasz-score">Calinski-Harabasz Score</h3>
+<p>Calinski-Harabasz compares between-cluster dispersion to within-cluster dispersion. Higher is better.</p>
+<p>It often favors well-separated dense clusters.</p>
+<h2 id="external-metrics">External Metrics</h2>
+<p>If labels are available for evaluation, use external metrics:</p>
 <ul>
-<li>p = 1, Manhattan Distance</li>
-<li>p = 2, Euclidean Distance</li>
-<li>p = ∞, Chebychev Distance</li>
+<li>Adjusted Rand Index.</li>
+<li>Normalized Mutual Information.</li>
+<li>Homogeneity.</li>
+<li>Completeness.</li>
+<li>V-measure.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>
-<p>Manhattan Distance:</p>
+<p>These labels do not need to be training labels. They can be human categories or downstream outcomes used only for evaluation.</p>
+<h2 id="stability">Stability</h2>
+<p>A clustering result should be stable enough to trust.</p>
+<p>Check:</p>
 <ul>
-<li>We use Manhattan Distance if we need to calculate the distance between two data points in a grid like path.</li>
+<li>Different random seeds.</li>
+<li>Different samples of the data.</li>
+<li>Small perturbations.</li>
+<li>Different feature sets.</li>
+<li>Different numbers of clusters.</li>
 </ul>
-</li>
-<li>
-<p>Euclidean Distance:</p>
+<p>If clusters change completely with tiny changes, the structure may be weak.</p>
+<h2 id="interpretability">Interpretability</h2>
+<p>A clustering result should be explainable:</p>
 <ul>
-<li>Euclidean distance formula can be used to calculate the distance between two data points in a plane.</li>
+<li>What defines each cluster?</li>
+<li>Which features separate clusters?</li>
+<li>Are clusters actionable?</li>
+<li>Are clusters stable over time?</li>
+<li>Do domain experts recognize them?</li>
 </ul>
-</li>
-<li>
-<p>Cosine Distance:</p>
+<p>Pretty 2D plots are not enough. Useful clusters should support decisions.</p>
+<h2 id="practical-checklist">Practical Checklist</h2>
+<p>Before using clusters:</p>
 <ul>
-<li>Mostly Cosine distance metric is used to find similarities between different documents.</li>
-<li>In cosine metric we measure the degree of angle between two documents/vectors(the term frequencies in different documents collected as metrics).</li>
-<li>This particular metric is used when the magnitude between vectors does not matter but the orientation.</li>
-<li>Formula: $\text{Cosine Distance} = \cos \theta = \frac{\vec{a} \cdot \vec{b}}{\Vert\vec{a}\Vert \space \Vert\vec{b}\Vert}$</li>
+<li>Standardize features when distance matters.</li>
+<li>Remove leakage or ID-like features.</li>
+<li>Try simple baselines.</li>
+<li>Compare multiple metrics.</li>
+<li>Inspect cluster profiles.</li>
+<li>Check stability.</li>
+<li>Validate usefulness with downstream tasks or domain review.</li>
 </ul>
-</li>
-</ol>
-<h3 id="evaluation-methods">Evaluation Methods</h3>
-<h4 id="1-clustering-tendency">1. Clustering Tendency</h4>
-<ul>
-<li>Before evaluating the clustering performance, making sure that data set we are working has clustering tendency and does not contain uniformly distributed points is very important.</li>
-<li><code>Hopkins Test</code>: a statistical test for spatial randomness of a variable, can be used to measure the probability of data points generated by uniform data distribution.
-<ul>
-<li>Null Hypothesis ($H_0$) : Data points are generated by non-random, uniform distribution (implying no meaningful clusters)</li>
-<li>Alternate Hypothesis ($H_1$): Data points are generated by random data points (presence of clusters)</li>
-<li>If the H value is between {0.01, …,0.3}, the data is regularly spaced.</li>
-<li>If the H value is around 0.5, it is random.</li>
-<li>If the H value is between {0.7, …, 0.99}, it has a high tendency to cluster.</li>
-</ul>
-</li>
-<li>The <code>Hopkins Test</code> is highly influenced by outliers</li>
-<li>Sample Code
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np </span><span style="color:#768390"># linear algebra</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd </span><span style="color:#768390"># data processing, CSV file I/O (e.g. pd.read_csv)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.decomposition </span><span style="color:#F47067">import</span><span style="color:#6CB6FF"> PCA</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> datasets</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> scale</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> pyclustertend </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> hopkins </span><span style="color:#768390">## the hopkins test</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> mpl_toolkits.mplot3d </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Axes3D</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">heart_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">"heart.csv"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> heart_df[heart_df.columns[</span><span style="color:#F47067">~</span><span style="color:#ADBAC7">heart_df.columns.isin([</span><span style="color:#96D0FF">"target"</span><span style="color:#ADBAC7">])]].values</span></span>
-<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> heart_df[heart_df.columns[heart_df.columns.isin([</span><span style="color:#96D0FF">"target"</span><span style="color:#ADBAC7">])]].values.flatten()</span></span>
-<span class="line"><span style="color:#ADBAC7">display(hopkins(X, X.shape[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]))</span></span>
-<span class="line"><span style="color:#ADBAC7">display(hopkins(scale(X),X.shape[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">]))</span></span></code></pre>
-</li>
-</ul>
-<h4 id="2-number-of-optimal-clusters">2. Number of Optimal Clusters</h4>
-<p><strong>Mainly 2 Direction</strong></p>
-<ul>
-<li>
-<p>Domain knowledge — Domain knowledge might give some prior knowledge on finding number of clusters. For example, in case of clustering iris data set, if we have the prior knowledge of species (sertosa, virginica, versicolor) , then k = 3. Domain knowledge driven k value gives more relevant insights.</p>
-</li>
-<li>
-<p>Data driven approach — If the domain knowledge is not available, mathematical methods help in finding out right number of clusters.</p>
-</li>
-</ul>
-<p><strong>Mainly 2 Methods</strong></p>
-<ul>
-<li>Statistical approach:
-<ul>
-<li><code>Gap statistic</code> is a powerful statistical method to find the optimal number of clusters, k.</li>
-<li>Sum of within-cluster (intra-cluster) variance is calculated for different values of k.</li>
-<li>$Sum_{ori, k}$: Sum-of-within-Cluster variance of original data set for k clusters</li>
-<li>$Sum_{null, k}$: Sum-of-within-cluster variance of reference data set (null reference data set of uniform distribution) of k clusters</li>
-<li>Formula: $\text{Gap stats} = E[\log Sum_{null, k}] - \log Sum_{ori, k}$</li>
-<li>As Gap statistic quantifies this deviation, More the Gap statistic means more the deviation.</li>
-<li>Cluster number with maximum Gap statistic value corresponds to optimal number of cluster.</li>
-<li>Sample Code
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># Gap Statistics</span></span>
-<span class="line"><span style="color:#F47067">%</span><span style="color:#ADBAC7">matplotlib inline</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> time</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> hashlib</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> scipy</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.cluster </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> KMeans</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.datasets.samples_generator </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> make_blobs</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">plt.rcParams[</span><span style="color:#96D0FF">'figure.figsize'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 10</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">10</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">x, y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> make_blobs(</span><span style="color:#6CB6FF">750</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">n_features</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">centers</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">12</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">plt.scatter(x[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], x[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#ADBAC7">plt.show()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> optimalK</span><span style="color:#ADBAC7">(data, nrefs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, maxClusters</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#96D0FF">    """</span></span>
-<span class="line"><span style="color:#96D0FF">    Calculates KMeans optimal K using Gap Statistic from Tibshirani, Walther, Hastie</span></span>
-<span class="line"><span style="color:#96D0FF">    Params:</span></span>
-<span class="line"><span style="color:#96D0FF">        data: ndarry of shape (n_samples, n_features)</span></span>
-<span class="line"><span style="color:#96D0FF">        nrefs: number of sample reference datasets to create</span></span>
-<span class="line"><span style="color:#96D0FF">        maxClusters: Maximum number of clusters to test for</span></span>
-<span class="line"><span style="color:#96D0FF">    Returns: (gaps, optimalK)</span></span>
-<span class="line"><span style="color:#96D0FF">    """</span></span>
-<span class="line"><span style="color:#ADBAC7">    gaps </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros((</span><span style="color:#6CB6FF">len</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, maxClusters)),))</span></span>
-<span class="line"><span style="color:#ADBAC7">    resultsdf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.DataFrame({</span><span style="color:#96D0FF">'clusterCount'</span><span style="color:#ADBAC7">:[], </span><span style="color:#96D0FF">'gap'</span><span style="color:#ADBAC7">:[]})</span></span>
-<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> gap_index, k </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, maxClusters)):</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">        # Holder for reference dispersion results</span></span>
-<span class="line"><span style="color:#ADBAC7">        refDisps </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.zeros(nrefs)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">        # For n references, generate random sample and perform kmeans getting resulting dispersion of each loop</span></span>
-<span class="line"><span style="color:#F47067">        for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(nrefs):</span></span>
-<span class="line"><span style="color:#ADBAC7">            </span></span>
-<span class="line"><span style="color:#768390">            # Create new random reference set</span></span>
-<span class="line"><span style="color:#ADBAC7">            randomReference </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.random.random_sample(</span><span style="color:#F69D50">size</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">data.shape)</span></span>
-<span class="line"><span style="color:#ADBAC7">            </span></span>
-<span class="line"><span style="color:#768390">            # Fit to it</span></span>
-<span class="line"><span style="color:#ADBAC7">            km </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KMeans(k)</span></span>
-<span class="line"><span style="color:#ADBAC7">            km.fit(randomReference)</span></span>
-<span class="line"><span style="color:#ADBAC7">            </span></span>
-<span class="line"><span style="color:#ADBAC7">            refDisp </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> km.inertia_</span></span>
-<span class="line"><span style="color:#ADBAC7">            refDisps[i] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> refDisp</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">        # Fit cluster to original data and create dispersion</span></span>
-<span class="line"><span style="color:#ADBAC7">        km </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KMeans(k)</span></span>
-<span class="line"><span style="color:#ADBAC7">        km.fit(data)</span></span>
-<span class="line"><span style="color:#ADBAC7">        </span></span>
-<span class="line"><span style="color:#ADBAC7">        origDisp </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> km.inertia_</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">        # Calculate gap statistic</span></span>
-<span class="line"><span style="color:#ADBAC7">        gap </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.log(np.mean(refDisps)) </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> np.log(origDisp)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">        # Assign this loop's gap statistic to gaps</span></span>
-<span class="line"><span style="color:#ADBAC7">        gaps[gap_index] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> gap</span></span>
-<span class="line"><span style="color:#ADBAC7">        </span></span>
-<span class="line"><span style="color:#ADBAC7">        resultsdf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> resultsdf.append({</span><span style="color:#96D0FF">'clusterCount'</span><span style="color:#ADBAC7">:k, </span><span style="color:#96D0FF">'gap'</span><span style="color:#ADBAC7">:gap}, </span><span style="color:#F69D50">ignore_index</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> (gaps.argmax() </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">, resultsdf)  </span><span style="color:#768390"># Plus 1 because index of 0 means 1 cluster is optimal, index 2 = 3 clusters are optimal</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#ADBAC7">k, gapdf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> optimalK(x, </span><span style="color:#F69D50">nrefs</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">maxClusters</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'Optimal k is: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">k</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span></code></pre>
-</li>
-</ul>
-</li>
-<li>Elbow method:
-<ul>
-<li>Within-cluster variance is a measure of compactness of the cluster. Lower the value of within cluster variance, higher the compactness of cluster formed.</li>
-<li>Sample Code
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># Elbow Method</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> seaborn </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> sns</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.datasets.samples_generator </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> (make_blobs,</span></span>
-<span class="line"><span style="color:#ADBAC7">                                                make_circles,</span></span>
-<span class="line"><span style="color:#ADBAC7">                                                make_moons)</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.cluster </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> KMeans, SpectralClustering</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> StandardScaler</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> silhouette_samples, silhouette_score</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Import the data</span></span>
-<span class="line"><span style="color:#ADBAC7">df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'old_faithful.csv'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Standardize the data</span></span>
-<span class="line"><span style="color:#ADBAC7">X_std </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> StandardScaler().fit_transform(df)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">sse </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
-<span class="line"><span style="color:#ADBAC7">list_k </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> k </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> list_k:</span></span>
-<span class="line"><span style="color:#ADBAC7">    km </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KMeans(</span><span style="color:#F69D50">n_clusters</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">k)</span></span>
-<span class="line"><span style="color:#ADBAC7">    km.fit(X_std)</span></span>
-<span class="line"><span style="color:#ADBAC7">    sse.append(km.inertia_)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Plot sse against k</span></span>
-<span class="line"><span style="color:#ADBAC7">plt.figure(</span><span style="color:#F69D50">figsize</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">6</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"><span style="color:#ADBAC7">plt.plot(list_k, sse, </span><span style="color:#96D0FF">'-o'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">plt.xlabel(</span><span style="color:#F47067">r</span><span style="color:#96D0FF">'Number of clusters </span><span style="color:#6CB6FF">$</span><span style="color:#96D0FF">k</span><span style="color:#6CB6FF">$</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">plt.ylabel(</span><span style="color:#96D0FF">'Sum of squared distance'</span><span style="color:#ADBAC7">)</span></span></code></pre>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="3-clustering-quality">3. Clustering Quality</h4>
-<p>There are majorly two types of measures to assess the clustering performance. For more details, check sklearn document on <a href="https://scikit-learn.org/stable/modules/clustering.html#clustering-performance-evaluation">cluster performance evaluation</a>.</p>
-<ol>
-<li><strong>Extrinsic Measures</strong>:
-<ul>
-<li>Require ground truth labels.</li>
-<li>Examples are Adjusted Rand index, Fowlkes-Mallows scores, Mutual information based scores, Homogeneity, Completeness and V-measure.</li>
-</ul>
-</li>
-<li><strong>Intrinsic Measures</strong>:
-<ul>
-<li>Does not require ground truth labels.</li>
-<li>Examples are Silhouette Coefficient, Calinski-Harabasz Index, Davies-Bouldin Index etc.</li>
-</ul>
-</li>
-</ol>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390"># silhouette analysis</span></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i, k </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">([</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">4</span><span style="color:#ADBAC7">]):</span></span>
-<span class="line"><span style="color:#ADBAC7">    fig, (ax1, ax2) </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> plt.subplots(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    fig.set_size_inches(</span><span style="color:#6CB6FF">18</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#768390">    # Run the Kmeans algorithm</span></span>
-<span class="line"><span style="color:#ADBAC7">    km </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> KMeans(</span><span style="color:#F69D50">n_clusters</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">k)</span></span>
-<span class="line"><span style="color:#ADBAC7">    labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> km.fit_predict(X_std)</span></span>
-<span class="line"><span style="color:#ADBAC7">    centroids </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> km.cluster_centers_</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">    # Get silhouette samples</span></span>
-<span class="line"><span style="color:#ADBAC7">    silhouette_vals </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> silhouette_samples(X_std, labels)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">    # Silhouette plot</span></span>
-<span class="line"><span style="color:#ADBAC7">    y_ticks </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> []</span></span>
-<span class="line"><span style="color:#ADBAC7">    y_lower, y_upper </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0</span></span>
-<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> i, cluster </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> enumerate</span><span style="color:#ADBAC7">(np.unique(labels)):</span></span>
-<span class="line"><span style="color:#ADBAC7">        cluster_silhouette_vals </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> silhouette_vals[labels </span><span style="color:#F47067">==</span><span style="color:#ADBAC7"> cluster]</span></span>
-<span class="line"><span style="color:#ADBAC7">        cluster_silhouette_vals.sort()</span></span>
-<span class="line"><span style="color:#ADBAC7">        y_upper </span><span style="color:#F47067">+=</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(cluster_silhouette_vals)</span></span>
-<span class="line"><span style="color:#ADBAC7">        ax1.barh(</span><span style="color:#6CB6FF">range</span><span style="color:#ADBAC7">(y_lower, y_upper), cluster_silhouette_vals, </span><span style="color:#F69D50">edgecolor</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'none'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">height</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">        ax1.text(</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">0.03</span><span style="color:#ADBAC7">, (y_lower </span><span style="color:#F47067">+</span><span style="color:#ADBAC7"> y_upper) </span><span style="color:#F47067">/</span><span style="color:#6CB6FF"> 2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">str</span><span style="color:#ADBAC7">(i </span><span style="color:#F47067">+</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">))</span></span>
-<span class="line"><span style="color:#ADBAC7">        y_lower </span><span style="color:#F47067">+=</span><span style="color:#6CB6FF"> len</span><span style="color:#ADBAC7">(cluster_silhouette_vals)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">    # Get the average silhouette score and plot it</span></span>
-<span class="line"><span style="color:#ADBAC7">    avg_score </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.mean(silhouette_vals)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.axvline(avg_score, </span><span style="color:#F69D50">linestyle</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'--'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">linewidth</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">color</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'green'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.set_yticks([])</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.set_xlim([</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.set_xlabel(</span><span style="color:#96D0FF">'Silhouette coefficient values'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.set_ylabel(</span><span style="color:#96D0FF">'Cluster labels'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax1.set_title(</span><span style="color:#96D0FF">'Silhouette plot for the various clusters'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">y</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.02</span><span style="color:#ADBAC7">)</span><span style="color:#FF938A;font-style:italic">;</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#768390">    # Scatter plot of data colored with labels</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.scatter(X_std[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], X_std[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">c</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">labels)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.scatter(centroids[:, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">], centroids[:, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">marker</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'*'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">c</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'r'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">s</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">250</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_xlim([</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_xlim([</span><span style="color:#F47067">-</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_xlabel(</span><span style="color:#96D0FF">'Eruption time in mins'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_ylabel(</span><span style="color:#96D0FF">'Waiting time to next eruption'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_title(</span><span style="color:#96D0FF">'Visualization of clustered data'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">y</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.02</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    ax2.set_aspect(</span><span style="color:#96D0FF">'equal'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    plt.tight_layout()</span></span>
-<span class="line"><span style="color:#ADBAC7">    plt.suptitle(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'Silhouette analysis using k = </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">k</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                 fontsize</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">16</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">fontweight</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'semibold'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">y</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.05</span><span style="color:#ADBAC7">)</span><span style="color:#FF938A;font-style:italic">;</span></span></code></pre> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-5/"> <span class="dir">← previous</span> <span class="title">Clustering: Apriori</span> </a> <a class="next" href="/writing/blogs/mlops/dimentionality-reduction/"> <span class="dir">next →</span> <span class="title">Dimension Reduction: Life savers</span> </a> </nav>  <script>
+<p>Clustering is exploratory. Treat it as a way to generate structure and hypotheses, not automatic truth.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-5/"> <span class="dir">← previous</span> <span class="title">Clustering: Apriori</span> </a> <a class="next" href="/writing/blogs/mlops/dimentionality-reduction/"> <span class="dir">next →</span> <span class="title">Dimensionality Reduction: Life Savers</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

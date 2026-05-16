@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Variational Inference - Zhenlin Wang</title><meta name="description" content="A useful inference method for distributional approximation"><meta property="og:title" content="Variational Inference - Zhenlin Wang"><meta property="og:description" content="A useful inference method for distributional approximation"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/variational-inference/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Variational Inference - Zhenlin Wang</title><meta name="description" content="A practical overview of variational inference, approximate posteriors, KL divergence, ELBO, mean-field assumptions, and the connection to VAEs."><meta property="og:title" content="Variational Inference - Zhenlin Wang"><meta property="og:description" content="A practical overview of variational inference, approximate posteriors, KL divergence, ELBO, mean-field assumptions, and the connection to VAEs."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/variational-inference/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,227 +29,72 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Optimization · Bayesian Statistics</div> <h1>Variational <em>Inference</em></h1> <p class="dek">A useful inference method for distributional approximation</p> <div class="byline"> <strong>2021.10.14</strong> <span>·</span> <span>16 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-12-12</span>  </div> </header> <main class="article container-narrow"> <h3 id="introduction">Introduction</h3>
-<h4 id="1-background-of-bayesian-methods">1. Background of Bayesian methods</h4>
-<p>In the field of machine learning, most would agree that frequentist approaches played a critical role in the development of early classical models. Nevertheless, we are witnessing the increasing significance of Bayesian methods in modern study of machine learning and data modelling. The simple-looking Bayes’ rule $p(z \mid x)=\frac{p(x \mid z) p(z)}{p(x)}$ has inspired a lot wonderful models in areas like topic modelling, representation learning and hyperparameter optimization. In these models, the latent variables $z=\left(z_{1}, z_{2}, \ldots z_{n}\right)$ are the focus of the study. By analysing several data on the observed variables $x=\left(x_{1}, x_{2}, \ldots x_{m}\right)$, we hope to get some meaningful information (for example, a point estimate or an entire distribution) about these latent variables.</p>
-<h4 id="2-problem-with-bayesian-methods-intractable-integral">2. Problem with Bayesian methods: intractable integral</h4>
-<p>While the rule looks easily understandable, the numerical computation is hard in reality. One major issue is the intractable integral $\int_{z} p(x \mid z) p(z) d z$ we need to compute in order to get the $p(x)$, which is often called the “model evidence”. This is often because the search space for $Z$ is combinatorially too large, making the computation extremely expensive. A common approach to deal with this problem is to approximate the posterior probability $p(z \mid x)$ directly. Some popular choices include Monte Carlo Sampling methods and variational inference. In this report, we will introduce the variational methods, which are perhaps the most widely used inference technique in machine learning. We will analyse a particularly famous technique in variational methods, mean-field variational inference.</p>
-<h4 id="3-main-idea-of-variational-inference">3. Main idea of variational inference</h4>
-<p>In variational inference, we can avoid computing the intractable integral by magically modelling the posterior $p$ directly. The main trick here is to approximate the unknown distribution $p$ with some similar distribution q. Since we can choose the q to belong to a certain family of distribution (hence tractable), the problem is now transformed into an optimization problem about the parameters of $q$.</p>
-<h3 id="understanding-variational-bayesian-method">Understanding Variational Bayesian method</h3>
-<p>In this section, we demonstrate the theory behind variational Bayesian methods.</p>
-<h4 id="1-kullback-leibler-divergence">1. Kullback-Leibler Divergence</h4>
-<p>As mentioned above, variational inference needs a distribution $q$ to approximate the posterior distribution $p$. Therefore we need to gauge how well a candidate $q$ approximates the posterior. A common measure is Kullback-Leibler Divergence (often called KL divergence).</p>
-<p>KL divergence is defined as</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Probability · Bayesian Inference</div> <h1>Variational <em>Inference</em></h1> <p class="dek">A practical overview of variational inference, approximate posteriors, KL divergence, ELBO, mean-field assumptions, and the connection to VAEs.</p> <div class="byline"> <strong>2021.10.14</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Bayesian inference asks for the posterior distribution:</p>
 <p>$$
-K L(q | p)=\int_{z} q(z) \frac{q(z)}{p(z \mid x)}=E_{q}\left[\log \frac{q(z)}{p(z \mid x)}\right]
+p(z \mid x) = \frac{p(x \mid z)p(z)}{p(x)}
 $$</p>
-<p>Where $E_{q}$ means the expected value with respect to distribution $q$. The formula can be interpreted as follows:</p>
+<p>The problem is that the denominator $p(x)$ is often difficult to compute because it requires integrating over all latent variables.</p>
+<p>Variational inference turns inference into optimization. Instead of computing the exact posterior, we choose a simpler family of distributions and find the member that is closest to the true posterior.</p>
+<h2 id="approximate-posterior">Approximate Posterior</h2>
+<p>Let $q_\phi(z)$ be an approximate posterior. The goal is:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Find q_phi(z) that is close to p(z | x).</span></span></code></pre>
+<p>The family of possible $q$ distributions might be simple, such as fully factorized Gaussians. This is called a variational family.</p>
+<p>The approximation is only as good as the family allows.</p>
+<h2 id="kl-divergence">KL Divergence</h2>
+<p>Closeness is often measured with KL divergence:</p>
+<p>$$
+KL(q(z) | p(z \mid x))
+$$</p>
+<p>Directly minimizing this is hard because it still involves the unknown posterior. Instead, variational inference optimizes the evidence lower bound.</p>
+<h2 id="elbo">ELBO</h2>
+<p>The evidence lower bound (ELBO) is:</p>
+<h2 id="elboq-mathbbe_qzlog-px-z">$$
+ELBO(q) =
+\mathbb{E}_{q(z)}[\log p(x, z)]</h2>
+<p>\mathbb{E}_{q(z)}[\log q(z)]
+$$</p>
+<p>Maximizing the ELBO is equivalent to minimizing the KL divergence from the approximate posterior to the true posterior, up to a constant.</p>
+<p>Another common form is:</p>
+<h2 id="elbo-mathbbe_qzlog-px-mid-z">$$
+ELBO =
+\mathbb{E}_{q(z)}[\log p(x \mid z)]</h2>
+<p>KL(q(z) | p(z))
+$$</p>
+<p>This form shows the tradeoff:</p>
 <ul>
-<li>
-<p>if $\mathrm{q}$ is low, the divergence is generally low.</p>
-</li>
-<li>
-<p>if $\mathrm{q}$ is high and $\mathrm{p}$ is high, the divergence is low.</p>
-</li>
-<li>
-<p>if $\mathrm{q}$ is high and $\mathrm{p}$ is low, the divergence is high, hence the approximation is not ideal.</p>
-</li>
+<li>Fit the observed data.</li>
+<li>Keep the approximate posterior close to the prior.</li>
 </ul>
-<p>Take note of the following about use of KL divergence in Variational Bayes:</p>
-<ol>
-<li>
-<p>KL divergence is not symmetric, it’s easy to see from the formula that $K L(p | q) \neq K L(q | p)$ as the approximation distribution $q$ is usually different from the target distribution $p$.</p>
-</li>
-<li>
-<p>In general, we focus on approximating some regions of $p$ as good as possible (Figure 1 (a)). It is not necessary for the $q$ to nicely approximate every part of $p .$ As a result $K L(p | q)$ (usually called forward $\mathrm{KL}$ divergence) is not ideal. Because for some regions $p>0$ which we don’t want to care, if $q \rightarrow 0$, the KL divergence will be very large, forcing $q$ to take a different form even if it fits well with other regions of $p$ (refer to Figure 1(b)). On the other hand, $K L(q | p)$ (usually called reverse KL divergence) has the nice property that only regions where $q>0$ requires $p$ and $q$ to be similar. Consequently, reverse KL divergence is more commonly used in Variational Inference.</p>
-</li>
-</ol>
-<h4 id="2-evidence-lower-bound">2. Evidence lower bound</h4>
-<p>Usually we don’t directly minimizing KL divergence to obtain a good approximated distribution. This is because computing $\mathrm{KL}$ divergence still depends on the posterior $p(z \mid x)$. The computation involves the “evidence” term $p(x)$ which is expensive to compute, as shown in the formula below:</p>
+<h2 id="mean-field-assumption">Mean-Field Assumption</h2>
+<p>Mean-field variational inference assumes the approximate posterior factorizes:</p>
 <p>$$
-\begin{aligned}
-K L(q | p) &#x26;=E_{q}\left[\log \frac{q(z)}{p(z \mid x)}\right] \\
-&#x26;=E_{q}[\log q(z)]-E_{q}[\log p(z \mid x)] \\
-&#x26;=E_{q}[\log q(z)]-E_{q}[\log p(z, x)]+\log p(x) \\
-&#x26;=-\left(E_{q}[\log p(z, x)]-E_{q}[\log q(z)]\right)+\log p(x)
-\end{aligned}
+q(z) = \prod_i q_i(z_i)
 $$</p>
-<p>The approximation using reverse KL divergence usually gives good empirical results, even though some regions of $p$ may be compromised</p>
-<figure class="half">
-	<a href="https://agustinus.kristia.de/techblog/2016/12/21/forward-reverse-kl/"><img src="/images/Machine%20learning/reverse_kl.png"></a>
-	<a href="https://agustinus.kristia.de/techblog/2016/12/21/forward-reverse-kl/"><img src="/images/Machine%20learning/forward_kl.png"></a>
-	<figcaption>Figure 1: Reverse KL vs Forward KL divergence: The left image has a better approximation $\mathrm{Q}(\mathrm{x})$ on part of  $\mathrm{P}(\mathrm{x})$. (a) Reverse KL simulation (b) Forward KL simulation</figcaption>
-</figure>
-<p>We can directly conclude by the fact $K L(q | p) \geq 0$ that the term $E_{q}[\log p(z, x)]-E_{q}[\log q(z)]$ is $\operatorname{less}$ than the log of evidence. We can also proof this result using Jensen’s inequality as follows:</p>
+<p>This makes optimization easier, but it ignores posterior dependencies between variables. It is a useful approximation, not a law of nature.</p>
+<h2 id="coordinate-ascent">Coordinate Ascent</h2>
+<p>In classical variational inference, each factor $q_i$ can be updated while holding the others fixed. This is coordinate ascent variational inference.</p>
+<p>Modern deep learning often uses gradient-based optimization instead, especially when neural networks parameterize the variational distribution.</p>
+<h2 id="connection-to-vaes">Connection to VAEs</h2>
+<p>Variational autoencoders use variational inference with neural networks.</p>
 <ul>
-<li>By the definition of marginal probability, we have $p(x)=\int_{z} p(x, z)$, take log on both side we have:</li>
+<li>The encoder defines $q_\phi(z \mid x)$.</li>
+<li>The decoder defines $p_\theta(x \mid z)$.</li>
+<li>Training maximizes an ELBO.</li>
 </ul>
-<p>$$
-\begin{aligned}
-\log p(x) &#x26;=\log \int_{z} p(x, z) \\
-&#x26;=\log \int_{z} p(x, z) \frac{q(z)}{q(z)} \\
-&#x26;=\log \left(E_{q}\left[\frac{p(z, x)}{q(z)}\right]\right) \\
-&#x26; \geq E_{q}[\log p(z, x)]-E_{q}[\log q(z)]
-\end{aligned}
-$$</p>
+<p>The same idea appears in a deep learning wrapper: approximate a hard posterior with a tractable learned distribution.</p>
+<h2 id="practical-tradeoffs">Practical Tradeoffs</h2>
+<p>Variational inference is usually faster than sampling methods such as MCMC, especially at scale. The tradeoff is approximation bias.</p>
+<p>Use it when:</p>
 <ul>
-<li>The last 2 lines follow from Jensen’s Inequality which states that for a convex function $f$, we have $f(E[X]) \geq E[f(X)]$</li>
+<li>Exact inference is intractable.</li>
+<li>You need scalable approximate Bayesian inference.</li>
+<li>A tractable posterior approximation is acceptable.</li>
+<li>You can validate whether the approximation is good enough.</li>
 </ul>
-<p>This term $E_{q}[\log p(z, x)]-E_{q}[\log q(z)]$ is known as the Evidence Lower Bound, or $E L B O .$ Since log $p(x)$ does not depend on $q$, we can treat it as a constant from the perspective of optimizing $q$. Hence, minimizing $K L(q | p)$ is now equivalent to maximizing $E L B O .$</p>
-<h3 id="general-procedure">General procedure</h3>
-<p>In general, a variational inference starts with a family of variational distribution (such as the mean-field family described below) as the candidate for $q$. We can then use the manually chosen $q$ to compute the ELBO terms $E_{q}[\log p(z, x)]$ and $E_{q}[\log q(z)]$. Afterwards, we optimize the parameters in $q$ to maximize the ELBO value using some optimization techniques (such as coordinate ascent and gradient methods).</p>
-<h3 id="mean-field-variational-family">Mean Field Variational Family</h3>
-<h4 id="1-the-mean-field-assumptions">1. The “Mean Field” Assumptions</h4>
-<p>As shown above, the particular variational distribution family we use to approximate the posterior $p$ is chosen by ourselves. A popular choice is called the mean-field variational family. This family of distribution assumes joint approximation distribution $q(Z)$ to be factorized over some partition of the latent variables. This implies mutual independence among the n fractions in the partition. In particular: we have</p>
-<p>$$
-p(z \mid X) \approx q(z)=\prod_{i=1}^{n} q_{i}\left(z_{i}\right)
-$$</p>
-<p>where $z$ is factorized into $z_{1}, \ldots, z_{n}$. For simplicity, we assume that each fraction only contains 1 latent variable $(n=|z|)$, it is often referred as “naive mean field”. This family is nice to analyse because we can model each distribution with a tractable distribution based on the problem set-up. Do note that a limitation of this family is that we cannot easily capture the interdependence among the latent variables.</p>
-<h4 id="2-derivation-of-optimal-q_jleftz_jright">2. Derivation of optimal $q_{j}\left(z_{j}\right)$</h4>
-<p>Now in order to derive the the optimal form of distribution for $q_{j}\left(z_{j}\right)$ and thus the overall $q$, we need to go back to the ELBO optimization with this mean-field family assumption. Recall the formula for ELBO (we use $\mathcal{L}$ here as it is the convention): $\mathcal{L}=E_{q}[\log p(x, z)]-E_{q}[\log q(z)] .$ We express this formula in terms of $q_{j}\left(z_{j}\right)$ as using functional integral (see appendix A):</p>
-<p>$$
-\mathcal{L}=\int_{z_{j}} q_{j}\left(z_{j}\right) E_{q_{-j}}[\log p(x, z)] d z_{j}+E_{q_{j}}\left[\log q_{j}\left(z_{j}\right)\right]+G\left(q_{1}, \ldots, q_{j-1}, q_{j+1}, \ldots, q_{n}\right)
-$$</p>
-<p>With this new expression, we can consider maximizing $\mathcal{L}$ with respect to each of the $q_{j}\left(z_{j}\right)$. The optimal form of $q_{j}\left(z_{j}\right)$ is the one which maximizes $\mathcal{L}$, that is:</p>
-<p>$$
-\begin{aligned}
-\underset{q_{j}}{\arg \max } \mathcal{L} &#x26;=\underset{q_{j}}{\arg \max } \int_{z_{j}} q_{j}\left(z_{j}\right) E_{q_{-j}}[\log p(x, z)] d z_{j}+E_{q_{j}}\left[\log q_{j}\left(z_{j}\right)\right]+G\left(q_{1}, \ldots, q_{j-1}, q_{j+1}, \ldots, q_{n}\right) \\
-&#x26;=\underset{q_{j}}{\arg \max } \int_{z_{j}} q_{j}\left(z_{j}\right)\left(E_{q_{-j}}[\log p(x, z)]+\log q_{j}\left(z_{j}\right)\right) d z_{j}
-\end{aligned}
-$$</p>
-<p>We take the derivative with respect to $q_{j}\left(z_{j}\right)$ using Lagrange multipliers $\lambda_{j}{ }^{2}$ and set to 0 yields:</p>
-<p>$$
-\begin{aligned}
-\log q_{j}\left(z_{j}\right) &#x26;=E_{q_{-j}}[\log p(x, z)]-1-\lambda_{j} \\
-q_{j}\left(z_{j}\right) &#x26;=\frac{\exp \left(E_{q_{-j}}[\log p(x, z)]\right)}{C_{j}}
-\end{aligned}
-$$</p>
-<p>where $C_{j}$ is a normalization constant that plays minimal role in the variable update.</p>
-<p>The funtional derivative of this expression actually requires some knowledge about calculus of variations, specifically <a href="https://en.wikipedia.org/wiki/Calculus_of_variations">Euler-Lagrange equation</a>.</p>
-<h4 id="3-variable-update-with-coordinate-ascent">3. Variable update with Coordinate Ascent</h4>
-<p>From equation $(9)$ we found that $q_{j}\left(z_{j}\right) \propto \exp \left(E_{q_{-j}}[\log p(x, z)]\right)$. Therefore iterative optimization algorithms like <a href="https://en.wikipedia.org/wiki/Coordinate_descent">Coordinate Ascent</a> can be applied to update the latent variables to reach their optimal form. Note that all the $q_{j}\left(z_{j}\right)$ ‘s are interdependent during the update, hence in each iteration, we need to update all the $q_{j}\left(z_{j}\right)$ ‘s. As short description for the coordinate ascent in this setup will be:</p>
-<ol>
-<li>
-<p>Compute values (if any) that can be directly obtained from data and constants</p>
-</li>
-<li>
-<p>Initialize a particular $z_{j}$ to an arbitrary value</p>
-</li>
-<li>
-<p>Update each variable with the step function $\left(\propto \exp \left(E_{q_{-j}}[\log p(x, z)]\right)\right)$</p>
-</li>
-<li>
-<p>Repeat step 3 until the convergence of ELBO</p>
-</li>
-</ol>
-<p>A more detailed example of coordinate ascent will be shown in next section with the univariate gaussian distribution example. A point to take note that in general, we cannot guarantee the convexity of ELBO function. Hence, the convergence is usually to a local maximum.</p>
-<h3 id="example-with-univariate-gaussian">Example with Univariate Gaussian</h3>
-<p>We demonstrate the mean-field variational inference with a simple case of observations from univariate Gaussian model. We first assume there are $N$ observations $X=\left(x_{1}, \ldots x_{N}\right)$ from a Gaussian distribution satisfying:</p>
-<p>$$
-\begin{aligned}
-&#x26;x_{i} \sim \mathcal{N}\left(\mu, \tau^{-1}\right), i=1, \ldots, N \\
-&#x26;\text { where } \mu \sim \mathcal{N}\left(\mu_{0},\left(\kappa_{0} \tau\right)^{-1}\right) &#x26; \tau \sim \operatorname{Gamma}\left(a_{0}, b_{0}\right)
-\end{aligned}
-$$</p>
-<p>Here $\tau$ is inverse of variance $\sigma^{2}$ (hence one-to-one correspondence). From the derivation of $q_{j}\left(z_{j}\right)$ we know we need to compute the log joint probability $\log p(X, \mu, \tau)$. We will first derive an explicit formula for it by expanding the join probability into conditional probability:</p>
-<p>$$
-\begin{aligned}
-\log p(X, \mu, \tau)=&#x26; \log p(X \mid \mu, \tau)+\log p(\mu \mid \tau)+\log p(\tau) \\
-=&#x26; \log \left(\sqrt{\frac{\tau^{N}}{2 \pi}} e^{-\frac{\tau}{2} \sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}}\right)+\log \left(\sqrt{\frac{\kappa_{0} \tau}{2 \pi}} e^{-\frac{\kappa_{0} \tau}{2}\left(\mu-\mu_{0}\right)^{2}}\right)+\log \left(\frac{b_{0}^{a_{0}}}{\Gamma\left(a_{0}\right)} \tau^{a_{0}-1} e^{-b_{0} \tau}\right) \\
-=&#x26; \frac{N}{2} \log \tau-\frac{\tau}{2} \sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}+\frac{1}{2} \log \left(\kappa_{0} \tau\right)-\frac{\kappa_{0} \tau}{2}\left(\mu-\mu_{0}\right)^{2} +\left(a_{0}-1\right) \log \tau-b_{0} \tau+C
-\end{aligned}
-$$</p>
-<p>where $\mathrm{C}$ is a constant.</p>
-<p>Note that sometimes some latent variable has higher priority that others. The choice of this variable depends on the exact question in hand.</p>
-<h4 id="1-compute-independent-q_mumu-and-q_tautau">1. Compute independent $q_{\mu}(\mu)$ and $q_{\tau}(\tau)$</h4>
-<p>Next, we apply approximation via $p(\mu, \tau \mid X) \approx q(\mu, \tau)$. By the mean-field assumption, we have $q(\mu, \tau)=$ $q_{\mu}(\mu) q_{\tau}(\tau)$. We proceed to find the optimal form of $q_{\mu}(\mu)$ and $q_{\tau}(\tau)$ :</p>
-<ul>
-<li>Compute the expression for $q_{\mu}(\mu)$ :</li>
-</ul>
-<p>$$
-\begin{aligned}
-\log q_{\mu}(\mu) &#x26;=E_{\tau}[\log p(X, \mu, \tau)]+C_{1} \\
-&#x26;=E_{\tau}\left[\frac{N}{2} \log \tau-\frac{\tau}{2} \sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}+\frac{1}{2} \log \left(\kappa_{0} \tau\right)-\frac{\kappa_{0} \tau}{2}\left(\mu-\mu_{0}\right)^{2}+\left(a_{0}-1\right) \log \tau-b_{0} \tau\right]+C_{2} \\
-&#x26;=-\frac{E_{\tau}[\tau]}{2}\left[\kappa_{0}\left(\mu-\mu_{0}\right)^{2}+\sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}\right]+C_{3} \\<br>
-&#x26;\text { (completing the square for the term inside the square bracket) } \\
-&#x26;=-\frac{\left(\kappa_{0}+N\right) E_{\tau}[\tau]}{2}\left(\mu-\frac{\kappa_{0} \mu_{0}+\sum_{i=1}^{N} x_{i}}{\kappa_{0}+N}\right)^{2}+C_{4}
-\end{aligned}
-$$</p>
-<p>Note that here $E_{\tau}$ is a shortcut representation for $E_{q_{\tau}(\tau)}$, and all $C_{1}, \ldots C_{k}$ are constant terms not involved in the optimization update. From the expression above, it’s easy to observe that $q_{\mu}(\mu)$ follows a Gaussian distribution with $q_{\mu}(\mu) \sim \mathcal{N}\left(\hat{\mu}, \hat{\tau}^{-1}\right)$, where:</p>
-<p>$$
-\begin{aligned}
-\hat{\mu} &#x26;=\frac{\kappa_{0} \mu_{0}+\sum_{i=1}^{N} x_{i}}{\kappa_{0}+N} \\
-\hat{\tau} &#x26;=\left(\kappa_{0}+N\right) E_{\tau}[\tau]
-\end{aligned}
-$$</p>
-<ul>
-<li>Compute the expression for $q_{\tau}(\tau):$</li>
-</ul>
-<p>$$
-\begin{aligned}
-\log q_{\tau}(\tau) &#x26;=E_{\mu}\left[\frac{N}{2} \log \tau-\frac{\tau}{2} \sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}+\frac{1}{2} \log \left(\kappa_{0} \tau\right)-\frac{\kappa_{0} \tau}{2}\left(\mu-\mu_{0}\right)^{2}+\left(a_{0}-1\right) \log \tau-b_{0} \tau\right]+C_{5} \\
-&#x26;=\left(a_{0}-1\right) \log (\tau)-b_{0} \tau+\frac{1+N}{2} \log (\tau)-\frac{\tau}{2} E_{\mu}\left[\kappa_{0}\left(\mu-\mu_{0}\right)^{2}+\sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}\right]+C_{6} \\
-&#x26;=\left(a_{0}-1+\frac{1+N}{2}\right) \log (\tau)-\left(b_{0}+\frac{1}{2} E_{\mu}\left[\kappa_{0}\left(\mu-\mu_{0}\right)^{2}+\sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}\right]\right) \tau+C_{6}
-\end{aligned}
-$$</p>
-<p>A closer look at the result $(9)$ suggest that $q_{\mu}(\mu)$ follows a Gaussian distribution with $q_{\tau}(\tau) \sim$ Gamma $(\hat{a}, \hat{b})$, where:</p>
-<p>$$
-\begin{aligned}
-&#x26;\hat{a}=a_{0}+\frac{1+N}{2} \\
-&#x26;\hat{b}=b_{0}+\frac{1}{2} E_{\mu}\left[\kappa_{0}\left(\mu-\mu_{0}\right)^{2}+\sum_{i=1}^{N}\left(x_{i}-\mu\right)^{2}\right]
-\end{aligned}
-$$</p>
-<h4 id="2-variable-update-until-elbo-convergence">2. Variable update until ELBO convergence}</h4>
-<p>Now that we have $q_{\mu}(\mu) \sim \mathcal{N}\left(\hat{\mu}, \hat{\tau}^{-1}\right)$ and $q_{\tau}(\tau) \sim \operatorname{Gamma}(\hat{a}, \hat{b})$, we only need to update their parameters:</p>
-<p>$$
-\begin{aligned}
-&#x26;\hat{\tau}=\left(\kappa_{0}+N\right) E_{\tau}[\tau]=\left(\kappa_{0}+N\right) \frac{\hat{a}}{\hat{b}} \\
-&#x26;\hat{a}=a_{0}+\frac{1+N}{2} \\
-&#x26;\hat{b}=b_{0}+\frac{1}{2}\left[\kappa_{0}\left(\frac{1}{\hat{\tau}}+\hat{\mu}^{2}+\mu_{0}^{2}-2 \hat{\mu} \mu_{0}\right)+\sum_{i=1}^{N}\left(x_{i}^{2}-2 \hat{\mu} x_{i}+\frac{1}{\hat{\tau}}+\hat{\mu}^{2}\right)\right] \\
-&#x26;\hat{\mu}=\frac{\kappa_{0} \mu_{0}+\sum_{i=1}^{N} x_{i}}{\kappa_{0}+N}
-\end{aligned}
-$$</p>
-<p>Using the updated $q_{\mu}(\mu)$ and $q_{\tau}(\tau)$, we can then compute $E L B O=E_{q}[\log p(X, \mu, \tau)]-E_{q}\left[\log q_{\mu}(\mu)+\right.$ $\left.\log q_{\tau}(\tau)\right]$ with $q=q_{\mu} q_{\tau} .$ Hence the coordinate ascent algorithm can be applied here:</p>
-<ol>
-<li>
-<p>Compute $\hat{\mu}$ and $\hat{a}$ as they can be derived directly from the data and constants based on their formula</p>
-</li>
-<li>
-<p>Initialize $\hat{\tau}$ to some random value</p>
-</li>
-<li>
-<p>Update $\hat{b}$ with current values of $\hat{\mu}, \hat{a}$ and $\hat{\tau}$</p>
-</li>
-<li>
-<p>Update $\hat{\tau}$ with current values of $\hat{\mu}, \hat{a}$ and $\hat{b}$</p>
-</li>
-<li>
-<p>Compute ELBO value with the variables $\mu$ &#x26; $\tau$ updated with the parameters in step 1 - 4</p>
-</li>
-<li>
-<p>Repeat the last 3 steps until ELBO value doesn’t vary by much</p>
-</li>
-</ol>
-<p>As a result of the algorithm, we obtain an approximation $q=q_{\mu} q_{\tau}$ for the posterior distribution of $\mu$ and $\tau$ given observations $X$.</p>
-<h3 id="extension-and-further-result">Extension and Further result</h3>
-<p>In this section, we briefly outline some more theory and reflection about general variational Bayesian methods. Due to space limitations, we only provide a short discussion on each of these.</p>
-<h3 id="exponential-family-distributions-in-varational-inference">Exponential family distributions in Varational Inference</h3>
-<p>A nice property of the exponential family distribution is the presence of conjugate priors in closed forms. This allows for less computationally intensive approaches when approximating posterior distributions (due to reasons like simpler optimization algorithm applicable and better analytical forms). Further more, Gharamani &#x26; Beal even suggested in 2000 that if all the $q_{j}\left(z_{j}\right)$ belong to the same exponential family, the update of latent variables in the optimization procedure can be exact.</p>
-<p>A great achievement in the field of variational inference is the generalized update formula for Exponentialfamily-conditional models. These models has conditional densities that are in exponential family. The nice property of exponential family leads to an amazing result that the optimal approximation form for posteriors are in the same exponential family as the conditional. This has benefits a lot of well-known models like Markov random field and Factorial Hidden Markov Model.</p>
-<h3 id="comparison-to-other-inference-methods">Comparison to other Inference methods</h3>
-<p>The ultimate results of variational inference are the approximation for the entire posterior distribution about the parameters and variables in the target problem with some observations instead of just a single point estimate. This serves the purpose of further statistical study of these latent variables, even if their true distributions are analytically intractable. Another group of inference methods commonly used to achieve the similar aim is Markov chain Monte Carlo (MCMC) methods like Gibbs sampling, which seeks to produce reliable resampling of given observations that help to approximate latent variables well. Another common Bayesian method that has a similar iterative variable update procedure is Expectation Maximization (EM). For EM, however, only point estimates of posterior distribution are obtained. The estimates are “Expectation maximizing” points, which means any information about the distribution around these points (or the parameters they estimate) are not preserved. On the other hand, despite the advantage of “entire distribution” Variational inference has, its point estimates are often derived just by the mean value of the approximated distributions. Such point estimates are often less significant compared to those derived using EM, as the optimum is not directly achieved from the Bayesian network itself, but the optimal distributions inferred from the network.</p>
-<h3 id="popular-algorithms-applying-variational-inference">Popular algorithms applying variational inference</h3>
-<p>The popularity of variational inference has grown to even surpass the classical MCMC methods in recent years. It is particularly successful in generative modeling as a replacement for Gibbs sampling. The methods often show better empirical result than Gibbs sampling, and are thus more well-adopted. We here showcase some popular machine learning models and even deep learning models that heavily rely on variational inference methods and achieved great success:</p>
-<ul>
-<li>
-<p>Latent Dirichlet Allocation: With the underlying Dirichlet distribution, the model applies both variational method (for latent variable distribution) and EM algorithm to obtain an optimal topic separation and categorization.</p>
-</li>
-<li>
-<p>variational autoencoder: The latent Gaussian space (a representation for the input with all the latent variables and parameters) is derived from observations, and fine-tuned to generate some convincing counterparts (a copy for instance) of the input.</p>
-</li>
-</ul>
-<p>These models often rely on a mixture of statistical learning theories, but variational inference is definitely one of the key function within them.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/dirichlet/"> <span class="dir">← previous</span> <span class="title">Stats in ML: Dirichlet Distribution</span> </a> <a class="next" href="/writing/blogs/temp/more-on-model-deployment/"> <span class="dir">next →</span> <span class="title">More on Model Deployment</span> </a> </nav>  <script>
+<p>Be careful when posterior uncertainty matters deeply. A convenient approximation can understate uncertainty.</p>
+<h2 id="closing">Closing</h2>
+<p>Variational inference is best understood as optimization-based approximate inference. Choose a family of distributions, optimize the ELBO, and remember that the result is an approximation whose quality depends on both the model and the variational family.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/dirichlet/"> <span class="dir">← previous</span> <span class="title">Stats in ML: Dirichlet Distribution</span> </a> <a class="next" href="/writing/blogs/temp/more-on-model-deployment/"> <span class="dir">next →</span> <span class="title">More on Model Deployment</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

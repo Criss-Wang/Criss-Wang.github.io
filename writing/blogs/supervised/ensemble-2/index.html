@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Ensemble Models: Boosting Techniques - Zhenlin Wang</title><meta name="description" content="You know XGBoost, but do you KNOW XGBoost?"><meta property="og:title" content="Ensemble Models: Boosting Techniques - Zhenlin Wang"><meta property="og:description" content="You know XGBoost, but do you KNOW XGBoost?"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/ensemble-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Ensemble Models: Boosting Techniques - Zhenlin Wang</title><meta name="description" content="A practical explanation of boosting, including AdaBoost, gradient boosting, XGBoost-style regularization, learning rate, tree depth, and common pitfalls."><meta property="og:title" content="Ensemble Models: Boosting Techniques - Zhenlin Wang"><meta property="og:description" content="A practical explanation of boosting, including AdaBoost, gradient boosting, XGBoost-style regularization, learning rate, tree depth, and common pitfalls."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/ensemble-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,672 +29,65 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Boosting · Supervised Learning</div> <h1>Ensemble <em>Models:</em> Boosting Techniques</h1> <p class="dek">You know XGBoost, but do you KNOW XGBoost?</p> <div class="byline"> <strong>2021.02.04</strong> <span>·</span> <span>11 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-10-11</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Supervised Learning · Ensembles</div> <h1>Ensemble <em>Models:</em> Boosting Techniques</h1> <p class="dek">A practical explanation of boosting, including AdaBoost, gradient boosting, XGBoost-style regularization, learning rate, tree depth, and common pitfalls.</p> <div class="byline"> <strong>2021.02.04</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Boosting builds an ensemble sequentially. Each new learner focuses on what the current ensemble handles poorly.</p>
+<p>Boosting can produce excellent performance, especially on tabular data, but it can overfit if the model is too flexible or trained too long.</p>
+<h2 id="adaboost">AdaBoost</h2>
+<p>AdaBoost trains weak learners in sequence and increases the weight of examples that were misclassified.</p>
+<p>The final model is a weighted vote of weak learners.</p>
+<p>AdaBoost is historically important and still useful for understanding the boosting idea, though gradient boosting is more common in modern tabular ML.</p>
+<h2 id="gradient-boosting">Gradient Boosting</h2>
+<p>Gradient boosting builds an additive model:</p>
+<p>$$
+F_M(x) = \sum_{m=1}^{M} \eta f_m(x)
+$$</p>
+<p>Each new model fits the negative gradient of the loss with respect to the current prediction. For squared error, this is similar to fitting residuals.</p>
+<p>The learning rate $\eta$ controls how much each new learner contributes.</p>
+<h2 id="tree-based-boosting">Tree-Based Boosting</h2>
+<p>Most practical boosting uses shallow decision trees as base learners.</p>
+<p>Popular libraries:</p>
 <ul>
-<li>Boosting is a sequential process, where each subsequent model attempts to correct the errors of the previous model. The succeeding models are dependent on the previous model.</li>
-<li>In this technique, learners are learned sequentially with early learners fitting simple models to the data and then analyzing data for errors. In other words, we fit consecutive trees (random sample) and at every step, the goal is to solve for net error from the prior tree.</li>
-<li>When an input is misclassified by a hypothesis, its weight is increased so that next hypothesis is more likely to classify it correctly. By combining the whole set at the end converts weak learners into better performing model.</li>
-<li>Let’s understand the way boosting works in the below steps.
-<ol>
-<li>A subset is created from the original dataset.</li>
-<li>Initially, all data points are given equal weights.</li>
-<li>A base model is created on this subset.</li>
-<li>This model is used to make predictions on the whole dataset.</li>
-<li>Errors are calculated using the actual values and predicted values.</li>
-<li>The observations which are incorrectly predicted, are given higher weights. (Here, the three misclassified blue-plus points will be given higher weights)</li>
-<li>Another model is created and predictions are made on the dataset. (This model tries to correct the errors from the previous model)</li>
-</ol>
-</li>
-<li>Thus, the boosting algorithm combines a number of weak learners to form a strong learner.</li>
-<li>The individual models would not perform well on the entire dataset, but they work well for some part of the dataset.</li>
-<li>Thus, each model actually boosts the performance of the ensemble.</li>
+<li>XGBoost.</li>
+<li>LightGBM.</li>
+<li>CatBoost.</li>
+<li>scikit-learn gradient boosting.</li>
 </ul>
-<p>We will discuss 3 major boosting models: <strong>AdaBoost</strong>, <strong>Gradient Boost</strong> and <strong>XGBoost</strong>.</p>
-<h3 id="adaboost">AdaBoost</h3>
-<h4 id="1-definition">1. Definition</h4>
+<p>They add engineering improvements such as regularization, efficient split finding, missing-value handling, categorical support, and parallelization.</p>
+<h2 id="key-hyperparameters">Key Hyperparameters</h2>
+<p>Important settings:</p>
 <ul>
-<li>AdaBoost is an iterative ensemble method. AdaBoost classifier builds a strong classifier by combining multiple poorly performing classifiers so that you will get high accuracy strong classifier.</li>
-<li>The basic concept behind Adaboost is to set the weights of classifiers and training the data sample in each iteration such that it ensures the accurate predictions of unusual observations.</li>
-<li>Any machine learning algorithm can be used as base classifier if it accepts weights on the training set.</li>
-<li><code>Stump</code>: a tree with only 1 node and 2 leaves; Generally stumps does not perform as good as forest does; The AdaBoost uses the forest of stumps</li>
-<li><strong>AdaBoost</strong> should meet two conditions:
-<ol>
-<li>The classifier should be trained interactively on various weighed training examples.</li>
-<li>In each iteration, it tries to provide an excellent fit for these examples by minimizing training error.</li>
-</ol>
-</li>
-<li><strong>Complete Procedure</strong>
-<ol>
-<li>Assign each sample with a weight (initially set to equal weight) $\implies$ each row in Dataframe has a equal weight</li>
-<li>Use the feature selection in decision node method to choose the first stump;</li>
-<li>Measure how well a stump classifies the samples using: $Total \space Error \space \epsilon_t = \sum_{x\in X} W_x$ where $W_x$ is the weight of $x$ and $X$ is the set of misclassified datapoints</li>
-<li>Determine the vote significance for the stump using $\alpha_t = \frac{1}{2} \ln(\frac{1-\epsilon_t}{\epsilon_t})\space where\space \epsilon_t &#x3C; 1$</li>
-<li>Laplace smoothing for the vote significance:
-in case Total Error = 1 or 0, the formula will return error, we add a small value in the formula $\implies$ $\frac{1}{2} \ln(\frac{1-\epsilon_t + \lambda}{\epsilon_t + \lambda})$</li>
-<li>Modify the weight of samples so that next stump will take the errors that current stump made into account:<br>
-6.1 Run each sample down the stump<br>
-6.2 Compute new weight using:
+<li>Number of trees.</li>
+<li>Learning rate.</li>
+<li>Maximum depth.</li>
+<li>Minimum child weight or samples per leaf.</li>
+<li>Subsampling rows.</li>
+<li>Subsampling columns.</li>
+<li>L1 or L2 regularization.</li>
+<li>Early stopping.</li>
+</ul>
+<p>Learning rate and number of trees interact. A smaller learning rate usually needs more trees.</p>
+<h2 id="why-boosting-works">Why Boosting Works</h2>
+<p>Boosting is strong because it gradually corrects errors. Early trees learn broad patterns. Later trees refine difficult cases.</p>
+<p>This makes boosting powerful, but also risky. If allowed to chase noise, it can overfit.</p>
+<h2 id="practical-warnings">Practical Warnings</h2>
+<p>Watch for:</p>
 <ul>
-<li>Formula: $D_{t+1}(i) = D_t(i)e^{-\alpha_t y_i h_t(x_i)}$
-<ul>
-<li>$D_{t+1}(i)$ = New Sample Weight</li>
-<li>$D_t(i)$ = Current Sample weight.</li>
-<li>$\alpha_t$ = Amount of Say, alpha value, this is the coefficient that gets updated in each iteration and</li>
-<li>$y_i h_t(x_i)$ = place holder for 1 if stump correctly classified, -1 if misclassified.
-6.3 Normalize the new weights</li>
+<li>Leakage in validation.</li>
+<li>Overfitting after too many trees.</li>
+<li>Bad calibration.</li>
+<li>Poor performance on rare slices.</li>
+<li>Slow inference with too many trees.</li>
+<li>Hyperparameter search overfitting.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>With the new sample weight we can either:
-<ul>
-<li>Use <code>Weighted Gini Index</code> to construct the next stump (Best feature for split)</li>
-<li>Use a new set of sample derived from the previous sample:
-<ul>
-<li>pick until number of samples reach the size of original set
-<ul>
-<li>construct an interval-selection scheme using the sum of new sample weight as cutoff value $\implies$ if a number falls in i-th interval between (0,1), choose i-th sample;
-- e.g (0-0.07:1; 0.07-0.14:2; 0.14-0.60:3;0.60-0.67:4; etc)</li>
-<li>randomly generate a number x between 0 and 1 $\implies$ pick the sample according to the scheme (note that the same sample can be repeatly picked)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Repeat Step 1 to 7 until the entire forest is built</li>
-</ol>
-</li>
-</ul>
-<h4 id="2-pros-and-cons">2. Pros and Cons</h4>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Achieves higher performance than bagging when hyper-parameters tuned properly.</li>
-<li>Can be used for classification and regression equally well.</li>
-<li>Easily handles mixed data types.</li>
-<li>Can use “robust” loss functions that make the model resistant to outliers.</li>
-<li>AdaBoost is easy to implement.</li>
-<li>We can use many base classifiers with AdaBoost.</li>
-<li>AdaBoost is not prone to overfitting.</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Difficult and time-consuming to properly tune hyper-parameters.</li>
-<li>Cannot be parallelized like bagging (bad scalability when vast amounts of data).</li>
-<li>More risk of overfitting compared to bagging.</li>
-<li>AdaBoost is sensitive to noise data.</li>
-<li>It is highly affected by outliers because it tries to fit each point perfectly.</li>
-<li>Slower as compared to XGBoost</li>
-</ul>
-<h4 id="3-comparison-with-random-forest">3. Comparison with Random Forest</h4>
-<ul>
-<li>Random Forest VS AdaBoost (Bagging vs Boosting)
-<ul>
-<li>Random Forest uses full grown trees while Adaboost uses stumps (one root node with two leafs)</li>
-<li>In a Random Forest all the trees have similar amount of say, while in Adaboost some trees have more say than the other.</li>
-<li>In a random forest the order of the tree does not matter, while in Adaboost the order is important (especially since each tree is built by taking the error of the previous error).</li>
-</ul>
-</li>
-</ul>
-<h4 id="4-sample-code">4. Sample Code</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.ensemble </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> AdaBoostClassifier</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split,GridSearchCV, StratifiedShuffleSplit</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> accuracy_score</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> StandardScaler</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_pickle(</span><span style="color:#96D0FF">"train.pkl"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">X </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train.drop([</span><span style="color:#96D0FF">'Survived'</span><span style="color:#ADBAC7">], </span><span style="color:#F69D50">axis</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">y </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train[</span><span style="color:#96D0FF">"Survived"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">X_train, X_test, y_train, y_test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_split(X, y, </span><span style="color:#F69D50">test_size</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> .33</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Feature Scaling</span></span>
-<span class="line"><span style="color:#768390">## We will be using standardscaler to transform</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">st_scale </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> StandardScaler()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">## transforming "train_x"</span></span>
-<span class="line"><span style="color:#ADBAC7">X_train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> st_scale.fit_transform(X_train)</span></span>
-<span class="line"><span style="color:#768390">## transforming "test_x"</span></span>
-<span class="line"><span style="color:#ADBAC7">X_test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> st_scale.transform(X_test)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">adaBoost </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> AdaBoostClassifier(</span><span style="color:#F69D50">base_estimator</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                              learning_rate</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1.0</span><span style="color:#ADBAC7">,</span></span>
-<span class="line"><span style="color:#F69D50">                              n_estimators</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">adaBoost.fit(X_train, y_train)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">y_pred </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> adaBoost.predict(X_test)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">accuracy_score(y_test, y_pred)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">n_estimators </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">140</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">145</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">150</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">160</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">170</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">175</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">180</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">185</span><span style="color:#ADBAC7">]</span><span style="color:#FF938A;font-style:italic">;</span></span>
-<span class="line"><span style="color:#ADBAC7">cv </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> StratifiedShuffleSplit(</span><span style="color:#F69D50">n_splits</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">10</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">test_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">.30</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">15</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">learning_r </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.01</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">0.5</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">parameters </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#96D0FF">'n_estimators'</span><span style="color:#ADBAC7">:n_estimators,</span></span>
-<span class="line"><span style="color:#96D0FF">              'learning_rate'</span><span style="color:#ADBAC7">:learning_r</span></span>
-<span class="line"><span style="color:#ADBAC7">              </span></span>
-<span class="line"><span style="color:#ADBAC7">        }</span></span>
-<span class="line"><span style="color:#ADBAC7">grid </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> GridSearchCV(AdaBoostClassifier(</span><span style="color:#F69D50">base_estimator</span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> None</span><span style="color:#ADBAC7">, </span><span style="color:#768390">## If None, then the base estimator is a decision tree.</span></span>
-<span class="line"><span style="color:#ADBAC7">                                     ),</span></span>
-<span class="line"><span style="color:#F69D50">                                 param_grid</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">parameters,</span></span>
-<span class="line"><span style="color:#F69D50">                                 cv</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">cv,</span></span>
-<span class="line"><span style="color:#F69D50">                                 n_jobs</span><span style="color:#F47067"> =</span><span style="color:#F47067"> -</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">grid.fit(X,y) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7"> (grid.best_score_)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7"> (grid.best_params_)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7"> (grid.best_estimator_)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">adaBoost_grid </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> grid.best_estimator_</span></span>
-<span class="line"><span style="color:#ADBAC7">adaBoost_grid.score(X,y)</span></span></code></pre>
-<h3 id="gbm-gradient-boosting">GBM (Gradient Boosting)</h3>
-<ul>
-<li>
-<p>Gradient Boosting trains many models in a gradual, additive and sequential manner (sequential + homogeneous).</p>
-</li>
-<li>
-<p>Major Motivation: allows one to optimise a user specified cost function, instead of a loss function that usually offers less control and does not essentially correspond with real world applications.</p>
-</li>
-<li>
-<p>Main logic: utilizes the gradient descent to pinpoint the challenges in the learners’ predictions used previously. The previous error is highlighted, and, by combining one weak learner to the next learner, the error is reduced significantly over time.</p>
-</li>
-<li>
-<p><strong>Procedure</strong>:</p>
-<h4 id="for-regression"><em>For Regression</em></h4>
-<ol>
-<li>Start by Compute the average of the $\overline{y} = y_i$, this is our ‘initial prediction’ for every sample</li>
-<li>Then compute the $Res_{p,i} = |y_i - \widetilde{y_{0,i}}|$;
-<ul>
-<li>$Res_{p,i}$: Pseudo Residual at i-th sample</li>
-<li>$y_i$: True value of i-th sample</li>
-<li>$\widetilde{y_{0,i}}$: Estimated value of i-th sample (here $\widetilde{y_{0,i}} = \overline{y}$ in first iteration)</li>
-</ul>
-</li>
-<li>Construct a new decision tree (fixed size) with the goal of predicting the residuals (a DT of $Res_{p,i}$, not the true value!!!)</li>
-<li>If in a leaf, <strong># of leaves &#x3C; # of samples</strong>, then put the $Res_{p,i}$ of samples that fall into same category into the same leaf; Then take average of all values on that leaf as output values;</li>
-<li>Compute the new predicted value ($\widetilde{y_{1,i}} = \widetilde{y_{0,i}} + \alpha h_{i}$)
-<ul>
-<li>$\widetilde{y_{1,i}}$: Newly Estimated value of i-th sample</li>
-<li>$\alpha$: learning rate, usually between 0 ~ 0.1</li>
-<li>$h_{i}$: Estimated pseudo residual values (deduced from the decision tree)</li>
-</ul>
-</li>
-<li>Compute the new $Res_{p,i}$ of each sample = $| y_i - \widetilde{y_{1,i}} |$</li>
-<li>Construct the new tree with the new pseudo residual $Res_{p,i}$  in <em>step 5</em>:
-<ul>
-<li>Repeat <em>step 2, 3</em></li>
-<li>Compute the new predicted value $\widetilde{y_{2,i}} = \widetilde{y_{1,i}} + \alpha h_{i}$ (here $h_{i}$ is deduced from a new DT):</li>
-<li>Compute the new pseudo residual of each sample $Res_{p,i} = |y_i - \widetilde{y_{2,i}}|$</li>
-</ul>
-</li>
-<li>Loop through the process UNTIL: adding additional trees does not significantly reduce the size of the pseudo residuals</li>
-</ol>
-<h4 id="for-classification"><em>For Classification</em></h4>
-<ol>
-<li>Set the initial prediction $P_0(y=1)$ for every sample using $\text{log(odds) prediction}$ ($P_0$ is th probability of a sample being classified as 1)
-<ul>
-<li>$Odds$: $\frac{\textrm{\# of Yes}}{\textrm{\# of No}}$ (same for every sample)</li>
-<li>$O_{0,i}$: <strong>log(odds) prediction for i-th sample</strong>, initially the same $\ln(Odds) $ value, but value for each sample will change upon future iterations</li>
-<li>Using logistic function for classification: $P_{0}(y=1) = \frac{e^{O_{0,i}}}{1+e^{O_{0,i}}}$;</li>
-</ul>
-</li>
-<li>Decide on the classification: if $P_{0}(y=1)$ > threshold, then “Yes”; else “No”; here the threshold may not be 0.5 (AUC and ROC to decide on the value);</li>
-<li>Compute $Res_{p,i} = |y_i - P_{0}(y=1)|$</li>
-<li>Build a DT using the pseudo residual $Res_{p,i}$</li>
-<li>Transformation of the pseudo residual to obtain the output values on each leaf:
-<ul>
-<li>$h_{i} = \frac{\sum Res_{p,i}}{\sum P_{0}(y=1)(1-P_{0}(y=1))}$</li>
-<li>e.g: if a leaf has (0.3, -0.7), $P_{0}(y=1) = 0.7$ then the leaf output value $h_{i} = \frac{0.3-0.7}{0.7 \times (1-0.7) + 0.7 \times (1-0.7)} = -1$</li>
-</ul>
-</li>
-<li>Compute the new prediction $O_{1,i} = O_{0,i} + \alpha h_{i}$
-<ul>
-<li>$O_{1,i}$: <strong>log(odds) prediction for i-th sample in new iteration</strong></li>
-<li>$\alpha$: learning rate, usually between 0 ~ 0.1</li>
-</ul>
-</li>
-<li>Compute the new Probability $P_{1}(y=1) = \frac{e^{O_{1,i}}}{1+e^{O_{1,i}}}$
-<ul>
-<li>Compute the new predicted value for each sample;</li>
-<li>Compute the new pseudo residual for each sample;</li>
-<li>Build the new tree;</li>
-</ul>
-</li>
-<li>Loop until the pseudo residual does not change significantly;</li>
-</ol>
-</li>
-<li>
-<p><code>Early Stopping</code>: Early Stopping performs model optimisation by monitoring the model’s performance on a separate test data set and stopping the training procedure once the performance on the test data stops improving beyond a certain number of iterations.</p>
-<ul>
-<li>It avoids overfitting by attempting to automatically select the inflection point where performance on the test dataset starts to decrease while performance on the training dataset continues to improve as the model starts to overfit. In the context of gbm, early stopping can be based either on an out of bag sample set (“OOB”) or cross- validation (“cv”).</li>
-</ul>
-</li>
-</ul>
-<h4 id="1-pros--cons">1. Pros &#x26; Cons</h4>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Robust against bias/outliers</li>
-<li>GBM can be used to solve almost all objective function that we can write gradient out, some of which RF cannot resolve</li>
-<li>Able to reduce bias and remove some extreme variances</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>More sensitive to overfitting if the data is noisy</li>
-<li>GBDT training generally takes longer because of the fact that trees are built sequentially</li>
-<li>Prone to overfitting, but can be overcame by parameter optimization</li>
-</ul>
-<h4 id="2-adaboost-vs-gbm">2. AdaBoost vs GBM</h4>
-<ul>
-<li>Both AdaBoost and Gradient Boosting build weak learners in a sequential fashion. Originally, AdaBoost was designed in such a way that at every step the sample distribution was adapted to put more weight on misclassified samples and less weight on correctly classified samples. The final prediction is a weighted average of all the weak learners, where more weight is placed on stronger learners.</li>
-<li>Later, it was discovered that AdaBoost can also be expressed as in terms of the more general framework of additive models with a particular loss function (the exponential loss).</li>
-<li>So, the main differences between AdaBoost and GBM are as follows:
-<ol>
-<li>The main difference therefore is that Gradient Boosting is a generic algorithm to find approximate solutions to the additive modeling problem, while AdaBoost can be seen as a special case with a particular loss function (Exponential loss function). Hence, gradient boosting is much more flexible.</li>
-<li>AdaBoost can be interepted from a much more intuitive perspective and can be implemented without the reference to gradients by reweighting the training samples based on classifications from previous learners.</li>
-<li>In Adaboost, shortcomings are identified by high-weight data points while in Gradient Boosting, shortcomings of existing weak learners are identified by gradients.</li>
-<li>Adaboost is more about ‘voting weights’ and Gradient boosting is more about ‘adding gradient optimization’.</li>
-<li>Adaboost increases the accuracy by giving more weightage to the target which is misclassified by the model. At each iteration, Adaptive boosting algorithm changes the sample distribution by modifying the weights attached to each of the instances. It increases the weights of the wrongly predicted instances and decreases the ones of the correctly predicted instances.</li>
-<li>AdaBoost use simple stumps as learners, while the fixed size trees of GBM are usually of maximum leaf number between 8 and 32;</li>
-<li>Adaboost corrects its previous errors by tuning the weights for every incorrect observation in every iteration, but gradient boosting aims at fitting a new predictor in the residual errors committed by the preceding predictor.</li>
-</ol>
-</li>
-</ul>
-<h4 id="3-random-forest-vs-gbm">3. Random Forest vs GBM</h4>
-<ul>
-<li>GBMs are harder to tune than RF. There are typically three parameters: number of trees, depth of trees and learning rate, and each tree built is generally shallow.</li>
-<li>RF is harder to overfit than GBM.</li>
-<li>RF runs in parallel while GBM runs in sequence</li>
-</ul>
-<h4 id="4-application">4. Application</h4>
-<ul>
-<li>A great application of GBM is anomaly detection in supervised learning settings where data is often highly unbalanced such as DNA sequences, credit card transactions or cybersecurity.</li>
-</ul>
-<h4 id="5-sample-code-implementation">5. Sample Code implementation</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> matplotlib.pyplot </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> plt</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> MinMaxScaler</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.ensemble </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> GradientBoostingClassifier</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> classification_report, confusion_matrix, roc_curve, auc</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">"train.csv"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">"test.csv"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train.set_index(</span><span style="color:#96D0FF">"PassengerId"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">test.set_index(</span><span style="color:#96D0FF">"PassengerId"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># generate training target set (y_train)</span></span>
-<span class="line"><span style="color:#ADBAC7">y_train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train[</span><span style="color:#96D0FF">"Survived"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#768390"># delete column "Survived" from train set</span></span>
-<span class="line"><span style="color:#ADBAC7">train.drop(</span><span style="color:#F69D50">labels</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"Survived"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train_test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7">  train.append(test)</span></span>
-<span class="line"><span style="color:#768390"># delete columns that are not used as features for training and prediction</span></span>
-<span class="line"><span style="color:#ADBAC7">columns_to_drop </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">"Name"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Age"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"SibSp"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Ticket"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Cabin"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Parch"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">"Embarked"</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">train_test.drop(</span><span style="color:#F69D50">labels</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">columns_to_drop, </span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#768390"># convert objects to numbers by pandas.get_dummies</span></span>
-<span class="line"><span style="color:#ADBAC7">train_test_dummies </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.get_dummies(train_test, </span><span style="color:#F69D50">columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">"Sex"</span><span style="color:#ADBAC7">])</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train_test_dummies.fillna(</span><span style="color:#F69D50">value</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.0</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#768390"># generate feature sets (X)</span></span>
-<span class="line"><span style="color:#ADBAC7">X_train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_dummies.values[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">891</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#ADBAC7">X_test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_dummies.values[</span><span style="color:#6CB6FF">891</span><span style="color:#ADBAC7">:]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MinMaxScaler()</span></span>
-<span class="line"><span style="color:#ADBAC7">X_train_scale </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> scaler.fit_transform(X_train)</span></span>
-<span class="line"><span style="color:#ADBAC7">X_test_scale </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> scaler.transform(X_test)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">X_train_sub, X_validation_sub, y_train_sub, y_validation_sub </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_test_split(X_train_scale, y_train, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">learning_rates </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#6CB6FF">0.05</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.25</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.5</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">0.75</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> learning_rate </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> learning_rates:</span></span>
-<span class="line"><span style="color:#ADBAC7">    gb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> GradientBoostingClassifier(</span><span style="color:#F69D50">n_estimators</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">learning_rate</span><span style="color:#F47067"> =</span><span style="color:#ADBAC7"> learning_rate, </span><span style="color:#F69D50">max_features</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">max_depth</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">    gb.fit(X_train_sub, y_train_sub)</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Learning rate: "</span><span style="color:#ADBAC7">, learning_rate)</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Accuracy score (training): </span><span style="color:#F47067">{0:.3f}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">.format(gb.score(X_train_sub, y_train_sub)))</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Accuracy score (validation): </span><span style="color:#F47067">{0:.3f}</span><span style="color:#96D0FF">"</span><span style="color:#ADBAC7">.format(gb.score(X_validation_sub, y_validation_sub)))</span></span>
-<span class="line"><span style="color:#6CB6FF">    print</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#ADBAC7">    </span></span>
-<span class="line"><span style="color:#ADBAC7">gb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> GradientBoostingClassifier(</span><span style="color:#F69D50">n_estimators</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">20</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">learning_rate</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0.5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">max_features</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">max_depth</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 2</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067"> =</span><span style="color:#6CB6FF"> 0</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">gb.fit(X_train_sub, y_train_sub)</span></span>
-<span class="line"><span style="color:#ADBAC7">predictions </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> gb.predict(X_validation_sub)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Confusion Matrix:"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(confusion_matrix(y_validation_sub, predictions))</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">()</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"Classification Report"</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(classification_report(y_validation_sub, predictions))</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">y_scores_gb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> gb.decision_function(X_validation_sub)</span></span>
-<span class="line"><span style="color:#ADBAC7">fpr_gb, tpr_gb, _ </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_curve(y_validation_sub, y_scores_gb)</span></span>
-<span class="line"><span style="color:#ADBAC7">roc_auc_gb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> auc(fpr_gb, tpr_gb)</span></span></code></pre>
-<h3 id="xgboost">XGBoost</h3>
-<ul>
-<li>
-<p>An optimized GBM</p>
-</li>
-<li>
-<p>Evolution of XGBoost from Decision Tree</p>
-  <figure align="center">
-      <img src="/images/Machine%20learning/Evolution_of_XGBoost_from_DT.jpeg" width="500px">
-  </figure>
-</li>
-<li>
-<p><strong>Procedure</strong>:</p>
-<h4 id="for-regression-1"><em>For Regression</em></h4>
-<ol>
-<li>Set initial value $P_0$ (by default is 0.5 [for both regression and classification])</li>
-<li>Build the first XGBoost Tree (a unique type of regression tree):
-<ul>
-<li>Start with a root containing all the residuals $Res_i = Y_i - P_0$;</li>
-<li>Compute similarity score $\text{Similarity Score} = \frac{(\sum{Res_i})^2}{\text{\# of Residuals}+ \lambda}$ where $\lambda$ is the Regularization parameter.</li>
-<li>Make a decision on spliting condition: For each consecutive samples, compute the mean k of 2 input as the threshold for decision node; then split by the condition feature_value &#x3C; k</li>
-<li>Decide the best thresold for spliting: Adopt the threshold that gives the largest <strong>Gain</strong></li>
-<li>For example: we have points {$x1:[(5, 10): -10]; x2:[(-2, 20):7]; x3:[(3, 16):8]$}:
-<ul>
-<li>Step 1: set the first threshold be $(a,b) &#x3C; (\frac{5-2}{2}, \frac{10 + 20}{2})$</li>
-<li>Step 2: now left node has {x1}, right node has {x2, x3}, we have $Left_{similarity} = \frac{(-10)^2}{1+ \lambda}$ and $Right_{similarity} = \frac{(7 + 8)^2}{2+ \lambda}$</li>
-<li>Step 3: Compute $Gain = Left_{similarity} + Right_{similarity} - Root_{similarity}$</li>
-<li>Step 4: Compute the second threshold $(\frac{-2+3}{2}, \frac{16 + 20}{2})$ and new Gain using this thresold</li>
-<li>Step 5: Since gain of threshold 1 is greater than that of threshold 2, we use $(a,b) &#x3C; (\frac{5-2}{2}, \frac{10 + 20}{2})$  as the spliting threshold</li>
-</ul>
-</li>
-<li>If the leaf after spliting has > 1 residual, consider whether to split again (based on the residuals in the leaf);</li>
-<li>continue until it reaches the max_depth (default is 6) or no more spliting is possible</li>
-<li><strong>Notes on $\lambda$</strong>
-<ol>
-<li>A larger $\lambda$ leads to greater likelihood of prunning as the $\text{Similarity Score}$ are lower;</li>
-<li>The $\lambda$ <strong>reduce the prediction’s sensitivity to nodes with low # of observations</strong></li>
-</ol>
-</li>
-</ul>
-</li>
-<li>Prune the Tree
-<ul>
-<li>From bottom branch up, decide on whether to prune the node/branch
-<ul>
-<li>$\gamma$: The threshold to determine if a Gain is large enough to be kept</li>
-<li>if $Gain - \gamma &#x3C; 0$ then prune (remove the branch);</li>
-<li>Note that setting $\gamma = 0$ does not turn off prunnig!!!</li>
-</ul>
-</li>
-<li>If we prune every branch until it reaches the root, then remove the tree;</li>
-</ul>
-</li>
-<li>Compute  $\text{Output Value} = \frac{\sum{Res_i}}{\text{\# of Residuals}+ \lambda}$</li>
-<li>Compute New prediction $P_{1, X_i} = P_0 + \eta \times \sum{OV_{X_i}}$
-<ul>
-<li>$\eta$: Learning rate, default value = 0.3</li>
-<li>$OV_{X_i}$: Output value of $X_i$ in each residual tree</li>
-</ul>
-</li>
-<li>Compute the new residuals $Res_{i}’ = Y_i - P_{1, X_i}$ for all samples, build the next tree and prune the tree;</li>
-<li>Repeat the process just like Gradient Boost does; As more trees are built, the Gains will decease; We stop until the Gain &#x3C; terminating value</li>
-</ol>
-<h4 id="for-classification-1"><em>For Classification</em></h4>
-<ol>
-<li>Set initial value $P_0 = \log(odds) = \log\frac{P(Y=1)}{1-P(Y=1)} = 0$ (by default $P(Y=1)$ is 0.5)</li>
-<li>Build the first XGBoost Tree:
-<ul>
-<li>Start with a root containing all the residuals $Res_i = Y_i - P_0$</li>
-<li>Compute similarity score $\text{Similarity Score} = \frac{(\sum{Res_i})^2}{\sum{P(Y_i = 1|X_i) \times (1-P(Y_i = 1|X_i))} \space+\space \lambda}$ where $\lambda$ is the Regularization parameter.</li>
-<li>Repeat the same procedure as the regression does; Compute all the Gains</li>
-<li>Warning of <code>Cover</code>:
-<ul>
-<li>defined for the minimum number of residuals in each leaf (by default is 1)</li>
-<li>in Regression: = # of Residuals in the leaf (always >= 1)</li>
-<li>in Classification: = $\sum{P(Y_i = 1|X_i) \times (1-P(Y_i = 1|X_i))}$ (not necessarily >= 1), hence some leafs violating the <code>Cover</code> threshold will be removed. Here <code>Cover</code> needs to be carefully chosen (like 0, 0.1, etc)</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Prune the tree: same procedure as Regression case</li>
-<li>Compute  $\text{Output Value} = \frac{\sum{Res_i}}{\sum{P(Y_i = 1|X_i) \times (1-P(Y_i = 1|X_i))} \space+\space \lambda}$</li>
-<li>Compute New prediction $P_{1, X_i} = P_0 + \eta \times \sum{OV_{X_i}}$
-<ul>
-<li>$\eta$: Learning rate, default value = 0.3</li>
-<li>$OV_{X_i}$: Output value of $X_i$ in each residual tree (here is the first tree)</li>
-</ul>
-</li>
-<li>Convert $P_{1, X_i}$ into $P(Y_i=1)$ using logistic regression: $P(Y_i=1) = \frac{e^{P_{1, X_i}}}{1 + e^{P_{1, X_i}}}$</li>
-<li>Compute the new residuals $Res_{i}’ = Y_i - P_{1, X_i}$ for all samples, build the next tree and prune the tree;</li>
-<li>Repeat the process just like Gradient Boost does; As more trees are built, the Gains will decease; We stop until the Gain &#x3C; terminating value;</li>
-<li>Prediction:
-<ul>
-<li>$\text{Y = 1 if P(Y=1) > threshold}$;</li>
-<li>$\text{Y = 0 otherwise}$</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-<h4 id="1-advantage-of-xgboost">1. Advantage of XGBoost</h4>
-<ul>
-<li>Parallelized Tree Building
-<ul>
-<li>Unlike GBM, XGBoost is able to build the sequential tree using a parallelized implementation</li>
-<li>This is possible due to the interchangeable nature of loops used for building base learners: the outer loop that enumerates the leaf nodes of a tree, and the second inner loop that calculates the features. This nesting of loops limits parallelization because without completing the inner loop (more computationally demanding of the two), the outer loop cannot be started. Therefore, to improve run time, the order of loops is interchanged using initialization through a global scan of all instances and sorting using parallel threads. This switch improves algorithmic performance by offsetting any parallelization overheads in computation.</li>
-</ul>
-</li>
-<li>Tree Pruning using depth-first approach
-<ul>
-<li>The stopping criterion for tree splitting within GBM framework is greedy in nature and depends on the negative loss criterion at the point of split. XGBoost uses ‘max_depth’ parameter as specified instead of criterion first, and starts pruning trees backward. (This ‘depth-first’ approach improves computational performance significantly.)</li>
-</ul>
-</li>
-<li>Cache awareness and out-of-core computing
-<ul>
-<li>allocating internal buffers in each thread to store gradient statistics. Further enhancements such as ‘out-of-core’ computing optimize available disk space while handling big data-frames that do not fit into memory.</li>
-</ul>
-</li>
-<li>Regularization
-<ul>
-<li>It penalizes more complex models through both LASSO (L1) and Ridge (L2) regularization to prevent overfitting.</li>
-</ul>
-</li>
-<li>Efficient Handling of missing data
-<ul>
-<li>XGboost decides at training time whether missing values go into the right or left node. It chooses which to minimise loss. If there are no missing values at training time, it defaults to sending any new missings to the right node.</li>
-</ul>
-</li>
-<li>In-built cross-validation capability
-<ul>
-<li>The algorithm comes with built-in cross-validation method at each iteration, taking away the need to explicitly program this search and to specify the exact number of boosting iterations required in a single run.</li>
-</ul>
-</li>
-</ul>
-<h3 id="lightgbm">LightGBM</h3>
-<ul>
-<li>A follow-up (and competitor) from XGBoost</li>
-<li>Generally the same as GBM, except that a lot of optimizations are done, <a href="https://lightgbm.readthedocs.io/en/latest/Features.html">see this page to view all of them</a></li>
-<li>Light GBM <strong>grows tree vertically</strong> while other algorithm <strong>grows trees horizontally</strong> meaning that Light GBM grows tree <strong>leaf-wise</strong> while other algorithm grows <strong>level-wise</strong>. It will choose the leaf with max delta loss to grow. When growing the same leaf, Leaf-wise algorithm can reduce more loss than a level-wise algorithm.</li>
-<li>It is not advisable to use LGBM on small datasets. Light GBM is sensitive to overfitting and can easily overfit small data.</li>
-</ul>
-<h4 id="1-advantages-of-light-gbm">1. Advantages of Light GBM</h4>
-<ul>
-<li><strong>Faster training speed and higher efficiency</strong>: Light GBM use histogram based algorithm i.e it buckets continuous feature values into discrete bins which fasten the training procedure.</li>
-<li><strong>Lower memory usage</strong>: Replaces continuous values to discrete bins which result in lower memory usage.</li>
-<li><strong>Better accuracy than any other boosting algorithm</strong>: It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. However, it can sometimes lead to overfitting which can be avoided by setting the max_depth parameter.</li>
-<li><strong>Compatibility with Large Datasets</strong>: It is capable of performing equally good with large datasets with a significant reduction in training time as compared to XGBOOST.</li>
-<li><strong>Parallel learning supported</strong></li>
-</ul>
-<h4 id="2-code-sample-xgboost-vs-lightgbm">2. Code sample: XGBoost vs LightGBM</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#768390">#importing standard libraries </span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np </span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd </span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> Series, DataFrame </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#import lightgbm and xgboost </span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> lightgbm </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> lgb </span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> xgboost </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> xgb </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#loading our training dataset 'adult.csv' with name 'data' using pandas </span></span>
-<span class="line"><span style="color:#ADBAC7">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.read_csv(</span><span style="color:#96D0FF">'adult.csv'</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">header</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">None</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Assigning names to the columns </span></span>
-<span class="line"><span style="color:#ADBAC7">data.columns</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[</span><span style="color:#96D0FF">'age'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'workclass'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'fnlwgt'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'education'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'education-num'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'marital_Status'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'occupation'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'relationship'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'race'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'sex'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'capital_gain'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'capital_loss'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'hours_per_week'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'native_country'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'Income'</span><span style="color:#ADBAC7">] </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#glimpse of the dataset </span></span>
-<span class="line"><span style="color:#ADBAC7">data.head() </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Label Encoding our target variable </span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> LabelEncoder,OneHotEncoder</span></span>
-<span class="line"><span style="color:#ADBAC7">l</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">LabelEncoder() </span></span>
-<span class="line"><span style="color:#ADBAC7">l.fit(data.Income) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">l.classes_ </span></span>
-<span class="line"><span style="color:#ADBAC7">data.Income</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">Series(l.transform(data.Income))  </span><span style="color:#768390">#label encoding our target variable </span></span>
-<span class="line"><span style="color:#ADBAC7">data.Income.value_counts() </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7"> </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#One Hot Encoding of the Categorical features </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_workclass</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.workclass) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_education</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.education) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_marital_Status</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.marital_Status) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_occupation</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.occupation)</span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_relationship</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.relationship) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_race</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.race) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_sex</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.sex) </span></span>
-<span class="line"><span style="color:#ADBAC7">one_hot_native_country</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.get_dummies(data.native_country) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#removing categorical features </span></span>
-<span class="line"><span style="color:#ADBAC7">data.drop([</span><span style="color:#96D0FF">'workclass'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'education'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'marital_Status'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'occupation'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'relationship'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'race'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'sex'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'native_country'</span><span style="color:#ADBAC7">],</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7"> </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Merging one hot encoded features with our dataset 'data' </span></span>
-<span class="line"><span style="color:#ADBAC7">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">pd.concat([data,one_hot_workclass,one_hot_education,one_hot_marital_Status,one_hot_occupation,one_hot_relationship,one_hot_race,one_hot_sex,one_hot_native_country],</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#removing dulpicate columns </span></span>
-<span class="line"><span style="color:#ADBAC7">_,i </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.unique(data.columns, </span><span style="color:#F69D50">return_index</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"><span style="color:#ADBAC7">data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">data.iloc[:, i] </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Here our target variable is 'Income' with values as 1 or 0.  </span></span>
-<span class="line"><span style="color:#768390">#Separating our data into features dataset x and our target dataset y </span></span>
-<span class="line"><span style="color:#ADBAC7">x</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">data.drop(</span><span style="color:#96D0FF">'Income'</span><span style="color:#ADBAC7">,</span><span style="color:#F69D50">axis</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"><span style="color:#ADBAC7">y</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">data.Income </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7"> </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Imputing missing values in our target variable </span></span>
-<span class="line"><span style="color:#ADBAC7">y.fillna(y.mode()[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">],</span><span style="color:#F69D50">inplace</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Now splitting our dataset into test and train </span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> train_test_split </span></span>
-<span class="line"><span style="color:#ADBAC7">x_train,x_test,y_train,y_test</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">train_test_split(x,y,</span><span style="color:#F69D50">test_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">.3</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#The data is stored in a DMatrix object </span></span>
-<span class="line"><span style="color:#768390">#label is used to define our outcome variable</span></span>
-<span class="line"><span style="color:#ADBAC7">dtrain</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">xgb.DMatrix(x_train,</span><span style="color:#F69D50">label</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">y_train)</span></span>
-<span class="line"><span style="color:#ADBAC7">dtest</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">xgb.DMatrix(x_test)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#setting parameters for xgboost</span></span>
-<span class="line"><span style="color:#ADBAC7">parameters</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">{</span><span style="color:#96D0FF">'max_depth'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'eta'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'silent'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'objective'</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'binary:logistic'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'eval_metric'</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'auc'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'learning_rate'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">.05</span><span style="color:#ADBAC7">}</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#training our model </span></span>
-<span class="line"><span style="color:#ADBAC7">num_round</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">50</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> datetime </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> datetime </span></span>
-<span class="line"><span style="color:#ADBAC7">start </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> datetime.now() </span></span>
-<span class="line"><span style="color:#ADBAC7">xg</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">xgb.train(parameters,dtrain,num_round) </span></span>
-<span class="line"><span style="color:#ADBAC7">stop </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> datetime.now()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Execution time of the model </span></span>
-<span class="line"><span style="color:#ADBAC7">execution_time_xgb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> stop</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">start </span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'execution_time_xgb: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">execution_time_xgb</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#768390">#datetime.timedelta( , , ) representation $\implies$ (days , seconds , microseconds) </span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#now predicting our model on test set </span></span>
-<span class="line"><span style="color:#ADBAC7">ypred</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">xg.predict(dtest) </span></span>
-<span class="line"><span style="color:#ADBAC7">display(ypred)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Converting probabilities into 1 or 0  </span></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">9769</span><span style="color:#ADBAC7">): </span></span>
-<span class="line"><span style="color:#F47067">    if</span><span style="color:#ADBAC7"> ypred[i] </span><span style="color:#F47067">>=</span><span style="color:#6CB6FF"> .5</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#ADBAC7">        ypred[i] </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 1</span><span style="color:#ADBAC7"> </span></span>
-<span class="line"><span style="color:#F47067">    else</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#ADBAC7">        ypred[i]</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">  </span></span>
-<span class="line"><span style="color:#ADBAC7">        </span></span>
-<span class="line"><span style="color:#768390">#calculating accuracy of our model </span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> accuracy_score </span></span>
-<span class="line"><span style="color:#ADBAC7">accuracy_xgb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> accuracy_score(y_test,ypred) </span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'accuracy_xgb: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">accuracy_xgb</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">train_data</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">lgb.Dataset(x_train,</span><span style="color:#F69D50">label</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">y_train)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#setting parameters for lightgbm</span></span>
-<span class="line"><span style="color:#ADBAC7">param </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#96D0FF">'num_leaves'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">150</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'objective'</span><span style="color:#ADBAC7">:</span><span style="color:#96D0FF">'binary'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'max_depth'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">7</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'learning_rate'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">.05</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'max_bin'</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">200</span><span style="color:#ADBAC7">}</span></span>
-<span class="line"><span style="color:#ADBAC7">param[</span><span style="color:#96D0FF">'metric'</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'auc'</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'binary_logloss'</span><span style="color:#ADBAC7">]</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Here we have set max_depth in xgb and LightGBM to 7 to have a fair comparison between the two.</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#training our model using light gbm</span></span>
-<span class="line"><span style="color:#ADBAC7">num_round</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">50</span></span>
-<span class="line"><span style="color:#ADBAC7">start</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">datetime.now()</span></span>
-<span class="line"><span style="color:#ADBAC7">lgbm</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">lgb.train(param,train_data,num_round)</span></span>
-<span class="line"><span style="color:#ADBAC7">stop</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">datetime.now()</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Execution time of the model</span></span>
-<span class="line"><span style="color:#ADBAC7">execution_time_lgbm </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> stop</span><span style="color:#F47067">-</span><span style="color:#ADBAC7">start</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'execution_time_lgbm: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">execution_time_lgbm</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#predicting on test set</span></span>
-<span class="line"><span style="color:#ADBAC7">ypred2</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">lgbm.predict(x_test)</span></span>
-<span class="line"><span style="color:#ADBAC7">display(ypred2[</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">:</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">])  </span><span style="color:#768390"># showing first 5 predictions</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#converting probabilities into 0 or 1</span></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> i </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">,</span><span style="color:#6CB6FF">9769</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">    if</span><span style="color:#ADBAC7"> ypred2[i]</span><span style="color:#F47067">>=</span><span style="color:#6CB6FF">.5</span><span style="color:#ADBAC7">:       </span><span style="color:#768390"># setting threshold to .5</span></span>
-<span class="line"><span style="color:#ADBAC7">        ypred2[i]</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span></span>
-<span class="line"><span style="color:#F47067">    else</span><span style="color:#ADBAC7">:</span></span>
-<span class="line"><span style="color:#ADBAC7">        ypred2[i]</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span></span>
-<span class="line"><span style="color:#ADBAC7">        </span></span>
-<span class="line"><span style="color:#768390">#calculating accuracy</span></span>
-<span class="line"><span style="color:#ADBAC7">accuracy_lgbm </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> accuracy_score(ypred2,y_test)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'accuracy_lgbm: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">accuracy_lgbm</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">display(y_test.value_counts())</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.metrics </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> roc_auc_score</span></span>
-<span class="line"><span style="color:#768390">#calculating roc_auc_score for xgboost</span></span>
-<span class="line"><span style="color:#ADBAC7">auc_xgb </span><span style="color:#F47067">=</span><span style="color:#ADBAC7">  roc_auc_score(y_test,ypred)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'auc_xgb: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">auc_xgb</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#calculating roc_auc_score for light gbm. </span></span>
-<span class="line"><span style="color:#ADBAC7">auc_lgbm </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> roc_auc_score(y_test,ypred2)</span></span>
-<span class="line"><span style="color:#6CB6FF">print</span><span style="color:#ADBAC7">(</span><span style="color:#F47067">f</span><span style="color:#96D0FF">'auc_lgbm: </span><span style="color:#F47067">{</span><span style="color:#ADBAC7">auc_lgbm</span><span style="color:#F47067">}</span><span style="color:#96D0FF">'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">comparison_dict </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> {</span><span style="color:#96D0FF">'accuracy score'</span><span style="color:#ADBAC7">:(accuracy_lgbm, accuracy_xgb),</span><span style="color:#96D0FF">'auc score'</span><span style="color:#ADBAC7">:(auc_lgbm,auc_xgb),</span><span style="color:#96D0FF">'execution time'</span><span style="color:#ADBAC7">:(execution_time_lgbm, execution_time_xgb)}</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">#Creating a dataframe ‘comparison_df’ for comparing the performance of Lightgbm and xgb. </span></span>
-<span class="line"><span style="color:#ADBAC7">comparison_df </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> DataFrame(comparison_dict) </span></span>
-<span class="line"><span style="color:#ADBAC7">comparison_df.index</span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> [</span><span style="color:#96D0FF">'LightGBM'</span><span style="color:#ADBAC7">,</span><span style="color:#96D0FF">'xgboost'</span><span style="color:#ADBAC7">] </span></span>
-<span class="line"><span style="color:#ADBAC7">display(comparison_df)</span></span></code></pre>
-<h4 id="3-general-pros-and-cons-of-boosting">3. General Pros and cons of boosting</h4>
-<p><strong>Pros</strong></p>
-<ul>
-<li>Achieves higher performance than bagging when hyper-parameters tuned properly.</li>
-<li>Can be used for classification and regression equally well.</li>
-<li>Easily handles mixed data types.</li>
-<li>Can use “robust” loss functions that make the model resistant to outliers.</li>
-</ul>
-<p><strong>Cons</strong></p>
-<ul>
-<li>Difficult and time consuming to properly tune hyper-parameters.</li>
-<li>Cannot be parallelized like bagging (bad scalability when huge amounts of data).</li>
-<li>More risk of overfitting compared to bagging.</li>
-</ul>
-<h3 id="conclusion">Conclusion</h3>
-<p>Here we end the discussion about ensemble models. It was a fun and challenging topic. While most users of these model won’t need to understand every nitty-gritty of these models, these profound theories laid significant foundations for future research on supervised ensemble learning models (and even meta-learning). In the next month, I’ll share some posts about unsupervised learning. This is even large a topic, and I expect the content to be even deeper. Good luck, me and everyone!</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/variational-autoencoder/"> <span class="dir">← previous</span> <span class="title">Variational Autoencoder (VAE)</span> </a> <a class="next" href="/writing/projects/smartmall/"> <span class="dir">next →</span> <span class="title">SmartMall Discounted Electronic Shopping</span> </a> </nav>  <script>
+<p>Use early stopping with a validation set:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">model.fit(</span></span>
+<span class="line"><span style="color:#ADBAC7">    x_train,</span></span>
+<span class="line"><span style="color:#ADBAC7">    y_train,</span></span>
+<span class="line"><span style="color:#F69D50">    eval_set</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[(x_valid, y_valid)],</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Exact syntax depends on the library.</p>
+<h2 id="closing">Closing</h2>
+<p>Boosting is one of the most reliable tools for structured data. Treat it as a strong baseline, tune it carefully, and validate against both aggregate and slice metrics.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/prob-and-stats/variational-autoencoder/"> <span class="dir">← previous</span> <span class="title">Variational Autoencoder (VAE)</span> </a> <a class="next" href="/writing/projects/smartmall/"> <span class="dir">next →</span> <span class="title">SmartMall Discounted Electronic Shopping</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

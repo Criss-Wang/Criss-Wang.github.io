@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Model Validations and Performance Evaluators - Zhenlin Wang</title><meta name="description" content="How to determine if a model is truly good"><meta property="og:title" content="Model Validations and Performance Evaluators - Zhenlin Wang"><meta property="og:description" content="How to determine if a model is truly good"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/validation/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Model Validations and Performance Evaluators - Zhenlin Wang</title><meta name="description" content="A practical guide to validation splits, cross-validation, classification and regression metrics, calibration, slice evaluation, and model comparison."><meta property="og:title" content="Model Validations and Performance Evaluators - Zhenlin Wang"><meta property="og:description" content="A practical guide to validation splits, cross-validation, classification and regression metrics, calibration, slice evaluation, and model comparison."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/validation/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,111 +29,96 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining/Data Engineering · Optimization</div> <h1>Model <em>Validations</em> and Performance Evaluators</h1> <p class="dek">How to determine if a model is truly good</p> <div class="byline"> <strong>2019.05.29</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>Very often, people came up with various models with completely different underlying logics. In order to do reasonable comparisons among them, we must perform proper evaluations of the model performances and validate these models’ efficacy via some datasets. This is where cross-validation comes in and performance metrics become extremely important. In this blog, I will first discuss about various techniques applied in cross-validation, followed by some analysis of commonly used metrics/scores</p>
-<h3 id="cross-validation">Cross validation</h3>
-<p>When we try to train a model, we require a training set and a test set. Very often, we need to split the training set itself so that we can use part of it as validation set: training proceeds on the training set, after which evaluation is done on the validation set, and when the experiment seems to be successful, final evaluation can be done on the test set. Unfortunately, this would be too wasteful of the dataset we have. To fully utilize our datasets, we need <em>cross-validation</em>, which can split our datasets in to $k$ folds, and we pick some folds as the choice for validation set. After several iterations ran with different choices, we take an average of the evaluation scores as the final performance score for the model.</p>
-<p>The above strategy is often known as <em>k</em>-fold CV. It is computationally expensive, but it makes good use of the entire training set.</p>
-<h3 id="cross-validation-methods">Cross Validation Methods</h3>
-<p>Based on the choice of <em>folds</em> we pick, we may end up with different CV methods. Below is a list of methods we can use and their intuitions:</p>
-<ol>
-<li>Fixed index partition
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Machine Learning · Evaluation</div> <h1>Model <em>Validations</em> and Performance Evaluators</h1> <p class="dek">A practical guide to validation splits, cross-validation, classification and regression metrics, calibration, slice evaluation, and model comparison.</p> <div class="byline"> <strong>2019.05.29</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Model validation estimates how well a model will perform on data it has not seen. It is one of the most important parts of machine learning because training metrics mostly tell you how well the model fit the training data.</p>
+<p>Good validation answers:</p>
 <ul>
-<li><strong>K-Folds</strong>: partition the $D_{train}$ into k equal-sized subsets. choose 1 set from all subsets as the validation set. Run the model obtained only on this validation <strong>once</strong>.</li>
-<li><strong>Repeated K-Folds</strong>: run <strong>K-Folds</strong> n times, producing different splits and validation sets in each repetition.</li>
+<li>Does the model generalize?</li>
+<li>Which failure cases matter?</li>
+<li>Is the improvement real?</li>
+<li>Is the model good enough for the product constraint?</li>
 </ul>
-</li>
-<li>Fixed validation set size
+<h2 id="splitting-data">Splitting Data</h2>
+<p>The split should match production reality.</p>
+<h3 id="random-split">Random Split</h3>
+<p>Use random splits when examples are independent and identically distributed.</p>
+<h3 id="time-based-split">Time-Based Split</h3>
+<p>Use time-based splits when the model predicts future behavior from past data.</p>
+<h3 id="group-split">Group Split</h3>
+<p>Use group splits when records from the same user, account, patient, or entity could leak across train and test.</p>
+<h3 id="cross-validation">Cross-Validation</h3>
+<p>Use cross-validation when data is small and you need a more stable estimate. Be careful with time-dependent data; ordinary k-fold cross-validation can leak future information.</p>
+<h2 id="classification-metrics">Classification Metrics</h2>
+<p>Common metrics:</p>
 <ul>
-<li><strong>Leave One Out</strong>: Choose only one entry as the validation set</li>
-<li><strong>Leave P Out</strong>: Choose only $P$ entries as the validation set</li>
+<li><strong>Accuracy:</strong> simple, but misleading under class imbalance.</li>
+<li><strong>Precision:</strong> of predicted positives, how many are correct.</li>
+<li><strong>Recall:</strong> of actual positives, how many are found.</li>
+<li><strong>F1:</strong> harmonic mean of precision and recall.</li>
+<li><strong>ROC-AUC:</strong> ranking quality across thresholds.</li>
+<li><strong>PR-AUC:</strong> often better for imbalanced positive classes.</li>
+<li><strong>Log loss:</strong> probability quality.</li>
 </ul>
-</li>
-<li>Fixed label ratio
+<p>Choose based on error cost. A fraud model, medical model, and spam filter may all need different precision-recall tradeoffs.</p>
+<h2 id="regression-metrics">Regression Metrics</h2>
+<p>Common metrics:</p>
 <ul>
-<li><strong>Stratified K-Folds</strong>: Each set contains approximately the same percentage of samples of each target class as the complete set.</li>
+<li><strong>MAE:</strong> average absolute error, robust and interpretable.</li>
+<li><strong>MSE:</strong> penalizes large errors more strongly.</li>
+<li><strong>RMSE:</strong> square root of MSE, same unit as the target.</li>
+<li><strong>MAPE:</strong> percentage error, but unstable near zero.</li>
+<li><strong>R-squared:</strong> variance explained, useful but not enough alone.</li>
 </ul>
-</li>
-<li>Random index partition
+<p>Plot residuals. A single aggregate metric can hide systematic underprediction or overprediction.</p>
+<h2 id="calibration">Calibration</h2>
+<p>Calibration asks whether predicted probabilities match observed frequencies.</p>
+<p>If a model predicts 0.8 probability for many cases, roughly 80 percent of those cases should be positive.</p>
+<p>Calibration matters when probabilities drive decisions:</p>
 <ul>
-<li><strong>Suffle &#x26; Split K-Folds</strong>: If we randomly pick entries in $D_{train}$ to get the resultant k partitioned subsets, we are equivalently doing <em>shuffling</em> before the partition.</li>
+<li>Risk scoring.</li>
+<li>Medical triage.</li>
+<li>Fraud review queues.</li>
+<li>Ranking with expected value.</li>
 </ul>
-</li>
-</ol>
-<p>All these data partition methods are very intuitive and can be found in <a href="https://scikit-learn.org/stable/modules/cross_validation.html">sci-kit learn</a>. Here I’ll just give a demo of how code should be run for CV.</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> cross_val_score</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.model_selection </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> ShuffleSplit</span></span>
-<span class="line"><span style="color:#ADBAC7">clf </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> svm.SVC(</span><span style="color:#F69D50">kernel</span><span style="color:#F47067">=</span><span style="color:#96D0FF">'linear'</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">C</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">42</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># Some model here</span></span>
-<span class="line"><span style="color:#ADBAC7">cv </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> ShuffleSplit(</span><span style="color:#F69D50">n_splits</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">test_size</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0.3</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">random_state</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">) </span><span style="color:#768390"># You can specify the partition method here </span></span>
-<span class="line"><span style="color:#ADBAC7">scores </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> cross_val_score(clf, X, y, </span><span style="color:#F69D50">cv</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">cv) </span><span style="color:#768390"># clf - model; X - training set; y - test set</span></span></code></pre>
-<h3 id="performance-metrics">Performance Metrics</h3>
-<p>Now let’s move on to the next section on the metrics applied to evaluate the machine learning algorithms.</p>
-<p>There are metrics used for different tasks:</p>
+<p>Use reliability diagrams, Brier score, and calibration by slice.</p>
+<h2 id="slice-evaluation">Slice Evaluation</h2>
+<p>Aggregate performance is not enough.</p>
+<p>Evaluate by:</p>
 <ul>
-<li>Supervised Classification</li>
-<li>Supervised Regression</li>
-<li>Unsupervised Clusetering</li>
+<li>User segment.</li>
+<li>Geography.</li>
+<li>Language.</li>
+<li>Device.</li>
+<li>Data source.</li>
+<li>Time period.</li>
+<li>Label source.</li>
+<li>Important edge cases.</li>
 </ul>
-<p>In this blog post, we will consider mainly on classification models, as the metrics for the remaining two task will be directly applied in these tasks to improve their model performances. We will leave it to interested readers to read my posts on models for these two tasks to explore the related metrics.</p>
-<h3 id="classification">Classification</h3>
-<p><strong>Note</strong>: Sometimes we have multiclass and multilabel problems instead of binary classifications. The answer from <a href="https://stats.stackexchange.com/questions/11859/what-is-the-difference-between-multiclass-and-multilabel-problem">this post</a> gives clear definitions for both problems:</p>
-<blockquote>
-<p><strong>Multiclass classification</strong> means a classification task with more than two classes; e.g., classify a set of images of fruits which may be oranges, apples, or pears. Multiclass classification makes the assumption that each sample is assigned to one and only one label: a fruit can be either an apple or a pear but not both at the same time.</p>
-</blockquote>
-<blockquote>
-<p><strong>Multilabel classification</strong> assigns to each sample a set of target labels. This can be thought of as predicting properties of a data-point that are not <strong>mutually exclusive</strong>, such as topics that are relevant for a document. A text might be about any of religion, politics, finance or education at the same time or none of these.</p>
-</blockquote>
-<p>In the following discussions, I’ll use <strong>[m-c]</strong> and <strong>[m-l]</strong> as labels to denote if the metric is applicable to <strong>Multiclass classification</strong> and <strong>Multilabel classification</strong> respectively.</p>
-<h4 id="1-accuracy-score-m-l">1. Accuracy Score <strong>[m-l]</strong></h4>
-<p>This is the ratio of number of correct predictions to the total number of input samples</p>
-<p>$$ Accuracy = \frac{\text{number of correct predictions}}{\text{number of samples}}$$</p>
+<p>A model can improve overall while hurting the group that matters most.</p>
+<h2 id="model-comparison">Model Comparison</h2>
+<p>Compare models under the same conditions:</p>
 <ul>
-<li>It works well only if there are equal number of samples belonging to each class. Otherwise, it may lead to over/under-estimation of the model’s true performance due to imbalanced data.</li>
+<li>Same train/validation/test split.</li>
+<li>Same preprocessing.</li>
+<li>Same metric implementation.</li>
+<li>Same random seeds when possible.</li>
+<li>Same inference constraints.</li>
 </ul>
-<h4 id="2-balanced-accuracy-score-m-c">2. Balanced accuracy score <strong>[m-c]</strong></h4>
-<p>To address the problem above, we can introduce this score, which averages over <strong>recall</strong> scores per class where each sample is weighted according to the inverse prevalence of its true class.</p>
-<p>$$ BalancedAccuracy = \frac{1}{n_{classes}}\sum_{i=1}^{n_{classes}}Recall_{label_{i}}$$</p>
+<p>For noisy results, use repeated runs or confidence intervals. For product launches, combine offline validation with online testing when possible.</p>
+<h2 id="validation-checklist">Validation Checklist</h2>
+<p>Before trusting a model:</p>
 <ul>
-<li>This formulation ensures that the score won’t be too high just because one class’s accuracy is high</li>
+<li>Baseline exists.</li>
+<li>Split matches production.</li>
+<li>No leakage is detected.</li>
+<li>Primary metric is defined.</li>
+<li>Guardrail metrics are defined.</li>
+<li>Slice metrics are reviewed.</li>
+<li>Calibration is checked when probabilities matter.</li>
+<li>Error examples are inspected.</li>
+<li>Test set is held out until final review.</li>
 </ul>
-<h4 id="3-top-k-accuracy-score-m-l-m-c">3. Top-k accuracy score <strong>[m-l]</strong> <strong>[m-c]</strong></h4>
-<p>A generalization of <strong>accuracy score</strong>: prediction is considered correct as long as the true label is associated with one of the k highest predicted scores.</p>
-<h4 id="4-confusion-matrix-m-c">4. Confusion Matrix <strong>[m-c]</strong></h4>
-<p>The matrix which describes the complete performance of the model. This gives a good intuition over how well the classification is done. We can look at a sample pic here.<sup><a href="https://scikit-learn.org/stable/modules/model_evaluation.html">1</a></sup></p>
-<figure align="center">
-   <img src="/images/Data%20Science%20Concept/confusion_matrix.png" width="500px">
-   <figcaption>A sample confusion matrix</figcaption>
-</figure>
-<p>Based on the counts of corrected labeled and wrongly labeled samples, we can compute the following terms (say with regard to label ‘sentosa’, YES = is ‘sentosa’, NO = not ‘sentosa’)</p>
-<ul>
-<li><strong>True Positives (TP)</strong> : The cases in which we predicted YES and the actual output was also YES.</li>
-<li><strong>True Negatives (TN)</strong> : The cases in which we predicted NO and the actual output was NO.</li>
-<li><strong>False Positives (FP)</strong> : The cases in which we predicted YES and the actual output was NO. Equivalently <strong>Type-I error</strong>.</li>
-<li><strong>False Negatives (FN)</strong> : The cases in which we predicted NO and the actual output was YES. Equivalently <strong>Type-II error</strong>.</li>
-</ul>
-<p>These four terms are crucial as they help to compute the following terms <sup><a href="https://scikit-learn.org/stable/modules/model_evaluation.html">1</a></sup>:</p>
-<ul>
-<li><strong>Precision</strong>: $\frac{TP}{TP + FP}$, intuitively the ability of the classifier not to label as positive a sample that is negative. It focuses on <strong>Type-I error</strong>.</li>
-<li><strong>Recall</strong>: $\frac{TP}{TP + FN}$, intuitively the ability of the classifier to find all the positive samples. It focuses on <strong>Type-II error</strong>.</li>
-<li><strong>F1-score</strong>: $2 \cdot \frac{1}{\frac{1}{Precision} + \frac{1}{Recall}}$, a balanecd value (harmonic mean) of the precision and recall. We can generalize it to F-beta score, which allows more variated balanced between precision and recall:</li>
-</ul>
-<p>$$F_{\beta} = (1+\beta)^2 \cdot \frac{Precision \cdot Recall}{\beta^2 Precision + Recall}$$</p>
-<h4 id="5-jaccard-similarity-m-l-m-c">5. Jaccard Similarity <strong>[m-l]</strong> <strong>[m-c]</strong></h4>
-<p>The <code>jaccard_score</code> function computes the average of Jaccard similarity coefficients, also called the Jaccard index, between pairs of label sets.</p>
-<p>$$J(Y, \hat{Y}) = \frac{| Y \cap \hat{Y}|}{| Y \cup \hat{Y} |}$$</p>
-<h4 id="6-hinge-loss-m-c">6. Hinge Loss <strong>[m-c]</strong></h4>
-<p>It only considers prediction errors. It is widely used in maximal margin classifiers such as support vector machines.
-Suppose the label is in ${-1,1}$, output label is $t$, true label is $y$, then we have</p>
-<p>$$L_{hinge}(y,t) = \max(0,1-t\cdot y)$$</p>
-<h4 id="7-receiver-operating-characteristic-roc-and-area-under-curveauc">7. Receiver operating characteristic (ROC) and Area Under Curve(AUC)</h4>
-<p>ROC is a plot of True Positive Rate (TPR)/Recall against False Positive Rates (FPR):</p>
-<p>$$TPR = \frac{TP}{TP + FN} \quad \qquad FPR = \frac{FP}{FP + TN}$$</p>
-<p>A sample image looks like this <sup><a href="https://scikit-learn.org/stable/modules/model_evaluation.html">1</a></sup>:
-</p><figure align="center">
-<img src="/images/Data%20Science%20Concept/roc.png" width="450px">
-</figure>
-The area under the ROC curve is know as AUC, and it equals the probability that a randomly chosen positive example ranks above (is deemed to have a higher probability of being positive than negative) a randomly chosen negative example. The greater the value, the better is the performance.
-Unfortunately, ROC curves aren’t a good choice when your problem has a huge class imbalance.<p></p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/regressions-2/"> <span class="dir">← previous</span> <span class="title">Regression Models: Logistic Regression</span> </a> <a class="next" href="/writing/blogs/supervised/regressions-3/"> <span class="dir">next →</span> <span class="title">Regression Models: GAM, GLM and GLMM</span> </a> </nav>  <script>
+<p>Validation is not a formality. It is the evidence behind model trust.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/regressions-2/"> <span class="dir">← previous</span> <span class="title">Regression Models: Logistic Regression</span> </a> <a class="next" href="/writing/blogs/supervised/regressions-3/"> <span class="dir">next →</span> <span class="title">Regression Models: GAM, GLM, and GLMM</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

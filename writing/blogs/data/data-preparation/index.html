@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>The Data Mining Triology: I. Preparation - Zhenlin Wang</title><meta name="description" content="Know how to get data from various sources and load them successfully"><meta property="og:title" content="The Data Mining Triology: I. Preparation - Zhenlin Wang"><meta property="og:description" content="Know how to get data from various sources and load them successfully"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/data/data-preparation/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>The Data Mining Trilogy I: Preparation - Zhenlin Wang</title><meta name="description" content="A practical overview of data preparation: defining the problem, collecting data, building schemas, splitting datasets, and preventing leakage."><meta property="og:title" content="The Data Mining Trilogy I: Preparation - Zhenlin Wang"><meta property="og:description" content="A practical overview of data preparation: defining the problem, collecting data, building schemas, splitting datasets, and preventing leakage."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/data/data-preparation/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,161 +29,85 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining/Data Engineering</div> <h1>The <em>Data</em> Mining Triology: I. Preparation</h1> <p class="dek">Know how to get data from various sources and load them successfully</p> <div class="byline"> <strong>2019.08.25</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>In this Data Mining triology, I’m going to present the following critical steps each scientist should perform when handling the data:</p>
-<ol>
-<li>Data Preparation
-Load and integrate data sources</li>
-<li>Data Cleaning
-Prepocessing the data to make them meaningful and usable</li>
-<li>Exploratory Data Analysis
-Analyze the data and understand its pattern. Make corresponding adjustments to data along the way</li>
-</ol>
-<p>In this blog, let’s talk about the first one — Data Preparation.</p>
-<h3 id="sources-of-data">Sources of data</h3>
-<p>There are indeed a great variety of data sources since the age of machine learning started. While we may come across a wide variety of data types (image, video, text, sheet, signal… you name it), we often can get these data from some popular website:</p>
-<ol>
-<li><a href="https://toolbox.google.com/datasetsearch">Google Datasets Search</a>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Data Mining · Data Preparation</div> <h1>The <em>Data</em> Mining Trilogy I: Preparation</h1> <p class="dek">A practical overview of data preparation: defining the problem, collecting data, building schemas, splitting datasets, and preventing leakage.</p> <div class="byline"> <strong>2019.08.25</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Data preparation is the work before modeling: define the problem, collect the data, understand its structure, and create datasets that can support valid analysis or machine learning.</p>
+<p>Poor preparation creates downstream confusion. Good preparation makes the rest of the project measurable.</p>
+<h2 id="define-the-question">Define the Question</h2>
+<p>Start with the question:</p>
 <ul>
-<li>Pros:
+<li>What decision will this data support?</li>
+<li>What is the target variable?</li>
+<li>What is the prediction time?</li>
+<li>What information is available at that time?</li>
+<li>What population does the dataset represent?</li>
+<li>What errors are costly?</li>
+</ul>
+<p>For machine learning, the prediction time is critical. Any feature created after that time can leak future information.</p>
+<h2 id="collect-the-data">Collect the Data</h2>
+<p>Record:</p>
 <ul>
-<li>Wide coverage, can find whatever dataset you want</li>
+<li>Source.</li>
+<li>Owner.</li>
+<li>Refresh frequency.</li>
+<li>Granularity.</li>
+<li>Time range.</li>
+<li>Known missing fields.</li>
+<li>Access restrictions.</li>
+<li>Privacy constraints.</li>
 </ul>
-</li>
-<li>Cons:
+<p>Do not treat data collection as a one-time download. Data sources change.</p>
+<h2 id="understand-granularity">Understand Granularity</h2>
+<p>Granularity defines what one row means.</p>
+<p>Examples:</p>
 <ul>
-<li>Some datasets are not actually accessible, and the website does not indicate that at all!</li>
+<li>One row per user.</li>
+<li>One row per transaction.</li>
+<li>One row per session.</li>
+<li>One row per product per day.</li>
+<li>One row per document chunk.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li>Government Datasets
+<p>Many bugs come from mixing granularities without noticing. For example, joining user-level features to transaction-level labels can duplicate values and distort metrics.</p>
+<h2 id="create-a-data-dictionary">Create a Data Dictionary</h2>
+<p>A useful data dictionary includes:</p>
 <ul>
-<li>Pros:
+<li>Column name.</li>
+<li>Type.</li>
+<li>Meaning.</li>
+<li>Unit.</li>
+<li>Allowed values.</li>
+<li>Missing-value meaning.</li>
+<li>Example.</li>
+<li>Source.</li>
+</ul>
+<p>This is simple work, but it prevents many misunderstandings.</p>
+<h2 id="split-the-dataset">Split the Dataset</h2>
+<p>Choose a split that matches reality:</p>
 <ul>
-<li>Most of them are publically available, which is good</li>
-<li>Most of these data are well preprocessed, so you don’t have to worry about it</li>
+<li>Random split for independent examples.</li>
+<li>Time-based split for future prediction.</li>
+<li>Group split when records from the same entity could leak.</li>
 </ul>
-</li>
-<li>Cons:
+<p>Keep the test set untouched until final evaluation.</p>
+<h2 id="prevent-leakage">Prevent Leakage</h2>
+<p>Watch for:</p>
 <ul>
-<li>Sometimes, the size of the dataset is not large enough for meaningful projects</li>
-<li>Governments may not release the most up-to-date datasets. Hence the effectiveness of prediction models may be questionable</li>
+<li>Features computed using future information.</li>
+<li>Target-derived fields.</li>
+<li>Duplicates across train and test.</li>
+<li>Preprocessing fit before splitting.</li>
+<li>Aggregates that include the target period.</li>
 </ul>
-</li>
-</ul>
-</li>
-<li><a href="https://www.kaggle.com/datasets">Kaggle Datasets</a>
+<p>Leakage makes models look impressive in notebooks and disappointing in production.</p>
+<h2 id="preparation-checklist">Preparation Checklist</h2>
+<p>Before analysis or modeling:</p>
 <ul>
-<li>Pros:
-<ul>
-<li>Really easy to get the data: via command line. This often preferred by professional engineers. See <a href="https://www.kaggle.com/docs/api">tutorial</a> on kaggle api</li>
-<li>Aside from the datasets themselves, you can often find a bunch of enthusiasts on machine learning in Kaggle and excellent tutorials on the datasets you found.</li>
+<li>Problem is defined.</li>
+<li>Target and prediction time are clear.</li>
+<li>Data sources are documented.</li>
+<li>Granularity is clear.</li>
+<li>Schema is understood.</li>
+<li>Split strategy matches the task.</li>
+<li>Leakage risks are reviewed.</li>
+<li>Privacy requirements are checked.</li>
 </ul>
-</li>
-<li>Cons:
-<ul>
-<li>It takes a bit of practice to get along with Kaggle. Passion and drive are the key to success in Kaggle</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="https://archive.ics.uci.edu/ml/index.php">UCI Machine Learning Repository</a>
-<ul>
-<li>Pros:
-<ul>
-<li>One of the most widely used repository for machine learning datasets</li>
-<li>Very Often, the datasets are related to academic/industrial research projects, so it is extremely helpful to researchers</li>
-</ul>
-</li>
-<li>Cons:
-<ul>
-<li>As a well-aged repo, the datasetes there certainly have been studied extensively. So it may not be so useful for new breakthroughs (but still, it should be very helpful for beginners)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<h3 id="code-for-loading-the-data">Code for loading the data</h3>
-<p>The most common format for machine learning data is CSV files, and we are using python 3.x here for actual code.
-This step should mark the start of your notebook (after <code>np/pd/sklearn/plt</code>).</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> pandas </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> pd</span></span>
-<span class="line"><span style="color:#ADBAC7">train </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'../input/train.csv'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">test </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> pd.read_csv(</span><span style="color:#96D0FF">'../input/test.csv'</span><span style="color:#ADBAC7">)</span></span></code></pre>
-<p>Note that this is too widely abused that people forget about other ways to load data:</p>
-<h4 id="load-csv-with-python-standard-library">Load CSV with Python Standard Library</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> csv</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> np</span></span>
-<span class="line"><span style="color:#ADBAC7">raw_data </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> open</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"your filename here"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'rt'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">reader </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> csv.reader(raw_data, </span><span style="color:#F69D50">delimiter</span><span style="color:#F47067">=</span><span style="color:#96D0FF">','</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">x </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> list</span><span style="color:#ADBAC7">(reader)</span></span>
-<span class="line"><span style="color:#ADBAC7">data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> np.array(x).astype(</span><span style="color:#96D0FF">'float'</span><span style="color:#ADBAC7">)</span></span></code></pre>
-<h4 id="load-csv-with-numpy">Load CSV with Numpy</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> numpy</span></span>
-<span class="line"><span style="color:#ADBAC7">raw_data </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> open</span><span style="color:#ADBAC7">(</span><span style="color:#96D0FF">"your filename here"</span><span style="color:#ADBAC7">, </span><span style="color:#96D0FF">'rt'</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">reader </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> numpy.loadtxt(raw_data, </span><span style="color:#F69D50">delimiter</span><span style="color:#F47067">=</span><span style="color:#96D0FF">","</span><span style="color:#ADBAC7">)</span></span></code></pre>
-<h4 id="load-csv-with-url">Load CSV with URL</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> numpy </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> loadtxt</span></span>
-<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> urllib.request </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> urlopen</span></span>
-<span class="line"><span style="color:#ADBAC7">url </span><span style="color:#F47067">=</span><span style="color:#96D0FF"> 'URL to a dataset'</span></span>
-<span class="line"><span style="color:#ADBAC7">raw_data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> urlopen(url)</span></span>
-<span class="line"><span style="color:#ADBAC7">dataset </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loadtxt(raw_data, </span><span style="color:#F69D50">delimiter</span><span style="color:#F47067">=</span><span style="color:#96D0FF">","</span><span style="color:#ADBAC7">)</span></span></code></pre>
-<p>Now be cautioned that this is just for CSV files. There are a lot of other data formats, and Google is always your best friend in finding methods to load datasets.
-{: .notice—info .notice—x-large}</p>
-<h3 id="that-was-input-how-about-output">That was input, how about output?</h3>
-<p>Converting data from python objects into byte streams is known as Pickling or Serialization. This allows your own data to be passed around efficiently. Very often, they are stored as <code>.pkl</code> or <code>.json</code> files.</p>
-<h4 id="python-pickle-and-json">Python Pickle and JSON</h4>
-<p>The following table is inspired by <a href="https://www.educba.com/python-pickle-vs-json/">this tutorial</a></p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table><thead><tr><th></th><th>Python Pickle</th><th>JSON</th></tr></thead><tbody><tr><td>Definition</td><td>Python Pickle is the process of converting python objects (list, dict, tuples, etc.) into byte streams which can be saved to disks or can be transferred over the network. The byte streams saved on the file contains the necessary information to reconstruct the original python object. The process of converting byte streams back to python objects is called de-serialization.</td><td>JSON stands for JavaScript Object Notation. Data Stored can be loaded without having the need to recreate the data again.</td></tr><tr><td>Storage format</td><td>Binary serialization format</td><td>Simple text serialization format, human-readable</td></tr><tr><td>Storage Versatility</td><td>Not only data entries, but classes and methods can be serialized and de-serialized</td><td>JSON is limited to certain python objects, and it cannot serialize every python object, such as classes and functions</td></tr><tr><td>Language dependency</td><td>Very reliant on the language (Python specific) and versions (2.x pickle files may not be compatible in 3.x env)</td><td>JSON is supported by almost all programming languages.</td></tr><tr><td>Speed</td><td>Slower serialization and de-serialization in pickle</td><td>Lightweights, much faster than pickle</td></tr><tr><td>Security</td><td>There is always security risks with pickle files</td><td>JSON is generally secure</td></tr></tbody></table>
-<br>
-With the above table in mind, one can choose their outputs accordingly.
-<h3 id="conclusion">Conclusion</h3>
-<p>Loading data is merely the first step and people can quickly learn to apply them. However, I/O choices does matter, and one should be cautious about them. Now, lets step into the second step in data mining: cleaning data.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/topic-modeling/"> <span class="dir">← previous</span> <span class="title">Topic Modeling with Latent Dirichlet Allocation</span> </a> <a class="next" href="/writing/blogs/data/data-cleaning/"> <span class="dir">next →</span> <span class="title">The Data Mining Triology: II. Cleaning</span> </a> </nav>  <script>
-        window.MathJax = {
-          tex: {
-            inlineMath: [["$", "$"], ["\\(", "\\)"]],
-            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
-          },
-          svg: { fontCache: "global" },
-        };
-      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
+<p>Data preparation is not glamorous, but it decides whether the analysis can be trusted.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/topic-modeling/"> <span class="dir">← previous</span> <span class="title">Topic Modeling With Latent Dirichlet Allocation</span> </a> <a class="next" href="/writing/blogs/data/data-cleaning/"> <span class="dir">next →</span> <span class="title">The Data Mining Trilogy II: Cleaning</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

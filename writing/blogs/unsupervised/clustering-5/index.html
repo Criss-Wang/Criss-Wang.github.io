@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: Apriori - Zhenlin Wang</title><meta name="description" content="Association Rule realized via inference"><meta property="og:title" content="Clustering: Apriori - Zhenlin Wang"><meta property="og:description" content="Association Rule realized via inference"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-5/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: Apriori - Zhenlin Wang</title><meta name="description" content="A practical introduction to Apriori and association rule mining, including support, confidence, lift, frequent itemsets, and market-basket analysis."><meta property="og:title" content="Clustering: Apriori - Zhenlin Wang"><meta property="og:description" content="A practical introduction to Apriori and association rule mining, including support, confidence, lift, frequent itemsets, and market-basket analysis."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-5/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,65 +29,52 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Machine Learning · Clustering · Unsupervised Learning</div> <h1>Clustering: <em>Apriori</em></h1> <p class="dek">Association Rule realized via inference</p> <div class="byline"> <strong>2020.02.11</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-09-20</span>  </div> </header> <main class="article container-narrow"> <h3 id="association-rule">Association Rule</h3>
-<p>Association rule learning is a rule-based machine learning method for discovering interesting relations between variables in large databases. It is intended to identify strong rules discovered in databases using some measures of interestingness. For example, we may want to find 1-1 product category assocaition rule: product cateogry 1 -> product category 2</p>
-<p>This is often used for discovering regularities between products in large-scale transaction data recorded by point-of-sale (POS) systems in supermarkets. Because we don’t have initial associations in our data, it is an unsupervised learning problem for marketing activities such as, e.g., promotional pricing or product placements. In contrast with sequence mining, association rule learning typically does not consider the order of items either within a transaction or across transactions. [Wikipedia]</p>
-<h3 id="evaluation-metrics1">Evaluation Metrics<sup><a href="https://michael.hahsler.net/research/recommender/associationrules.html">1</a></sup></h3>
-<ol>
-<li>Support</li>
-</ol>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Unsupervised Learning · Association Rules</div> <h1>Clustering: <em>Apriori</em></h1> <p class="dek">A practical introduction to Apriori and association rule mining, including support, confidence, lift, frequent itemsets, and market-basket analysis.</p> <div class="byline"> <strong>2020.02.11</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Apriori is not a clustering algorithm in the usual sense. It is an association rule mining algorithm. It finds itemsets that frequently appear together and derives rules from them.</p>
+<p>Classic use case: market-basket analysis.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>Customers who buy bread and peanut butter also often buy jam.</span></span></code></pre>
+<h2 id="frequent-itemsets">Frequent Itemsets</h2>
+<p>An itemset is a set of items, such as:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>{bread, peanut butter}</span></span></code></pre>
+<p>Support measures how often an itemset appears:</p>
+<p>$$
+support(A) = \frac{\text{transactions containing } A}{\text{all transactions}}
+$$</p>
+<p>Apriori finds itemsets whose support exceeds a minimum threshold.</p>
+<h2 id="apriori-principle">Apriori Principle</h2>
+<p>The key property:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>If an itemset is frequent, all of its subsets must also be frequent.</span></span></code></pre>
+<p>This lets the algorithm prune the search space. If <code>{bread, jam}</code> is not frequent, then <code>{bread, jam, milk}</code> cannot be frequent.</p>
+<h2 id="association-rules">Association Rules</h2>
+<p>A rule has the form:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>A -> B</span></span></code></pre>
+<p>Confidence measures how often B appears when A appears:</p>
+<p>$$
+confidence(A \to B) = \frac{support(A \cup B)}{support(A)}
+$$</p>
+<p>Lift compares the rule to chance:</p>
+<p>$$
+lift(A \to B) = \frac{confidence(A \to B)}{support(B)}
+$$</p>
+<p>Lift greater than 1 suggests A and B appear together more often than expected if independent.</p>
+<h2 id="practical-use">Practical Use</h2>
+<p>Apriori is useful for:</p>
 <ul>
-<li>$P(X,Y)$: % of transactions where items in X AND Y are bought together</li>
-<li>Property of down-ward closure which means that all sub sets of a frequent set (support > min. support threshold) are also frequent</li>
-<li>Cons: Items that occur very infrequently in the data set are pruned although they would still produce interesting and potentially valuable rules.</li>
+<li>Basket analysis.</li>
+<li>Product bundling.</li>
+<li>Recommendation rules.</li>
+<li>Event co-occurrence.</li>
+<li>Pattern discovery in transaction data.</li>
 </ul>
-<ol start="2">
-<li>Confidence</li>
-</ol>
+<p>Watch out:</p>
 <ul>
-<li>$P(Y|X)$: % of transactions amongst all customers who bought Y given that they have bought X</li>
-<li>While support is used to prune the search space and only leave potentially interesting rules, confidence is used in a second step to filter rules that exceed a min. confidence threshold</li>
-<li>Cons: sensitive to the frequency of the consequent (Y) in the data set. Caused by the way confidence is calculated, Ys with higher support will automatically produce higher confidence values even if they exists no association between the items.</li>
+<li>Too low support creates too many rules.</li>
+<li>High confidence can be misleading for very common items.</li>
+<li>Rules show association, not causation.</li>
+<li>Business usefulness matters more than rule count.</li>
 </ul>
-<ol start="3">
-<li>Lift</li>
-</ol>
-<ul>
-<li>$\frac{P(X,Y)}{P(X)P(Y)} = \frac{P(Y|X)}{P(Y)}$</li>
-<li>An association rule X -> Y is only useful if the lift value > 1</li>
-<li>Want to consider also the presence of Y being bought independently without knowledge about X</li>
-<li>Largely solves to problem of confidence threshold: sensitive to the frequency of the consequent (Y)</li>
-</ul>
-<ol start="4">
-<li>Conviction</li>
-</ol>
-<ul>
-<li>$\frac{P(X)P(\neg Y)}{P(X, \neg Y)} = \frac{1-P(Y)}{1-P(Y|X)}$: How poor can the association be.</li>
-<li>A directed measure  monotone in confidence and lift.</li>
-</ul>
-<ol start="5">
-<li>Leverage</li>
-</ol>
-<ul>
-<li>$P(X,Y) - P(X)P(Y)$: difference of X and Y appearing together in the data set and what would be expected if X and Y where statistically independent.</li>
-<li>The rational in a sales setting is to find out how many more units (items X and Y together) are sold than expected from the independent sells.</li>
-<li>Cons: suffer from the rare item problem.</li>
-</ul>
-<h3 id="apriori-property">Apriori Property</h3>
-<p>All subsets of a frequent itemset must be frequent (Apriori propertry). If an itemset is infrequent, all its supersets will be infrequent.</p>
-<p>Applying the apriori property, we get the following algorithm.</p>
-<h4 id="algorithm">Algorithm</h4>
-<ol>
-<li>Generating <strong>Support</strong> Value for Itemsets containing one items (<em>One Itemset</em>)</li>
-<li>With a pre-defined <strong>support</strong> threshold, identify itemsets worth exploring</li>
-<li>With the shortlisted <em>One Itemset</em> that are above the <strong>support</strong> threshold, generate Itemsets containing two items (<em>Two Itemsets</em>)</li>
-<li>With the same pre-definited <strong>support</strong> threshold, identify associations in <em>Two Itemsets</em> that are worth exploring</li>
-<li>With the shortlisted <em>Two Itemsets</em>, association rule is generated between the two items</li>
-<li>Confidence value is generated for each association rule</li>
-<li>With a pre-defined <strong>confidence</strong> threshold, association rules are being shortlisted</li>
-<li>With shortlisted association rules, the lift values are computed for each of them</li>
-<li>Only association rules with lift value > 1 is considered as meaningful associations</li>
-</ol> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-4/"> <span class="dir">← previous</span> <span class="title">Clustering: Affinity Propagation</span> </a> <a class="next" href="/writing/blogs/unsupervised/unsupervised-learning/"> <span class="dir">next →</span> <span class="title">Unsupervised Learning: Measures about Clustering</span> </a> </nav>  <script>
+<h2 id="closing">Closing</h2>
+<p>Apriori is a clear method for discovering frequent co-occurrence patterns. It is best used as exploratory analysis or as a simple rule-based recommendation ingredient.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/unsupervised/clustering-4/"> <span class="dir">← previous</span> <span class="title">Clustering: Affinity Propagation</span> </a> <a class="next" href="/writing/blogs/unsupervised/unsupervised-learning/"> <span class="dir">next →</span> <span class="title">Unsupervised Learning: Measures About Clustering</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

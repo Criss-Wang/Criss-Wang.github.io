@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Reinforcement Learning - Theoretical Foundations: Part IV  - Zhenlin Wang</title><meta name="description" content="RL Continued - Value Function Approximation"><meta property="og:title" content="Reinforcement Learning - Theoretical Foundations: Part IV  - Zhenlin Wang"><meta property="og:description" content="RL Continued - Value Function Approximation"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/rl/reinfocement-4/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Reinforcement Learning: Theoretical Foundations, Part IV - Zhenlin Wang</title><meta name="description" content="A practical introduction to policy-gradient methods, stochastic policies, the policy-gradient objective, baselines, and variance reduction."><meta property="og:title" content="Reinforcement Learning: Theoretical Foundations, Part IV - Zhenlin Wang"><meta property="og:description" content="A practical introduction to policy-gradient methods, stochastic policies, the policy-gradient objective, baselines, and variance reduction."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/rl/reinfocement-4/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,116 +29,66 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Reinforcement Learning</div> <h1>Reinforcement <em>Learning</em> - Theoretical Foundations: Part IV </h1> <p class="dek">RL Continued - Value Function Approximation</p> <div class="byline"> <strong>2021.01.28</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-01-14</span>  </div> </header> <main class="article container-narrow"> <h3 id="value-function-approximation">Value Function Approximation</h3>
-<p>We know various methods can be applied for function approximation. For this note, we will mainly consider those differentiable methods: Linear Approximation and Neural Nets</p>
-<h4 id="1-stochastic-gradient-descent-sgd">1. Stochastic Gradient Descent (SGD)</h4>
-<p>Here let’s review a basic approximation strategy for gradient-based method: Stochastic Gradient Descent.</p>
-<p>First our aim is to minimize the mean square error (MSE) between our estimator and the true function. The error is represented by</p>
-<p>$$J(\textbf{w}) = \mathbb{E}_{\pi}[(\hat{v}(S, \textbf{w}) - v_{\pi}(S))^2].$$</p>
-<p>To attain $\arg\min\limits_{\textbf{w}} J(\textbf{w})$ we need to update the gradient until convergence.</p>
-<p>A full gradient update</p>
-<p>$$\Delta(\textbf{w}) = \alpha\mathbb{E}_{\pi}[(v_{\pi}(S) - \hat{v}(S, \textbf{w}) )\nabla_{\textbf{w}}\hat{v}(S, \textbf{w})]$$</p>
-<p>has the issue of converging at local minimum. Hence stochastic sampling with $\Delta(\textbf{w}) = \alpha(v_{\pi}(S) - \hat{v}(S, \textbf{w}))\nabla_{\textbf{w}}\hat{v}(S, \textbf{w})$ will work better in general.</p>
-<h4 id="2-linearization">2. Linearization</h4>
-<p>We begin by considering a linear model. So $\hat{v}(S, \textbf{w}) = \textbf{x}(S)^T\textbf{w}$ where $\textbf{x}(S)$ is the feature vector/representation of the current state space. The stochastic update $\nabla_{\textbf{w}}\hat{v}(S, \textbf{w})$ in SGD is also updated to $\textbf{x}(S)$.</p>
-<p>On the other hand, we don’t have an oracle for a known $v_{\pi}(S)$ in practice, so we need ways to estimate it. This is where algorithm design comes in.</p>
-<h3 id="algorithm-analysis">Algorithm analysis</h3>
-<h4 id="1-linear-monte-carlo-policy-evaluation">1. linear Monte-Carlo policy evaluation</h4>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Reinforcement Learning · Machine Learning</div> <h1>Reinforcement <em>Learning:</em> Theoretical Foundations, Part IV</h1> <p class="dek">A practical introduction to policy-gradient methods, stochastic policies, the policy-gradient objective, baselines, and variance reduction.</p> <div class="byline"> <strong>2021.01.28</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Value-based methods learn how good actions are. Policy-gradient methods directly optimize the policy.</p>
+<p>They are useful when:</p>
 <ul>
-<li>To represent $v_{\pi}(S_t)$, we use $G_t$. In every epoch, we apply supervised learning to “training data”: $\langle S_1, G_1\rangle , \langle S_2, G_2\rangle ,…, \langle S_T, G_T\rangle$.</li>
-<li>The update is now $\Delta(\textbf{w}) = \alpha(G_t - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$</li>
-<li>Note that Monte-Carlo evaluation converges to a local optimum</li>
-<li>As $G_t$ is unbiased, it works even when using non-linear value function approximation</li>
+<li>Actions are continuous.</li>
+<li>A stochastic policy is desired.</li>
+<li>The policy is naturally parameterized by a neural network.</li>
 </ul>
-<h4 id="2-td-learning">2. TD Learning</h4>
+<h2 id="policy-objective">Policy Objective</h2>
+<p>Let a policy be parameterized by $\theta$:</p>
+<p>$$
+\pi_\theta(a \mid s)
+$$</p>
+<p>The goal is to maximize expected return:</p>
+<p>$$
+J(\theta) = E_{\pi_\theta}[G_t]
+$$</p>
+<p>Policy-gradient methods estimate:</p>
+<p>$$
+\nabla_\theta J(\theta)
+$$</p>
+<p>and update the policy in the direction of higher expected return.</p>
+<h2 id="reinforce">REINFORCE</h2>
+<p>The classic Monte Carlo policy-gradient update is:</p>
+<p>$$
+\nabla_\theta J(\theta)
+\approx
+G_t \nabla_\theta \log \pi_\theta(a_t \mid s_t)
+$$</p>
+<p>Intuition:</p>
 <ul>
-<li>We use $R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w})$ for $v_{\pi}(S_t)$.</li>
-<li>TD(0) has the update formula: $\Delta(\textbf{w}) = \alpha(R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w}) - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$</li>
-<li>Linear TD(0) converges (close) to global optimum</li>
-<li>On the other hand we can use $\lambda$-return $G^{\lambda}_{t}$ as substitute. This is a TD($\lambda$) method.</li>
-<li>Forward view linear TD($\lambda$):  $\Delta(\textbf{w}) = \alpha(G^{\lambda}_{t} - \hat{v}(S_t, \textbf{w}))\textbf{x}(S_t)$</li>
-<li>Backward view linear TD($\lambda$) requires eligibility trace:
+<li>If an action led to high return, increase its probability.</li>
+<li>If an action led to low return, decrease its probability.</li>
+</ul>
+<h2 id="baselines">Baselines</h2>
+<p>Policy-gradient estimates can have high variance. A baseline reduces variance without changing the expected gradient.</p>
+<p>Commonly:</p>
+<p>$$
+G_t - b(s_t)
+$$</p>
+<p>where $b(s_t)$ might be a value function estimate.</p>
+<p>This leads toward actor-critic methods.</p>
+<h2 id="advantages">Advantages</h2>
+<p>An advantage function measures how much better an action is than expected:</p>
+<p>$$
+A(s,a) = Q(s,a) - V(s)
+$$</p>
+<p>Using advantages helps the policy update focus on actions that are better or worse than the state’s baseline expectation.</p>
+<h2 id="practical-issues">Practical Issues</h2>
+<p>Policy-gradient methods can be unstable because updates may change the policy too much.</p>
+<p>Common techniques:</p>
 <ul>
-<li>$\delta_t  = R_{t+1} + \gamma \hat{v}(S_{t+1}, \textbf{w}) - \hat{v}(S_t, \textbf{w})$</li>
-<li>$E_t = \gamma\lambda E_{t-1} + \textbf{x}(S_t)$</li>
-<li>$\Delta_{\textbf{w}} = \alpha\delta_tE_t$</li>
+<li>Advantage normalization.</li>
+<li>Entropy regularization.</li>
+<li>Gradient clipping.</li>
+<li>Trust-region or clipped objectives.</li>
+<li>Careful reward scaling.</li>
 </ul>
-</li>
-</ul>
-<h4 id="3-convergence-of-prediction-algorithms">3. Convergence of Prediction Algorithms</h4>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table><thead><tr><th>On\Off-policy</th><th>Algorithm</th><th>Table-lookup</th><th>Linear</th><th>Non-Linear</th></tr></thead><tbody><tr><td>On-Policy</td><td>MC</td><td>Y</td><td>Y</td><td>Y</td></tr><tr><td>On-Policy</td><td>TD(0)</td><td>Y</td><td>Y</td><td>N</td></tr><tr><td>On-Policy</td><td>TD($\lambda$)</td><td>Y</td><td>Y</td><td>N</td></tr><tr><td>Off-Policy</td><td>MC</td><td>Y</td><td>Y</td><td>Y</td></tr><tr><td>Off-Policy</td><td>TD(0)</td><td>Y</td><td>N</td><td>N</td></tr><tr><td>Off-Policy</td><td>TD($\lambda$)</td><td>Y</td><td>N</td><td>N</td></tr></tbody></table>
-<h2 id="action-value-function-approximation">Action-Value Function Approximation</h2>
-<p>Now we don’t simply approximate a value function $v_{\pi}(s)$, but approximate action-value function $q_{\pi}(s,a)$ instead.</p>
-<p>The main idea is just find $\hat{q_{\pi}}(s, a, \textbf{w}) \approx q_{\pi}(s,a)$. Both MC and TD work the same way exactly by substituting these items inside the expressions.</p>
-<h2 id="improvements">Improvements</h2>
-<h3 id="gradient-td">Gradient TD</h3>
-<p>Some more recent improves aim to resolve the failure of convergence of off-policy TD algorithms. This gave birth to a Gradient TD algorithm that converges in both linear and non-linear cases. This requires an additional parameter $\textbf{h}$ to be added and tuned which reprsents the gradient of projected Bellman error. In a similar fashion, a gradient Q-learning is also invented, but with no gurantee on non-linear model convergence.</p>
-<h3 id="least-squares-prediction-and-experience-replay">Least Squares Prediction and Experience Replay</h3>
-<p>LS estimator is known to approximate $\textbf{w}$ well in general. So instead of correctly approximating $\textbf{w}$, it may also be ideal to approximate $LS(\textbf{w})$ instead.</p>
-<p>It is found that SGD with Experience Replay converges in this case. By “Experience Replay” we are storing the history in each epoch instead of discarding them after each iteration.  And we randomly selection some of these “data” for stochastic update in SGD.</p>
-<h3 id="deep-q-networks-dqn">Deep Q-Networks (DQN)</h3>
-<ul>
-<li>DQN uses <strong>experience replay</strong> and <strong>fixed Q-targets</strong></li>
-<li>It takes actions based on a $\epsilon$-greedy policy</li>
-<li>Store transition $(s_t , a_t ,r_{t+1},s_{t+1})$ in replay memory $\cal D$ (experience replay)</li>
-<li>Sample random mini-batch of transitions from $\cal D$</li>
-<li>Compute Q-learning targets w.r.t. old, fixed parameters $\textbf{w}^-$ (fixed Q-target: not the latest $\textbf{w}$ but a $\textbf{w}$ computed some batches ago)</li>
-</ul>
-<p>In general, LS-based methods work well in terms of convergence but suffers from computational complexity.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-5/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part V </span> </a> <a class="next" href="/writing/blogs/supervised/ensemble-1/"> <span class="dir">next →</span> <span class="title">Ensemble Models: Bagging Techniques</span> </a> </nav>  <script>
+<h2 id="closing">Closing</h2>
+<p>Policy gradients directly optimize behavior. They are flexible, especially for continuous control, but they need variance reduction and careful training discipline.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-5/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning: Theoretical Foundations, Part V</span> </a> <a class="next" href="/writing/blogs/supervised/ensemble-1/"> <span class="dir">next →</span> <span class="title">Ensemble Models: Bagging Techniques</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

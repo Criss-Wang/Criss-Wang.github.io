@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Variational Autoencoder (VAE) - Zhenlin Wang</title><meta name="description" content="Combine variational inference with representation learning"><meta property="og:title" content="Variational Autoencoder (VAE) - Zhenlin Wang"><meta property="og:description" content="Combine variational inference with representation learning"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/variational-autoencoder/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Variational Autoencoder (VAE) - Zhenlin Wang</title><meta name="description" content="A practical explanation of variational autoencoders, latent variables, the encoder-decoder structure, reconstruction loss, KL regularization, and sampling."><meta property="og:title" content="Variational Autoencoder (VAE) - Zhenlin Wang"><meta property="og:description" content="A practical explanation of variational autoencoders, latent variables, the encoder-decoder structure, reconstruction loss, KL regularization, and sampling."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/prob-and-stats/variational-autoencoder/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,46 +29,68 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Statistical Inference · Representaiton Learning</div> <h1>Variational <em>Autoencoder</em> (VAE)</h1> <p class="dek">Combine variational inference with representation learning</p> <div class="byline"> <strong>2021.02.03</strong> <span>·</span> <span>5 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-03-17</span>  </div> </header> <main class="article container-narrow"> <h3 id="a-short-intro-to-vae">A short Intro to VAE</h3>
-<h4 id="1-background">1. Background</h4>
-<p>There mainly 2 types of deep generative models:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Generative Models</div> <h1>Variational <em>Autoencoder</em> (VAE)</h1> <p class="dek">A practical explanation of variational autoencoders, latent variables, the encoder-decoder structure, reconstruction loss, KL regularization, and sampling.</p> <div class="byline"> <strong>2021.02.03</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>A variational autoencoder (VAE) is a generative model that learns a latent representation of data. It combines an encoder, a decoder, and a probabilistic regularization term that shapes the latent space.</p>
+<p>VAEs are useful for:</p>
 <ul>
-<li>Generative Adversarial Network (GAN)</li>
-<li>Variational Autoencoder (VAE)</li>
+<li>Generating samples.</li>
+<li>Learning compressed representations.</li>
+<li>Interpolating between examples.</li>
+<li>Modeling uncertainty in latent variables.</li>
 </ul>
-<p>We will discuss about VAE in this blog. In future blogs, we will venture into the details of GAN.</p>
-<h4 id="2-a-basic-intuition">2. A basic intuition</h4>
-<p>A VAE is an autoencoder whose encodings distribution is regularised (via variational inferenece) during the training in order to ensure that its latent space has good properties allowing us to generate some new data.</p>
-<h4 id="3-encoder--decoder">3. Encoder &#x26; Decoder</h4>
-<p><strong>encoder</strong> is an agent that transform older featurer representation to a new set of feature representation (usually a lower dimension) using selection or extraction and <strong>decoder</strong> is an agent producing the reverse process. The encoded representation can span a feature space of certain dimensionality. We call it <strong>latent space</strong>.  Furthermore,  we know that certain properties/information of original features may be lost if we encode them. So we categorize transformations as <strong>lossy</strong> or <strong>lossless</strong> transformation. we are looking for the pair that keeps the maximum of information when encoding and, so, has the minimum of reconstruction error when decoding.</p>
-<h4 id="4-autoencoder">4. Autoencoder</h4>
-<p>Autoencoder is done by <strong>setting an encoder and a decoder as neural networks</strong> and to <strong>learn the best encoding-decoding scheme using an iterative optimisation process</strong>. So, at each iteration we feed the autoencoder architecture (the encoder followed by the decoder) with some data, we compare the encoded-decoded output with the initial data and backpropagate the error through the architecture to update the weights of the networks. We usually use a Mean Square Error as the loss function for backpropagation. This is often compared with <strong>PCA</strong>. When the structure of encoder/decoder gets deeper and more non-linear, we observe that autoencoder can still proceed to a high dimensionality reduction while keeping reconstruction loss low.</p>
-<p>There are mainly 2 drawbacks of Autoencoder:</p>
+<h2 id="autoencoder-vs-vae">Autoencoder vs VAE</h2>
+<p>A standard autoencoder maps an input to a latent vector and reconstructs the input:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>input -> encoder -> latent vector -> decoder -> reconstruction</span></span></code></pre>
+<p>A VAE maps an input to a distribution over latent variables, usually a Gaussian:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>input -> encoder -> mean and variance -> sample z -> decoder -> reconstruction</span></span></code></pre>
+<p>This makes the latent space smoother and easier to sample from.</p>
+<h2 id="latent-variable-view">Latent Variable View</h2>
+<p>The VAE assumes data is generated from latent variables:</p>
+<p>$$
+z \sim p(z)
+$$</p>
+<p>$$
+x \sim p_\theta(x \mid z)
+$$</p>
+<p>The prior $p(z)$ is often a standard normal distribution. The decoder learns $p_\theta(x \mid z)$.</p>
+<p>The encoder approximates the posterior:</p>
+<p>$$
+q_\phi(z \mid x)
+$$</p>
+<p>because the true posterior is usually intractable.</p>
+<h2 id="objective">Objective</h2>
+<p>The VAE optimizes the evidence lower bound (ELBO):</p>
+<h2 id="elbo-mathbbeqphiz-mid-xlog-p_thetax-mid-z">$$
+ELBO =
+\mathbb{E}<em>{q</em>\phi(z \mid x)}[\log p_\theta(x \mid z)]</h2>
+<p>KL(q_\phi(z \mid x) | p(z))
+$$</p>
+<p>The first term encourages accurate reconstruction. The KL term keeps the learned latent distribution close to the prior.</p>
+<p>In practice, the loss is often written as:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>loss = reconstruction_loss + KL_regularization</span></span></code></pre>
+<h2 id="reparameterization-trick">Reparameterization Trick</h2>
+<p>Sampling from $q_\phi(z \mid x)$ would normally block gradient flow. The reparameterization trick rewrites sampling as:</p>
+<p>$$
+z = \mu + \sigma \odot \epsilon,\quad \epsilon \sim N(0, I)
+$$</p>
+<p>Now gradients can flow through $\mu$ and $\sigma$.</p>
+<h2 id="practical-notes">Practical Notes</h2>
+<p>VAEs can produce smooth latent spaces, but samples may be blurrier than samples from GANs or diffusion models in image tasks.</p>
+<p>Common issues:</p>
 <ul>
-<li>the lack of interpretable and exploitable structures in the latent space (<strong>lack of regularity</strong>)</li>
-<li>Difficulty in reducing a large number of dimensions <strong>while keeping the major part of the data structure information in the reduced representations</strong></li>
+<li>Posterior collapse, where the decoder ignores the latent variable.</li>
+<li>Poor reconstruction if the KL term is too strong.</li>
+<li>Latent dimensions that are hard to interpret.</li>
 </ul>
-<p>As a result of the above two drawbacks, we may generate meaningless data if we simply encode into a latent space and sample random points from it to decode (a generative model often requires this). This issue leads to the need of regularization for the latent’s space distribution. This is the motivation for <strong>Variational Autoencoder</strong>.</p>
-<h3 id="vae-in-detail">VAE in detail</h3>
-<p>The key idea for VAE is that, <strong>instead of encoding an input as a single point, we encode it as a distribution over the latent space</strong>. In essence, we don’t have point-wise estimation, but an estimation of original inputs’ distribution (hence Bayesian inference is here of significant help). Next the evalution of an error is based on a new sample <strong>drawn</strong> from the distribution estimator and compared with original sample.</p>
-<p>(In practice, the encoded distributions are chosen to be normal so that the encoder can be trained to return the mean and the covariance matrix that describe these Gaussians. See why this is the case in mathematical details below)</p>
-<p>Because of regularization, we now have an additional term inside loss, which is the <strong>KL divergence</strong>. We see that the KL divergence between 2 Gaussians has a closed form and hence can be computed easily.</p>
-<h4 id="1-all-the-math-down-here">1. All the math down here</h4>
-<p>We require two assumptions:</p>
-<ol>
-<li>a latent representation $z$ is sampled from the prior distribution $p(z)$;</li>
-<li>the data $x$ is sampled from the conditional likelihood distribution $p(x|z)$</li>
-</ol>
-<p>Now we note here that the “probabilistic decoder” is naturally defined by $p(x|z)$, that describes the <strong>distribution of the decoded variable given the encoded one</strong>, whereas the “probabilistic encoder” is defined by $p(z|x)$, that describes the <strong>distribution of the encoded variable given the decoded one</strong>.</p>
-<p>These two expressions remind us easily of the Bayes Rule, which we have $p(z|x) =\frac{p(x|z)p(z)}{p(x)}$. We assume $p(x) \sim {\cal N}(0, I)$ and $p(x|z) \sim {\cal N}(f(z), cI), \quad f\in F, c > 0$. Since f is arbitrary, the evidence term $f(x)$ is often an intractable integral. Hence we need Variational Inference (<strong>VI</strong>) to help us approximate $p(z|x)$ directly via a easily tractable distribution (often a Gaussian distribution $q_x(z)$).</p>
-<p>We define $q_x(z) \sim {\cal N}(g(x), h(x))$ where $g(x), h(x)$ are parametrized functions. With uncertainty in $f\in F$, we aim to obtain optimal $(f^{\star}, g^{\star}, h^{\star})$ as</p>
-<p>$${\operatorname{argmax}}_{(f,g,h)\in  F\times G\times H} \left(\mathbb{E}_{z\sim q_x}\left(-\frac{\Vert x-f(z)\Vert^2}{2c}\right) - KL(q_x(z)\Vert p(z))\right) \tag{1}$$</p>
-<h4 id="2-practical-idea-neural-network">2. Practical idea: Neural Network</h4>
-<p>Now that we have an optimization problem which may be solved using NN, we still need to address a few issues. First, the entire space of $F\times G\times H$ is too large, so we need to constrain the optimisation domain and decide to express f, g and h as neural networks. In practice, g and h are not defined by two completely independent networks but share a part of their architecture and their weights (with dependent paramters)</p>
-<p>For simplicity of computation, we often require $q_x(z) \sim {\cal N}(g(x), h(x))$ to be a multidimensional Gaussian distribution with diagonal covariance matrix. With this assumption, h(x) is simply the vector of the diagonal elements of the covariance matrix and has then the same size as g(x). On the other hand NN models $f$, which represents the mean of $p(x|z)$ assumed as a Gaussian with fixed covariance.</p>
-<p>Using these ideas, we can first sample $z \sim q_x(z)$ and evaluate an $f(z)$ followed by error evaluation and backpropagation. Note here that the sampling process has to be expressed in a way that allows the error to be backpropagated through the network. A simple trick, called <strong>reparametrisation trick</strong>, is used to make the gradient descent possible despite the random sampling that occurs halfway of the architecture. This is done by producing a concrete sample from $q_x(z): z = \zeta h(x) + g(x), \quad \zeta \sim {\cal N}(0,I)$. So we have a <strong>Monte-carlo</strong> estimation via sampling to replace the expectation term in the loss term <strong>(1)</strong>. We then backpropagate error to obtain the final result.</p>
-<h3 id="code-implementation">Code implementation</h3>
-<p><strong>To Be Updated</strong></p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/ensemble-1/"> <span class="dir">← previous</span> <span class="title">Ensemble Models: Bagging Techniques</span> </a> <a class="next" href="/writing/blogs/supervised/ensemble-2/"> <span class="dir">next →</span> <span class="title">Ensemble Models: Boosting Techniques</span> </a> </nav>  <script>
+<p>Common fixes:</p>
+<ul>
+<li>KL annealing.</li>
+<li>Beta-VAE objectives.</li>
+<li>Stronger encoder or decoder design.</li>
+<li>Careful latent dimensionality selection.</li>
+</ul>
+<h2 id="closing">Closing</h2>
+<p>VAEs are a bridge between deep learning and probabilistic modeling. The central idea is simple: learn a latent distribution that can reconstruct data while remaining structured enough to sample from.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/supervised/ensemble-1/"> <span class="dir">← previous</span> <span class="title">Ensemble Models: Bagging Techniques</span> </a> <a class="next" href="/writing/blogs/supervised/ensemble-2/"> <span class="dir">next →</span> <span class="title">Ensemble Models: Boosting Techniques</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

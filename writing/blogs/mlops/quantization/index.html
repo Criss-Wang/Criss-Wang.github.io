@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Quantization in Deep Learning - Zhenlin Wang</title><meta name="description" content="A must-know technique to save your computation resources"><meta property="og:title" content="Quantization in Deep Learning - Zhenlin Wang"><meta property="og:description" content="A must-know technique to save your computation resources"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/quantization/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Quantization in Deep Learning - Zhenlin Wang</title><meta name="description" content="A practical guide to post-training quantization, quantization-aware training, mixed precision, and low-bit model deployment."><meta property="og:title" content="Quantization in Deep Learning - Zhenlin Wang"><meta property="og:description" content="A practical guide to post-training quantization, quantization-aware training, mixed precision, and low-bit model deployment."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/quantization/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,199 +29,153 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Distributed Training</div> <h1>Quantization <em>in</em> Deep Learning</h1> <p class="dek">A must-know technique to save your computation resources</p> <div class="byline"> <strong>2024.02.23</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h1 id="quantization">Quantization</h1>
-<p>Quantization in deep learning refers to the process of reducing the precision of the weights and activations of a neural network, typically from 32-bit floating-point numbers to lower bit-width integers. This can significantly reduce the memory requirements and computational complexity of neural networks, making them more efficient for deployment on resource-constrained devices. In this blog, I’ll outline several major strategies in quantization for deep learning, including the types of quantization, special data structures for quantization and techniques used.</p>
-<h2 id="strategies">Strategies</h2>
-<ol>
-<li>
-<p>Learned Quantization Schemes</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Deep Learning · Distributed Training</div> <h1>Quantization <em>in</em> Deep Learning</h1> <p class="dek">A practical guide to post-training quantization, quantization-aware training, mixed precision, and low-bit model deployment.</p> <div class="byline"> <strong>2024.02.23</strong> <span>·</span> <span>4 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Quantization reduces the numerical precision used to store or compute model values. Instead of keeping every weight and activation in <code>float32</code>, a deployed model might use <code>int8</code>, <code>float16</code>, <code>bfloat16</code>, <code>int4</code>, or a specialized low-bit format.</p>
+<p>The goal is usually one of four things:</p>
 <ul>
-<li>Instead of using fixed quantization schemes, learned quantization allows the network to adaptively determine the quantization parameters during training.</li>
-<li>Benefits:
+<li>Reduce model size.</li>
+<li>Reduce memory bandwidth.</li>
+<li>Improve inference latency.</li>
+<li>Make a model fit on cheaper or smaller hardware.</li>
+</ul>
+<p>The tradeoff is accuracy. Quantization changes the values the model uses, so every quantized model needs task-level evaluation, not just a smaller file size.</p>
+<h2 id="the-core-idea">The Core Idea</h2>
+<p>Uniform affine quantization maps a floating-point value to an integer range:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="text"><code><span class="line"><span>q = clamp(round(x / scale + zero_point), q_min, q_max)</span></span>
+<span class="line"><span>x_hat = scale * (q - zero_point)</span></span></code></pre>
+<p>The model runs with the quantized value <code>q</code>, then dequantizes to an approximation <code>x_hat</code> when needed. The choice of <code>scale</code> and <code>zero_point</code> determines how much information is preserved.</p>
+<p>Two design choices matter a lot:</p>
 <ul>
-<li>Improved flexibility: The network can learn the most suitable quantization parameters.</li>
-<li>Better adaptation to data distribution: Learned quantization can adjust to the characteristics of the data.</li>
+<li><strong>Per-tensor vs per-channel:</strong> per-channel quantization gives each output channel its own scale and usually preserves accuracy better for weights.</li>
+<li><strong>Symmetric vs asymmetric:</strong> symmetric quantization is simpler, while asymmetric quantization can represent shifted distributions more efficiently.</li>
 </ul>
-</li>
-<li>Challenges:
-<ul>
-<li>Increased training complexity: Learning quantization parameters adds complexity to the training process.</li>
-</ul>
-</li>
-<li>A popular use case: <strong>Dynamic (Range) Quantization</strong>
-<ul>
-<li>Focuses on adjusting quantization parameters based on the observed dynamic range</li>
-<li>Available during training and inference</li>
-<li>int8: quantized_val = real_value* scaling_factor + zero-point,</li>
-<li>zero-point is the int8 value corresponding to the value 0 in the float32 realm, scaling_factor = 127 / max_val_in_tensor</li>
-<li>float32 values outside of the [a, b] range are clipped to the closest representable value</li>
-<li>activations are read and written to memory in floating point format</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>Post Training Static Quantization</p>
-<ul>
-<li>key: Unlike constant tensors such as weights and biases, variable tensors such as model input, activations (outputs of intermediate layers) and model output cannot be calibrated unless we run a few inference cycles.</li>
-<li>allows both arithmetic and int8 memory access</li>
-<li>feed batches of data through the network and compute distributions of different activations -> <code>observer task</code></li>
-<li>the distributions determine how the activations are quantized (e.g. equal distributed 256 values) at inference time</li>
-<li>Operator fusion: fuse multiple operations to a single operation, saving memory access and numerical acuracy</li>
-<li>per-channel quantization: independely quantize weights in each output channel (or other specific dimensions) in a conv/linear layer -> higher accuracy but more memory usage</li>
-<li>Benefits:
-<ul>
-<li>Simplicity: Can be applied to pre-existing models without the need for retraining.</li>
-<li>Quick deployment: Pre-trained models can be quantized for efficient deployment.</li>
-<li>Reduce latency a lot (don’t have to convert to quantized values to float and convert back between operations)</li>
-</ul>
-</li>
-<li>Challenges:
-<ul>
-<li>Loss of accuracy: Post-training quantization may lead to a significant drop in model accuracy.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>Quantization Aware Training</p>
-<ul>
-<li>This strategy involves training the neural network with quantization in mind. During training, the model is exposed to the quantization effects, helping it adapt to lower precision.</li>
-<li>highest accuracy typically, as it considers during training methods that rectify inference quantization errors</li>
-<li>weights and activations are “fake quantized” during training (both forward and backward)</li>
-<li>quantization-aware loss encourages the model to minimize the difference between quantized values (e.g., 8-bit integers) and the original (unquantized) values.</li>
-<li>Fake quantization layer: layers that mimic quantization and dequantization operations. During training, gradients flow through the fake quantization layers. This means that the model learns how to deal with the discrete values introduced by quantization.</li>
-</ul>
-</li>
-</ol>
-<h2 id="guideline">Guideline</h2>
-<p>The developer team of Tensorflow has created a suggested workflow for quantization as follows, which makes a lot of sense and should be considered as a viable chain of thoughts when applying quantization:</p>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="plaintext"><code><span class="line"><span>1. try default Dynamic</span></span>
-<span class="line"><span>2.</span></span>
-<span class="line"><span>	2.1 if (fast enough) go to 3</span></span>
-<span class="line"><span>	2.2 else: use static quantization</span></span>
-<span class="line"><span>3.</span></span>
-<span class="line"><span>	3.1. if (no evaluation or equivalently, is training): use quantization-aware training</span></span>
-<span class="line"><span>	3.2. else: done</span></span></code></pre>
-<h2 id="mixed-precision-training">Mixed Precision Training</h2>
-<p>Mixed-precision quantization involves using different precision levels for different layers of the neural network. For example, weights may be quantized to 8 bits, while certain layers or activations may use higher precision. While some consider it as part of the quantization, I’d personally treat it as a separate concept as it takes up an important component in many of the large model trainings, which preserving the accuracy to a large extent using <em>a master copy in higher precision</em>.</p>
-<h3 id="major-steps">Major steps</h3>
-<ol>
-<li>Intuition: FP32 -> FP16 during forward pass (model now in FP16) and FP16 -> FP32 during back-prop (to ensure accuracy)</li>
-<li>A master copy of the weights is stored in FP32. This is converted into FP16 during part of each training iteration (one forward pass, back-propagation and weight update). At the end of the iteration, the weight gradients are used to update the master weights during the optimizer step.</li>
-<li>For FP16, any number with magnitude smaller than $2^{-24}$ will be equated to zero as it cannot be represented (this is the denormalized limit for FP16). Therefore, by completing the updates in FP32, these update values can be preserved.</li>
-<li>Loss Scaling: small gradient values can appear even before update -> in range of $[2^{-27}, 2^{-24})$
-<ul>
-<li>fix: after model forward pass, loss is calculated, we then do a scaling to ensure gradient values are greater than$2^{-24}$</li>
-<li>weights in FP16 now -> [[loss in FP32 -> Scaled loss in FP32 -> Scaled Gradients in FP16]]</li>
-<li>Afterwards, scaled gradient in FP32 -> gradient in FP32</li>
-<li>Loss function is FP32 operation to preserve error accuracy, hence the loss always in FP32</li>
-<li>Note: large scaling factor is okay except when it causes overflow (remove scaler in this case): generally 500,000 to 10,000,000</li>
-<li>automatic scaling: start with very large $\ge 2^25$,
-<ol>
-<li>if Inf or NaN present, decrease scale, skip update.</li>
-<li>If Inf or NaN missing for while, increase the scale</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-<p>A great illustration of the steps outlined above is here (source: Nvidia):<img src="https://developer-blogs.nvidia.com/wp-content/uploads/2019/01/pasted-image-0-21.png" alt=""></p>
-<p>In some cases, reduction from FP32 into FP16 can result in too significant accuracy losses. Hence researchers have explored alternative data structures like Bfloat16 aned NF4 to help resolve this issue. So in the final section of this blog, let me give a short overview of these data types to make the topic of quantization complete and sound.</p>
-<h2 id="sample-code">Sample Code</h2>
-<p>I’ll provide a simple illustration of python code for each strategy using <code>torch.quantization</code> library</p>
+<h2 id="common-quantization-strategies">Common Quantization Strategies</h2>
+<h3 id="dynamic-quantization">Dynamic Quantization</h3>
+<p>Dynamic quantization is often the easiest first step. Weights are quantized ahead of time, while activation ranges are determined dynamically at inference.</p>
+<p>It is commonly useful for models with large <code>Linear</code> layers, especially CPU inference. It is less useful when the bottleneck is not matrix multiplication or when the deployment backend does not accelerate the chosen quantized operators.</p>
 <pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torchvision.transforms </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> transforms</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torchvision.models </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> models</span></span>
-<span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch.quantization </span><span style="color:#F47067">as</span><span style="color:#ADBAC7"> quantization</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.ao.quantization </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> quantize_dynamic</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># Load a pre-trained model</span></span>
-<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> models.resnet18(</span><span style="color:#F69D50">pretrained</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">model.eval()</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># Define example input data</span></span>
-<span class="line"><span style="color:#ADBAC7">example_input </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.rand(</span><span style="color:#6CB6FF">1</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">224</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">224</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">model_fp32 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MyModel().eval()</span></span>
+<span class="line"><span style="color:#ADBAC7">model_int8 </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantize_dynamic(</span></span>
+<span class="line"><span style="color:#ADBAC7">    model_fp32,</span></span>
+<span class="line"><span style="color:#ADBAC7">    {torch.nn.Linear},</span></span>
+<span class="line"><span style="color:#F69D50">    dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.qint8,</span></span>
+<span class="line"><span style="color:#ADBAC7">)</span></span></code></pre>
+<p>Dynamic quantization is attractive because it needs little calibration data and no retraining. The downside is that it may leave activation memory and some compute in higher precision.</p>
+<h3 id="post-training-static-quantization">Post-Training Static Quantization</h3>
+<p>Static quantization quantizes both weights and activations. Because activation ranges depend on real inputs, the model needs a calibration pass on representative data.</p>
+<p>The rough workflow is:</p>
+<ol>
+<li>Train the original model.</li>
+<li>Put it in evaluation mode.</li>
+<li>Attach a quantization configuration.</li>
+<li>Run calibration data through the prepared model.</li>
+<li>Convert the prepared model to a quantized model.</li>
+<li>Evaluate it on real validation slices.</li>
+</ol>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
+<span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.ao.quantization </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> convert, get_default_qconfig, prepare</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Dynamic (Range) Quantization</span></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_dynamic </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantization.quantize_dynamic(</span></span>
-<span class="line"><span style="color:#ADBAC7">    model,  </span><span style="color:#768390"># Original model</span></span>
-<span class="line"><span style="color:#ADBAC7">    {torch.nn.Linear},  </span><span style="color:#768390"># Specify layers to quantize</span></span>
-<span class="line"><span style="color:#F69D50">    dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.qint8  </span><span style="color:#768390"># Quantization data type</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_dynamic.eval()</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MyModel().eval()</span></span>
+<span class="line"><span style="color:#ADBAC7">model.qconfig </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> get_default_qconfig(</span><span style="color:#96D0FF">"x86"</span><span style="color:#ADBAC7">)</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Post Training Static Quantization</span></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
+<span class="line"><span style="color:#ADBAC7">prepared </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> prepare(model)</span></span>
+<span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> torch.no_grad():</span></span>
+<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> inputs, _ </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> calibration_loader:</span></span>
+<span class="line"><span style="color:#ADBAC7">        prepared(inputs)</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_static </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantization.quantize_qat(</span></span>
-<span class="line"><span style="color:#ADBAC7">    model,  </span><span style="color:#768390"># Original model</span></span>
-<span class="line"><span style="color:#ADBAC7">    {torch.nn.Linear},  </span><span style="color:#768390"># Specify layers to quantize</span></span>
-<span class="line"><span style="color:#F69D50">    input_calibrations</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">[(example_input, </span><span style="color:#6CB6FF">0</span><span style="color:#ADBAC7">)],  </span><span style="color:#768390"># Calibration data</span></span>
-<span class="line"><span style="color:#F69D50">    dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.qint8  </span><span style="color:#768390"># Quantization data type</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_static.eval()</span></span>
+<span class="line"><span style="color:#ADBAC7">quantized_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> convert(prepared)</span></span></code></pre>
+<p>Static quantization can reduce latency more than dynamic quantization, but it is more sensitive to calibration quality. If the calibration set misses important input ranges, production accuracy can suffer.</p>
+<h3 id="quantization-aware-training">Quantization-Aware Training</h3>
+<p>Quantization-aware training (QAT) simulates quantization during training. The model learns while seeing fake-quantized weights and activations, then gets converted to a quantized model after fine-tuning.</p>
+<p>Use QAT when post-training quantization produces unacceptable accuracy loss and retraining is feasible.</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> torch.ao.quantization </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> convert, get_default_qat_qconfig, prepare_qat</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Quantization Aware Training</span></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># Define a dummy dataset loader for quantization-aware training</span></span>
-<span class="line"><span style="color:#ADBAC7">dummy_data_loader </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.utils.data.DataLoader(torch.randn(</span><span style="color:#6CB6FF">100</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">3</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">224</span><span style="color:#ADBAC7">, </span><span style="color:#6CB6FF">224</span><span style="color:#ADBAC7">))</span></span>
+<span class="line"><span style="color:#ADBAC7">model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> MyModel().train()</span></span>
+<span class="line"><span style="color:#ADBAC7">model.qconfig </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> get_default_qat_qconfig(</span><span style="color:#96D0FF">"x86"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">qat_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> prepare_qat(model)</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># Enable quantization-aware training</span></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_qat </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantization.QuantWrapper(model)</span></span>
-<span class="line"><span style="color:#ADBAC7">quantized_model_qat.train()</span></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> inputs, labels </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> train_loader:</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer.zero_grad(</span><span style="color:#F69D50">set_to_none</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_fn(qat_model(inputs), labels)</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss.backward()</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer.step()</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#768390"># Fine-tune the quantized model</span></span>
-<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> epoch </span><span style="color:#F47067">in</span><span style="color:#6CB6FF"> range</span><span style="color:#ADBAC7">(</span><span style="color:#6CB6FF">5</span><span style="color:#ADBAC7">):</span></span>
-<span class="line"><span style="color:#F47067">    for</span><span style="color:#ADBAC7"> data, target </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> dummy_data_loader:</span></span>
-<span class="line"><span style="color:#ADBAC7">        quantized_model_qat.zero_grad()</span></span>
-<span class="line"><span style="color:#ADBAC7">        output </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantized_model_qat(data)</span></span>
-<span class="line"><span style="color:#ADBAC7">        loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.nn.functional.cross_entropy(output, target)</span></span>
-<span class="line"><span style="color:#ADBAC7">        loss.backward()</span></span>
-<span class="line"><span style="color:#768390">        # Perform optimization steps</span></span>
-<span class="line"><span style="color:#6CB6FF">        ...</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
-<span class="line"><span style="color:#768390"># Mixed Precision Training</span></span>
-<span class="line"><span style="color:#768390"># ------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Convert the model to mixed precision</span></span>
-<span class="line"><span style="color:#ADBAC7">mixed_precision_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> quantization.quantize_jit(</span></span>
-<span class="line"><span style="color:#ADBAC7">    model,  </span><span style="color:#768390"># Original model</span></span>
-<span class="line"><span style="color:#ADBAC7">    example_input,  </span><span style="color:#768390"># Example input for calibration</span></span>
-<span class="line"><span style="color:#F69D50">    dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.float16  </span><span style="color:#768390"># Quantization data type</span></span>
-<span class="line"><span style="color:#ADBAC7">)</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390"># Use mixed precision model for training</span></span>
-<span class="line"><span style="color:#ADBAC7">mixed_precision_model.train()</span></span></code></pre>
-<h2 id="dl-specific-data-structure">DL-specific Data structure</h2>
-<h3 id="bfloat16">Bfloat16</h3>
-<p>Bfloat16 (Brain Floating Point 16-bit) was developed by Google as part of its efforts to optimize deep learning performance.It plays a role in quantization by offering reduced precision suitable for deep learning applications. Its use in mixed-precision training and compatibility with specific hardware accelerators contribute to improved efficiency in terms of both computation and memory usage.</p>
+<span class="line"><span style="color:#ADBAC7">qat_model.eval()</span></span>
+<span class="line"><span style="color:#ADBAC7">quantized_model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> convert(qat_model)</span></span></code></pre>
+<p>QAT is more expensive than post-training quantization, but it gives the model a chance to adapt to quantization noise.</p>
+<h3 id="weight-only-and-low-bit-quantization">Weight-Only and Low-Bit Quantization</h3>
+<p>Large language models often use weight-only quantization, such as 8-bit or 4-bit weights, because model weights dominate memory. Activations may remain in BF16 or FP16 while weights are stored in a lower-bit format.</p>
+<p>QLoRA popularized a practical pattern: load a base model in 4-bit precision, freeze most of it, and train small adapter layers. Formats such as NF4 are designed for normally distributed neural network weights. Double quantization can further reduce memory by quantizing quantization constants.</p>
+<p>The key point: low-bit LLM quantization is usually backend-specific. Always check the exact library, hardware, and serving stack before assuming speedups.</p>
+<h2 id="mixed-precision-is-related-but-different">Mixed Precision Is Related, But Different</h2>
+<p>Mixed precision training uses lower precision for parts of training while preserving enough high-precision state to keep optimization stable. It is not the same as deployment quantization.</p>
+<p>Typical training choices:</p>
 <ul>
-<li>Motivation:
-<ul>
-<li>Ensure identical behavior for underflows, overflows, and NaNs -> bfloat16 has the same exponent size as FP32.</li>
-<li>However, bfloat16 handles denormals differently from FP32: it flushes them to zero.</li>
-<li>Unlike FP16, which typically requires special handling via techniques such as loss scaling, BF16 comes close to being a drop-in replacement for FP32 when training and running deep neural networks.</li>
+<li><strong>FP16:</strong> fast on many GPUs but may need gradient scaling.</li>
+<li><strong>BF16:</strong> wider exponent range, often more stable, and commonly preferred when hardware supports it.</li>
+<li><strong>FP32 master weights or optimizer state:</strong> still used in many training setups for stability.</li>
 </ul>
-</li>
-</ul>
-<h3 id="4-bit-normalfloat-nf4">4-bit NormalFloat (NF4)</h3>
-<p>4-bit quantization is discussed in the popular paper QLoRA: Efficient Finetuning of Quantized LLMs. The aim is to reduce the memory usage of the model parameters by using lower precision types than full (float32) or half (bfloat16) precision.</p>
+<p>In PyTorch, automatic mixed precision is usually handled with <code>torch.amp</code>:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">import</span><span style="color:#ADBAC7"> torch</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> torch.amp.GradScaler(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">for</span><span style="color:#ADBAC7"> inputs, labels </span><span style="color:#F47067">in</span><span style="color:#ADBAC7"> train_loader:</span></span>
+<span class="line"><span style="color:#ADBAC7">    optimizer.zero_grad(</span><span style="color:#F69D50">set_to_none</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">True</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">    with</span><span style="color:#ADBAC7"> torch.amp.autocast(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.float16):</span></span>
+<span class="line"><span style="color:#ADBAC7">        loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_fn(model(inputs), labels)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">    scaler.scale(loss).backward()</span></span>
+<span class="line"><span style="color:#ADBAC7">    scaler.step(optimizer)</span></span>
+<span class="line"><span style="color:#ADBAC7">    scaler.update()</span></span></code></pre>
+<p>For BF16 training, gradient scaling is often unnecessary:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">with</span><span style="color:#ADBAC7"> torch.amp.autocast(</span><span style="color:#96D0FF">"cuda"</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">dtype</span><span style="color:#F47067">=</span><span style="color:#ADBAC7">torch.bfloat16):</span></span>
+<span class="line"><span style="color:#ADBAC7">    loss </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> loss_fn(model(inputs), labels)</span></span></code></pre>
+<h2 id="choosing-a-quantization-path">Choosing a Quantization Path</h2>
+<p>Use this order unless you have a strong reason not to:</p>
+<ol>
+<li>Establish a full-precision baseline with task-level metrics.</li>
+<li>Try dynamic quantization if the model is CPU-bound or mostly linear layers.</li>
+<li>Try static post-training quantization if deployment supports int8 activation kernels.</li>
+<li>Use QAT if static quantization loses too much accuracy.</li>
+<li>Use 4-bit or weight-only methods for large model memory pressure, especially adapter fine-tuning or inference.</li>
+<li>Benchmark on the target hardware, not just a development laptop.</li>
+</ol>
+<p>The evaluation should include:</p>
 <ul>
-<li>Normalization: standard normalize the weights</li>
-<li>Method: Find nearest value in evenly spaced [-1, 1] ranged values. e.g. [-1, -.5, 0, .5, 1] -> 0.32 is quantized to .5
-<ul>
-<li>Double Quantization: - A method that quantizes the quantization constraints saving additional memory (approx. 3 GB for a 65B model).</li>
-<li>DQ symmetrical quantizes the 32-bit Floating Point (FP32) quantization constants of the first quantization into 8-bit Floating Point (FP8) quantized quantization constants.</li>
+<li>Overall metric change.</li>
+<li>Slice-level metric change.</li>
+<li>Latency distribution, not only average latency.</li>
+<li>Memory footprint.</li>
+<li>Throughput under realistic batch size.</li>
+<li>Failure cases where quantization changes the predicted class or generated output.</li>
 </ul>
-</li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/ml-training/"> <span class="dir">← previous</span> <span class="title">DL Training: An in-depth discussion</span> </a> <a class="next" href="/writing/blogs/temp/some-tricks-in-real-world-mle/"> <span class="dir">next →</span> <span class="title">Some Tricks in Real-world Machine Learning Engineering</span> </a> </nav>  <script>
+<h2 id="practical-warnings">Practical Warnings</h2>
+<p>Quantization can fail quietly. A model can look smaller while becoming slower if the backend falls back to dequantized operators. It can also pass aggregate validation while failing on rare but important slices.</p>
+<p>Watch for:</p>
+<ul>
+<li>Unsupported operators.</li>
+<li>Backend-specific behavior between CPU, CUDA, mobile, and edge runtimes.</li>
+<li>Calibration data that is too small or too clean.</li>
+<li>Outlier activation channels.</li>
+<li>Accuracy regressions hidden by only tracking a headline metric.</li>
+<li>Drift after deployment, because input ranges can move after calibration.</li>
+</ul>
+<p>Quantization is best treated as a deployment optimization with its own validation plan, not as a final compression button.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://docs.pytorch.org/docs/2.12/quantization-support.html">PyTorch Quantization API Reference</a></li>
+<li><a href="https://docs.pytorch.org/blog/quantization-aware-training/">PyTorch Quantization-Aware Training for Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2305.14314">QLoRA: Efficient Finetuning of Quantized LLMs</a></li>
+<li><a href="https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html">NVIDIA Mixed Precision Training</a></li>
+</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/ml-training/"> <span class="dir">← previous</span> <span class="title">Deep Learning Training: A Practical Guide</span> </a> <a class="next" href="/writing/blogs/temp/some-tricks-in-real-world-mle/"> <span class="dir">next →</span> <span class="title">Some Tricks in Real-World Machine Learning Engineering</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

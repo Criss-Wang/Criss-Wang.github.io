@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Some Tricks in Real-world Machine Learning Engineering - Zhenlin Wang</title><meta name="description" content="Draft notes on feature engineering, notebook conversion, missing values, scaling, and categorical encoding."><meta property="og:title" content="Some Tricks in Real-world Machine Learning Engineering - Zhenlin Wang"><meta property="og:description" content="Draft notes on feature engineering, notebook conversion, missing values, scaling, and categorical encoding."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/temp/some-tricks-in-real-world-mle/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Some Tricks in Real-World Machine Learning Engineering - Zhenlin Wang</title><meta name="description" content="Practical notes on moving from notebooks to pipelines, handling missing values, scaling features, encoding categories, and keeping ML code production-friendly."><meta property="og:title" content="Some Tricks in Real-World Machine Learning Engineering - Zhenlin Wang"><meta property="og:description" content="Practical notes on moving from notebooks to pipelines, handling missing values, scaling features, encoding categories, and keeping ML code production-friendly."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/temp/some-tricks-in-real-world-mle/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,39 +29,118 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Draft Notes · MLOps · Feature Engineering</div> <h1>Some <em>Tricks</em> in Real-world Machine Learning Engineering</h1> <p class="dek">Draft notes on feature engineering, notebook conversion, missing values, scaling, and categorical encoding.</p> <div class="byline"> <strong>2024.03.02</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="feature-engineering">Feature Engineering</h2>
-<h2 id="easy-conversion-of-jupyter-notebook">easy conversion of jupyter notebook</h2>
-<h3 id="1-jupyter-notebook-based-development">1. Jupyter Notebook based-development</h3>
-<p>Intuition, develop and test all logic in <code>.ipynb</code> file, then run
-<code>jupyter nbconvert --to script train_model.ipynb</code> to convert <code>.ipynb</code> file to <code>.py</code> file directly. This is an amazing trick!!!</p>
-<h3 id="handling-missing-values">Handling Missing Values</h3>
-<ol>
-<li>Cause of missing
-<ol>
-<li>The value itself (e.g. certain groups of people)</li>
-<li>Another variable</li>
-<li>No reason</li>
-</ol>
-</li>
-<li>Handling
-<ol>
-<li>Deletion
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Draft Notes · MLOps · Feature Engineering</div> <h1>Some <em>Tricks</em> in Real-World Machine Learning Engineering</h1> <p class="dek">Practical notes on moving from notebooks to pipelines, handling missing values, scaling features, encoding categories, and keeping ML code production-friendly.</p> <div class="byline"> <strong>2024.03.02</strong> <span>·</span> <span>3 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Real-world machine learning engineering is often less about clever algorithms and more about small habits that prevent messy systems.</p>
+<p>This post collects practical tricks I keep reaching for:</p>
 <ul>
-<li>By Row</li>
-<li>By Column</li>
+<li>Move experiments out of notebooks before they become production code.</li>
+<li>Treat feature engineering as a versioned pipeline.</li>
+<li>Handle missing values deliberately.</li>
+<li>Scale and encode features with training-serving consistency.</li>
+<li>Keep model code easy to test and rerun.</li>
 </ul>
-</li>
-<li>Imputation</li>
+<h2 id="convert-notebooks-into-scripts-early">Convert Notebooks Into Scripts Early</h2>
+<p>Notebooks are excellent for exploration. They are poor as the long-term source of truth for a training pipeline.</p>
+<p>A useful pattern is:</p>
+<ol>
+<li>Explore in a notebook.</li>
+<li>Move reusable logic into Python modules.</li>
+<li>Keep the notebook as a report or scratchpad.</li>
+<li>Run training through a script or CLI.</li>
 </ol>
-</li>
-</ol>
-<h3 id="scaling">Scaling</h3>
-<h3 id="discretization">Discretization</h3>
-<h3 id="categorical-feature-encoding">Categorical Feature Encoding</h3>
-<p>[IMPT] industrially adopted encoding trick - hashing</p>
+<p>For a quick conversion:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#F69D50">jupyter</span><span style="color:#96D0FF"> nbconvert</span><span style="color:#6CB6FF"> --to</span><span style="color:#96D0FF"> script</span><span style="color:#96D0FF"> train_model.ipynb</span></span></code></pre>
+<p>Then clean the generated script into functions:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> load_data</span><span style="color:#ADBAC7">(config):</span></span>
+<span class="line"><span style="color:#6CB6FF">    ...</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> build_features</span><span style="color:#ADBAC7">(data, config):</span></span>
+<span class="line"><span style="color:#6CB6FF">    ...</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> train_model</span><span style="color:#ADBAC7">(features, labels, config):</span></span>
+<span class="line"><span style="color:#6CB6FF">    ...</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F47067">def</span><span style="color:#DCBDFB"> main</span><span style="color:#ADBAC7">(config):</span></span>
+<span class="line"><span style="color:#ADBAC7">    data </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> load_data(config)</span></span>
+<span class="line"><span style="color:#ADBAC7">    features, labels </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> build_features(data, config)</span></span>
+<span class="line"><span style="color:#ADBAC7">    model </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> train_model(features, labels, config)</span></span>
+<span class="line"><span style="color:#F47067">    return</span><span style="color:#ADBAC7"> model</span></span></code></pre>
+<p>The goal is not to ban notebooks. The goal is to keep production behavior in code that can be tested, reviewed, and rerun.</p>
+<h2 id="handle-missing-values-by-cause">Handle Missing Values by Cause</h2>
+<p>Missing values are not all the same.</p>
+<p>Ask why the value is missing:</p>
 <ul>
-<li>Hash each category</li>
-<li>New incoming category gets hashed to an existing index</li>
-<li>Random collision not too bad</li>
-<li>Significantly resolved “Unknown category” problem</li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/quantization/"> <span class="dir">← previous</span> <span class="title">Quantization in Deep Learning</span> </a> <a class="next" href="/writing/blogs/mlops/distributed-training/"> <span class="dir">next →</span> <span class="title">Understanding Distributed Training in Deep Learning</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
+<li><strong>Missing completely at random:</strong> the absence is unrelated to the value or target.</li>
+<li><strong>Missing because of another variable:</strong> for example, a field appears only for a certain product or user type.</li>
+<li><strong>Missing because of the value itself:</strong> for example, users with a sensitive condition may skip a field.</li>
+<li><strong>Missing because of pipeline failure:</strong> the feature should exist, but extraction failed.</li>
+</ul>
+<p>Different causes need different treatment:</p>
+<ul>
+<li>Drop rows only when the lost data is small and unbiased.</li>
+<li>Drop columns when the feature is mostly unavailable or unreliable.</li>
+<li>Impute with mean, median, mode, or learned values when appropriate.</li>
+<li>Add missingness indicators when missingness itself carries signal.</li>
+<li>Fail the pipeline when missingness indicates a broken upstream dependency.</li>
+</ul>
+<p>The last case is important. Not every missing value should be “handled”; some should page the owner.</p>
+<h2 id="scale-features-consistently">Scale Features Consistently</h2>
+<p>Scaling should be fit on training data and reused everywhere else.</p>
+<p>Bad pattern:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#ADBAC7">train[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (train[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> train[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">].mean()) </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> train[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">].std()</span></span>
+<span class="line"><span style="color:#ADBAC7">test[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> (test[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">] </span><span style="color:#F47067">-</span><span style="color:#ADBAC7"> test[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">].mean()) </span><span style="color:#F47067">/</span><span style="color:#ADBAC7"> test[</span><span style="color:#96D0FF">"x"</span><span style="color:#ADBAC7">].std()</span></span></code></pre>
+<p>Better pattern:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.preprocessing </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> StandardScaler</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">scaler </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> StandardScaler()</span></span>
+<span class="line"><span style="color:#ADBAC7">train_x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> scaler.fit_transform(train[feature_cols])</span></span>
+<span class="line"><span style="color:#ADBAC7">valid_x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> scaler.transform(valid[feature_cols])</span></span>
+<span class="line"><span style="color:#ADBAC7">test_x </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> scaler.transform(test[feature_cols])</span></span></code></pre>
+<p>The same fitted scaler must be available in inference. Otherwise training and serving will disagree.</p>
+<h2 id="encode-categories-with-future-values-in-mind">Encode Categories With Future Values in Mind</h2>
+<p>Categorical features cause production issues because new categories appear after deployment.</p>
+<p>Options:</p>
+<ul>
+<li><strong>One-hot encoding:</strong> simple, but needs a strategy for unknown categories.</li>
+<li><strong>Ordinal encoding:</strong> compact, but can introduce fake ordering.</li>
+<li><strong>Target encoding:</strong> powerful, but easy to leak labels if done incorrectly.</li>
+<li><strong>Hashing:</strong> maps categories into a fixed number of buckets and naturally handles unseen categories.</li>
+<li><strong>Embeddings:</strong> useful for high-cardinality categorical features in deep models.</li>
+</ul>
+<p>Hashing is a strong industrial trick:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F47067">from</span><span style="color:#ADBAC7"> sklearn.feature_extraction </span><span style="color:#F47067">import</span><span style="color:#ADBAC7"> FeatureHasher</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ADBAC7">hasher </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> FeatureHasher(</span><span style="color:#F69D50">n_features</span><span style="color:#F47067">=</span><span style="color:#6CB6FF">2</span><span style="color:#F47067">**</span><span style="color:#6CB6FF">18</span><span style="color:#ADBAC7">, </span><span style="color:#F69D50">input_type</span><span style="color:#F47067">=</span><span style="color:#96D0FF">"string"</span><span style="color:#ADBAC7">)</span></span>
+<span class="line"><span style="color:#ADBAC7">features </span><span style="color:#F47067">=</span><span style="color:#ADBAC7"> hasher.transform(user_category_lists)</span></span></code></pre>
+<p>Collisions happen, but a fixed-size hashed representation avoids the “unknown category broke inference” problem.</p>
+<h2 id="keep-feature-pipelines-versioned">Keep Feature Pipelines Versioned</h2>
+<p>Feature logic should be treated like model code.</p>
+<p>Track:</p>
+<ul>
+<li>Feature definitions.</li>
+<li>Training data version.</li>
+<li>Transformation code version.</li>
+<li>Fitted preprocessing artifacts.</li>
+<li>Schema.</li>
+<li>Expected value ranges.</li>
+</ul>
+<p>When a model changes behavior, feature drift is often the culprit. Versioning makes the investigation possible.</p>
+<h2 id="do-not-hide-data-leakage">Do Not Hide Data Leakage</h2>
+<p>Leakage often looks like great performance.</p>
+<p>Watch for:</p>
+<ul>
+<li>Features created after the prediction time.</li>
+<li>Aggregates that include the target period.</li>
+<li>Duplicate users or events across train and test.</li>
+<li>Target-derived text or labels.</li>
+<li>Preprocessing fit on the full dataset before splitting.</li>
+</ul>
+<p>Use time-based splits when the production task is time-based. Random splits can be misleading when future information leaks into training.</p>
+<h2 id="closing">Closing</h2>
+<p>Small ML engineering habits compound. Move code out of notebooks, version preprocessing, treat missing values by cause, make feature transforms reusable, and assume production data will surprise you.</p>
+<p>These tricks are not glamorous, but they are the difference between a model that works once and a system that keeps working.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/mlops/quantization/"> <span class="dir">← previous</span> <span class="title">Quantization in Deep Learning</span> </a> <a class="next" href="/writing/blogs/mlops/distributed-training/"> <span class="dir">next →</span> <span class="title">Understanding Distributed Training in Deep Learning</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>

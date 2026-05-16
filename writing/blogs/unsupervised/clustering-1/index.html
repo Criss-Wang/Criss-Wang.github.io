@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: K Means and Gaussian Mixture Models - Zhenlin Wang</title><meta name="description" content="The basic models for clustering"><meta property="og:title" content="Clustering: K Means and Gaussian Mixture Models - Zhenlin Wang"><meta property="og:description" content="The basic models for clustering"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Clustering: K-Means and Gaussian Mixture Models - Zhenlin Wang</title><meta name="description" content="A practical comparison of K-means and Gaussian mixture models, including assumptions, distance, soft assignments, initialization, and evaluation."><meta property="og:title" content="Clustering: K-Means and Gaussian Mixture Models - Zhenlin Wang"><meta property="og:description" content="A practical comparison of K-means and Gaussian mixture models, including assumptions, distance, soft assignments, initialization, and evaluation."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/unsupervised/clustering-1/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,248 +29,61 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Machine Learning · Clustering · Unsupervised Learning</div> <h1>Clustering: <em>K</em> Means and Gaussian Mixture Models</h1> <p class="dek">The basic models for clustering</p> <div class="byline"> <strong>2020.02.01</strong> <span>·</span> <span>10 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-08-19</span>  </div> </header> <main class="article container-narrow"> <h2 id="overview">Overview</h2>
-<p>In this blog we talk about K means and GMM algorithms, the famous and intuitively useful algorithms. As we venture further into unsupervised learning/clustering problems, we will see more interesting problem formulations as well as diverse evaluation metrics. Hope we would enjoy this learning journey along the way :)</p>
-<h3 id="k-means">K means</h3>
-<h4 id="1-defintion">1. Defintion</h4>
-<ul>
-<li>
-<p><code>Clustering</code>: A cluster refers to a collection of data points aggregated together because of certain similarities.</p>
-</li>
-<li>
-<p><code>K-means</code>: an iterative algorithm that tries to partition the dataset into  𝐾  pre-defined distinct non-overlapping subgroups (clusters) where each data point belongs to <strong>only one group</strong></p>
-</li>
-<li>
-<p>Kmeans gives more weight to the bigger clusters.</p>
-</li>
-<li>
-<p>Kmeans assumes spherical shapes of clusters (with radius equal to the distance between the centroid and the furthest data point) and doesn’t work well when clusters are in different shapes such as elliptical clusters.</p>
-</li>
-<li>
-<p><strong>Full procedure</strong>:</p>
-<ol>
-<li>Specify number of clusters $K$.</li>
-<li>Initialize centroids by first shuffling the dataset and then randomly selecting $K$ data points for the centroids without replacement.</li>
-<li>Keep iterating until there is no change to the centroids. i.e assignment of data points to clusters isn’t changing.
-<ul>
-<li>Compute the sum of the squared distance between data points and all centroids.</li>
-<li>Assign each data point to the closest cluster (centroid).</li>
-<li>Compute the centroids for the clusters by taking the average of the all data points that belong to each cluster.</li>
-</ul>
-</li>
-</ol>
-</li>
-<li>
-<p><code>Expectation-Maximization</code>: The approach kmeans follows to solve the problem is called <strong>Expectation-Maximization</strong>. The EM algorithm attempts to find maximum likelihood estimates for models with latent variables.   The E-step is assigning the data points to the closest cluster. The M-step is computing the centroid of each cluster. Below is a break down of how we can solve it mathematically (feel free to skip it).</p>
-<ul>
-<li>
-<p>The objective function is: $J = \sum_{i = 1}^{m}\sum_{k = 1}^{K}w_{ik}|x^i - \mu_k|^2$<br>
-where $w_{ik} = 1$ for data point $x^i$ if it belongs to cluster $k$; otherwise, $w_{ik} = 0$. Also, $\mu_k$ is the centroid of $x^i$‘s cluster.</p>
-</li>
-<li>
-<p>It’s a minimization problem of two parts. We first minimize J w.r.t. $w_{ik}$ and treat $\mu_k$ fixed. Then we minimize J w.r.t. $\mu_k$ and treat $w_{ik}$ fixed. Technically speaking, we differentiate J w.r.t. $w_{ik}$ first and update cluster assignments  (<em>E-step</em>). Then we differentiate J w.r.t. $\mu_{k}$ and recompute the centroids after the cluster assignments from previous step  (<em>M-step</em>). Therefore, E-step is:</p>
-<p>$$\frac{\partial J}{\partial w_{ik}} = \sum_{i = 1}^{m}\sum_{k = 1}^{K}|x^i - \mu_k|^2$$</p>
-<p>$$ \begin{equation}
-\Rightarrow w_{ik} = \begin{cases}
-1 &#x26; \text{if $k = \arg \min\limits_j\ |x^i - \mu_j|^2$}\\
-0 &#x26; \text{otherwise}.
-\end{cases}
-\end{equation}
-$$
-In other words, assign the data point $x^i$ to the closest cluster judged by its sum of squared distance from cluster’s centroid.</p>
-</li>
-</ul>
-<p>And M-step is:</p>
-<p>$$\frac{\partial J}{\partial \mu_k} = 2\sum_{i = 1}^{m}w_{ik}(x^i - \mu_k) = 0$$
-$$\Rightarrow \mu_k = \frac{\sum_{i = 1}^{m}w_{ik}x^i}{\sum_{i = 1}^{m}w_{ik}}\tag{2}$$</p>
-<p>Which translates to recomputing the centroid of each cluster to reflect the new assignments.</p>
-</li>
-<li>
-<p>Standardization:</p>
-<ul>
-<li>Since clustering algorithms including kmeans use distance-based measurements to determine the similarity between data points, it’s recommended to standardize the data to have a mean of zero and a standard deviation of one since almost always the features in any dataset would have different units of measurements such as age vs income.</li>
-</ul>
-</li>
-<li>
-<p>Cold start the code may lead to <strong>Local optimum</strong>: Need to use different initializations of centroids and pick the results of the run that that yielded the lower sum of squared distance.</p>
-</li>
-<li>
-<p><strong>Evaluation Method</strong>:
-Contrary to supervised learning where we have the ground truth to evaluate the model’s performance, clustering analysis doesn’t have a solid evaluation metric that we can use to evaluate the outcome of different clustering algorithms. Moreover, since kmeans requires $k$ as an input and doesn’t learn it from data, there is no right answer in terms of the number of clusters that we should have in any problem. Sometimes domain knowledge and intuition may help but usually that is not the case. In the cluster-predict methodology, we can evaluate how well the models are performing based on different $K$ clusters since clusters are used in the downstream modeling.</p>
-<p>In this notebook we’ll cover two metrics that may give us some intuition about $k$:</p>
-<ul>
-<li>
-<p>Elbow method</p>
-<p><strong>Elbow method</strong> gives us an idea on what a good $k$ number of clusters would be based on the sum of squared distance (SSE) between data points and their assigned clusters’ centroids. We pick $k$ at the spot where SSE starts to flatten out and forming an elbow. We’ll use the geyser dataset and evaluate SSE for different values of $k$ and see where the curve might form an elbow and flatten out.</p>
-</li>
-<li>
-<p>Silhouette analysis</p>
-<p><strong>Silhouette analysis</strong> can be used to determine the degree of separation between clusters. For each sample:</p>
-<ul>
-<li>
-<p>Compute the average distance from all data points in the same cluster ($a^i$).</p>
-</li>
-<li>
-<p>Compute the average distance from all data points in the closest cluster ($b^i$).</p>
-</li>
-<li>
-<p>Compute the coefficient:</p>
-<p>$$\frac{b^i - a^i}{max(a^i, b^i)}$$</p>
-</li>
-</ul>
-<p>The coefficient can take values in the interval [-1, 1].</p>
-<ul>
-<li>If it is 0 —> the sample is very close to the neighboring clusters.</li>
-<li>It it is 1 —> the sample is far away from the neighboring clusters.</li>
-<li>It it is -1 —> the sample is assigned to the wrong clusters.</li>
-</ul>
-<p>Therefore, we want the coefficients to be as big as possible and close to 1 to have a good clusters. We’ll use here geyser dataset again because its cheaper to run the silhouette analysis and it is actually obvious that there is most likely only two groups of data points.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="2-pros--cons">2. Pros &#x26; Cons</h4>
-<p><strong>Pros</strong></p>
-<ol>
-<li>Easy to interpret</li>
-<li>Relatively fast</li>
-<li>Scalable for large data sets</li>
-<li>Able to choose the positions of initial centroids in a smart way that speeds up the convergence</li>
-<li>Guarantees convergence</li>
-</ol>
-<p><strong>Cons</strong></p>
-<ol>
-<li>The globally optimal result may not be achieved</li>
-<li>The number of clusters must be selected beforehand</li>
-<li>k-means is limited to linear cluster boundaries:
-<ul>
-<li>this one may be solved using Similar technique as SVM does.</li>
-<li>One possible solution is the “Spectral Clustering”: i.e Kernelized K-means below</li>
-</ul>
-</li>
-</ol>
-<h4 id="3-applications">3. Applications</h4>
-<ul>
-<li>
-<p>Not to use if it contains heavily overlapping data/full of outliers</p>
-</li>
-<li>
-<p>Not so well if there are many categorical fields</p>
-</li>
-<li>
-<p>Not so well if the clusters have a complicated geometric shapes</p>
-<p><strong>Real-world samples</strong></p>
-<ul>
-<li>Market Segmentation</li>
-<li>Document clustering</li>
-<li>Image segmentation</li>
-<li>Image compression</li>
-</ul>
-</li>
-</ul>
-<h4 id="4-code-implementation">4. Code Implementation</h4>
-<p>{% codeblock Sklearn package’s GMM lang:python%}
-from sklearn.cluster import KMeans</p>
-<p>km = KMeans(n_clusters=2, max_iter=100)
-km.fit(X_std)
-centroids = km.cluster_centers_
-{% endcodeblock %}</p>
-<h2 id="gmm">GMM</h2>
-<h3 id="1-definition">1. Definition</h3>
-<ul>
-<li>
-<p>The Gaussian mixture model (GMM) can be regarded as an optimization of the k-means model. It is not only a commonly used in industry but also a generative model.</p>
-</li>
-<li>
-<p>A model composed of K single Gaussian models. These K submodels are the hidden variables of the hybrid model</p>
-<ul>
-<li><code>Single Gaussian model</code>: A <strong>Univariate Gaussian Distribution</strong> for the data</li>
-</ul>
-</li>
-<li>
-<p>Attempts to find a mixed representation of the probability distribution of the multidimensional Gaussian model, thereby fitting a data distribution of arbitrary shape.</p>
-</li>
-<li>
-<p>Also uses <strong>EM</strong> algorithm<sup><a href="https://stephens999.github.io/fiveMinuteStats/intro_to_em.html">1</a></sup>:</p>
-<ul>
-<li>
-<p>if our observations $X_{i}$ come from a mixture model with $K$ mixture components, the marginal probability distribution of $X_{i}$ is of the form:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Unsupervised Learning · Clustering</div> <h1>Clustering: <em>K-Means</em> and Gaussian Mixture Models</h1> <p class="dek">A practical comparison of K-means and Gaussian mixture models, including assumptions, distance, soft assignments, initialization, and evaluation.</p> <div class="byline"> <strong>2020.02.01</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>K-means and Gaussian mixture models (GMMs) are two classic clustering methods. Both try to summarize data with groups, but they make different assumptions.</p>
+<p>K-means assigns each point to one cluster center. GMMs model data as a mixture of Gaussian distributions and produce soft probabilities for cluster membership.</p>
+<h2 id="k-means">K-Means</h2>
+<p>K-means tries to minimize within-cluster squared distance:</p>
 <p>$$
-P\left(X_{i}=x\right)=\sum_{k=1}^{K} \pi_{k} P\left(X_{i}=x \mid Z_{i}=k\right)
+\sum_{i=1}^{n} |x_i - \mu_{c_i}|^2
 $$</p>
-<p>where $Z_{i} \in{1, \ldots, K}$ is the latent variable representing the mixture component for $X_{i}, P\left(X_{i} \mid Z_{i}\right)$ is the mixture component, and $\pi_{k}$ is the mixture proportion representing the probability that $X_{i}$ belongs to the $k$-th mixture component.</p>
-<p>Let $N\left(\mu, \sigma^{2}\right)$ denote the probability distribution function for a normal random variable. In this scenario, we have that the conditional distribution $X_{i} \mid Z_{i}=k \sim N\left(\mu_{k}, \sigma_{k}^{2}\right)$ so that the marginal distribution of $X_{i}$ is:</p>
-<p>$$
-P\left(X_{i}=x\right)=\sum_{k=1}^{K} P\left(Z_{i}=k\right) P\left(X_{i}=x \mid Z_{i}=k\right)=\sum_{k=1}^{K} \pi_{k} N\left(x ; \mu_{k}, \sigma_{k}^{2}\right)
-$$</p>
-<p>Similarly, the joint probability of observations $X_{1}, \ldots, X_{n}$ is therefore:</p>
-<p>$$
-P\left(X_{1}=x_{1}, \ldots, X_{n}=x_{n}\right)=\prod_{i=1}^{n} \sum_{k=1}^{K} \pi_{k} N\left(x_{i} ; \mu_{k}, \sigma_{k}^{2}\right)
-$$</p>
-<p>This note describes the EM algorithm which aims to obtain the maximum likelihood estimates of $\pi_{k}, \mu_{k}$ and $\sigma_{k}^{2}$ given a data set of observations ${x_{1}, \ldots x_{n}}$.</p>
-</li>
-<li>
-<p>Likelihood expression is $P(X, Z \mid \mu, \sigma, \pi)=\prod_{i=1}^{n} \prod_{k=1}^{K} \pi_{k}^{I\left(Z_{i}=k\right)} N\left(x_{i} \mid \mu_{k}, \sigma_{k}\right)^{I\left(Z_{i}=k\right)}$; Take log, compute and simplify the expected value of the complete log-likelihood:</p>
-<p>$$
-\begin{aligned}
-E_{Z \mid X}[\log (P(X, Z \mid \mu, \sigma, \pi))] &#x26;=E_{Z \mid X}\left[\sum_{i=1}^{n} \sum_{k=1}^{K} I\left(Z_{i}=k\right)\left(\log \left(\pi_{k}\right)+\log \left(N\left(x_{i} \mid \mu_{k}, \sigma_{k}\right)\right)\right)\right] \\
-&#x26;=\sum_{i=1}^{n} \sum_{k=1}^{K} E_{Z \mid X}\left[I\left(Z_{i}=k\right)\right]\left(\log \left(\pi_{k}\right)+\log \left(N\left(x_{i} \mid \mu_{k}, \sigma_{k}\right)\right)\right) \\
-&#x26;=\sum_{i=1}^{n} \sum_{k=1}^{K} \gamma_{Z_{i}}(k)\left(\log \left(\pi_{k}\right)+\log \left(N\left(x_{i} \mid \mu_{k}, \sigma_{k}\right)\right)\right)
-\end{aligned}
-$$</p>
-</li>
-<li>
-<p>From here, we derive the expressions for each parameter:</p>
-<p>$$\sum_{i=1}^{n} \gamma_{Z_{i}}(k) \frac{\left(x_{i}-\mu_{k}\right)}{\sigma_{k}^{2}}=0 \tag{2}$$</p>
-<p>$$
-\hat{\mu_{k}}=\frac{\sum_{i=1}^{n} \gamma_{z_{i}}(k) x_{i}}{\sum_{i=1}^{n} \gamma_{z_{i}}(k)}=\frac{1}{N_{k}} \sum_{i=1}^{n} \gamma_{z_{i}}(k) x_{i}\tag{3}
-$$</p>
-<p>$$
-\begin{align}
-\hat{\sigma_{k}^{2}} &#x26;=\frac{1}{N_{k}} \sum_{i=1}^{n} \gamma_{z_{i}}(k)\left(x_{i}-\mu_{k}\right)^{2}\tag{4}\\
-\hat{\pi_{k}} &#x26;=\frac{N_{k}}{n}\tag{5}
-\end{align}
-$$</p>
-</li>
-<li>
-<p>The EM algorithm, motivated by the two observations above, proceeds as follows:</p>
-<ol>
-<li>Initialize the $\mu_{k}$ ‘s, $\sigma_{k}$ ‘s and $\pi_{k}$ ‘s and evaluate the log-likelihood with these parameters.</li>
-<li>E-step: Evaluate the posterior probabilities $\gamma_{Z_{i}}(k)$ using the current values of the $\mu_{k}$ ‘s and $\sigma_{k}$ ‘s with equation (2)</li>
-<li>M-step: Estimate new parameters $\hat{\mu_{k}}, \hat{\sigma_{k}^{2}}$ and $\hat{\pi_{k}}$ with the current values of $\gamma_{Z_{i}}(k)$ using equations (3), (4) and (5).</li>
-<li>Evaluate the log-likelihood with the new parameter estimates. If the loglikelihood has changed by less than some small $\epsilon$, stop. Otherwise, go back to step 2 .</li>
-</ol>
-<p>The EM algorithm is sensitive to the initial values of the parameters, so care must be taken in the first step. However, assuming the initial values are “valid”, one property of the EM algorithm is that the log-likelihood increases at every step. This invariant proves to be useful when debugging the algorithm in practice.</p>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="2-pros--cons-1">2. Pros &#x26; Cons</h3>
-<p><strong>Pros</strong></p>
+<p>where $\mu_{c_i}$ is the centroid of the assigned cluster.</p>
+<p>Use K-means when:</p>
 <ul>
-<li>GMM is a lot more flexible in terms of cluster covariance</li>
-<li>It is a soft-clustering method, which assign sample membersips to multiple clusters. This characteristic makes it the fastest algorithm to learn mixture models</li>
+<li>Clusters are roughly spherical.</li>
+<li>Features can be scaled meaningfully.</li>
+<li>Hard assignments are acceptable.</li>
+<li>You need a fast baseline.</li>
 </ul>
-<p><strong>Cons</strong></p>
+<p>Watch out:</p>
 <ul>
-<li>Slower than k-means</li>
-<li>does not work if the mixture is not really a gaussian distribution</li>
-<li>It is very sensitive to the initial values which will condition greatly its performance.</li>
-<li>GMM may converge to a local minimum, which would be a sub-optimal solution.</li>
-<li>When having insufficient points per mixture, the algorithm diverges and finds solutions with infinite likelihood unless we regularize the covariances between the data points artificially.</li>
+<li>Sensitive to feature scale.</li>
+<li>Sensitive to initialization.</li>
+<li>Requires choosing $k$.</li>
+<li>Struggles with non-spherical clusters.</li>
+<li>Struggles with clusters of very different density.</li>
 </ul>
-<h3 id="3-application">3. Application</h3>
+<h2 id="gaussian-mixture-models">Gaussian Mixture Models</h2>
+<p>A GMM assumes data comes from a mixture of Gaussian components:</p>
+<p>$$
+p(x) = \sum_{k=1}^{K} \pi_k N(x \mid \mu_k, \Sigma_k)
+$$</p>
+<p>Each point receives a probability of belonging to each component.</p>
+<p>Use GMMs when:</p>
 <ul>
-<li>perform GMM when you know that the data points are mixtures of a gaussian distribution</li>
-<li>if you think that your model is having some hidden, not observable parameters, then you can try to use GMM.</li>
+<li>Soft cluster membership is useful.</li>
+<li>Clusters may have elliptical shapes.</li>
+<li>You want a probabilistic model.</li>
 </ul>
-<h3 id="4-simple-code">4. Simple code</h3>
-<p>{% codeblock Sklearn package’s GMM lang:python%}
-from sklearn.mixture import GaussianMixture
-gmm = GaussianMixture(n_components = 3)
-gmm.fit(X_principal)
-gmm.fit_predict(X_principal)
-{% endcodeblock %}</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/data-analytics/"> <span class="dir">← previous</span> <span class="title">An overview of Big Data Analytics</span> </a> <a class="next" href="/writing/blogs/unsupervised/clustering-2/"> <span class="dir">next →</span> <span class="title">Clustering: Hierachial, BIRCH and Spectral</span> </a> </nav>  <script>
+<p>Watch out:</p>
+<ul>
+<li>More parameters than K-means.</li>
+<li>Sensitive to initialization.</li>
+<li>Can overfit with too many components.</li>
+<li>Covariance choices matter.</li>
+</ul>
+<h2 id="choosing-the-number-of-clusters">Choosing the Number of Clusters</h2>
+<p>Useful tools:</p>
+<ul>
+<li>Elbow method.</li>
+<li>Silhouette score.</li>
+<li>BIC or AIC for GMMs.</li>
+<li>Stability checks.</li>
+<li>Domain interpretability.</li>
+</ul>
+<p>The best number of clusters is not only a metric decision. It should also be useful for the downstream task.</p>
+<h2 id="closing">Closing</h2>
+<p>K-means is a fast hard-clustering baseline. GMMs are a probabilistic soft-clustering extension. Use both with scaling, stability checks, and careful interpretation.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/data/data-analytics/"> <span class="dir">← previous</span> <span class="title">An Overview of Big Data Analytics</span> </a> <a class="next" href="/writing/blogs/unsupervised/clustering-2/"> <span class="dir">next →</span> <span class="title">Clustering: Hierarchical, BIRCH, and Spectral</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

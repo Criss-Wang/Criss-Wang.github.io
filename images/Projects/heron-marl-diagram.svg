@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">HERON lockstep versus event-driven timing</title>
+  <desc id="desc">A clean visual comparing aligned training ticks with staggered event-driven deployment ticks.</desc>
+  <defs>
+    <style>
+      .bg{fill:#ecf3f4}.ink{fill:#1f3038;font:800 62px ui-monospace,SFMono-Regular,Menlo,monospace}.label{fill:#263942;font:800 36px ui-monospace,SFMono-Regular,Menlo,monospace}.small{fill:#61737a;font:700 26px ui-monospace,SFMono-Regular,Menlo,monospace}.line{stroke:#45616b;stroke-width:7;stroke-linecap:round}.thin{stroke:#b7c7cb;stroke-width:4;stroke-linecap:round}.sync{fill:#4f7f95}.delay{fill:#b76b37}.physics{fill:#657d57}.ghost{fill:none;stroke:#91a4aa;stroke-width:4;stroke-dasharray:12 12}.panel{fill:#fffefa;stroke:#c3d0d3;stroke-width:3}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text class="ink" x="72" y="105">HERON</text>
+  <text class="small" x="78" y="148">same policy, different clocks</text>
+
+  <rect class="panel" x="80" y="210" width="460" height="332" rx="18"/>
+  <text class="label" x="124" y="278">training</text>
+  <text class="small" x="126" y="318">lockstep env.step()</text>
+  <g transform="translate(132 372)">
+    <line class="thin" x1="0" y1="0" x2="330" y2="0"/>
+    <line class="thin" x1="0" y1="70" x2="330" y2="70"/>
+    <line class="thin" x1="0" y1="140" x2="330" y2="140"/>
+    <circle class="sync" cx="48" cy="0" r="18"/><circle class="sync" cx="164" cy="0" r="18"/><circle class="sync" cx="280" cy="0" r="18"/>
+    <circle class="sync" cx="48" cy="70" r="18"/><circle class="sync" cx="164" cy="70" r="18"/><circle class="sync" cx="280" cy="70" r="18"/>
+    <circle class="sync" cx="48" cy="140" r="18"/><circle class="sync" cx="164" cy="140" r="18"/><circle class="sync" cx="280" cy="140" r="18"/>
+  </g>
+
+  <rect class="panel" x="660" y="210" width="460" height="332" rx="18"/>
+  <text class="label" x="704" y="278">deployment</text>
+  <text class="small" x="706" y="318">event-driven queue</text>
+  <g transform="translate(710 372)">
+    <line class="thin" x1="0" y1="0" x2="330" y2="0"/>
+    <line class="thin" x1="0" y1="70" x2="330" y2="70"/>
+    <line class="thin" x1="0" y1="140" x2="330" y2="140"/>
+    <circle class="sync" cx="38" cy="0" r="18"/><circle class="delay" cx="150" cy="0" r="18"/><circle class="physics" cx="288" cy="0" r="18"/>
+    <circle class="delay" cx="92" cy="70" r="18"/><circle class="sync" cx="218" cy="70" r="18"/>
+    <circle class="physics" cx="58" cy="140" r="18"/><circle class="delay" cx="182" cy="140" r="18"/><circle class="sync" cx="316" cy="140" r="18"/>
+    <path class="ghost" d="M38 0C76 35 90 48 92 70M150 0C198 28 214 45 218 70M218 70C254 104 280 121 316 140"/>
+  </g>
+  <line class="line" x1="570" y1="374" x2="628" y2="374"/>
+  <text class="small" x="470" y="616">tick</text><circle class="sync" cx="548" cy="608" r="12"/>
+  <text class="small" x="594" y="616">delay</text><circle class="delay" cx="690" cy="608" r="12"/>
+  <text class="small" x="738" y="616">physics</text><circle class="physics" cx="872" cy="608" r="12"/>
+</svg>

@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Ensemble Models: Overview - Zhenlin Wang</title><meta name="description" content="Using the power of public"><meta property="og:title" content="Ensemble Models: Overview - Zhenlin Wang"><meta property="og:description" content="Using the power of public"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/ensemble-0/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Ensemble Models: Overview - Zhenlin Wang</title><meta name="description" content="A practical overview of ensemble learning, including bagging, boosting, stacking, voting, variance reduction, bias reduction, and common tradeoffs."><meta property="og:title" content="Ensemble Models: Overview - Zhenlin Wang"><meta property="og:description" content="A practical overview of ensemble learning, including bagging, boosting, stacking, voting, variance reduction, bias reduction, and common tradeoffs."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/supervised/ensemble-0/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,125 +29,60 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Ensemble · Boosting · Supervised Learning</div> <h1>Ensemble <em>Models:</em> Overview</h1> <p class="dek">Using the power of public</p> <div class="byline"> <strong>2021.01.18</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2021-09-28</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>An important techinque in machine learning is ensemble models. It includes some very popular techniques like bootstraping and boosting. In the upcoming blogs, I will outline these models in detail, and give comparisons when necessary. The mathematical proofs are omitted for simplicity. However, I highly recommend interested readers to take a look at the theoretical foundations of these models to gain great intuitions about the ideas behind ensemble models.</p>
-<h3 id="intro">Intro</h3>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Supervised Learning · Ensembles</div> <h1>Ensemble <em>Models:</em> Overview</h1> <p class="dek">A practical overview of ensemble learning, including bagging, boosting, stacking, voting, variance reduction, bias reduction, and common tradeoffs.</p> <div class="byline"> <strong>2021.01.18</strong> <span>·</span> <span>2 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>Ensemble learning combines multiple models to produce a stronger predictor than a single model. The idea is simple: different models make different errors, and combining them can reduce the overall error.</p>
+<p>The main families are:</p>
 <ul>
-<li>An ensemble model is a composite model which combines a series of low performing or weak classifiers with the aim of creating a strong classifier.</li>
-<li>Here, individual classifiers vote and final prediction label returned that performs majority voting.</li>
-<li>Now, these individual classifiers are combined according to some specific criterion to create an ensemble model.</li>
-<li>These ensemble models offer greater accuracy than individual or base classifiers.</li>
-<li>These models can parallelize by allocating each base learner to different mechanisms.</li>
-<li>So, we can say that ensemble learning methods are meta-algorithms that combine several machine learning algorithms into a single predictive model to increase performance.</li>
-<li>Ensemble models are created according to some specific criterion as stated below:
+<li>Voting.</li>
+<li>Bagging.</li>
+<li>Boosting.</li>
+<li>Stacking.</li>
+</ul>
+<h2 id="why-ensembles-work">Why Ensembles Work</h2>
+<p>Prediction error can be thought of in terms of bias, variance, and noise.</p>
 <ul>
-<li><strong>Bagging</strong> - They can be created to decrease model variance using bagging approach.</li>
-<li><strong>Boosting</strong> - They can be created to decrease model bias using a boosting approach.</li>
-<li><strong>Stacking</strong> - They can be created to improve model predictions using stacking approach.</li>
+<li>High bias: the model is too simple.</li>
+<li>High variance: the model changes too much with the training data.</li>
+<li>Noise: irreducible randomness or measurement error.</li>
 </ul>
-</li>
-<li>It can be depicted with the help of following diagram.</li>
-</ul>
-<figure align="center">
-  <img src="https://res.cloudinary.com/dyd911kmh/image/upload/f_auto,q_auto:best/v1542651255/image_1_joyt3x.png" width="500px">
-  <figcaption>Ensemble Machine Learning</figcaption>
-</figure>
-<h4 id="1-bagging">1. Bagging</h4>
+<p>Bagging mainly reduces variance. Boosting often reduces bias and can reduce variance when regularized well.</p>
+<h2 id="voting">Voting</h2>
+<p>Voting combines predictions from several models.</p>
 <ul>
-<li><strong>Bagging</strong> stands for <strong>bootstrap aggregation</strong>.</li>
-<li>It combines multiple learners in a way to reduce the variance of estimates.</li>
-<li>For example, random forest trains N Decision Trees where we will train N different trees on different random subsets of the data and perform voting for final prediction.</li>
-<li><strong>Bagging ensembles</strong> methods are <strong>Random Forest</strong> and <strong>Extra Trees</strong>.</li>
+<li><strong>Hard voting:</strong> choose the class with the most votes.</li>
+<li><strong>Soft voting:</strong> average predicted probabilities and choose the largest.</li>
 </ul>
-<h4 id="2-boosting">2. Boosting</h4>
+<p>Voting is simple and useful when models are diverse and individually reasonable.</p>
+<h2 id="bagging">Bagging</h2>
+<p>Bagging trains many models on bootstrap samples of the data, then averages or votes across predictions.</p>
+<p>Random forests are the most common example. They train many decision trees on sampled data and sampled features.</p>
+<p>Bagging is useful when the base learner has high variance, such as decision trees.</p>
+<h2 id="boosting">Boosting</h2>
+<p>Boosting trains models sequentially. Each new model focuses on mistakes made by previous models.</p>
+<p>Examples:</p>
 <ul>
-<li><strong>Boosting</strong> algorithms are a set of the weak classifiers to create a strong classifier.</li>
-<li>Strong classifiers offer error rate close to 0.</li>
-<li>Boosting algorithm can track the model who failed the accurate prediction.</li>
-<li>Boosting algorithms are less affected by the overfitting problem.</li>
-<li>The following three algorithms have gained massive popularity in data science competitions
+<li>AdaBoost.</li>
+<li>Gradient Boosting.</li>
+<li>XGBoost.</li>
+<li>LightGBM.</li>
+<li>CatBoost.</li>
+</ul>
+<p>Boosting is often very strong on tabular data, but it needs careful regularization.</p>
+<h2 id="stacking">Stacking</h2>
+<p>Stacking trains multiple base models, then trains a meta-model to combine their predictions.</p>
+<p>The meta-model must be trained on out-of-fold predictions to avoid leakage. If it sees predictions from models trained on the same labels, validation scores can be too optimistic.</p>
+<h2 id="practical-tradeoffs">Practical Tradeoffs</h2>
+<p>Ensembles often improve accuracy but add complexity:</p>
 <ul>
-<li><strong>AdaBoost (Adaptive Boosting)</strong></li>
-<li><strong>Gradient Tree Boosting (GBM)</strong></li>
-<li><strong>XGBoost</strong></li>
+<li>More training cost.</li>
+<li>More inference cost.</li>
+<li>More difficult debugging.</li>
+<li>More complicated deployment.</li>
+<li>Less interpretability.</li>
 </ul>
-</li>
-<li>We will discuss AdaBoost in this kernel and GBM and XGBoost in future posts.</li>
-</ul>
-<h4 id="3-stacking">3. Stacking</h4>
-<ul>
-<li>
-<p><strong>Stacking</strong> (or stacked generalization) is an ensemble learning technique that combines multiple base classification models predictions into a new data set.</p>
-</li>
-<li>
-<p>This new data are treated as the input data for another classifier.</p>
-</li>
-<li>
-<p>This classifier employed to solve this problem. Stacking is often referred to as blending.</p>
-</li>
-<li>
-<p>Blending (average) ensemble model: Fits the base learners to the training data and then, at test time, average the predictions generated by all the base learners.</p>
-<ul>
-<li>Use <code>VotingClassifier</code> from <code>sklearn</code> that:
-<ul>
-<li>fit all the base learners on the training data</li>
-<li>at test time, use all base learners to predict test data and then take the average of all predictions.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>Stacked ensemble model: Fits the base learners to the training data. Next, use those trained base learners to generate predictions (meta-features) used by the meta-learner (assuming we have only one layer of base learners). There are few different ways of training stacked ensemble model:</p>
-<ul>
-<li>Fitting the base learners to all training data and then generate predictions using the same training data it was used to fit those learners. This method is more prune to overfitting because the meta learner will give more weights to the base learner who memorized the training data better, i.e. meta-learner won’t generate well and would overfit.</li>
-<li>Split the training data into 2 to 3 different parts that will be used for training, validation, and generate predictions. It’s a suboptimal method because held out sets usually have higher variance and different splits give different results as well as learning algorithms would have fewer data to train.</li>
-<li>Use k-folds cross validation where we split the data into k-folds. We fit the base learners to the (k - 1) folds and use the fitted models to generate predictions of the held out fold. We repeat the process until we generate the predictions for all the k-folds. When done, refit the base learners to the full training data. This method is more reliable and will give models that memorize the data less weight. Therefore, it generalizes better on future data.</li>
-</ul>
-</li>
-</ul>
-<h4 id="4-how-are-base-learners-classified">4. How are base-learners classified</h4>
-<ul>
-<li>Base-learners are classified into two types.</li>
-<li>On the basis of the arrangement of base learners, ensemble methods can be divided into two groups.
-<ul>
-<li><strong>Parallel ensemble</strong>: base learners are generated in parallel for example - Random Forest.</li>
-<li><strong>Sequential ensemble</strong>: base learners are generated sequentially for example AdaBoost.</li>
-</ul>
-</li>
-<li>On the basis of the type of base learners, ensemble methods can be divided into two groups.
-<ul>
-<li><strong>Homogenous ensemble</strong>: uses the same type of base learner in each iteration.</li>
-<li><strong>Heterogeneous ensemble</strong>: uses the different type of base learner in each iteration.</li>
-</ul>
-</li>
-</ul>
-<h3 id="bagging-vs-boosting">Bagging vs Boosting</h3>
-<h4 id="1-selecting-the-best-technique--bagging-or-boosting">1. Selecting the best technique- Bagging or Boosting</h4>
-<ul>
-<li>Depends on the data, the simulation and the circumstances.</li>
-<li>Bagging and Boosting decrease the variance of your single estimate as they combine several estimates from different models. So the result may be a model with higher stability.</li>
-<li>If the problem is that the single model gets a very low performance, Bagging will rarely get a better bias. However, Boosting could generate a combined model with lower errors as it optimises the advantages and reduces pitfalls of the single model.</li>
-<li>By contrast, if the difficulty of the single model is over-fitting, then Bagging is the best option. Boosting for its part doesn’t help to avoid over-fitting.</li>
-<li>In fact, this technique is faced with this problem itself. For this reason, Bagging is effective more often than Boosting.</li>
-</ul>
-<h4 id="2-similarities-between-bagging-and-boosting">2. Similarities between Bagging and Boosting</h4>
-<ol>
-<li>Both are ensemble methods to get N learners from 1 learner.</li>
-<li>Both generate several training data sets by random sampling.</li>
-<li>Both make the final decision by averaging the N learners (or taking the majority of them i.e Majority Voting).</li>
-<li>Both are good at reducing variance and provide higher stability.</li>
-</ol>
-<h4 id="3-differences-between-bagging-and-boosting">3. Differences between Bagging and Boosting</h4>
-<ol>
-<li><strong>Bagging</strong> is the simplest way of combining predictions that belong to the same type while <strong>Boosting</strong> is	a way of combining predictions that belong to the different types.</li>
-<li><strong>Bagging</strong> aims to decrease variance, not bias while <strong>Boosting</strong>	aims to decrease bias, not variance.</li>
-<li>In <strong>Baggiing</strong> each model receives equal weight whereas in <strong>Boosting</strong> models are weighted according to their performance.</li>
-<li>In <strong>Bagging</strong> each model is built independently whereas in <strong>Boosting</strong> new models are influenced by performance of previously built models.</li>
-<li>In <strong>Bagging</strong> different training data subsets are randomly drawn with replacement from the entire training dataset. In <strong>Boosting</strong> every new subsets contains the elements that were misclassified by previous models.</li>
-<li><strong>Bagging</strong> tries to solve over-fitting problem while <strong>Boosting</strong> tries to reduce bias.</li>
-<li>If the classifier is unstable (high variance), then we should apply <strong>Bagging</strong>. If the classifier is stable and simple (high bias) then we should apply <strong>Boosting</strong>.</li>
-<li><strong>Bagging</strong> is extended to Random forest model while <strong>Boosting</strong> is extended to <strong>Gradient boosting</strong>.</li>
-</ol> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-3/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part III </span> </a> <a class="next" href="/writing/blogs/rl/reinfocement-5/"> <span class="dir">next →</span> <span class="title">Reinforcement Learning - Theoretical Foundations: Part V </span> </a> </nav>  <script>
+<p>Use ensembles when the metric improvement is worth the operational cost.</p>
+<h2 id="closing">Closing</h2>
+<p>Ensembles are powerful because they turn model diversity into robustness. Start with a strong single model, then use bagging, boosting, or stacking when the problem justifies the extra complexity.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/rl/reinfocement-3/"> <span class="dir">← previous</span> <span class="title">Reinforcement Learning: Theoretical Foundations, Part III</span> </a> <a class="next" href="/writing/blogs/rl/reinfocement-5/"> <span class="dir">next →</span> <span class="title">Reinforcement Learning: Theoretical Foundations, Part V</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {
             inlineMath: [["$", "$"], ["\\(", "\\)"]],

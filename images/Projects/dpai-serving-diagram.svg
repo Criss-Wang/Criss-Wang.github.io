@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Deployable AI clean serving flow</title>
+  <desc id="desc">A clean terminal-to-API preview for local model registration and prediction serving.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f4efe7}.ink{fill:#243039;font:800 60px ui-monospace,SFMono-Regular,Menlo,monospace}.small{fill:#6e756f;font:700 25px ui-monospace,SFMono-Regular,Menlo,monospace}.label{fill:#243039;font:800 34px ui-monospace,SFMono-Regular,Menlo,monospace}.term{fill:#202a31;stroke:#3e4b52;stroke-width:3}.bar{fill:#303b43}.prompt{fill:#a8d5bc;font:700 28px ui-monospace,SFMono-Regular,Menlo,monospace}.out{fill:#d6dfdf;font:600 24px ui-monospace,SFMono-Regular,Menlo,monospace}.card{fill:#fffefa;stroke:#c9c0b5;stroke-width:3}.line{fill:none;stroke:#3d5966;stroke-width:7;stroke-linecap:round}.orange{fill:#b46d3a}.blue{fill:#4f7f95}.green{fill:#657d57}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="675"/>
+  <text class="ink" x="70" y="100">Deployable AI</text>
+  <text class="small" x="74" y="140">register model, serve endpoint</text>
+
+  <rect class="term" x="76" y="210" width="590" height="278" rx="18"/>
+  <rect class="bar" x="76" y="210" width="590" height="50" rx="18"/>
+  <circle class="orange" cx="116" cy="235" r="9"/><circle class="green" cx="148" cy="235" r="9"/><circle class="blue" cx="180" cy="235" r="9"/>
+  <text class="prompt" x="120" y="322">$ register</text>
+  <text class="out" x="122" y="370">model.joblib + inference.py</text>
+  <text class="prompt" x="120" y="430">$ serve --port 9000</text>
+
+  <line class="line" x1="704" y1="350" x2="794" y2="350"/>
+  <circle class="blue" cx="748" cy="350" r="13"/>
+
+  <rect class="card" x="835" y="208" width="284" height="282" rx="20"/>
+  <text class="label" x="892" y="283">FastAPI</text>
+  <rect class="card" x="880" y="326" width="194" height="64" rx="12"/>
+  <text class="small" x="908" y="367">/predict</text>
+  <text class="small" x="875" y="445">JSON in, response out</text>
+</svg>

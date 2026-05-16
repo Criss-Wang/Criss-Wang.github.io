@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Testing in Machine Learning - Zhenlin Wang</title><meta name="description" content="A holistic approach to evaluate machine learning code"><meta property="og:title" content="Testing in Machine Learning - Zhenlin Wang"><meta property="og:description" content="A holistic approach to evaluate machine learning code"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ml-testing/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Testing in Machine Learning - Zhenlin Wang</title><meta name="description" content="A practical checklist for testing data, models, ML systems, and CI/CD pipelines."><meta property="og:title" content="Testing in Machine Learning - Zhenlin Wang"><meta property="og:description" content="A practical checklist for testing data, models, ML systems, and CI/CD pipelines."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/mlops/ml-testing/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,102 +29,110 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Evaluation · MLOps</div> <h1>Testing <em>in</em> Machine Learning</h1> <p class="dek">A holistic approach to evaluate machine learning code</p> <div class="byline"> <strong>2024.04.19</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h1 id="ml-testing">ML Testing</h1>
-<p>The complexity of ML models and the iterative nature of their development pose unique challenges in ensuring their reliability, robustness, and performance. In this blog post, we delve into the critical aspect of ML testing in MLOps, exploring various strategies, tools, and best practices to ensure the quality and effectiveness of ML models in production environments.</p>
-<h2 id="data-quality-and-diversity">Data quality and diversity</h2>
-<p>Data quality and diversity are critical factors in ML testing, ensuring that models perform reliably across different scenarios and datasets. This means the following aspects need to be tested thoroughly:</p>
-<ol>
-<li>
-<p><strong>Data Consistency</strong>:
-Ensuring data consistency involves validating the integrity, accuracy, and completeness of datasets used for training and testing ML models. Techniques such as data profiling, schema validation, and anomaly detection help identify inconsistencies and errors in the data.</p>
-<p>As a baseline, we shall always check for:</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · Evaluation · MLOps</div> <h1>Testing <em>in</em> Machine Learning</h1> <p class="dek">A practical checklist for testing data, models, ML systems, and CI/CD pipelines.</p> <div class="byline"> <strong>2024.04.19</strong> <span>·</span> <span>6 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>Machine learning testing is broader than ordinary software testing. A model can pass unit tests and still fail because the data distribution changed, the evaluation metric is wrong, the serving path is overloaded, or the product behavior is biased.</p>
+<p>In MLOps, a useful testing strategy needs to cover four layers:</p>
 <ul>
-<li><strong>Implementation errors</strong> (i.e., written logic, error handling) during ETL of data
+<li><strong>Data:</strong> Are the inputs reliable, representative, and separated correctly?</li>
+<li><strong>Model:</strong> Does the model improve the metric that matters, and does it stay robust under realistic variation?</li>
+<li><strong>System:</strong> Can the training and inference pipelines run reliably at production scale?</li>
+<li><strong>Product:</strong> Does the model behave safely and fairly for the people affected by it?</li>
+</ul>
+<p>The sections below are a practical checklist for those layers.</p>
+<h2 id="data-quality-and-diversity">Data Quality and Diversity</h2>
+<p>Data quality is the first testing surface. If the data is inconsistent, leaked, mis-split, or unrepresentative, later model evaluation becomes difficult to trust.</p>
+<h3 id="data-consistency">Data Consistency</h3>
+<p>Consistency checks validate the integrity, accuracy, completeness, shape, and range of the datasets used for training, validation, and testing. Common tools include data profiling, schema validation, anomaly detection, and simple invariant checks.</p>
+<p>At minimum, test for:</p>
 <ul>
-<li><em>Encoding</em> is often something people forget to check. However this is extremely important in the ML domain.</li>
+<li><strong>ETL implementation errors:</strong> Check parsing, joins, deduplication, missing-value handling, label generation, and error handling. Encoding issues are especially easy to miss and can quietly damage text-heavy ML systems.</li>
+<li><strong>Input/output shape and range mismatches:</strong> Confirm that feature tensors, labels, prediction outputs, and post-processed values match the contracts expected by downstream code.</li>
+<li><strong>Train/validation/test split issues:</strong> Look for class imbalance across splits, duplicated examples, time-travel leakage, user-level leakage, and contamination from training data into validation or test data.</li>
+<li><strong>Unexpected feature correlations:</strong> Investigate correlations that look too strong to be real. They may reveal leakage, data collection artifacts, or temporal dependencies.</li>
 </ul>
-</li>
-<li><strong>Input/Ouput Shape and Range</strong> misalignment from the model</li>
-<li><strong>Potential Train/Test/Validation Split issue</strong> (e.g. class imbalance among the split) and <strong>Potential data leakages</strong> (e.g. from train set to test set)</li>
-<li>UNEXPECTED <strong>Feature correlation</strong> and <strong>Temporal dependencies</strong> within dataset</li>
-</ul>
-</li>
-<li>
-<p><strong>Data Drift</strong>:
-Data drift refers to changes in the underlying data distribution over time, leading to performance degradation in ML models. Monitoring data drift involves comparing model predictions with ground truth labels and detecting deviations from expected behavior. Techniques like drift detection and concept drift detection are employed to locate data drift issues.</p>
-<p>As a baseline, we shall always check for:</p>
+<h3 id="data-drift">Data Drift</h3>
+<p>Data drift is a change in the input distribution over time. Concept drift is a change in the relationship between inputs and labels. Both can degrade production performance even when the model code has not changed.</p>
+<p>At minimum, monitor:</p>
 <ul>
-<li><strong>Distribution drift</strong>
+<li><strong>Distribution drift:</strong> Use tests such as the Kolmogorov-Smirnov test for numerical features and the chi-square test for categorical features, then pair those tests with domain review so statistical noise does not trigger false alarms.</li>
+<li><strong>Performance drift:</strong> Track production metrics when labels are available, and use proxy metrics or delayed-label analysis when labels arrive slowly.</li>
+<li><strong>Segment-level drift:</strong> Watch important user groups, traffic sources, regions, devices, or product surfaces separately. Aggregate metrics can hide a regression in a smaller segment.</li>
+</ul>
+<h2 id="model-quality">Model Quality</h2>
+<p>Model quality testing asks whether the model is correct enough, stable enough, and useful enough for the product context. It should happen before full system testing, but it depends on a reliable evaluation framework.</p>
+<h3 id="evaluation-framework">Evaluation Framework</h3>
+<p>Before regression or robustness testing, test the evaluation pipeline itself. It is easy to waste days improving a model against a broken metric.</p>
+<p>Check that:</p>
 <ul>
-<li><em>Kolmogorov-Smirnov Test</em> for numerical CDF drift testing</li>
-<li><em>Chi-square Test</em> for categorical drift testing</li>
+<li>The metric implementation matches the product objective.</li>
+<li>Label normalization, filtering, and aggregation rules are correct.</li>
+<li>Custom evaluators are tested with small examples where the expected answer is obvious.</li>
+<li>Offline metrics are compared against a current baseline, not just against an isolated candidate score.</li>
 </ul>
-</li>
-<li><strong>Performance drift</strong> caused by domain shifts or concept shifts. Typically conducted during production stage and can be in the form of supervised/unsupervised/semi-supervised</li>
-</ul>
-</li>
-</ol>
-<h2 id="model-quality">Model quality</h2>
-<p>Model quality encompasses various aspects such as regression, robustness, and domain adaptation, ensuring that ML models generalize well and exhibit reliable performance across diverse datasets.</p>
-<ol>
-<li>
-<p><strong>Metrics definition &#x26; evaluation framework</strong>
-Before stepping into regression testing or robustness testing, you MUST ensure the correct implementation of your evaluation framework. It will a huge waste of time if you spend tons of time trying to improving upon a problematic metric results. Make sure all the custom implementation of evaluation pipeline and metrics are thoroughly tested.</p>
-</li>
-<li>
-<p><strong>Regression testing</strong>
-Regression testing involves validating model outputs against expected outcomes to detect regression bugs and ensure model correctness. Regression can happen during training time and inference time, so it is critical to provide robust UAT testing and Prod testing, and set up alarms carefully. This is a major task in many of the industry-level ML projects, as it significantly affects the product’s quality.</p>
-<p>As a baseline, we shall always check for :</p>
+<h3 id="regression-testing">Regression Testing</h3>
+<p>Regression testing checks whether a new model, prompt, feature, or serving change makes existing behavior worse. Regression can happen during training or inference, so it should be covered in development, staging, and production.</p>
+<p>At minimum, test:</p>
 <ul>
-<li>[Training] Convergence</li>
-<li>[Training] Overfitting / Underfitting</li>
-<li>[Training + Inference] Directional expectation (e.g. snow shouldn’t be expected under high temperature)</li>
-<li>[Inference] Server testing (batch/streaming features)</li>
+<li><strong>Training behavior:</strong> convergence, overfitting, underfitting, and sensitivity to random seeds.</li>
+<li><strong>Inference behavior:</strong> prediction contracts, batch and streaming paths, timeout behavior, and response formatting.</li>
+<li><strong>Directional expectations:</strong> examples where the expected direction is obvious, such as a snow prediction becoming less likely when temperature rises.</li>
+<li><strong>Product acceptance cases:</strong> user-facing workflows that must keep working even when the model changes.</li>
 </ul>
-</li>
-<li>
-<p><strong>Robustness</strong>
-Model robustness refers to the ability of ML models to perform consistently in the presence of perturbations, adversarial attacks, and out-of-distribution data.</p>
-<p>As a baseline we should always consider the following methods:</p>
+<h3 id="robustness">Robustness</h3>
+<p>Robustness testing checks whether the model behaves consistently under perturbations, adversarial inputs, noisy data, and out-of-distribution examples.</p>
+<p>Useful methods include:</p>
 <ul>
-<li>adversarial training with input perturbation</li>
-<li>robust optimization over model with surrogate functions / loss that accounts for perturbation</li>
+<li>Input perturbation tests, such as typos, paraphrases, feature noise, cropping, or missing fields.</li>
+<li>Adversarial or stress examples targeted at known model weaknesses.</li>
+<li>Robust training or optimization methods when the risk justifies the extra complexity.</li>
+<li>Evaluation on slices that represent edge cases, minority classes, or important production segments.</li>
 </ul>
-</li>
-</ol>
-<h2 id="fairness--bias">Fairness &#x26; Bias</h2>
-<p>Ensuring fairness and mitigating bias in ML models are essential for ethical AI and preventing discriminatory outcomes. This includes identifying and mitigating biases related to race, gender, age, and other demographic factors. Techniques such as fairness-aware training, bias detection, and algorithmic auditing help address ethical concerns and promote fairness and transparency in ML systems. In post-GPT area, this often means <code>alignment</code> for LLMs. However, many explicit components like <strong>Diverse Representation</strong>, <strong>Transparency and Explainability</strong> and <strong>Bias Monitoring</strong> (preprocessing/data, discriminatory inference, evaluation framework, etc) need to be considered. The focus also differ from business to business. Hence, I would not provide a generic baseline here. Instead, I’d recommend taking a deep dive into the <a href="https://aif360.res.ibm.com/">IBM’s AI Fairness 360 (AIF360)</a> for the specific biases you’d like to mitigate and the relevant metrics used. On the other hand, you may also resort to LLM evaluators to complete the task for you (at a risk of evaluation bias).</p>
+<h2 id="fairness-and-bias">Fairness and Bias</h2>
+<p>Fairness testing is part of product quality, not an optional ethics appendix. The relevant risks depend heavily on the domain, but teams should explicitly test for disparate performance, representational gaps, and harmful outputs.</p>
+<p>For traditional ML systems, this can mean testing metrics across demographic groups, auditing labels and features for proxy variables, and monitoring bias after launch. For LLM systems, it can also mean alignment evaluations, red-team prompts, harmful-output checks, and reviewer audits.</p>
+<p>There is no single universal baseline here. The right tests depend on the affected users, business context, legal constraints, and product failure modes. A good starting point is <a href="https://aif360.res.ibm.com/">IBM AI Fairness 360</a>, which catalogs fairness metrics and mitigation techniques. LLM-based evaluators can help with review at scale, but they also introduce their own evaluation bias, so they should not be treated as the only judge.</p>
 <h2 id="system-testing">System Testing</h2>
-<p>Ensuring robust system is another critical part of the MLOps workflow. The context may diverge based on inference or training pipeline. However, both have the target of maintaining model correctness, scalability and fault tolerance.</p>
-<p>From a training-based aspect, we need to consider</p>
+<p>System testing checks whether the training and inference pipelines can run reliably, recover from failure, and meet production constraints. The details differ between training and serving, but both need correctness, scalability, and fault tolerance.</p>
+<p>For training systems, test:</p>
 <ul>
-<li>If multi-node or multi-server (or both) setup is secured with failure recovery mechanisms like model checkpointing and replica syncing</li>
-<li>If CPU/GPU bandwidth is fully utilized and memory is fully utilized</li>
-<li>If storage is causing a issue</li>
-<li>If network congestions / latencies can be addressed as desired</li>
+<li>Multi-node or multi-server recovery through checkpointing, retry logic, and replica synchronization.</li>
+<li>CPU, GPU, memory, and storage utilization.</li>
+<li>Dataset loading throughput and storage bottlenecks.</li>
+<li>Network congestion, latency, and distributed-training communication overhead.</li>
 </ul>
-<p>From an inference-based aspect, we need to consider</p>
+<p>For inference systems, test:</p>
 <ul>
-<li>If model can serve streaming/batch/real-time functionalities</li>
-<li>If model can have low latency, even under heavy traffic, i.e. load testing or stress testing (*note: this may be addressed by devop team, but we should also pay attention to the processing time change due to heated servers)</li>
+<li>Batch, streaming, and real-time serving paths.</li>
+<li>Latency under normal load, peak load, and stress conditions.</li>
+<li>Error handling for provider failures, malformed inputs, oversized requests, and timeout paths.</li>
+<li>Changes in processing time when servers are under sustained load.</li>
 </ul>
-<h2 id="ml-testing-but-swe">ML Testing but SWE</h2>
-<p>To write high quality ML code doesn’t just mean we need to consider all the data science and ML research perspective, but also the basic software engineering principles need to be highly respected. Towards this end, we have to write robust unit tests. However, the guideline may differ from the traditional swe practices. Here we have the following suggestions when performing unit testing in ML:</p>
+<h2 id="ml-testing-and-software-engineering">ML Testing and Software Engineering</h2>
+<p>High-quality ML code still needs ordinary software engineering discipline. The difference is that ML tests often need to avoid large fixtures, expensive models, and hidden assumptions about learned weights.</p>
+<p>Good unit-test practices include:</p>
 <ul>
-<li><strong>Use small, simple data samples</strong>: Avoid loading data files as sample data. Use one or two data entries defined directly in the test files if possible.</li>
-<li><strong>When viable, test against random or empty weights</strong> to get rid of any assumption about model weights and ensure the architecture’s robustness on any embedding layers</li>
-<li><strong>Write critical tests against the actual model</strong>: If they take a while to run, you may choose to mark <code>@slow</code> on the test and run only when needed (e.g., pre-commit and pre-merge).</li>
-<li><strong>Check post-processing logics</strong> such as diversification or filtering recommendations to ensure business logic runs correctly after the ML part</li>
+<li><strong>Use tiny examples:</strong> Prefer one or two inline examples over loading a full data file.</li>
+<li><strong>Test random or empty weights when possible:</strong> This checks architecture and tensor-flow assumptions without depending on a specific trained model.</li>
+<li><strong>Keep critical model tests separate:</strong> Mark slow tests clearly and run them before important merges or releases.</li>
+<li><strong>Test post-processing logic:</strong> Recommendation filtering, diversification, ranking rules, thresholds, and formatting often contain product-critical logic outside the model itself.</li>
 </ul>
-<h2 id="ml-testing-cicd">ML Testing CI/CD</h2>
-<p>ML testing, just like SWE testing, is a continuous effort. We can often automate it via CI/CD. However, unlike SWE testing, some of the efforts are destined to give non-deterministic outcomes, and consequently requires human-in-the-loop. Towards this end, CI/CD in ml is a more challenging task, and have less of a standardized way to follow. Nonetheless, there are still guidelines we can follow. I really like how <a href="https://www.jeremyjordan.me/testing-ml/">Jeremy Jordan</a> depicts a canonical model development pipeline would look like as follows:</p>
-<p><img src="https://www.jeremyjordan.me/content/images/2020/08/Group-7.png" alt="A complete flow"></p>
-<p>If you are interested in more detailed descriptions, for e.g. how dev/uat/prod testing would differ in a ml-driven project in big companies, I’d recommend <a href="https://www.databricks.com/resources/ebook/the-big-book-of-mlops?scid=7018Y000001Fi1CQAS&#x26;utm_medium=paid+search&#x26;utm_source=google&#x26;utm_campaign=17107065832&#x26;utm_adgroup=145252855846&#x26;utm_content=ebook&#x26;utm_offer=the-big-book-of-mlops&#x26;utm_ad=678157791283&#x26;utm_term=databricks%20the%20big%20book%20of%20mlops&#x26;gad_source=1&#x26;gclid=CjwKCAjwoPOwBhAeEiwAJuXRh97QqZgy1288RwSefteCmvWr9EwD11wvIe6kZNVzC35pDP6u492j2RoC7UkQAvD_BwE">this book</a> from Databricks. It contains tons of great lessons on how to build a robust system, which includes testings in CI/CD on ML models.</p>
+<h2 id="ml-testing-in-cicd">ML Testing in CI/CD</h2>
+<p>ML testing should be continuous, but it is not always deterministic. Data changes, stochastic training, and human evaluation can make CI/CD harder than in traditional software projects.</p>
+<p>A practical pipeline usually combines:</p>
+<ul>
+<li>Fast unit tests on every commit.</li>
+<li>Data validation and metric checks on model-training jobs.</li>
+<li>Regression suites for candidate models, prompts, and feature changes.</li>
+<li>Slower integration or end-to-end tests before deployment.</li>
+<li>Human review for ambiguous product, fairness, or quality judgments.</li>
+<li>Production monitoring for drift, latency, cost, and model-output quality.</li>
+</ul>
+<p>Jeremy Jordan’s testing guide has a helpful diagram of the model-development loop. The key point is the same one used throughout this post: combine software tests, data tests, model behavior tests, and production monitoring instead of treating validation score as the only check.</p>
+<p>For a deeper enterprise MLOps view, the <a href="https://www.databricks.com/resources/ebook/the-big-book-of-mlops">Databricks Big Book of MLOps</a> is a useful reference for how development, UAT, production testing, and monitoring fit together.</p>
 <h2 id="references">References</h2>
 <ul>
-<li><a href="https://www.jeremyjordan.me/testing-ml/">https://www.jeremyjordan.me/testing-ml/</a></li>
-<li><a href="https://eugeneyan.com/writing/testing-ml/">https://eugeneyan.com/writing/testing-ml/</a></li>
-<li><a href="https://www.tekhnoal.com/load-tests-for-ml-models">https://www.tekhnoal.com/load-tests-for-ml-models</a></li>
+<li><a href="https://www.jeremyjordan.me/testing-ml/">Jeremy Jordan: Effective testing for machine learning systems</a></li>
+<li><a href="https://eugeneyan.com/writing/testing-ml/">Eugene Yan: How to Test Machine Learning Code and Systems</a></li>
+<li><a href="https://www.tekhnoal.com/load-tests-for-ml-models">Tekhnoal: Load tests for ML models</a></li>
 </ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/llm/prompt-engineering/"> <span class="dir">← previous</span> <span class="title">Prompt Engineering Whitebook</span> </a> <a class="next" href="/writing/software/model-iteration-intro/"> <span class="dir">next →</span> <span class="title">Model Iteration Series: Intro</span> </a> </nav>  <script>
         window.MathJax = {
           tex: {

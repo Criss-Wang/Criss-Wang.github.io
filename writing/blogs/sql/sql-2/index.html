@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>SQL: Index and Optimization - Zhenlin Wang</title><meta name="description" content="A short guide on optimizing query performances"><meta property="og:title" content="SQL: Index and Optimization - Zhenlin Wang"><meta property="og:description" content="A short guide on optimizing query performances"><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/sql/sql-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.DlJWln0G.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>SQL: Index and Optimization - Zhenlin Wang</title><meta name="description" content="A concise guide to SQL indexes, query plans, filtering, joins, aggregation, and practical optimization habits."><meta property="og:title" content="SQL: Index and Optimization - Zhenlin Wang"><meta property="og:description" content="A concise guide to SQL indexes, query plans, filtering, joins, aggregation, and practical optimization habits."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/sql/sql-2/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,59 +29,58 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · SQL · Database System</div> <h1>SQL: <em>Index</em> and Optimization</h1> <p class="dek">A short guide on optimizing query performances</p> <div class="byline"> <strong>2020.08.31</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  <span>·</span> <span>updated 2022-08-19</span>  </div> </header> <main class="article container-narrow"> <h3 id="overview">Overview</h3>
-<p>To be honest, I’m not a pro-SQL programmer. I’m still on my journey to learn more about database and query optimization. In this blog I will just give whatever I’ve learnt about indexing and optimization and its mostly based on MySQL. Hope it helps!</p>
-<h3 id="guidelines">Guidelines</h3>
-<ol>
-<li><strong>Single Sheet</strong> query is much better than <strong>Multiple Sheet</strong></li>
-<li>If multiple sheet is needed, Use <kbd>JOIN</kbd> well:
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · SQL · Database</div> <h1>SQL: <em>Index</em> and Optimization</h1> <p class="dek">A concise guide to SQL indexes, query plans, filtering, joins, aggregation, and practical optimization habits.</p> <div class="byline"> <strong>2020.08.31</strong> <span>·</span> <span>1 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h2 id="introduction">Introduction</h2>
+<p>SQL optimization is about helping the database do less work. Indexes, query structure, and data layout all affect performance.</p>
+<p>The first rule: measure before optimizing.</p>
+<h2 id="indexes">Indexes</h2>
+<p>An index is a data structure that helps the database find rows faster.</p>
+<p>Index columns used in:</p>
 <ul>
-<li>Small Sheet drive Large Sheet (for e.g. left join in this case)</li>
-<li>Establish proper indexing</li>
-<li>Don’t JOIN too many sheets as well</li>
+<li>Frequent filters.</li>
+<li>Join keys.</li>
+<li>Sorting.</li>
+<li>Uniqueness constraints.</li>
 </ul>
-</li>
-<li>Try best NOT to use <strong>subquery</strong> or <strong>Cartesian Product</strong></li>
-<li>Window Funtions can be very helpful</li>
-</ol>
-<h3 id="indexes">Indexes</h3>
+<p>Example:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> INDEX</span><span style="color:#DCBDFB"> idx_orders_user_id</span><span style="color:#F47067"> ON</span><span style="color:#ADBAC7"> orders(user_id);</span></span></code></pre>
+<p>Indexes are not free. They take storage and slow writes because the index must be updated when data changes.</p>
+<h2 id="composite-indexes">Composite Indexes</h2>
+<p>A composite index covers multiple columns:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> INDEX</span><span style="color:#DCBDFB"> idx_orders_user_date</span><span style="color:#F47067"> ON</span><span style="color:#ADBAC7"> orders(user_id, created_at);</span></span></code></pre>
+<p>Column order matters. This index helps queries filtering by <code>user_id</code>, and it may help queries filtering by <code>user_id</code> plus <code>created_at</code>.</p>
+<h2 id="query-plans">Query Plans</h2>
+<p>Use <code>EXPLAIN</code> to inspect how the database plans to run a query:</p>
+<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#ADBAC7">EXPLAIN</span></span>
+<span class="line"><span style="color:#F47067">SELECT</span><span style="color:#F47067"> *</span></span>
+<span class="line"><span style="color:#F47067">FROM</span><span style="color:#ADBAC7"> orders</span></span>
+<span class="line"><span style="color:#F47067">WHERE</span><span style="color:#ADBAC7"> user_id </span><span style="color:#F47067">=</span><span style="color:#6CB6FF"> 42</span><span style="color:#ADBAC7">;</span></span></code></pre>
+<p>Look for:</p>
 <ul>
-<li>Allow faster retrieval of data</li>
-<li><strong>Question</strong>: Why don’t we just create loads of indexes?</li>
-<li><strong>Ansewr</strong>: There is a trade-off, if loads of indexes exists on a table then those indexes need to be updated or maintained. In this case, DML operations suffer.</li>
+<li>Full table scans on large tables.</li>
+<li>Expensive sorts.</li>
+<li>Join order.</li>
+<li>Index usage.</li>
+<li>Estimated vs actual row counts.</li>
 </ul>
-<h4 id="1-index-operations">1. Index operations</h4>
-<pre class="astro-code github-dark-dimmed" style="background-color:#22272e;color:#adbac7; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#768390">-- show indices</span></span>
-<span class="line"><span style="color:#ADBAC7">SHOW </span><span style="color:#F47067">INDEX</span><span style="color:#F47067"> FROM</span><span style="color:#6CB6FF"> your_db_name</span><span style="color:#ADBAC7">.</span><span style="color:#6CB6FF">customer</span><span style="color:#ADBAC7">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">-- Add index</span></span>
-<span class="line"><span style="color:#F47067">ALTER</span><span style="color:#F47067"> TABLE</span><span style="color:#ADBAC7"> payment</span></span>
-<span class="line"><span style="color:#F47067">ADD</span><span style="color:#F47067"> INDEX</span><span style="color:#ADBAC7"> idx_pay (payment_id);  </span><span style="color:#768390">-- [index] can be appended by [unique] to ensure each index is unique</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#F47067">CREATE</span><span style="color:#F47067"> FULLTEXT</span><span style="color:#F47067"> INDEX</span><span style="color:#ADBAC7"> idx_staff </span><span style="color:#F47067">ON</span><span style="color:#ADBAC7"> customer (email); </span><span style="color:#768390">-- [fulltext] only applicable to string data</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#768390">-- Drop Index</span></span>
-<span class="line"><span style="color:#F47067">DROP</span><span style="color:#F47067"> INDEX</span><span style="color:#ADBAC7"> idx_pay </span><span style="color:#F47067">ON</span><span style="color:#ADBAC7"> payment</span></span></code></pre>
-<p>For the full list of operations, you may refer to the official documentation of MySQL<sup><a href="https://dev.mysql.com/doc/refman/8.0/en/create-index.html">1</a></sup></p>
-<h4 id="2-clustered-indexes">2. Clustered Indexes</h4>
+<h2 id="optimization-habits">Optimization Habits</h2>
+<p>Useful habits:</p>
 <ul>
-<li>ALTER TABLE Permission</li>
-<li>WHen a table does not have a clustered index then the table is stored as a heap, if the table has a clustered index it is stored as a B-tree</li>
-<li>Data is stored in order of clustered index</li>
-<li>Only one clustered index can exists on one table</li>
-<li>Clustered indexes are effective on columns that consistent of unique increasing integers (like identity_set)</li>
-<li>When a primary key is created a unique clustered index is automatically created - this can be beneficial for queries that involve joins on this column.</li>
+<li>Filter early.</li>
+<li>Select only needed columns.</li>
+<li>Avoid unnecessary <code>DISTINCT</code>.</li>
+<li>Avoid functions on indexed columns in filters when possible.</li>
+<li>Check join keys.</li>
+<li>Avoid accidental many-to-many joins.</li>
+<li>Use pagination carefully.</li>
+<li>Archive or partition old data when appropriate.</li>
 </ul>
-<h3 id="todo">TODO</h3>
+<h2 id="common-mistakes">Common Mistakes</h2>
 <ul>
-<li>Discuss <a href="geeksforgeeks.org/introduction-of-b-tree-2/?ref=leftbar-rightbar">B-Tree</a></li>
-<li>Study B+Tree and update</li>
-</ul> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/sql/sql-1/"> <span class="dir">← previous</span> <span class="title">SQL: Pick up the Basic within a day</span> </a> <a class="next" href="/writing/blogs/data/exploratory-data-analysis/"> <span class="dir">next →</span> <span class="title">The Data Mining Triology: III. Analysis</span> </a> </nav>  <script>
-        window.MathJax = {
-          tex: {
-            inlineMath: [["$", "$"], ["\\(", "\\)"]],
-            displayMath: [["$$", "$$"], ["\\[", "\\]"]],
-          },
-          svg: { fontCache: "global" },
-        };
-      </script> <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
+<li>Adding indexes without checking query plans.</li>
+<li>Indexing every column.</li>
+<li>Joining tables at incompatible grains.</li>
+<li>Using <code>SELECT *</code> in production queries.</li>
+<li>Sorting huge result sets unnecessarily.</li>
+<li>Filtering on transformed values instead of stored values.</li>
+</ul>
+<p>Optimization is a feedback loop: inspect the query, read the plan, change one thing, measure again.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/sql/sql-1/"> <span class="dir">← previous</span> <span class="title">SQL: Pick Up the Basics Within a Day</span> </a> <a class="next" href="/writing/blogs/data/exploratory-data-analysis/"> <span class="dir">next →</span> <span class="title">The Data Mining Trilogy III: Analysis</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
