@@ -6696,8 +6696,9 @@ body[data-section="contact"] footer {
 
 /* Final desktop annotation lock: keep page rails, row spacing, and link styling consistent. */
 :root {
-  --detail-rail: 840px;
-  --compact-detail-rail: 780px;
+  --detail-rail: 880px;
+  --compact-detail-rail: 880px;
+  --detail-gutter: 32px;
 }
 
 .site-notice {
@@ -6746,25 +6747,22 @@ body[data-section="contact"] footer {
   color: var(--primary);
 }
 
-.research-page {
-  width: min(var(--detail-rail), calc(100% - 64px));
-  max-width: var(--detail-rail);
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.page-head.about-head,
+.page-head:not(.contact-head),
+.search-row,
+#postList,
+.pager,
+.research-page,
 .prose,
 .block,
-.page-head.projects-page-head,
 .projects-page-section,
 .contact-page {
-  width: min(var(--compact-detail-rail), calc(100% - 64px));
-  max-width: var(--compact-detail-rail);
-  margin-left: max(32px, calc((100% - var(--detail-rail)) / 2));
+  box-sizing: border-box;
+  width: min(var(--detail-rail), calc(100% - 64px));
+  max-width: var(--detail-rail);
+  margin-left: auto;
   margin-right: auto;
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: var(--detail-gutter);
+  padding-right: var(--detail-gutter);
 }
 
 .projects-page-head {
@@ -6815,6 +6813,12 @@ body[data-section="contact"] footer {
 .research-page {
   margin-top: 24px;
   padding-bottom: 96px;
+}
+
+.research-page .section {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .research-section-head {
