@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Vibe Researching Is Not Outsourcing Your Thinking - Zhenlin Wang</title><meta name="description" content="Using AI across a research loop can accelerate reading, design, implementation, and drafting, but the researcher still owns the question."><meta property="og:title" content="Vibe Researching Is Not Outsourcing Your Thinking - Zhenlin Wang"><meta property="og:description" content="Using AI across a research loop can accelerate reading, design, implementation, and drafting, but the researcher still owns the question."><meta property="og:type" content="website"><meta property="og:url" content="https://criss-wang.com/writing/blogs/ai/vibe-researching-is-not-outsourcing-your-thinking/"><meta property="og:image" content="https://criss-wang.com/images/bio-photo.png"><meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="/_astro/BaseLayout.C9tmXs0H.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · AI · Research · Agents</div> <h1>Vibe <em>Researching</em> Is Not Outsourcing Your Thinking</h1> <p class="dek">Using AI across a research loop can accelerate reading, design, implementation, and drafting, but the researcher still owns the question.</p> <div class="byline"> <strong>2026.05.07</strong> <span>·</span> <span>7 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <h1 id="vibe-researching-is-not-outsourcing-your-thinking">Vibe Researching Is Not Outsourcing Your Thinking</h1>
+<p>I have seen people call this “vibe researching,” and the phrase started to make sense.</p>
+<p>At first it sounds unserious. It sounds like letting a language model wander through papers, invent a direction, and hand you a research taste you did not earn. That is the bad version, and it is not research. It is delegation without judgment.</p>
+<p>The useful version is different. Vibe researching is using an AI assistant as a fast, tireless research intern across the messy middle of the research process: reading, comparison, design exploration, implementation, debugging, diagramming, and drafting. It does not replace the researcher’s taste. It makes that taste operate against more material, more quickly.</p>
+<p>The distinction matters because AI makes bad research feel productive. It can summarize ten papers before lunch. It can produce a plausible algorithm sketch. It can write an introduction that sounds like a paper. It can also carry a wrong assumption through all of those steps with beautiful formatting.</p>
+<p>The researcher is still responsible for direction.</p>
+<h2 id="the-shape-of-the-work">The Shape Of The Work</h2>
+<p>In a recent multi-agent reinforcement learning project, I used Claude throughout the research loop. The project was not a simple “ask AI for a paper idea” exercise. The real problem was concrete: real-world multi-agent RL deployment is still unreliable, and the system design had to handle agents acting, waiting, synchronizing, and updating over time.</p>
+<p>Claude helped with the parts where speed and breadth mattered:</p>
+<ul>
+<li>Reading related work and extracting what each paper did not quite answer.</li>
+<li>Comparing framework choices and naming hidden assumptions.</li>
+<li>Sketching execution-flow designs for how agents should act across an episode.</li>
+<li>Refactoring experimental code and debugging async behavior.</li>
+<li>Drafting paper sections once the core argument was already clear.</li>
+<li>Producing examples, case studies, tables, charts, and diagrams.</li>
+</ul>
+<p>That sounds like a lot, because it was. But the important part is not that Claude did many tasks. The important part is where it helped and where it did not.</p>
+<p>One useful moment came from execution-flow design. Claude split possible agent behavior into periodic ticking and reactive triggering. That was not the final algorithm. It was a useful axis. It gave me a cleaner way to think about when an agent should act because time advanced, and when it should act because the environment or another agent changed state.</p>
+<p>Another useful moment came from debugging the async design. The hard question was not simply “how do I use asyncio?” The hard question was: where is the synchronization point? At what moment do agents exchange information, commit actions, observe the next state, and become allowed to move forward?</p>
+<p>Once the problem was phrased that way, the design became easier to reason about. Claude did not solve the research problem. It helped name the pressure point.</p>
+<p>That is the best version of the tool: not a substitute for thinking, but a machine for making the vague parts discussable.</p>
+<h2 id="the-failure-mode-is-fluent-momentum">The Failure Mode Is Fluent Momentum</h2>
+<p>The dangerous part is that the same system can make wrong directions feel legitimate.</p>
+<p>If the assistant misunderstands the environment model, it may still produce a clean plan. If it assumes synchronous execution when the real system is asynchronous, the plan can look rigorous while being conceptually wrong. If it overstates a contribution in the paper draft, the sentence may read better than the claim deserves.</p>
+<p>This is the core failure mode: fluent momentum.</p>
+<p>The model keeps going. It writes the next paragraph. It fills the missing table. It explains the wrong premise more clearly. If you are tired, the fluency can become persuasive. You start reviewing the prose instead of the assumption.</p>
+<p>So I learned to interrupt the momentum. I ask questions like:</p>
+<ul>
+<li>What assumption are you making here?</li>
+<li>What would make this plan fail?</li>
+<li>Are you actually confident in this claim?</li>
+<li>Is this a production-engineering answer to a research-prototyping problem?</li>
+<li>What is the simplest version that preserves the experiment?</li>
+</ul>
+<p>These questions sound small, but they change the relationship. The assistant becomes less like an oracle and more like an intern whose work needs review.</p>
+<p>That is the right relationship.</p>
+<h2 id="research-code-is-not-production-code">Research Code Is Not Production Code</h2>
+<p>One surprising friction was that Claude often wanted to make research code too clean too early.</p>
+<p>It would lean toward production-quality structure, test-driven development, generalized abstractions, and careful engineering rituals. Those instincts are often good. But research code has a different center of gravity. Early in a project, the code is not a product. It is a lab bench.</p>
+<p>The goal is not to make every component elegant. The goal is to make the central uncertainty testable.</p>
+<p>This changed how I wrote instructions. I started treating memory files and project instructions as part of the research infrastructure. I had to teach the assistant the local standard: prototype first, preserve the experiment, avoid overengineering, and only stabilize abstractions after the research shape becomes clearer.</p>
+<p>That made a real difference. The assistant became more useful when it understood that “good code” meant different things at different phases.</p>
+<p>In the exploration phase, good code answers the question.</p>
+<p>In the consolidation phase, good code makes the answer reliable.</p>
+<p>Confusing those phases is expensive.</p>
+<h2 id="the-part-i-had-to-do-alone">The Part I Had To Do Alone</h2>
+<p>The deepest part of the project still required solo thinking.</p>
+<p>The core RL rollout execution flow did not come from chatting with Claude. It came from sitting with the problem, simulating episodes mentally, drawing entities on a whiteboard, and asking what information each part of the system actually needed. I had to reason through agents, environment state, pending actions, capabilities, synchronization, and data movement without the conversation constantly pulling me into the next response.</p>
+<p>That took a couple of intense days. It felt closer to a hackathon with myself than to an AI-assisted workflow.</p>
+<p>This is an underrated limit of AI collaboration: conversation has an interaction cost.</p>
+<p>When an idea is fragile, explaining it too early can break the train of thought. The model’s response gives you another object to evaluate, and evaluation is not free. Sometimes the best thing is to close the chat window and let the shape form.</p>
+<p>Vibe researching should not erase solitude. It should make solitude better prepared.</p>
+<p>Use the assistant to gather material, pressure-test alternatives, expose missing concepts, and clean up the path around the hard idea. But when the hard idea needs to be born, there may be no shortcut around private concentration.</p>
+<h2 id="writing-needs-a-backbone-first">Writing Needs A Backbone First</h2>
+<p>AI was also useful in writing the paper, but only after I had the backbone.</p>
+<p>When I gave Claude a direction, key sentences, examples, and the claim I wanted to make, it helped turn rough material into clearer prose. It improved transitions. It suggested structure. It helped produce tables and diagrams. It made the boring mechanical parts faster.</p>
+<p>When I asked it to write too early, the result was generic. It could sound like a paper without knowing what the paper had earned.</p>
+<p>This is the same lesson in another form: AI is strongest after the human has supplied judgment.</p>
+<p>The writing workflow that worked best was not “write this section.” It was closer to:</p>
+<ul>
+<li>Here is the claim.</li>
+<li>Here is the evidence.</li>
+<li>Here is the tone.</li>
+<li>Here is the sentence that must survive.</li>
+<li>Here is what we should not overclaim.</li>
+<li>Now help me make it precise.</li>
+</ul>
+<p>Even diagrams had this pattern. Claude often preferred TikZ because it feels natural in research writing, but for visual positioning and iteration, SVG was sometimes more practical. The tool’s default was not always the best medium. The researcher still had to choose the representation that made the idea easier to inspect.</p>
+<h2 id="the-operating-rule">The Operating Rule</h2>
+<p>The operating rule is simple:</p>
+<p>Treat the AI assistant as an intern, not the principal investigator.</p>
+<p>An intern can read quickly. An intern can summarize. An intern can propose alternatives. An intern can draft, refactor, organize, and challenge. A good intern can make you sharper.</p>
+<p>But the PI owns the question.</p>
+<p>That means the most important part of vibe researching is not prompting. It is steering. You need to know when to accelerate, when to distrust fluency, when to ask for assumptions, when to force a simpler version, and when to stop talking to the assistant entirely.</p>
+<p>The rituals matter:</p>
+<ul>
+<li>Ask the model to expose its assumptions.</li>
+<li>Ask it to self-review before you review it.</li>
+<li>Ask it to challenge your framing.</li>
+<li>Ask it to explain what would change its mind.</li>
+<li>Ask it to summarize mistakes and remember the correction.</li>
+<li>Ask it to grill you when the argument is too soft.</li>
+</ul>
+<p>These are not tricks for better output. They are ways to preserve ownership of the research.</p>
+<p>Vibe researching is valuable when it compresses the distance between confusion and clarity. It is harmful when it lets you skip the discomfort where clarity is made.</p>
+<p>The future researcher will probably read more, draft faster, build faster, and compare more alternatives than before. But the bottleneck will still be judgment: knowing what matters, what is wrong, what is merely plausible, and what deserves another week of thought.</p>
+<p>AI can make research faster.</p>
+<p>It cannot make the core responsibility disappear.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/ai/writing-technical-blogs-after-ai/"> <span class="dir">← previous</span> <span class="title">Writing Technical Blogs After AI</span> </a> <a class="next" href="/writing/blogs/ai/personalized-ai-agents-and-the-visual-novel-design-stack/"> <span class="dir">next →</span> <span class="title">Personalized AI Agents And The Visual Novel Design Stack</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
