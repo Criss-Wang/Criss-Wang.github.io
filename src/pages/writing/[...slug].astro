@@ -33,6 +33,7 @@ const emphasized = titleWords[emIndex] || post.data.title;
 const after = titleWords.slice(emIndex + 1).join(" ");
 const needsMath = post.data.mathjax || /\\\(|\\\[|\$\$/.test(post.body);
 const socialImage = typeof post.data.image === "string" ? post.data.image : undefined;
+const socialUrl = typeof post.data.socialUrl === "string" ? post.data.socialUrl : undefined;
 ---
 
 <BaseLayout
@@ -42,6 +43,7 @@ const socialImage = typeof post.data.image === "string" ? post.data.image : unde
   postFonts
   image={socialImage}
   imageAlt={`${post.data.title} social preview`}
+  url={socialUrl}
   type="article"
 >
   <div class="breadcrumb"><a href="/writing/">← all writing</a></div>

@@ -12,6 +12,7 @@ interface Props {
   postFonts?: boolean;
   image?: string;
   imageAlt?: string;
+  url?: string;
   type?: "website" | "article";
 }
 
@@ -22,11 +23,13 @@ const {
   postFonts = false,
   image = "/images/social/default.png",
   imageAlt,
+  url,
   type = "website",
 } = Astro.props;
 const pageTitle = title === profile.name ? profile.name : `${title} - ${profile.name}`;
 const socialImage = new URL(image, Astro.site).href;
 const socialImageAlt = imageAlt ?? pageTitle;
+const pageUrl = url ? new URL(url, Astro.site).href : Astro.url.href;
 const fontUrl = postFonts
   ? "https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&display=swap"
   : "https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap";
@@ -55,7 +58,7 @@ const fontUrl = postFonts
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={type} />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />

@@ -2,6 +2,7 @@
 title: "Code Is Cheap, Show Me The Idea"
 excerpt: "AI made the first demo cheaper. The scarce thing now is the idea the model would not have found on its own."
 image: /images/social/code-is-cheap-show-me-the-idea.png
+socialUrl: /writing/blogs/ai/code-is-cheap-show-me-the-idea/?card=idea-preview-v2
 date: 2026/05/25
 categories:
   - Blogs
