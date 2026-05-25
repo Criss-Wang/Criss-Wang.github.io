@@ -10,6 +10,9 @@ interface Props {
   description?: string;
   section?: string;
   postFonts?: boolean;
+  image?: string;
+  imageAlt?: string;
+  type?: "website" | "article";
 }
 
 const {
@@ -17,8 +20,13 @@ const {
   description = profile.tagline,
   section = "home",
   postFonts = false,
+  image = "/images/social/default.png",
+  imageAlt,
+  type = "website",
 } = Astro.props;
 const pageTitle = title === profile.name ? profile.name : `${title} - ${profile.name}`;
+const socialImage = new URL(image, Astro.site).href;
+const socialImageAlt = imageAlt ?? pageTitle;
 const fontUrl = postFonts
   ? "https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&display=swap"
   : "https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap";
@@ -46,10 +54,17 @@ const fontUrl = postFonts
     <meta name="description" content={description} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
     <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:image" content={new URL("/images/bio-photo.png", Astro.site).href} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={socialImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={socialImageAlt} />
     <Analytics />
   </head>
   <body data-section={section}>

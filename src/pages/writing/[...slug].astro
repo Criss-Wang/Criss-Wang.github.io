@@ -32,9 +32,18 @@ const before = titleWords.slice(0, emIndex).join(" ");
 const emphasized = titleWords[emIndex] || post.data.title;
 const after = titleWords.slice(emIndex + 1).join(" ");
 const needsMath = post.data.mathjax || /\\\(|\\\[|\$\$/.test(post.body);
+const socialImage = typeof post.data.image === "string" ? post.data.image : undefined;
 ---
 
-<BaseLayout title={post.data.title} description={excerptFor(post)} section="writing" postFonts>
+<BaseLayout
+  title={post.data.title}
+  description={excerptFor(post)}
+  section="writing"
+  postFonts
+  image={socialImage}
+  imageAlt={`${post.data.title} social preview`}
+  type="article"
+>
   <div class="breadcrumb"><a href="/writing/">← all writing</a></div>
 
   <header class="post-head">
