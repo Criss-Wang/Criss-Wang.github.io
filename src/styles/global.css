@@ -3264,7 +3264,7 @@ a:hover {
 }
 
 .article {
-  --article-measure: 46rem;
+  --article-measure: 100%;
   font-family: "Newsreader", Georgia, serif;
   font-variation-settings: "opsz" 18;
   font-size: 18px;
