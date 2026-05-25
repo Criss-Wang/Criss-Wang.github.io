@@ -1,6 +1,6 @@
 ---
 title: "Writing Technical Blogs After AI"
-excerpt: "AI makes knowledge easier to generate, so technical writing has to preserve understanding, judgment, and durable mental models."
+excerpt: "AI can generate explanations on demand. The posts I still want to publish need to carry judgment, contact with reality, and a way of thinking."
 date: 2026/05/06
 categories:
   - Blogs
@@ -13,158 +13,76 @@ toc: true
 
 # Writing Technical Blogs After AI
 
-Technical blogs used to have a simple and important job: preserve knowledge.
+I have been thinking about restarting this blog, and the awkward part is that AI can now write a lot of the posts I used to admire.
 
-Someone spent a weekend fighting a build system, a database migration, a new framework, a strange production failure, or a barely documented API. Then they wrote down what they learned so the next person could suffer a little less. This was a generous act. It made the internet more useful. It helped engineers move faster. It turned private debugging pain into public infrastructure.
+Not perfectly. Not reliably. But well enough to change the feeling of the thing.
 
-That kind of writing still matters. But it is no longer scarce in the same way.
+A tutorial, a setup guide, a "here is what this API does" post: those used to feel like durable contributions to the internet. Someone lost a weekend to a build system, a database migration, a strange production failure, or a barely documented library. Then they wrote down the path out so the next person would not lose the same weekend.
 
-AI has made procedural technical writing much easier to produce. A decent model can explain a library, summarize documentation, generate a tutorial, compare tools, write sample code, and turn scattered notes into a polished post. The result is not that technical blogging is dead. The result is that the baseline has moved.
+I still love that kind of writing. It is generous. It turns private debugging pain into public infrastructure.
 
-If a blog post only preserves information, it now competes with systems that can generate information on demand.
+I just do not think it is enough anymore.
 
-So I want to restart this blog with a different purpose:
+## The Answer Got Cheaper
 
-> In the AI era, the most valuable technical writing preserves understanding, not just knowledge.
+AI has made the ordinary answer easier to generate.
 
-That distinction is going to guide what I write here.
+If I want a first explanation of a library, I can ask for one. If I want a comparison between two tools, I can get a reasonable draft. If I want an example project, a migration checklist, a debugging path, or a gloss over some documentation, a model can usually produce something useful enough to begin with.
 
-## Knowledge Is Easier To Generate
+That does not mean the answer is always correct. It can hallucinate. It can miss a version change. It can explain the happy path while the real problem lives in the edge case. Anyone who has used these tools seriously knows the danger of code that looks more confident than it deserves.
 
-Knowledge-preserving writing answers questions like:
+But the baseline has moved.
 
-- How do I set up this tool?
-- What does this API do?
-- How do I build a small example?
-- What are the steps to fix this common error?
-- What changed between version A and version B?
+The reader no longer needs every blog post to be a static answer. A lot of answers are now conversational. They can be regenerated, narrowed, expanded, corrected, or translated into the reader's local context.
 
-These are useful questions. They are also increasingly well served by AI, documentation search, generated examples, and conversational assistants.
+So the uncomfortable question for me is not "can I write a useful explanation?"
 
-The problem is not that AI answers them perfectly. It often does not. It can hallucinate, flatten important context, ignore edge cases, or produce code that looks more confident than correct. But for many routine questions, AI is now good enough to change the reader's expectations.
+The question is: why should this explanation exist as a blog post?
 
-Readers no longer need every blog post to be a static answer. They can ask for the answer themselves.
+## Knowledge Versus Understanding
 
-What they still need is help knowing how to think.
+The distinction I keep coming back to is knowledge versus understanding.
 
-## Understanding Is Still Scarce
+Knowledge is the answer: the command to run, the option to set, the shape of the API, the order of the migration steps. That kind of writing is still useful, but it is no longer rare in the same way.
 
-Understanding-preserving writing answers a different class of question:
+Understanding is different. It is knowing why the abstraction exists, where the simple explanation breaks, which part of the tool deserves suspicion, and what changed in your own taste after using it for real.
 
-- What is the right mental model?
-- Why does this abstraction exist?
-- Where does the simple explanation break?
-- What tradeoffs matter in practice?
-- What should I pay attention to, and what can I safely ignore?
-- How did building with this change my taste?
-- What does this tool make easier, and what does it make more dangerous?
+That kind of writing has to pass through contact with reality.
 
-These questions are harder to generate from surface-level knowledge because they require judgment. They require contact with reality: building, debugging, designing, evaluating, and being surprised.
+It comes from building the thing, watching it fail, being surprised by the wrong part, and noticing the small mismatch between the official story and the actual workflow. It is the difference between "here is how to use agents" and "here is where the agent demo lied to me." It is the difference between "here is how to evaluate a model" and "here is why the metric improved while the product got worse."
 
-Good technical writing has always done this. The difference is that now this part is the main event.
+This is the part I still want from human technical writing.
 
-In a world full of instantly generated explanations, the valuable post is not the one that says "here is how to use agents." It is the one that says:
+Not because humans are automatically better. We are not. Not because every sentence has to be typed without tools. That would be a strange standard. The point is that the post should contain something harder to recover from a generic prompt: judgment, friction, a private map of what mattered after the clean explanation stopped being enough.
 
-- Here is what agents change about software.
-- Here is a failure mode I did not expect.
-- Here is why the demo is misleading.
-- Here is the product boundary that suddenly feels different.
-- Here is the engineering habit I had to unlearn.
+## What AI Content Gets Wrong
 
-That is the kind of writing I want to do.
+AI makes it easy to create writing that looks useful before it is actually useful.
 
-## AI Changes The Shape Of Software Work
+The shape is familiar now: crisp introduction, tidy bullets, a few caveats, a confident ending. The post has the outline of expertise. It may even be correct. But sometimes it carries no scar tissue. Nothing in it suggests that a real person had to choose between bad options, misunderstood the problem at first, or changed their mind after seeing the system behave.
 
-The most interesting thing about AI is not that it can write text or code. The more interesting thing is that it changes the relationship between people and software.
+That is the writing I want to avoid here.
 
-Traditional software is mostly deterministic. A user expresses intent by clicking, typing, configuring, or calling an API. The software follows predefined paths. The product designer decides the possible actions ahead of time. The engineer encodes the behavior. The user operates inside that surface area.
+If I publish something now, I want to be able to answer a simple question: what did writing this make clearer?
 
-AI products are different. They can interpret vague intent. They can generate intermediate plans. They can use tools. They can adapt their response to context. They can act as collaborators instead of only instruments.
+Some posts may still be practical. Some may start from a small experiment, a product detail, a failed assumption, or a question I cannot quite settle. But if a post is only an answer, it probably belongs in my notes. If it changes how I understand the work, then maybe it is worth publishing.
 
-This does not make them magical. It makes them strange.
+## The Blog I Want
 
-An AI agent is not just a script with a chat box. It sits somewhere between interface, runtime, teammate, and automation. That makes old categories feel unstable. Product design, software architecture, engineering process, testing, observability, trust, and user education all need adjustment.
+I expect this blog to keep circling AI, agents, AI-native products, model evaluation, and software practice. But I do not want it to become a tutorial farm with nicer typography.
 
-Some questions become newly important:
+For me, a post has to do one real thing. It can sharpen a mental model, name a tradeoff I almost missed, connect a product behavior to the architecture underneath it, or turn a personal experiment into reusable judgment. It does not have to be grand. It just has to leave the question clearer than it found it.
 
-- What should the human decide, and what should the agent decide?
-- When should an agent ask for permission?
-- What makes an AI workflow inspectable?
-- How do we test behavior that is useful but not exactly repeatable?
-- What does good taste look like when output quality is probabilistic?
-- How do teams preserve understanding when agents produce more code than humans can comfortably review?
+That is a higher bar than "I learned something, so I will write it down."
 
-These are not just implementation details. They are design questions, engineering questions, and cultural questions at the same time.
+It is also a more interesting reason to write.
 
-That is the terrain I want this blog to explore.
+The old reason to blog was often preservation: I figured this out, so I will save it somewhere public.
 
-## The Problem With AI Content
-
-There is an awkward truth here: AI makes it easier to create the kind of writing that looks useful before it is actually useful.
-
-A generated technical post can have the shape of expertise. It can include a crisp introduction, clean bullet points, code snippets, caveats, and a confident conclusion. It can sound reasonable without carrying much lived experience.
-
-That creates a new burden for writers.
-
-If I publish something now, I should be able to answer: why does this need to exist as a human-written piece?
-
-Not because humans are automatically better. They are not. Not because every sentence must be handcrafted. Tools are tools, and using AI in the writing process can be valuable. The reason must be that the post contains judgment, synthesis, experience, or framing that would be hard to recover from a generic prompt.
-
-The post should make the reader's understanding sharper.
-
-That is a higher bar, but it is also a more interesting one.
-
-## What This Blog Will Try To Do
-
-This blog will focus on AI, agents, AI-native products, and the changing practice of software engineering.
-
-I expect the posts to fall into a few patterns.
-
-### Mental Models
-
-Posts that explain a concept in a way that changes how it feels to work with it. For example: what makes an agent different from a workflow, why context is not just input length, or why evaluation is becoming part of product design rather than only model development.
-
-### Field Notes
-
-Posts from building, testing, or using real systems. These should be specific. What worked? What failed? What surprised me? What did I change my mind about?
-
-### Product Analysis
-
-AI products are full of new interaction patterns. Some are powerful. Some are confusing. Some hide complexity well. Some hide it dangerously. I want to study those patterns with the seriousness we usually reserve for architecture.
-
-### Engineering Practice
-
-AI changes how code is written, reviewed, tested, and maintained. The interesting question is not "can AI write code?" The interesting question is how a good engineering organization changes when code generation becomes cheap but understanding remains expensive.
-
-### Open Questions
-
-Some posts should not pretend to be finished. AI is moving quickly, and many of the most important questions are unsettled. A good open question, clearly framed, can be more useful than a premature answer.
-
-## The Standard I Want To Hold
-
-I want each post to do at least one of these things:
-
-- Give the reader a clearer mental model.
-- Name a tradeoff that is easy to miss.
-- Connect product behavior to technical architecture.
-- Turn a personal experiment into reusable judgment.
-- Challenge a popular but shallow explanation.
-- Make an uncertain area easier to reason about.
-
-If a post cannot do one of those things, maybe it should stay in my notes.
-
-## A Better Reason To Blog
-
-The old reason to blog was often: I learned something, so I will write it down.
-
-That is still good.
-
-But the better reason now might be: I am trying to understand something important, and writing is how I will make that understanding precise enough to share.
-
-That is the spirit I want here. Less content production. More public thinking. Less tutorial farming. More durable mental models. Less pretending the future is obvious. More careful attention to what is actually changing.
+That still matters. But the better reason now is precision: I am trying to understand something important, and writing is how I make that understanding sharp enough to share.
 
 AI has made knowledge easier to generate.
 
 It has not made understanding easy.
 
-That is why technical writing still matters. And that is where I want to begin.
+That is still a good reason to write.
