@@ -1,7 +1,8 @@
 ---
 title: "The Missing Fence Between AI Plans And PR Stacks"
-excerpt: "AI agents can produce plausible plans quickly, but teams need a review surface before those plans harden into a stack of PRs."
+excerpt: "AI agents can produce plausible plans quickly, but teams need a small review surface before those plans harden into a stack of PRs."
 date: 2026/06/07
+updated: 2026/06/08
 categories:
   - Blogs
 tags:
@@ -21,7 +22,7 @@ Then the feature is too large for one PR, so the plan gets sliced.
 
 PR1 lays the foundation. PR2 builds on it. PR3 wires the UI. PR4 handles edge cases. PR5 cleans up tests and polish.
 
-On paper, this is exactly what a responsible team wants. Small PRs. Reviewable chunks. A stack instead of a giant dump.
+On paper, this is exactly what a responsible team wants: small PRs, reviewable chunks, a stack instead of a giant dump.
 
 Then PR2 exposes that PR1 chose the wrong abstraction.
 
@@ -31,11 +32,16 @@ You are not only editing PR2. You are reopening PR1. The plan needs to change. T
 
 I keep thinking of this as the PR2 -> PR1 problem.
 
-The model being wrong is not the surprising part. Plans are always wrong somewhere. The expensive part is where the wrongness is discovered. If the team discovers it after the first foundation PR has already become real, the mistake has been converted from a cheap design question into a stack-management problem.
+The model being wrong is not the surprising part. Plans are always wrong somewhere. The expensive part is where the wrongness is discovered. If the team discovers it after the first foundation PR has become real, the mistake has been converted from a cheap design question into a stack-management problem.
 
 This is one way AI can quietly make engineering more expensive while looking productive.
 
 It speeds up the path into implementation before the team has agreed on the shape of the work.
+
+<figure>
+  <img src="/images/AI/missing-fence/plan-fence-stack.svg" alt="A model-facing plan becomes a human-reviewable fence before being sliced into a PR stack." />
+  <figcaption>The missing step is not more planning. It is a reviewable fence before PR slicing begins.</figcaption>
+</figure>
 
 ## A Plan Is Not A Review Surface
 
@@ -53,7 +59,7 @@ Most plausible plans can be implemented. That is not the bar.
 
 The better question is: should this code exist in this shape?
 
-That question is much harder. It asks whether the data model fits the existing system. Whether the ownership boundary is in the right layer. Whether this new helper is really a helper or the beginning of a parallel subsystem. Whether the UI follows the product's density and behavior conventions. Whether PR1 is quietly committing the team to decisions that will not be visible until PR3.
+That question asks whether the data model fits the existing system, whether the ownership boundary is in the right layer, whether the UI belongs to this product, and whether PR1 is quietly committing the team to decisions that will not be visible until PR3.
 
 Model plans tend to hide those questions inside orderly prose.
 
@@ -69,7 +75,7 @@ What I want between the plan and the PR stack is a fence.
 
 Not a process monument. Not a design-doc ritual for its own sake. A small barrier that prevents the team from crossing into implementation until the expensive decisions are visible.
 
-The workflow would be simple:
+The workflow is simple:
 
 1. Let the agent explore and produce its internal plan.
 2. Convert that plan into a human-reviewable artifact.
@@ -92,11 +98,11 @@ The function is not.
 
 The fence must turn the model's working context into something humans can judge.
 
-## What Reviewers Need To See Early
+## What Reviewers Need Early
 
 The highest-risk decision is not always the same.
 
-Sometimes it is the data model. That is the classic one. If the model invents the wrong entity or stores state in the wrong place, the rest of the stack inherits the mistake. You do not want to discover that in PR3.
+Sometimes it is the data model. If the model invents the wrong entity or stores state in the wrong place, the rest of the stack inherits the mistake. You do not want to discover that in PR3.
 
 Sometimes it is the module boundary. The generated plan may put logic into a shared helper because that is easy to explain, while the codebase actually wants it owned by a service, a route, or a domain object.
 
@@ -118,31 +124,16 @@ Good review artifacts make rejection cheap.
 
 That sounds negative, but it is the whole point. If the team is going to reject the data model, reject it before code generation has turned it into migrations, types, UI state, test fixtures, and reviewer fatigue.
 
-## Team Codebases Are Different
-
-On a personal project, I can tolerate a lot of bad AI planning.
-
-I can ask for too much code, delete half of it, keep one useful function, and move on. The cost is mostly mine. If I make a mess, I own the mess.
-
-Team codebases do not work that way.
-
-Review is how a team preserves taste. It is where ownership gets enforced. It is where hidden coupling is noticed. It is where someone says, "This works, but it is not the shape we want here."
-
-That kind of review is already expensive. AI can either make it easier by surfacing the right decisions earlier, or harder by producing a lot of plausible work that reviewers have to reverse-engineer.
-
-The second version is what worries me.
-
-The author thinks the model has planned. The model thinks implementation is the next natural step. The reviewer sees PR1 and has to infer the design backwards. By the time the reviewer understands where the stack is going, the stack has already started.
-
-That is backwards.
-
-The design should become reviewable before the stack begins.
-
 ## Match The Artifact To The Risk
 
 I do not think the answer is "always write a design doc."
 
 That advice is too generic, and generic process is how teams end up with documents nobody trusts. The fence should match the uncertainty.
+
+<figure>
+  <img src="/images/AI/missing-fence/risk-to-artifact.svg" alt="Schema, ownership, UI, and integration risks mapped to different review artifacts." />
+  <figcaption>Choose the smallest artifact that makes the highest-cost-to-reverse decision visible.</figcaption>
+</figure>
 
 If the risk is schema shape, write the schema proposal and show example operations.
 
@@ -165,6 +156,26 @@ Once the fence is approved, it becomes useful context for the agent too. PR1 is 
 The leverage is not more planning.
 
 It is better placement of review.
+
+## Team Codebases Are Different
+
+On a personal project, I can tolerate a lot of bad AI planning.
+
+I can ask for too much code, delete half of it, keep one useful function, and move on. The cost is mostly mine. If I make a mess, I own the mess.
+
+Team codebases do not work that way.
+
+Review is how a team preserves taste. It is where ownership gets enforced. It is where hidden coupling is noticed. It is where someone says, "This works, but it is not the shape we want here."
+
+That kind of review is already expensive. AI can either make it easier by surfacing the right decisions earlier, or harder by producing a lot of plausible work that reviewers have to reverse-engineer.
+
+The second version is what worries me.
+
+The author thinks the model has planned. The model thinks implementation is the next natural step. The reviewer sees PR1 and has to infer the design backwards. By the time the reviewer understands where the stack is going, the stack has already started.
+
+That is backwards.
+
+The design should become reviewable before the stack begins.
 
 ## The Prompt I Would Actually Use
 
