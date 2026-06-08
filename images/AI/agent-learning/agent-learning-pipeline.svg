@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Agent learning pipeline</title>
+  <desc id="desc">A diagram showing session activity captured by hooks, distilled into instincts, evolved into artifacts, and fed back into future behavior.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="softArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 16; }
+      .core { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 14; }
+      .artifact { fill: #ecfdf5; stroke: #047857; stroke-width: 2; rx: 14; }
+      .risk { fill: #fff7ed; stroke: #c2410c; stroke-width: 2; rx: 14; }
+      .text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+      .title { font-size: 34px; font-weight: 800; }
+      .subtitle { font-size: 18px; fill: #475569; }
+      .label { font-size: 18px; font-weight: 750; }
+      .small { font-size: 14px; fill: #475569; }
+      .tiny { font-size: 12px; fill: #64748b; }
+      .arrow { stroke: #1f2937; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .soft { stroke: #64748b; stroke-width: 2.5; stroke-dasharray: 7 7; fill: none; marker-end: url(#softArrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="700"/>
+  <text class="text title" x="60" y="62">Agents can learn without retraining</text>
+  <text class="text subtitle" x="60" y="94">Session experience becomes durable artifacts that shape future behavior.</text>
+
+  <rect class="panel" x="52" y="128" width="1096" height="500"/>
+
+  <rect class="core" x="88" y="178" width="180" height="92"/>
+  <text class="text label" x="178" y="211" text-anchor="middle">Session Activity</text>
+  <text class="text small" x="178" y="239" text-anchor="middle">prompts, tools,</text>
+  <text class="text small" x="178" y="260" text-anchor="middle">corrections</text>
+
+  <rect class="core" x="330" y="178" width="180" height="92"/>
+  <text class="text label" x="420" y="211" text-anchor="middle">Hooks</text>
+  <text class="text small" x="420" y="239" text-anchor="middle">PreToolUse /</text>
+  <text class="text small" x="420" y="260" text-anchor="middle">PostToolUse</text>
+
+  <rect class="core" x="572" y="178" width="180" height="92"/>
+  <text class="text label" x="662" y="211" text-anchor="middle">Observations</text>
+  <text class="text small" x="662" y="244" text-anchor="middle">observations.jsonl</text>
+
+  <rect class="risk" x="814" y="160" width="250" height="128"/>
+  <text class="text label" x="939" y="194" text-anchor="middle">Project Instincts</text>
+  <text class="text small" x="939" y="224" text-anchor="middle">project-scoped lessons</text>
+  <text class="text tiny" x="939" y="250" text-anchor="middle">projects/&lt;hash&gt;/instincts/*.md</text>
+
+  <path class="arrow" d="M 268 224 L 320 224"/>
+  <path class="arrow" d="M 510 224 L 562 224"/>
+  <path class="arrow" d="M 752 224 L 804 224"/>
+
+  <rect class="risk" x="814" y="346" width="250" height="92"/>
+  <text class="text label" x="939" y="381" text-anchor="middle">Global Instincts</text>
+  <text class="text small" x="939" y="410" text-anchor="middle">cross-project habits</text>
+  <path class="arrow" d="M 939 288 L 939 336"/>
+  <text class="text tiny" x="964" y="322">/promote</text>
+
+  <rect class="artifact" x="330" y="488" width="420" height="92"/>
+  <text class="text label" x="540" y="523" text-anchor="middle">Evolved Artifacts</text>
+  <text class="text small" x="540" y="552" text-anchor="middle">commands, skills, rules, agents, memory</text>
+
+  <path class="arrow" d="M 850 288 C 760 390, 690 450, 610 482"/>
+  <text class="text tiny" x="720" y="392">/evolve</text>
+  <path class="arrow" d="M 814 414 C 720 456, 660 480, 604 488"/>
+  <text class="text tiny" x="710" y="452">/evolve</text>
+
+  <rect class="artifact" x="92" y="488" width="156" height="92"/>
+  <text class="text label" x="170" y="523" text-anchor="middle">Memory</text>
+  <text class="text small" x="170" y="552" text-anchor="middle">retrieved context</text>
+
+  <rect class="artifact" x="830" y="488" width="112" height="92"/>
+  <text class="text label" x="886" y="523" text-anchor="middle">Rules</text>
+  <text class="text small" x="886" y="552" text-anchor="middle">constraints</text>
+
+  <rect class="artifact" x="978" y="488" width="112" height="92"/>
+  <text class="text label" x="1034" y="523" text-anchor="middle">Agents</text>
+  <text class="text small" x="1034" y="552" text-anchor="middle">delegation</text>
+
+  <path class="soft" d="M 814 190 C 610 96, 300 96, 178 168"/>
+  <text class="text tiny" x="575" y="122">guides behavior</text>
+  <path class="soft" d="M 1064 392 C 1138 350, 1138 122, 1070 116 C 790 82, 455 90, 250 166"/>
+  <rect x="840" y="88" width="150" height="22" fill="#f8fafc"/>
+  <text class="text tiny" x="872" y="104">global guidance</text>
+
+  <path class="arrow" d="M 750 534 L 820 534"/>
+  <path class="arrow" d="M 942 534 L 968 534"/>
+  <path class="arrow" d="M 248 534 L 320 534"/>
+
+  <text class="text tiny" x="60" y="666">Key idea: memory is one output of learning, not the whole learning system.</text>
+</svg>
