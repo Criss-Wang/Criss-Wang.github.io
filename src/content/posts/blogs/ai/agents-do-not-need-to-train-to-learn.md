@@ -1,6 +1,6 @@
 ---
 title: "Agents Do Not Need To Train To Learn"
-excerpt: "What looks like agent learning often happens outside the model weights: in memory, rules, tools, and the environment that keeps score."
+excerpt: "The model weights can stay frozen while an agent learns through the files, rules, logs, and habits it leaves behind."
 date: 2026/06/07
 categories:
   - Blogs
@@ -13,242 +13,148 @@ layout: post
 toc: true
 ---
 
-The most interesting question about AI agents right now is not whether the base model is getting smarter.
+Memory is becoming a bad word for what agents do.
 
-It is whether an agent can get better over time without being retrained.
+It sounds too harmless. A notebook. A few facts saved for later. The user likes short answers. This repo uses `pnpm`. The test command is weird. The deployment script lives in a place nobody would guess.
 
-I think the answer is yes. But the word "learn" needs to be used more carefully than people usually use it.
+Those facts matter, but they are not the whole thing.
 
-When most people talk about AI learning, they still mean one thing: the model weights changed. The system was trained, fine-tuned, reinforced, or updated somehow, and now it behaves differently.
+The more interesting change is that an agent can start a future session with different behavior even when the model weights have not changed at all. The base model is the same. The surrounding world is not.
 
-That is still one real kind of learning. It is just no longer the only kind that matters in practice.
+There are new files. There are command logs. There are project rules. There is a failed approach written down somewhere. There is a hook that blocks a dangerous edit. There is a skill the agent can call instead of improvising. There is a test that did not exist yesterday. There is a scratch note that says, in effect: do not waste another hour here.
 
-Modern agents live inside larger systems. They have memory files, tool traces, shell histories, command libraries, project instructions, skills, subagents, tests, hooks, and sandboxes. The model may stay fixed while the surrounding system changes around it.
+That is learning.
 
-That surrounding system is where a lot of practical learning now happens.
+It is not training in the usual sense. Nobody updated the weights. But past experience changed future behavior through durable external artifacts. That is enough to make the word "learn" useful, as long as we do not pretend all learning has the same shape.
 
-An agent works on a task. The task leaves traces. Some of those traces get stored. Some stored patterns become guidance. Some guidance becomes reusable workflows or hard constraints. Eventually the next session behaves differently because the environment has changed.
+The practical question is not whether agents can learn without retraining. They already can.
 
-That is learning, even if the model weights never moved.
+The practical question is what kind of learning we are willing to let them keep.
 
-The compact version is this:
+## The Learning Outside The Model
 
-> An agent learns when past experience changes future behavior through durable external artifacts.
+Most conversations about AI improvement still collapse back to the model. Is the base model smarter? Did the benchmark move? Did the post-training recipe improve? Those questions matter, but they miss the part of the system I keep seeing in real work.
 
-The hard part is not whether this can happen. It already does. The hard part is deciding which artifacts should exist, how much authority they should have, and who gets to review them.
+A coding agent is not just a model. It is a model sitting inside a small operating environment: a repo, a shell, a filesystem, tests, instructions, permissions, command history, tool outputs, review comments, and whatever memory system the product gives it.
 
-## Memory Is Not The Whole Story
+When that environment changes, the agent changes.
 
-"Memory" is doing too much work in current agent conversations.
+If one session discovers that a migration script silently rewrites generated files, the next session can avoid touching those files directly. If one run adds a failing test for the bug, the next run inherits a sharper definition of the problem. If a user keeps correcting the agent for skipping visual QA, that correction can become a project habit. None of this requires retraining.
 
-A memory is not the same thing as a rule. A rule is not the same thing as a workflow. A workflow is not the same thing as a delegated subagent. If we flatten all of these into "the agent remembers stuff," we miss the real design problem.
+The workspace starts acting like an external nervous system.
 
-The better question is: how does experience get compressed into future behavior?
+That is why I do not like treating agent memory as a cute product feature. It is not just a place to store facts. It is one layer in a larger behavioral system.
 
-Here is a more useful ladder:
+A transcript says what happened. A memory says what may matter later. A rule says what must happen. A hook enforces something outside the model's discretion. A command packages a workflow so the agent does not reinvent it every time. A skill turns a repeated pattern into a capability.
 
-- A trace says what happened.
-- A memory says this may matter later.
-- An instinct says behave differently next time.
-- A command or skill says here is a reusable way to behave differently.
-- A rule says this behavior should be constrained even if the agent wants to do something else.
+Those artifacts have different jobs.
 
-Those are not interchangeable.
+"This repo uses `pnpm`" is a memory.
 
-For example:
+"Run the test suite before claiming the task is done" is closer to a rule.
 
-- "This repo uses `pnpm`" is memory.
-- "Run `pnpm test` before claiming the task is done" is closer to an instinct or rule.
-- "`/fix-ci` runs the normal debugging sequence for this codebase" is a command.
-- "Route authentication changes through a security-review subagent" is orchestration policy.
+"Use the security reviewer before touching auth" is orchestration policy.
 
-All of these can be learned from experience. But they differ in scope, authority, and failure mode.
+"When CI fails, run this exact triage sequence" is a command.
 
-That distinction matters because memory is descriptive, while policy is prescriptive.
+Putting all of that under the word "memory" makes the system sound softer than it is. Some of these artifacts do not merely remind the agent. They steer it.
 
-If an agent stores a fact, the failure is usually local: the fact might be stale or wrong. If an agent turns a weak pattern into a rule, the failure becomes behavioral: now the system may keep doing the wrong thing with confidence.
+## Memory Is Not Innocent
 
-## Learning Without Training
+The danger is that memory feels cheaper than it is.
 
-This gives us a simple learning loop for agents:
+An agent can finish a task and still write a terrible memory. It can store a temporary workaround as a permanent fact. It can turn one correction into a global preference. It can preserve a mistaken diagnosis because the final answer sounded confident. It can remember too much and make the next session worse.
 
-1. A session produces raw traces.
-2. The system captures observations from those traces.
-3. Repeated observations get stored as memory.
-4. Stable patterns get promoted into instincts.
-5. Useful instincts become commands, skills, rules, or subagents.
-6. Those artifacts shape future sessions.
+This is not a theoretical problem. Bad memory has a different failure mode from a bad answer. A bad answer is local. A bad memory becomes future context.
 
-What is happening here is not just remembering. It is behavioral compression.
+That is why memory quality needs its own standard.
 
-The transcript of a bad debugging session may be long and noisy. But if ten similar sessions all teach the same lesson, the right durable output may be one short artifact:
+For task completion, we usually ask whether the change worked. Did the tests pass? Did the user get what they asked for? Did the agent avoid making a mess?
 
-> When tests fail in this package, run the isolated integration suite before editing the shared helper.
+For memory, the question is stranger: did the agent save the smallest thing that will improve future behavior, with the right scope and the right amount of uncertainty?
 
-That single sentence can matter more than the full transcript.
+That last part matters. Scope is where memory systems quietly become dangerous. A note that is true in one repository may be wrong in another. A preference that helps one user may annoy another. A debugging pattern that saved one stack may damage a different stack.
 
-This is why I think the best agent systems are starting to look less like stateless assistants and more like local learning organisms built out of files and policies. They do not need to retrain the model to improve on one project. They need a way to convert experience into the right external substrate.
+The memory system has to know not just what it knows, but where that knowledge is allowed to act.
 
-Not every experience deserves promotion. That is exactly why the design problem is interesting.
+I like "instinct" as a middle word here. It is not formal, but it points at something useful. An instinct is a memory that has started shaping behavior, without becoming a hard rule. It lives somewhere between fact and enforcement.
 
-## Memory And Task Completion Have Different Objectives
+That middle layer is powerful. It is also exactly where overreach happens.
 
-One thing that still feels under-specified in agent design is that memory quality and task completion are not the same objective.
+## Dreams Are Garbage Collection
 
-An agent can finish a task while writing terrible memory.
+The agent should not be doing all of its memory hygiene in the middle of a task.
 
-It can also fail the task while preserving a very useful insight.
+During a task, the agent is under pressure. It is trying to make progress. It is reading errors, editing files, choosing tools, and deciding what to do next. That is a bad moment to decide what the system should carry forward for weeks.
 
-Task completion rewards things like speed, visible progress, passing tests, and producing a plausible final answer. Memory quality should reward different things: accuracy, scope, provenance, usefulness, deduplication, staleness detection, contradiction repair, and the ability to forget.
+The language of "dreams" is useful for exactly this reason. Anthropic's managed-agent [Dreams documentation](https://platform.claude.com/docs/en/managed-agents/dreams) describes an offline pass over past sessions and memory, producing a separate output memory store rather than directly mutating the original one. The details may change, but the architectural idea is right: consolidation should be reviewable and discardable.
 
-The ideal memory is not the longest memory. It is the smallest durable representation that improves future behavior without increasing false confidence.
+The dream is where the system can ask slower questions.
 
-If you reward only the immediate task, memory becomes an unpriced side effect. The agent may store too much, store too little, encode temporary facts as permanent truths, or preserve a mistake simply because the final answer sounded coherent.
+Was this correction repeated, or did it happen once? Did a newer session contradict an older memory? Is this really a user preference, or just a fact about one task? Should this stay as memory, become a rule, or disappear?
 
-That creates predictable failures:
+The best dream is not the one that remembers everything. It is the one that throws away the seductive junk.
 
-- A temporary fact gets stored as if it were permanent.
-- A one-off correction becomes a global preference.
-- Old memory overrides newer evidence.
-- Too much stored state crowds out the active task.
-- Bad memory propagates across sessions and tools.
+I want agents that can say, after looking across ten sessions: this pattern is real, this one was noise, this old belief is stale, and this workflow is stable enough to become a command.
 
-This is why memory should not be treated as a free byproduct of successful work. It needs its own evaluation target.
+That is very different from "the agent remembers things."
 
-The question is not only "did the agent finish the job?"
-
-It is also "did the agent preserve the right thing, at the right abstraction level, with the right scope, in a form that helps next time?"
+It is closer to maintenance.
 
 ## Context Is Not Memory
 
-Long context windows do not solve this by themselves.
+Longer context windows do not solve this.
 
-A larger context window lets a model see more text. That is useful. But it does not decide what should persist, what should be forgotten, what should become policy, or what should be retrieved later.
+A long context window lets the model see more text. That is useful. It is not the same as deciding what deserves to persist. Context is exposure. Memory is selection. Rules are authority. Hooks are enforcement.
 
-Context is exposure. Memory is selection. Instinct is behavior.
+If something must happen, memory is too weak.
 
-This is why current systems are already splitting the space into different artifact types. Anthropic has explored explicit [memory](https://docs.anthropic.com/en/docs/claude-code/memory) and [Dreams](https://platform.claude.com/docs/en/managed-agents/dreams) concepts, while coding-agent environments more broadly keep adding instructions, hooks, commands, and scoped project state.
+Use a test. Use a hook. Use a permission boundary. Use a review step. Use a command that makes the desired path easier than improvisation.
 
-That separation is healthy.
+Claude Code's [project memory documentation](https://docs.anthropic.com/en/docs/claude-code/memory) makes this distinction visible by separating project instructions, memory, path-scoped rules, and hooks. That is the right design direction. The artifacts should not all have the same force.
 
-Different artifacts should carry different levels of authority:
+The mistake is letting a weak artifact do a strong artifact's job.
 
-- Context is what the model can currently see.
-- Memory is durable information the model may retrieve later.
-- Instructions are durable guidance written by humans.
-- Rules constrain behavior.
-- Hooks enforce behavior externally.
-- Commands and skills package repeatable workflows.
-- Agents or subagents package delegated roles.
+If the agent should remember that a repo uses `pnpm`, memory is fine. If the agent must never deploy without running a smoke test, memory is not enough. If the agent keeps doing a workflow badly, the answer may not be another note. It may be a command, a checklist, a test, or a smaller tool surface.
 
-If something must happen, memory is too weak. Use a hook, a test, a permission boundary, or an external check.
-
-If something is only a preference, memory may be enough.
-
-If something is a repeated workflow, it probably belongs in a command or skill.
-
-That middle layer between fact and enforcement is what I mean by instinct. It is not a formal term, but it names something real: memory that has started to shape behavior.
+That is the part I think will separate serious agent systems from toy ones. Not the existence of memory. The routing of experience into the right kind of artifact.
 
 ## The World Has To Keep Score
 
-This becomes especially clear in reset-style loops like the Ralph loop, where the same objective is run repeatedly against a changing workspace.
+Reset-style loops make this obvious.
 
-The loop works because the prompt can stay constant while the environment does not. One run adds tests. The next run sees those tests. One run records a failed approach. The next run avoids it. One run updates a progress file. The next run continues from there.
+The Ralph loop is a useful example: run an agent repeatedly against a stable objective, with each iteration starting fresh but inheriting the changed workspace. The prompt may be the same. The world is not. Ralph's own description of [The Loop](https://wiggum.dev/concepts/the-loop/) is basically an argument for externalized state: files, tests, git history, progress markers, and the codebase itself carry the work forward.
 
-The system is learning, but the learning is externalized.
+This can look almost magical the first time it works. The agent exits. Another run begins. Somehow it continues.
 
-That is why [The Loop](https://wiggum.dev/concepts/the-loop/) is such a useful stress test for agent design. It shows that a fixed prompt can still make progress if the world keeps score.
+But the trick is mundane. The world is keeping score.
 
-But this only works when progress is legible:
+If iteration one writes a test, iteration two sees it. If iteration one records a failed approach, iteration two can avoid it. If iteration one leaves a progress file that says exactly what is still unresolved, iteration two does not need to rediscover the whole situation.
 
-- tasks are explicit
-- tests are cheap enough to run
-- blockers are recorded
-- failed approaches are visible
-- completion criteria are checkable
-- the agent can tell whether there is less work than before
+Without that scorekeeping, the loop becomes expensive repetition. The agent starts over, rereads the same files, makes the same plan, hits the same blocker, and produces another polished status update.
 
-Without those conditions, the loop turns into expensive repetition. The agent rediscovers the same facts, repeats the same plan, hits the same blocker, and exits with another polished progress report.
+That is not autonomy. It is amnesia with a nice final answer.
 
-This is an important inversion. People often talk about autonomy as if the model is the whole story. In practice, the environment is part of the intelligence of the system.
+The agent only looks persistent when the environment is persistent in the right ways.
 
-The workspace is the agent's external nervous system.
+## Make The Learned Parts Reviewable
 
-## The Missing Review Layer
+Once learned artifacts shape future behavior, they become operationally closer to code than chat history.
 
-There is one more requirement that I think is still missing from a lot of agent discussions:
+They may not compile. They may not have tests. But they affect what the agent will do next week.
 
-Learned artifacts need to be reviewable.
+That means they need review.
 
-Memory, instincts, rules, commands, and skills all shape future behavior. Operationally, that makes them closer to code than to chat history. They may not compile, but they still create downstream behavior.
+I do not mean every tiny memory needs a meeting. I mean broad or behavior-changing artifacts need a way to be inspected. What changed? Why did it change? Where does it apply? How confident are we? How do we remove it?
 
-So they need similar standards:
+A memory diff should be reviewable. A proposed rule should name its scope. A command should show the workflow it automates. A skill should have examples. A subagent should say when it should be invoked and when it should stay out of the way.
 
-- what changed
-- why it changed
-- where it applies
-- how confident the system is
-- how to revise or remove it
+Otherwise the system gets a hidden policy layer.
 
-This matters because a continuation-friendly artifact is not always a human-aligned artifact.
+That hidden layer may help for a while. Then it will start surprising people.
 
-A plan can be good enough for the next model run while still being poor for human review. A memory can help the agent continue while still being too broad, too stale, or too strong. A subagent can encode a workflow that looked reasonable during one session and becomes costly later.
-
-Mature systems will need a fence between "useful for continuation" and "authorized to shape future behavior."
-
-That fence could take several forms: a memory diff, a proposed rule with scope, a command with examples, a skill package with tests, or a short design note explaining why a local pattern should become global policy.
-
-The common requirement is auditability.
-
-Before an artifact starts steering future work, a human should be able to inspect it.
-
-## What A Better Learning System Looks Like
-
-A better agent learning system would treat experience as raw material, not automatic truth.
-
-Its pipeline would look something like this:
-
-1. Capture session activity.
-2. Extract observations.
-3. Classify each observation by scope and confidence.
-4. Consolidate useful observations into memory.
-5. Detect contradictions and stale entries.
-6. Promote only stable patterns into instincts.
-7. Convert repeatable instincts into commands, skills, rules, or agents.
-8. Require review for high-authority or broad-scope artifacts.
-9. Measure whether future behavior actually improves.
-10. Delete or revise artifacts that cause harm.
-
-What I like about this framing is that it separates immediate success from long-term learning quality.
-
-An agent could finish the task and still fail the memory write.
-
-It could fail the task and still preserve a valuable debugging pattern.
-
-It could propose a global policy and be asked to justify why the evidence supports global scope.
-
-That is the direction that feels real to me: not agents that magically "remember everything," but agents that improve by changing their external operating environment in ways that are scoped, reviewable, and reversible.
-
-## Where This Gets Interesting
+The next serious step in agents may not be longer autonomous runs or even larger context windows. It may be better machinery for turning experience into durable behavior without laundering every observation into authority.
 
 Agents do not need to train to learn.
 
-They can learn by externalizing experience into memory. They can consolidate memory offline. They can turn repeated experience into instincts. They can execute those instincts through commands, skills, rules, and delegated agents. They can make progress across fresh contexts when the workspace preserves enough state.
-
-But every one of those mechanisms creates a second-order problem.
-
-Memory can become stale. Instincts can become rigid. Commands can encode bad workflows. Rules can overconstrain. Loops can repeat failure. Shared memory can become shared contamination.
-
-So the central design question is not:
-
-"Can the agent remember?"
-
-It is:
-
-"What should the agent be allowed to learn, how should that learning be represented, and what evidence shows that the representation improves future behavior?"
-
-Until that question is answered well, agent memory will remain a mixture of useful context, accidental policy, and hidden state.
-
-The next serious leap in agents may not come from larger context windows or longer autonomous runs.
-
-It may come from better systems for turning experience into durable behavior without pretending that every saved artifact deserves authority.
+But if they are going to learn through memory, dreams, rules, commands, skills, and the workspace itself, we need to decide what they are allowed to keep.

@@ -1,6 +1,6 @@
 ---
 title: "The Missing Fence Between AI Plans And PR Stacks"
-excerpt: "AI agents can produce plausible implementation plans, but teams need a human-reviewable artifact before those plans become a stack of PRs."
+excerpt: "AI agents can produce plausible plans quickly, but teams need a review surface before those plans harden into a stack of PRs."
 date: 2026/06/07
 categories:
   - Blogs
@@ -13,255 +13,181 @@ layout: post
 toc: true
 ---
 
-I keep running into a specific failure mode with AI-assisted spec-driven development in existing codebases.
+There is a moment in AI-assisted coding when the work still feels cheap.
 
-The model can produce a large, plausible plan for a feature. It may understand the product goal. It may identify the right modules. It may break the work into steps. It may even name the files that should change.
+The model has read the repo. It has produced a plan. The plan is long, confident, and full of file names. It knows there should be a data model change, a service update, a UI pass, tests, maybe a migration. It has the rhythm of engineering work.
 
-But the plan is usually written for one very specific reader: the model itself.
+Then the feature is too large for one PR, so the plan gets sliced.
 
-That is fine if the next step is another model call.
+PR1 lays the foundation. PR2 builds on it. PR3 wires the UI. PR4 handles edge cases. PR5 cleans up tests and polish.
 
-It is much less fine if the next step is a team deciding whether the design is actually good.
+On paper, this is exactly what a responsible team wants. Small PRs. Reviewable chunks. A stack instead of a giant dump.
 
-In a mature codebase, "good" rarely means "the steps sound coherent." It means the data model fits the existing system. It means the abstraction belongs to the right layer. It means the code shape will survive future use cases. It means the UI follows the product's conventions. It means the PR stack can be reviewed without making every reviewer reconstruct the entire plan from scratch.
+Then PR2 exposes that PR1 chose the wrong abstraction.
 
-This is where the current AI coding workflow often feels wrong.
+Now the cheap part is over.
 
-The model gives you a plan. The plan is too big for one clean PR. So the natural instinct is to split it into a stack: PR1 sets up the data model, PR2 adds core logic, PR3 wires up the UI, PR4 handles edge cases, PR5 adds tests and polish.
+You are not only editing PR2. You are reopening PR1. The plan needs to change. The reviewer has to throw away part of the mental model they just built. The author starts wondering whether the stack should be collapsed, rebased, or handed back to the model for another heroic rewrite.
 
-That sounds reasonable until PR2 reveals that PR1 chose the wrong abstraction.
+I keep thinking of this as the PR2 -> PR1 problem.
 
-Now you are not just editing PR2. You are changing the foundation underneath the stack.
+The model being wrong is not the surprising part. Plans are always wrong somewhere. The expensive part is where the wrongness is discovered. If the team discovers it after the first foundation PR has already become real, the mistake has been converted from a cheap design question into a stack-management problem.
 
-That is the PR2 -> PR1 problem.
+This is one way AI can quietly make engineering more expensive while looking productive.
 
-The expensive part is not that the model was wrong. Plans are always wrong in some way. The expensive part is that the wrongness gets discovered after the team has already started paying implementation and review costs.
+It speeds up the path into implementation before the team has agreed on the shape of the work.
 
-You end up with recursive rollback:
+## A Plan Is Not A Review Surface
 
-- PR2 exposes a flaw in PR1.
-- PR1 needs to be redesigned.
-- PR2 needs to be rewritten.
-- The plan needs to be updated.
-- Reviewers have to discard part of the mental model they just built.
-- The author loses confidence and asks the model for another giant plan.
+The mistake is treating the model's plan as if it is already a human review artifact.
 
-This breaks the economic promise of AI-assisted development.
+It usually is not.
 
-AI is supposed to make iteration cheaper. But if the model accelerates the team into the wrong implementation shape, the cheap generation step creates expensive human cleanup later.
+A model-facing plan is optimized for continuation. It preserves context. It names files. It keeps branches alive. It restates assumptions. It says enough for the next model call to keep moving without rediscovering the repo.
 
-The mistake is treating the model's plan as if it is already a review artifact.
+That is useful. It is just not the same thing as a plan a senior engineer can review.
 
-It is not.
+Human review is not asking, "Can this be implemented?"
 
-## A Model Plan Is Not A Human Plan
+Most plausible plans can be implemented. That is not the bar.
 
-A model-facing plan is optimized for continuation.
+The better question is: should this code exist in this shape?
 
-It preserves context. It lists steps. It names files. It restates assumptions. It keeps optional branches alive because the model may need them later. It stores enough local state so the next agent turn can keep moving without rediscovering everything.
+That question is much harder. It asks whether the data model fits the existing system. Whether the ownership boundary is in the right layer. Whether this new helper is really a helper or the beginning of a parallel subsystem. Whether the UI follows the product's density and behavior conventions. Whether PR1 is quietly committing the team to decisions that will not be visible until PR3.
 
-That is a useful object.
+Model plans tend to hide those questions inside orderly prose.
 
-But it is not the same as a human-facing engineering plan.
+They say "add a shared utility" when the real question is whether the logic belongs in the service layer. They say "create a component" when the real question is whether the existing page pattern should be extended instead. They say "add persistence" when the real question is whether the entity should exist at all.
 
-A human-facing plan is optimized for judgment.
+The plan looks complete because it contains steps.
 
-It should make it easy to answer different questions:
-
-- What decision is being asked of reviewers?
-- What data model change is being proposed?
-- Which existing abstractions does this rely on?
-- Which team, module, or layer owns the important boundary?
-- What would make this approach unacceptable?
-- Which later PRs depend on this early decision?
-- What is the smallest concrete thing reviewers can inspect before implementation begins?
-
-Those are different compression targets.
-
-The model-facing plan says: "Here is everything I might need in order to continue."
-
-The human-facing plan says: "Here are the few decisions that must be correct before continuing is worth it."
-
-If we do not separate those objects, we ask humans to review the wrong thing. They are forced to read markdown written as agent memory and pretend it is a design doc. Or they review PR1 without enough visibility into why PR2, PR3, and PR4 will depend on it.
-
-That is how a foundational mistake survives until it becomes expensive.
+But steps are not judgment.
 
 ## The Fence
 
-The workflow I want is simple:
+What I want between the plan and the PR stack is a fence.
 
-1. The model explores the codebase and proposes a feature plan.
-2. The model converts that plan into a human-reviewable artifact.
-3. Humans review the artifact for project-specific engineering judgment.
-4. Only then does the model or author break the work into PRs.
+Not a process monument. Not a design-doc ritual for its own sake. A small barrier that prevents the team from crossing into implementation until the expensive decisions are visible.
 
-The important part is step 2.
+The workflow would be simple:
 
-After the model plans the feature, it should not immediately start coding a stack of PRs. It should produce a fence.
+1. Let the agent explore and produce its internal plan.
+2. Convert that plan into a human-reviewable artifact.
+3. Review the artifact for the few decisions that would be painful to reverse.
+4. Only then slice the work into PRs.
 
-By "fence," I mean an intermediate artifact that prevents the team from crossing into implementation until the expensive design choices are visible.
+The second step is the one I usually see missing.
 
-The fence is not bureaucracy for its own sake. It is a way to force alignment while changes are still cheap.
+After the model plans, it wants to code. The user also wants it to code, because that is where the tool feels impressive. But in an existing codebase, speed into code is not always progress. Sometimes it is just a faster way to encode the wrong assumption.
 
-The format can vary.
+The fence forces a pause at the right level.
 
-For some teams, the best fence might be a draft large PR. The model implements the broad shape of the feature in one intentionally unmerged PR. Nobody pretends it is ready. It is a design probe. Reviewers can inspect real code, real types, real queries, real UI structure, and real integration points. Once the design feels right, the work can be broken into smaller PRs.
+It asks: what are we about to commit ourselves to?
 
-For other teams, the best fence might be a one-page design note. The model describes the data model, code logic, affected modules, migration path, PR breakdown, risks, and local conventions. Reviewers can align on the shape without reading a pile of generated code.
+That artifact can take different forms. For some teams, it might be a one-page design note. For others, a draft PR that nobody pretends is mergeable. For a UI-heavy change, it might be screenshots or a prototype. For a backend change, it might be a schema sketch plus example reads and writes. For an integration-heavy feature, it might be a code probe that touches the real interfaces and stops there.
 
-For some teams, the fence might be a hybrid: a short design note plus one or two code sketches. Not full implementation, but enough concrete shape to review the hard parts.
+The format is negotiable.
 
-The exact format matters less than the job it performs.
+The function is not.
 
-The fence must turn model context into human engineering alignment.
+The fence must turn the model's working context into something humans can judge.
 
-## What The Fence Should Contain
+## What Reviewers Need To See Early
 
-A useful review fence should answer a small set of questions.
+The highest-risk decision is not always the same.
 
-First: what is the proposed data model?
+Sometimes it is the data model. That is the classic one. If the model invents the wrong entity or stores state in the wrong place, the rest of the stack inherits the mistake. You do not want to discover that in PR3.
 
-In existing projects, data model choices are often the hardest to unwind. If the model invents the wrong entity, stores state in the wrong place, or ignores an existing invariant, every later PR inherits that mistake.
+Sometimes it is the module boundary. The generated plan may put logic into a shared helper because that is easy to explain, while the codebase actually wants it owned by a service, a route, or a domain object.
 
-The fence should make the data model visible before implementation starts.
+Sometimes it is the UI pattern. The model may produce a perfectly reasonable interface that belongs to a different product. It may be too card-heavy, too sparse, too modal-driven, too cheerful, too slow to scan. The issue is not that it fails to render. The issue is that it does not belong.
 
-Second: what is the proposed code shape?
+Sometimes it is the PR stack itself. A stack can look clean while hiding a dependency problem. If PR4 only makes sense if PR1's abstraction survives untouched, reviewers should know that while reviewing PR1.
 
-Not every implementation detail needs to be decided. But reviewers need to know the intended ownership boundaries. Is the change going into an existing service, a new helper, a shared utility, a page-level component, or a backend endpoint? Is it following the grain of the codebase, or creating a parallel mini-system because that was easier for the model?
+A useful fence makes these dependencies explicit.
 
-Third: what local conventions matter?
+It does not need to explain everything. In fact, it should not. The point is to expose the few decisions where being wrong would be expensive.
 
-Existing projects are different from greenfield projects. In a greenfield app, the model can often invent a coherent local style. In an existing codebase, coherence means fitting into decisions that already exist. Naming, file organization, component boundaries, test style, migration patterns, permission checks, error handling, logging, and UI density all matter.
+I would rather read a short artifact that says:
 
-The fence should name the conventions the implementation is expected to follow.
+> If this data model is wrong, stop here. PR2 and PR3 depend on it.
 
-Fourth: what is the PR stack, and where are the dependencies?
+than a beautiful eight-step implementation plan that buries the same fact in the middle.
 
-The PR breakdown should not just be a list of slices. It should identify which PRs are foundational and which PRs are downstream. If PR3 depends on a data structure introduced in PR1, reviewers should know that while reviewing PR1.
+Good review artifacts make rejection cheap.
 
-This is where the fence directly attacks the PR2 -> PR1 problem.
+That sounds negative, but it is the whole point. If the team is going to reject the data model, reject it before code generation has turned it into migrations, types, UI state, test fixtures, and reviewer fatigue.
 
-Fifth: what would cause us to reject the plan?
+## Team Codebases Are Different
 
-This is probably the most underrated part. A good review artifact should make rejection cheap. It should say, explicitly, "If this data model is wrong, stop here." Or, "If this module boundary is unacceptable, do not proceed to implementation." Or, "If the UI needs to follow a different pattern, resolve that before code generation."
+On a personal project, I can tolerate a lot of bad AI planning.
 
-The goal is not to make the model sound confident. The goal is to surface the decisions where confidence would be dangerous.
+I can ask for too much code, delete half of it, keep one useful function, and move on. The cost is mostly mine. If I make a mess, I own the mess.
 
-## Why Teams Need This More
+Team codebases do not work that way.
 
-If I am hacking on a personal project, I can tolerate a lot of bad planning. I can let the model generate too much code, delete half of it, and keep the parts that work. The cost of misunderstanding is mostly mine.
+Review is how a team preserves taste. It is where ownership gets enforced. It is where hidden coupling is noticed. It is where someone says, "This works, but it is not the shape we want here."
 
-Team codebases are different.
+That kind of review is already expensive. AI can either make it easier by surfacing the right decisions earlier, or harder by producing a lot of plausible work that reviewers have to reverse-engineer.
 
-Review is not only a correctness check. It is how a team enforces taste, ownership, maintainability, and shared understanding. A reviewer is not just asking, "Does this work?" They are asking, "Should this code exist in this shape?"
+The second version is what worries me.
 
-AI-generated plans often skip over that distinction.
-
-They are good at saying what can be done. They are worse at presenting the few choices that need human judgment before the doing begins.
-
-That matters because human review attention is scarce. If the model dumps a long markdown plan full of local reasoning, reviewers will not reliably extract the important decisions. If the model jumps straight into PRs, reviewers may discover those decisions only after they have been encoded in code.
-
-Neither path is ideal.
-
-The fence gives reviewers a better object.
-
-It says: here is the proposed shape of the work; here are the assumptions; here are the project-specific choices; here is the stack; here are the points where later work depends on earlier decisions.
-
-Now review can happen at the right level.
-
-## Match The Fence To The Uncertainty
-
-I do not think this is solved.
-
-I also do not think the answer is "always write a design doc." That is too generic.
-
-The artifact has to match the uncertainty.
-
-If the main uncertainty is the data model, the fence might be a schema proposal plus example reads and writes.
-
-If the uncertainty is UI fit, the fence might be screenshots or a prototype.
-
-If the uncertainty is integration risk, the fence might be a draft PR that touches the real interfaces.
-
-The useful rule is:
-
-> Before an AI agent turns a large plan into a PR stack, require a human-reviewable artifact for the highest-cost-to-reverse decision.
-
-That decision may be different every time.
-
-Sometimes it is the schema. Sometimes it is the API. Sometimes it is the component structure. Sometimes it is the migration plan. Sometimes it is the styling system.
-
-The point is to identify it before PR1 quietly commits the team to it.
-
-## A Better Agent Loop
-
-The current loop often looks like this:
-
-1. Ask the model to plan.
-2. Ask the model to implement.
-3. Review the first PR.
-4. Discover that the plan had the wrong shape.
-5. Ask the model to repair the stack.
-
-The better loop looks like this:
-
-1. Ask the model to plan.
-2. Ask the model to produce the review fence.
-3. Review the fence.
-4. Revise the fence until the core decisions are acceptable.
-5. Ask the model to implement PR1 with the approved constraints.
-6. Continue the stack with the fence as shared context.
-
-This does two useful things.
-
-First, it gives the model better instructions. The implementation is no longer based on a vague giant plan. It is based on a reviewed artifact that names the important constraints.
-
-Second, it gives reviewers a durable reference. When PR3 arrives, the reviewer can ask whether it still follows the agreed shape instead of reconstructing the entire design from scattered comments.
-
-That is the real leverage: not more planning, but better placement of review.
-
-## What I Would Ask The Model To Produce
-
-For a large feature in an existing codebase, I would experiment with asking the model for something like this before implementation:
-
-> Convert your implementation plan into a human-reviewable design artifact. Do not optimize for your own continuation. Optimize for a senior engineer deciding whether this should be implemented in this codebase. Identify the data model, code boundaries, local conventions, PR stack, dependencies between PRs, risks, and the earliest decisions that would be expensive to reverse. Keep it short enough to review.
-
-That prompt is not magic. The model can still produce something too long, too generic, or too confident.
-
-But it changes the target. The model is no longer being asked to create memory for itself. It is being asked to create alignment for humans.
-
-That distinction matters.
-
-## The Larger Pattern
-
-This connects to a broader problem with agents.
-
-Agents are increasingly good at producing internal working context. They can write plans, todos, ledgers, scratch files, and implementation notes. Those artifacts can be useful for task completion.
-
-But task-completion artifacts and review artifacts are not the same thing.
-
-The agent needs memory to keep moving.
-
-The team needs judgment surfaces to decide whether movement is good.
-
-If we confuse those two needs, we get generated process that feels productive but does not make the work easier to review.
-
-The missing fence between AI plans and PR stacks is one example of that mismatch.
-
-The model thinks it has planned. The author thinks the work is ready to slice. The reviewer sees a PR and has to infer the design backwards.
+The author thinks the model has planned. The model thinks implementation is the next natural step. The reviewer sees PR1 and has to infer the design backwards. By the time the reviewer understands where the stack is going, the stack has already started.
 
 That is backwards.
 
 The design should become reviewable before the stack begins.
 
-## Conclusion
+## Match The Artifact To The Risk
 
-AI-assisted development should not jump directly from model plan to PR stack in an existing codebase.
+I do not think the answer is "always write a design doc."
 
-The plan needs to pass through a human-reviewable fence first. That fence might be a draft large PR, a one-page design note, a code sketch, a prototype, or some other artifact. The format is negotiable. The function is not.
+That advice is too generic, and generic process is how teams end up with documents nobody trusts. The fence should match the uncertainty.
 
-It must expose the expensive decisions before implementation makes them expensive to change.
+If the risk is schema shape, write the schema proposal and show example operations.
 
-That is how we prevent PR2 from forcing a redesign of PR1. More importantly, it is how we make AI-generated work legible to the humans who still own the codebase.
+If the risk is UI fit, produce screenshots or a narrow prototype.
 
-The future of AI coding in teams probably depends less on bigger plans and more on better review surfaces.
+If the risk is integration, make a draft PR that touches the real boundary and stops before full implementation.
+
+If the risk is ownership, write down which layer owns what and which existing abstractions are being extended.
+
+The useful rule is:
+
+> Before an AI plan becomes a PR stack, make the highest-cost-to-reverse decision reviewable.
+
+That is enough.
+
+The artifact does not need to be long. It does not need to sound impressive. It needs to make the dangerous assumption visible.
+
+Once the fence is approved, it becomes useful context for the agent too. PR1 is no longer based on a giant plan with a lot of loose branches. It is based on a reviewed constraint. PR3 can be reviewed against the same reference instead of forcing everyone to reconstruct the original intent from comments.
+
+The leverage is not more planning.
+
+It is better placement of review.
+
+## The Prompt I Would Actually Use
+
+For a large feature in an existing codebase, I would not ask the agent to go straight from plan to implementation. I would ask for the fence explicitly:
+
+> Convert your implementation plan into a human-reviewable design artifact. Do not optimize for your own continuation. Optimize for a senior engineer deciding whether this belongs in this codebase. Identify the data model, ownership boundaries, local conventions, PR stack, dependencies between PRs, risks, and the earliest decisions that would be expensive to reverse. Keep it short enough to review.
+
+The prompt will not save you by itself. The model can still make the artifact too generic. It can still sound more certain than it should. It can still miss the old scar in the codebase that every human reviewer remembers.
+
+But it changes the target.
+
+The model is no longer writing memory for itself. It is writing a judgment surface for humans.
+
+That distinction is where a lot of AI coding workflow still feels immature to me. Agents are getting better at producing internal working context: plans, todos, ledgers, scratch files, implementation notes. Those artifacts help the agent keep moving.
+
+But teams do not only need movement.
+
+They need to decide whether the movement is good.
+
+The missing fence between AI plans and PR stacks is one example of that mismatch. The model thinks it has planned. The author thinks the work is ready to slice. The reviewer receives a PR and has to recover the design from the implementation.
+
+We can do better than that.
+
+Before the stack begins, make the expensive decision visible.
+
+That is how AI-assisted development becomes easier to review instead of merely faster to generate.
