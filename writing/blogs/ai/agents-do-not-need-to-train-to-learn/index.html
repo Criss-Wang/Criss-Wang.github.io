@@ -6,7 +6,7 @@
         document.documentElement.setAttribute("data-theme", resolved);
         document.documentElement.setAttribute("data-theme-pref", saved);
       })();
-    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Agents Do Not Need To Train To Learn - Zhenlin Wang</title><meta name="description" content="What looks like agent learning often happens outside the model weights: in memory, rules, tools, and the environment that keeps score."><meta property="og:title" content="Agents Do Not Need To Train To Learn - Zhenlin Wang"><meta property="og:description" content="What looks like agent learning often happens outside the model weights: in memory, rules, tools, and the environment that keeps score."><meta property="og:type" content="article"><meta property="og:url" content="https://criss-wang.com/writing/blogs/ai/agents-do-not-need-to-train-to-learn/"><meta property="og:image" content="https://criss-wang.com/images/social/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Agents Do Not Need To Train To Learn social preview"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Agents Do Not Need To Train To Learn - Zhenlin Wang"><meta name="twitter:description" content="What looks like agent learning often happens outside the model weights: in memory, rules, tools, and the environment that keeps score."><meta name="twitter:image" content="https://criss-wang.com/images/social/default.png"><meta name="twitter:image:alt" content="Agents Do Not Need To Train To Learn social preview"><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;c755c05dc76b43ceaf6d188567f2204f&quot;}"></script><link rel="stylesheet" href="/_astro/BaseLayout.BOFfIsJS.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>Agents Do Not Need To Train To Learn - Zhenlin Wang</title><meta name="description" content="The model weights can stay frozen while an agent learns through the files, rules, logs, and habits it leaves behind."><meta property="og:title" content="Agents Do Not Need To Train To Learn - Zhenlin Wang"><meta property="og:description" content="The model weights can stay frozen while an agent learns through the files, rules, logs, and habits it leaves behind."><meta property="og:type" content="article"><meta property="og:url" content="https://criss-wang.com/writing/blogs/ai/agents-do-not-need-to-train-to-learn/"><meta property="og:image" content="https://criss-wang.com/images/social/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Agents Do Not Need To Train To Learn social preview"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Agents Do Not Need To Train To Learn - Zhenlin Wang"><meta name="twitter:description" content="The model weights can stay frozen while an agent learns through the files, rules, logs, and habits it leaves behind."><meta name="twitter:image" content="https://criss-wang.com/images/social/default.png"><meta name="twitter:image:alt" content="Agents Do Not Need To Train To Learn social preview"><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;c755c05dc76b43ceaf6d188567f2204f&quot;}"></script><link rel="stylesheet" href="/_astro/BaseLayout.BOFfIsJS.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
   (function () {
     const root = document.documentElement;
     const toggle = document.getElementById("themeToggle");
@@ -29,163 +29,76 @@
     });
     apply(root.getAttribute("data-theme-pref") || "system");
   })();
-</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · AI · Agents · Memory · Systems</div> <h1>Agents <em>Do</em> Not Need To Train To Learn</h1> <p class="dek">What looks like agent learning often happens outside the model weights: in memory, rules, tools, and the environment that keeps score.</p> <div class="byline"> <strong>2026.06.07</strong> <span>·</span> <span>9 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>The most interesting question about AI agents right now is not whether the base model is getting smarter.</p>
-<p>It is whether an agent can get better over time without being retrained.</p>
-<p>I think the answer is yes. But the word “learn” needs to be used more carefully than people usually use it.</p>
-<p>When most people talk about AI learning, they still mean one thing: the model weights changed. The system was trained, fine-tuned, reinforced, or updated somehow, and now it behaves differently.</p>
-<p>That is still one real kind of learning. It is just no longer the only kind that matters in practice.</p>
-<p>Modern agents live inside larger systems. They have memory files, tool traces, shell histories, command libraries, project instructions, skills, subagents, tests, hooks, and sandboxes. The model may stay fixed while the surrounding system changes around it.</p>
-<p>That surrounding system is where a lot of practical learning now happens.</p>
-<p>An agent works on a task. The task leaves traces. Some of those traces get stored. Some stored patterns become guidance. Some guidance becomes reusable workflows or hard constraints. Eventually the next session behaves differently because the environment has changed.</p>
-<p>That is learning, even if the model weights never moved.</p>
-<p>The compact version is this:</p>
-<blockquote>
-<p>An agent learns when past experience changes future behavior through durable external artifacts.</p>
-</blockquote>
-<p>The hard part is not whether this can happen. It already does. The hard part is deciding which artifacts should exist, how much authority they should have, and who gets to review them.</p>
-<h2 id="memory-is-not-the-whole-story">Memory Is Not The Whole Story</h2>
-<p>“Memory” is doing too much work in current agent conversations.</p>
-<p>A memory is not the same thing as a rule. A rule is not the same thing as a workflow. A workflow is not the same thing as a delegated subagent. If we flatten all of these into “the agent remembers stuff,” we miss the real design problem.</p>
-<p>The better question is: how does experience get compressed into future behavior?</p>
-<p>Here is a more useful ladder:</p>
-<ul>
-<li>A trace says what happened.</li>
-<li>A memory says this may matter later.</li>
-<li>An instinct says behave differently next time.</li>
-<li>A command or skill says here is a reusable way to behave differently.</li>
-<li>A rule says this behavior should be constrained even if the agent wants to do something else.</li>
-</ul>
-<p>Those are not interchangeable.</p>
-<p>For example:</p>
-<ul>
-<li>“This repo uses <code>pnpm</code>” is memory.</li>
-<li>“Run <code>pnpm test</code> before claiming the task is done” is closer to an instinct or rule.</li>
-<li>“<code>/fix-ci</code> runs the normal debugging sequence for this codebase” is a command.</li>
-<li>“Route authentication changes through a security-review subagent” is orchestration policy.</li>
-</ul>
-<p>All of these can be learned from experience. But they differ in scope, authority, and failure mode.</p>
-<p>That distinction matters because memory is descriptive, while policy is prescriptive.</p>
-<p>If an agent stores a fact, the failure is usually local: the fact might be stale or wrong. If an agent turns a weak pattern into a rule, the failure becomes behavioral: now the system may keep doing the wrong thing with confidence.</p>
-<h2 id="learning-without-training">Learning Without Training</h2>
-<p>This gives us a simple learning loop for agents:</p>
-<ol>
-<li>A session produces raw traces.</li>
-<li>The system captures observations from those traces.</li>
-<li>Repeated observations get stored as memory.</li>
-<li>Stable patterns get promoted into instincts.</li>
-<li>Useful instincts become commands, skills, rules, or subagents.</li>
-<li>Those artifacts shape future sessions.</li>
-</ol>
-<p>What is happening here is not just remembering. It is behavioral compression.</p>
-<p>The transcript of a bad debugging session may be long and noisy. But if ten similar sessions all teach the same lesson, the right durable output may be one short artifact:</p>
-<blockquote>
-<p>When tests fail in this package, run the isolated integration suite before editing the shared helper.</p>
-</blockquote>
-<p>That single sentence can matter more than the full transcript.</p>
-<p>This is why I think the best agent systems are starting to look less like stateless assistants and more like local learning organisms built out of files and policies. They do not need to retrain the model to improve on one project. They need a way to convert experience into the right external substrate.</p>
-<p>Not every experience deserves promotion. That is exactly why the design problem is interesting.</p>
-<h2 id="memory-and-task-completion-have-different-objectives">Memory And Task Completion Have Different Objectives</h2>
-<p>One thing that still feels under-specified in agent design is that memory quality and task completion are not the same objective.</p>
-<p>An agent can finish a task while writing terrible memory.</p>
-<p>It can also fail the task while preserving a very useful insight.</p>
-<p>Task completion rewards things like speed, visible progress, passing tests, and producing a plausible final answer. Memory quality should reward different things: accuracy, scope, provenance, usefulness, deduplication, staleness detection, contradiction repair, and the ability to forget.</p>
-<p>The ideal memory is not the longest memory. It is the smallest durable representation that improves future behavior without increasing false confidence.</p>
-<p>If you reward only the immediate task, memory becomes an unpriced side effect. The agent may store too much, store too little, encode temporary facts as permanent truths, or preserve a mistake simply because the final answer sounded coherent.</p>
-<p>That creates predictable failures:</p>
-<ul>
-<li>A temporary fact gets stored as if it were permanent.</li>
-<li>A one-off correction becomes a global preference.</li>
-<li>Old memory overrides newer evidence.</li>
-<li>Too much stored state crowds out the active task.</li>
-<li>Bad memory propagates across sessions and tools.</li>
-</ul>
-<p>This is why memory should not be treated as a free byproduct of successful work. It needs its own evaluation target.</p>
-<p>The question is not only “did the agent finish the job?”</p>
-<p>It is also “did the agent preserve the right thing, at the right abstraction level, with the right scope, in a form that helps next time?”</p>
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · AI · Agents · Memory · Systems</div> <h1>Agents <em>Do</em> Not Need To Train To Learn</h1> <p class="dek">The model weights can stay frozen while an agent learns through the files, rules, logs, and habits it leaves behind.</p> <div class="byline"> <strong>2026.06.07</strong> <span>·</span> <span>8 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>Memory is becoming a bad word for what agents do.</p>
+<p>It sounds too harmless. A notebook. A few facts saved for later. The user likes short answers. This repo uses <code>pnpm</code>. The test command is weird. The deployment script lives in a place nobody would guess.</p>
+<p>Those facts matter, but they are not the whole thing.</p>
+<p>The more interesting change is that an agent can start a future session with different behavior even when the model weights have not changed at all. The base model is the same. The surrounding world is not.</p>
+<p>There are new files. There are command logs. There are project rules. There is a failed approach written down somewhere. There is a hook that blocks a dangerous edit. There is a skill the agent can call instead of improvising. There is a test that did not exist yesterday. There is a scratch note that says, in effect: do not waste another hour here.</p>
+<p>That is learning.</p>
+<p>It is not training in the usual sense. Nobody updated the weights. But past experience changed future behavior through durable external artifacts. That is enough to make the word “learn” useful, as long as we do not pretend all learning has the same shape.</p>
+<p>The practical question is not whether agents can learn without retraining. They already can.</p>
+<p>The practical question is what kind of learning we are willing to let them keep.</p>
+<h2 id="the-learning-outside-the-model">The Learning Outside The Model</h2>
+<p>Most conversations about AI improvement still collapse back to the model. Is the base model smarter? Did the benchmark move? Did the post-training recipe improve? Those questions matter, but they miss the part of the system I keep seeing in real work.</p>
+<p>A coding agent is not just a model. It is a model sitting inside a small operating environment: a repo, a shell, a filesystem, tests, instructions, permissions, command history, tool outputs, review comments, and whatever memory system the product gives it.</p>
+<p>When that environment changes, the agent changes.</p>
+<p>If one session discovers that a migration script silently rewrites generated files, the next session can avoid touching those files directly. If one run adds a failing test for the bug, the next run inherits a sharper definition of the problem. If a user keeps correcting the agent for skipping visual QA, that correction can become a project habit. None of this requires retraining.</p>
+<p>The workspace starts acting like an external nervous system.</p>
+<p>That is why I do not like treating agent memory as a cute product feature. It is not just a place to store facts. It is one layer in a larger behavioral system.</p>
+<p>A transcript says what happened. A memory says what may matter later. A rule says what must happen. A hook enforces something outside the model’s discretion. A command packages a workflow so the agent does not reinvent it every time. A skill turns a repeated pattern into a capability.</p>
+<p>Those artifacts have different jobs.</p>
+<p>“This repo uses <code>pnpm</code>” is a memory.</p>
+<p>“Run the test suite before claiming the task is done” is closer to a rule.</p>
+<p>“Use the security reviewer before touching auth” is orchestration policy.</p>
+<p>“When CI fails, run this exact triage sequence” is a command.</p>
+<p>Putting all of that under the word “memory” makes the system sound softer than it is. Some of these artifacts do not merely remind the agent. They steer it.</p>
+<h2 id="memory-is-not-innocent">Memory Is Not Innocent</h2>
+<p>The danger is that memory feels cheaper than it is.</p>
+<p>An agent can finish a task and still write a terrible memory. It can store a temporary workaround as a permanent fact. It can turn one correction into a global preference. It can preserve a mistaken diagnosis because the final answer sounded confident. It can remember too much and make the next session worse.</p>
+<p>This is not a theoretical problem. Bad memory has a different failure mode from a bad answer. A bad answer is local. A bad memory becomes future context.</p>
+<p>That is why memory quality needs its own standard.</p>
+<p>For task completion, we usually ask whether the change worked. Did the tests pass? Did the user get what they asked for? Did the agent avoid making a mess?</p>
+<p>For memory, the question is stranger: did the agent save the smallest thing that will improve future behavior, with the right scope and the right amount of uncertainty?</p>
+<p>That last part matters. Scope is where memory systems quietly become dangerous. A note that is true in one repository may be wrong in another. A preference that helps one user may annoy another. A debugging pattern that saved one stack may damage a different stack.</p>
+<p>The memory system has to know not just what it knows, but where that knowledge is allowed to act.</p>
+<p>I like “instinct” as a middle word here. It is not formal, but it points at something useful. An instinct is a memory that has started shaping behavior, without becoming a hard rule. It lives somewhere between fact and enforcement.</p>
+<p>That middle layer is powerful. It is also exactly where overreach happens.</p>
+<h2 id="dreams-are-garbage-collection">Dreams Are Garbage Collection</h2>
+<p>The agent should not be doing all of its memory hygiene in the middle of a task.</p>
+<p>During a task, the agent is under pressure. It is trying to make progress. It is reading errors, editing files, choosing tools, and deciding what to do next. That is a bad moment to decide what the system should carry forward for weeks.</p>
+<p>The language of “dreams” is useful for exactly this reason. Anthropic’s managed-agent <a href="https://platform.claude.com/docs/en/managed-agents/dreams">Dreams documentation</a> describes an offline pass over past sessions and memory, producing a separate output memory store rather than directly mutating the original one. The details may change, but the architectural idea is right: consolidation should be reviewable and discardable.</p>
+<p>The dream is where the system can ask slower questions.</p>
+<p>Was this correction repeated, or did it happen once? Did a newer session contradict an older memory? Is this really a user preference, or just a fact about one task? Should this stay as memory, become a rule, or disappear?</p>
+<p>The best dream is not the one that remembers everything. It is the one that throws away the seductive junk.</p>
+<p>I want agents that can say, after looking across ten sessions: this pattern is real, this one was noise, this old belief is stale, and this workflow is stable enough to become a command.</p>
+<p>That is very different from “the agent remembers things.”</p>
+<p>It is closer to maintenance.</p>
 <h2 id="context-is-not-memory">Context Is Not Memory</h2>
-<p>Long context windows do not solve this by themselves.</p>
-<p>A larger context window lets a model see more text. That is useful. But it does not decide what should persist, what should be forgotten, what should become policy, or what should be retrieved later.</p>
-<p>Context is exposure. Memory is selection. Instinct is behavior.</p>
-<p>This is why current systems are already splitting the space into different artifact types. Anthropic has explored explicit <a href="https://docs.anthropic.com/en/docs/claude-code/memory">memory</a> and <a href="https://platform.claude.com/docs/en/managed-agents/dreams">Dreams</a> concepts, while coding-agent environments more broadly keep adding instructions, hooks, commands, and scoped project state.</p>
-<p>That separation is healthy.</p>
-<p>Different artifacts should carry different levels of authority:</p>
-<ul>
-<li>Context is what the model can currently see.</li>
-<li>Memory is durable information the model may retrieve later.</li>
-<li>Instructions are durable guidance written by humans.</li>
-<li>Rules constrain behavior.</li>
-<li>Hooks enforce behavior externally.</li>
-<li>Commands and skills package repeatable workflows.</li>
-<li>Agents or subagents package delegated roles.</li>
-</ul>
-<p>If something must happen, memory is too weak. Use a hook, a test, a permission boundary, or an external check.</p>
-<p>If something is only a preference, memory may be enough.</p>
-<p>If something is a repeated workflow, it probably belongs in a command or skill.</p>
-<p>That middle layer between fact and enforcement is what I mean by instinct. It is not a formal term, but it names something real: memory that has started to shape behavior.</p>
+<p>Longer context windows do not solve this.</p>
+<p>A long context window lets the model see more text. That is useful. It is not the same as deciding what deserves to persist. Context is exposure. Memory is selection. Rules are authority. Hooks are enforcement.</p>
+<p>If something must happen, memory is too weak.</p>
+<p>Use a test. Use a hook. Use a permission boundary. Use a review step. Use a command that makes the desired path easier than improvisation.</p>
+<p>Claude Code’s <a href="https://docs.anthropic.com/en/docs/claude-code/memory">project memory documentation</a> makes this distinction visible by separating project instructions, memory, path-scoped rules, and hooks. That is the right design direction. The artifacts should not all have the same force.</p>
+<p>The mistake is letting a weak artifact do a strong artifact’s job.</p>
+<p>If the agent should remember that a repo uses <code>pnpm</code>, memory is fine. If the agent must never deploy without running a smoke test, memory is not enough. If the agent keeps doing a workflow badly, the answer may not be another note. It may be a command, a checklist, a test, or a smaller tool surface.</p>
+<p>That is the part I think will separate serious agent systems from toy ones. Not the existence of memory. The routing of experience into the right kind of artifact.</p>
 <h2 id="the-world-has-to-keep-score">The World Has To Keep Score</h2>
-<p>This becomes especially clear in reset-style loops like the Ralph loop, where the same objective is run repeatedly against a changing workspace.</p>
-<p>The loop works because the prompt can stay constant while the environment does not. One run adds tests. The next run sees those tests. One run records a failed approach. The next run avoids it. One run updates a progress file. The next run continues from there.</p>
-<p>The system is learning, but the learning is externalized.</p>
-<p>That is why <a href="https://wiggum.dev/concepts/the-loop/">The Loop</a> is such a useful stress test for agent design. It shows that a fixed prompt can still make progress if the world keeps score.</p>
-<p>But this only works when progress is legible:</p>
-<ul>
-<li>tasks are explicit</li>
-<li>tests are cheap enough to run</li>
-<li>blockers are recorded</li>
-<li>failed approaches are visible</li>
-<li>completion criteria are checkable</li>
-<li>the agent can tell whether there is less work than before</li>
-</ul>
-<p>Without those conditions, the loop turns into expensive repetition. The agent rediscovers the same facts, repeats the same plan, hits the same blocker, and exits with another polished progress report.</p>
-<p>This is an important inversion. People often talk about autonomy as if the model is the whole story. In practice, the environment is part of the intelligence of the system.</p>
-<p>The workspace is the agent’s external nervous system.</p>
-<h2 id="the-missing-review-layer">The Missing Review Layer</h2>
-<p>There is one more requirement that I think is still missing from a lot of agent discussions:</p>
-<p>Learned artifacts need to be reviewable.</p>
-<p>Memory, instincts, rules, commands, and skills all shape future behavior. Operationally, that makes them closer to code than to chat history. They may not compile, but they still create downstream behavior.</p>
-<p>So they need similar standards:</p>
-<ul>
-<li>what changed</li>
-<li>why it changed</li>
-<li>where it applies</li>
-<li>how confident the system is</li>
-<li>how to revise or remove it</li>
-</ul>
-<p>This matters because a continuation-friendly artifact is not always a human-aligned artifact.</p>
-<p>A plan can be good enough for the next model run while still being poor for human review. A memory can help the agent continue while still being too broad, too stale, or too strong. A subagent can encode a workflow that looked reasonable during one session and becomes costly later.</p>
-<p>Mature systems will need a fence between “useful for continuation” and “authorized to shape future behavior.”</p>
-<p>That fence could take several forms: a memory diff, a proposed rule with scope, a command with examples, a skill package with tests, or a short design note explaining why a local pattern should become global policy.</p>
-<p>The common requirement is auditability.</p>
-<p>Before an artifact starts steering future work, a human should be able to inspect it.</p>
-<h2 id="what-a-better-learning-system-looks-like">What A Better Learning System Looks Like</h2>
-<p>A better agent learning system would treat experience as raw material, not automatic truth.</p>
-<p>Its pipeline would look something like this:</p>
-<ol>
-<li>Capture session activity.</li>
-<li>Extract observations.</li>
-<li>Classify each observation by scope and confidence.</li>
-<li>Consolidate useful observations into memory.</li>
-<li>Detect contradictions and stale entries.</li>
-<li>Promote only stable patterns into instincts.</li>
-<li>Convert repeatable instincts into commands, skills, rules, or agents.</li>
-<li>Require review for high-authority or broad-scope artifacts.</li>
-<li>Measure whether future behavior actually improves.</li>
-<li>Delete or revise artifacts that cause harm.</li>
-</ol>
-<p>What I like about this framing is that it separates immediate success from long-term learning quality.</p>
-<p>An agent could finish the task and still fail the memory write.</p>
-<p>It could fail the task and still preserve a valuable debugging pattern.</p>
-<p>It could propose a global policy and be asked to justify why the evidence supports global scope.</p>
-<p>That is the direction that feels real to me: not agents that magically “remember everything,” but agents that improve by changing their external operating environment in ways that are scoped, reviewable, and reversible.</p>
-<h2 id="where-this-gets-interesting">Where This Gets Interesting</h2>
+<p>Reset-style loops make this obvious.</p>
+<p>The Ralph loop is a useful example: run an agent repeatedly against a stable objective, with each iteration starting fresh but inheriting the changed workspace. The prompt may be the same. The world is not. Ralph’s own description of <a href="https://wiggum.dev/concepts/the-loop/">The Loop</a> is basically an argument for externalized state: files, tests, git history, progress markers, and the codebase itself carry the work forward.</p>
+<p>This can look almost magical the first time it works. The agent exits. Another run begins. Somehow it continues.</p>
+<p>But the trick is mundane. The world is keeping score.</p>
+<p>If iteration one writes a test, iteration two sees it. If iteration one records a failed approach, iteration two can avoid it. If iteration one leaves a progress file that says exactly what is still unresolved, iteration two does not need to rediscover the whole situation.</p>
+<p>Without that scorekeeping, the loop becomes expensive repetition. The agent starts over, rereads the same files, makes the same plan, hits the same blocker, and produces another polished status update.</p>
+<p>That is not autonomy. It is amnesia with a nice final answer.</p>
+<p>The agent only looks persistent when the environment is persistent in the right ways.</p>
+<h2 id="make-the-learned-parts-reviewable">Make The Learned Parts Reviewable</h2>
+<p>Once learned artifacts shape future behavior, they become operationally closer to code than chat history.</p>
+<p>They may not compile. They may not have tests. But they affect what the agent will do next week.</p>
+<p>That means they need review.</p>
+<p>I do not mean every tiny memory needs a meeting. I mean broad or behavior-changing artifacts need a way to be inspected. What changed? Why did it change? Where does it apply? How confident are we? How do we remove it?</p>
+<p>A memory diff should be reviewable. A proposed rule should name its scope. A command should show the workflow it automates. A skill should have examples. A subagent should say when it should be invoked and when it should stay out of the way.</p>
+<p>Otherwise the system gets a hidden policy layer.</p>
+<p>That hidden layer may help for a while. Then it will start surprising people.</p>
+<p>The next serious step in agents may not be longer autonomous runs or even larger context windows. It may be better machinery for turning experience into durable behavior without laundering every observation into authority.</p>
 <p>Agents do not need to train to learn.</p>
-<p>They can learn by externalizing experience into memory. They can consolidate memory offline. They can turn repeated experience into instincts. They can execute those instincts through commands, skills, rules, and delegated agents. They can make progress across fresh contexts when the workspace preserves enough state.</p>
-<p>But every one of those mechanisms creates a second-order problem.</p>
-<p>Memory can become stale. Instincts can become rigid. Commands can encode bad workflows. Rules can overconstrain. Loops can repeat failure. Shared memory can become shared contamination.</p>
-<p>So the central design question is not:</p>
-<p>“Can the agent remember?”</p>
-<p>It is:</p>
-<p>“What should the agent be allowed to learn, how should that learning be represented, and what evidence shows that the representation improves future behavior?”</p>
-<p>Until that question is answered well, agent memory will remain a mixture of useful context, accidental policy, and hidden state.</p>
-<p>The next serious leap in agents may not come from larger context windows or longer autonomous runs.</p>
-<p>It may come from better systems for turning experience into durable behavior without pretending that every saved artifact deserves authority.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/ai/the-missing-fence-between-ai-plans-and-pr-stacks/"> <span class="dir">← previous</span> <span class="title">The Missing Fence Between AI Plans And PR Stacks</span> </a> <span></span> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
+<p>But if they are going to learn through memory, dreams, rules, commands, skills, and the workspace itself, we need to decide what they are allowed to keep.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/ai/the-missing-fence-between-ai-plans-and-pr-stacks/"> <span class="dir">← previous</span> <span class="title">The Missing Fence Between AI Plans And PR Stacks</span> </a> <span></span> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
