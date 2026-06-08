@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en" data-theme="light"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+      (function () {
+        var saved = localStorage.getItem("theme") || "system";
+        var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var resolved = saved === "system" ? (sysDark ? "dark" : "light") : saved;
+        document.documentElement.setAttribute("data-theme", resolved);
+        document.documentElement.setAttribute("data-theme-pref", saved);
+      })();
+    </script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght,SOFT@9..144,0..1,300..600,30..100&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:opsz,ital,wght@6..72,0..1,400..600&amp;display=swap" rel="stylesheet"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><title>The Missing Fence Between AI Plans And PR Stacks - Zhenlin Wang</title><meta name="description" content="AI agents can produce plausible implementation plans, but teams need a human-reviewable artifact before those plans become a stack of PRs."><meta property="og:title" content="The Missing Fence Between AI Plans And PR Stacks - Zhenlin Wang"><meta property="og:description" content="AI agents can produce plausible implementation plans, but teams need a human-reviewable artifact before those plans become a stack of PRs."><meta property="og:type" content="article"><meta property="og:url" content="https://criss-wang.com/writing/blogs/ai/the-missing-fence-between-ai-plans-and-pr-stacks/"><meta property="og:image" content="https://criss-wang.com/images/social/default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="The Missing Fence Between AI Plans And PR Stacks social preview"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="The Missing Fence Between AI Plans And PR Stacks - Zhenlin Wang"><meta name="twitter:description" content="AI agents can produce plausible implementation plans, but teams need a human-reviewable artifact before those plans become a stack of PRs."><meta name="twitter:image" content="https://criss-wang.com/images/social/default.png"><meta name="twitter:image:alt" content="The Missing Fence Between AI Plans And PR Stacks social preview"><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;:&quot;c755c05dc76b43ceaf6d188567f2204f&quot;}"></script><link rel="stylesheet" href="/_astro/BaseLayout.BOFfIsJS.css"></head> <body data-section="writing"> <header class="nav"> <div class="nav-inner"> <a href="/" class="brand" aria-label="zhenlin.wang index page"> <span class="glyph" aria-hidden="true">Z</span> <span class="brand-copy"> <span class="brand-name">zhenlin.wang</span> <small class="brand-path">· /writing</small> </span> </a> <ul aria-label="Primary navigation"> <li><a href="/about/">about</a></li><li><a href="/writing/" class="active">writing</a></li><li><a href="/publications/">research</a></li><li><a href="/projects/">projects</a></li><li><a href="/contact/">contact</a></li> </ul> <div class="theme-toggle" id="themeToggle" data-pref="system" role="radiogroup" aria-label="Theme"> <span class="pill" aria-hidden="true"></span> <button data-pref="system" aria-label="System theme" title="System" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <rect x="2.5" y="3" width="11" height="8" rx="1.5"></rect> <path d="M6 13h4M8 11v2"></path> </svg> </button> <button data-pref="light" aria-label="Light theme" title="Light" type="button"> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"> <circle cx="8" cy="8" r="3"></circle> <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"></path> </svg> </button> <button data-pref="dark" aria-label="Dark theme" title="Dark" type="button"> <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"> <path d="M11.8 10.7A5.4 5.4 0 0 1 5.3 4.2a5.5 5.5 0 1 0 6.5 6.5Z"></path> </svg> </button> </div> <script>
+  (function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+    const buttons = Array.from(toggle.querySelectorAll("button"));
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    function apply(pref) {
+      const resolved = pref === "system" ? (mql.matches ? "dark" : "light") : pref;
+      root.setAttribute("data-theme", resolved);
+      root.setAttribute("data-theme-pref", pref);
+      toggle.setAttribute("data-pref", pref);
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pref === pref ? "true" : "false");
+      });
+      localStorage.setItem("theme", pref);
+    }
+    buttons.forEach((button) => button.addEventListener("click", () => apply(button.dataset.pref || "system")));
+    mql.addEventListener("change", () => {
+      if (root.getAttribute("data-theme-pref") === "system") apply("system");
+    });
+    apply(root.getAttribute("data-theme-pref") || "system");
+  })();
+</script> </div> </header>  <div class="breadcrumb"><a href="/writing/">← all writing</a></div> <header class="post-head"> <div class="kicker">Blogs · AI · Agents · Engineering · Code Review</div> <h1>The <em>Missing</em> Fence Between AI Plans And PR Stacks</h1> <p class="dek">AI agents can produce plausible implementation plans, but teams need a human-reviewable artifact before those plans become a stack of PRs.</p> <div class="byline"> <strong>2026.06.07</strong> <span>·</span> <span>10 min read</span> <span>·</span> <span>by Zhenlin Wang</span>  </div> </header> <main class="article container-narrow"> <p>I keep running into a specific failure mode with AI-assisted spec-driven development in existing codebases.</p>
+<p>The model can produce a large, plausible plan for a feature. It may understand the product goal. It may identify the right modules. It may break the work into steps. It may even name the files that should change.</p>
+<p>But the plan is usually written for one very specific reader: the model itself.</p>
+<p>That is fine if the next step is another model call.</p>
+<p>It is much less fine if the next step is a team deciding whether the design is actually good.</p>
+<p>In a mature codebase, “good” rarely means “the steps sound coherent.” It means the data model fits the existing system. It means the abstraction belongs to the right layer. It means the code shape will survive future use cases. It means the UI follows the product’s conventions. It means the PR stack can be reviewed without making every reviewer reconstruct the entire plan from scratch.</p>
+<p>This is where the current AI coding workflow often feels wrong.</p>
+<p>The model gives you a plan. The plan is too big for one clean PR. So the natural instinct is to split it into a stack: PR1 sets up the data model, PR2 adds core logic, PR3 wires up the UI, PR4 handles edge cases, PR5 adds tests and polish.</p>
+<p>That sounds reasonable until PR2 reveals that PR1 chose the wrong abstraction.</p>
+<p>Now you are not just editing PR2. You are changing the foundation underneath the stack.</p>
+<p>That is the PR2 -> PR1 problem.</p>
+<p>The expensive part is not that the model was wrong. Plans are always wrong in some way. The expensive part is that the wrongness gets discovered after the team has already started paying implementation and review costs.</p>
+<p>You end up with recursive rollback:</p>
+<ul>
+<li>PR2 exposes a flaw in PR1.</li>
+<li>PR1 needs to be redesigned.</li>
+<li>PR2 needs to be rewritten.</li>
+<li>The plan needs to be updated.</li>
+<li>Reviewers have to discard part of the mental model they just built.</li>
+<li>The author loses confidence and asks the model for another giant plan.</li>
+</ul>
+<p>This breaks the economic promise of AI-assisted development.</p>
+<p>AI is supposed to make iteration cheaper. But if the model accelerates the team into the wrong implementation shape, the cheap generation step creates expensive human cleanup later.</p>
+<p>The mistake is treating the model’s plan as if it is already a review artifact.</p>
+<p>It is not.</p>
+<h2 id="a-model-plan-is-not-a-human-plan">A Model Plan Is Not A Human Plan</h2>
+<p>A model-facing plan is optimized for continuation.</p>
+<p>It preserves context. It lists steps. It names files. It restates assumptions. It keeps optional branches alive because the model may need them later. It stores enough local state so the next agent turn can keep moving without rediscovering everything.</p>
+<p>That is a useful object.</p>
+<p>But it is not the same as a human-facing engineering plan.</p>
+<p>A human-facing plan is optimized for judgment.</p>
+<p>It should make it easy to answer different questions:</p>
+<ul>
+<li>What decision is being asked of reviewers?</li>
+<li>What data model change is being proposed?</li>
+<li>Which existing abstractions does this rely on?</li>
+<li>Which team, module, or layer owns the important boundary?</li>
+<li>What would make this approach unacceptable?</li>
+<li>Which later PRs depend on this early decision?</li>
+<li>What is the smallest concrete thing reviewers can inspect before implementation begins?</li>
+</ul>
+<p>Those are different compression targets.</p>
+<p>The model-facing plan says: “Here is everything I might need in order to continue.”</p>
+<p>The human-facing plan says: “Here are the few decisions that must be correct before continuing is worth it.”</p>
+<p>If we do not separate those objects, we ask humans to review the wrong thing. They are forced to read markdown written as agent memory and pretend it is a design doc. Or they review PR1 without enough visibility into why PR2, PR3, and PR4 will depend on it.</p>
+<p>That is how a foundational mistake survives until it becomes expensive.</p>
+<h2 id="the-fence">The Fence</h2>
+<p>The workflow I want is simple:</p>
+<ol>
+<li>The model explores the codebase and proposes a feature plan.</li>
+<li>The model converts that plan into a human-reviewable artifact.</li>
+<li>Humans review the artifact for project-specific engineering judgment.</li>
+<li>Only then does the model or author break the work into PRs.</li>
+</ol>
+<p>The important part is step 2.</p>
+<p>After the model plans the feature, it should not immediately start coding a stack of PRs. It should produce a fence.</p>
+<p>By “fence,” I mean an intermediate artifact that prevents the team from crossing into implementation until the expensive design choices are visible.</p>
+<p>The fence is not bureaucracy for its own sake. It is a way to force alignment while changes are still cheap.</p>
+<p>The format can vary.</p>
+<p>For some teams, the best fence might be a draft large PR. The model implements the broad shape of the feature in one intentionally unmerged PR. Nobody pretends it is ready. It is a design probe. Reviewers can inspect real code, real types, real queries, real UI structure, and real integration points. Once the design feels right, the work can be broken into smaller PRs.</p>
+<p>For other teams, the best fence might be a one-page design note. The model describes the data model, code logic, affected modules, migration path, PR breakdown, risks, and local conventions. Reviewers can align on the shape without reading a pile of generated code.</p>
+<p>For some teams, the fence might be a hybrid: a short design note plus one or two code sketches. Not full implementation, but enough concrete shape to review the hard parts.</p>
+<p>The exact format matters less than the job it performs.</p>
+<p>The fence must turn model context into human engineering alignment.</p>
+<h2 id="what-the-fence-should-contain">What The Fence Should Contain</h2>
+<p>A useful review fence should answer a small set of questions.</p>
+<p>First: what is the proposed data model?</p>
+<p>In existing projects, data model choices are often the hardest to unwind. If the model invents the wrong entity, stores state in the wrong place, or ignores an existing invariant, every later PR inherits that mistake.</p>
+<p>The fence should make the data model visible before implementation starts.</p>
+<p>Second: what is the proposed code shape?</p>
+<p>Not every implementation detail needs to be decided. But reviewers need to know the intended ownership boundaries. Is the change going into an existing service, a new helper, a shared utility, a page-level component, or a backend endpoint? Is it following the grain of the codebase, or creating a parallel mini-system because that was easier for the model?</p>
+<p>Third: what local conventions matter?</p>
+<p>Existing projects are different from greenfield projects. In a greenfield app, the model can often invent a coherent local style. In an existing codebase, coherence means fitting into decisions that already exist. Naming, file organization, component boundaries, test style, migration patterns, permission checks, error handling, logging, and UI density all matter.</p>
+<p>The fence should name the conventions the implementation is expected to follow.</p>
+<p>Fourth: what is the PR stack, and where are the dependencies?</p>
+<p>The PR breakdown should not just be a list of slices. It should identify which PRs are foundational and which PRs are downstream. If PR3 depends on a data structure introduced in PR1, reviewers should know that while reviewing PR1.</p>
+<p>This is where the fence directly attacks the PR2 -> PR1 problem.</p>
+<p>Fifth: what would cause us to reject the plan?</p>
+<p>This is probably the most underrated part. A good review artifact should make rejection cheap. It should say, explicitly, “If this data model is wrong, stop here.” Or, “If this module boundary is unacceptable, do not proceed to implementation.” Or, “If the UI needs to follow a different pattern, resolve that before code generation.”</p>
+<p>The goal is not to make the model sound confident. The goal is to surface the decisions where confidence would be dangerous.</p>
+<h2 id="why-teams-need-this-more">Why Teams Need This More</h2>
+<p>If I am hacking on a personal project, I can tolerate a lot of bad planning. I can let the model generate too much code, delete half of it, and keep the parts that work. The cost of misunderstanding is mostly mine.</p>
+<p>Team codebases are different.</p>
+<p>Review is not only a correctness check. It is how a team enforces taste, ownership, maintainability, and shared understanding. A reviewer is not just asking, “Does this work?” They are asking, “Should this code exist in this shape?”</p>
+<p>AI-generated plans often skip over that distinction.</p>
+<p>They are good at saying what can be done. They are worse at presenting the few choices that need human judgment before the doing begins.</p>
+<p>That matters because human review attention is scarce. If the model dumps a long markdown plan full of local reasoning, reviewers will not reliably extract the important decisions. If the model jumps straight into PRs, reviewers may discover those decisions only after they have been encoded in code.</p>
+<p>Neither path is ideal.</p>
+<p>The fence gives reviewers a better object.</p>
+<p>It says: here is the proposed shape of the work; here are the assumptions; here are the project-specific choices; here is the stack; here are the points where later work depends on earlier decisions.</p>
+<p>Now review can happen at the right level.</p>
+<h2 id="match-the-fence-to-the-uncertainty">Match The Fence To The Uncertainty</h2>
+<p>I do not think this is solved.</p>
+<p>I also do not think the answer is “always write a design doc.” That is too generic.</p>
+<p>The artifact has to match the uncertainty.</p>
+<p>If the main uncertainty is the data model, the fence might be a schema proposal plus example reads and writes.</p>
+<p>If the uncertainty is UI fit, the fence might be screenshots or a prototype.</p>
+<p>If the uncertainty is integration risk, the fence might be a draft PR that touches the real interfaces.</p>
+<p>The useful rule is:</p>
+<blockquote>
+<p>Before an AI agent turns a large plan into a PR stack, require a human-reviewable artifact for the highest-cost-to-reverse decision.</p>
+</blockquote>
+<p>That decision may be different every time.</p>
+<p>Sometimes it is the schema. Sometimes it is the API. Sometimes it is the component structure. Sometimes it is the migration plan. Sometimes it is the styling system.</p>
+<p>The point is to identify it before PR1 quietly commits the team to it.</p>
+<h2 id="a-better-agent-loop">A Better Agent Loop</h2>
+<p>The current loop often looks like this:</p>
+<ol>
+<li>Ask the model to plan.</li>
+<li>Ask the model to implement.</li>
+<li>Review the first PR.</li>
+<li>Discover that the plan had the wrong shape.</li>
+<li>Ask the model to repair the stack.</li>
+</ol>
+<p>The better loop looks like this:</p>
+<ol>
+<li>Ask the model to plan.</li>
+<li>Ask the model to produce the review fence.</li>
+<li>Review the fence.</li>
+<li>Revise the fence until the core decisions are acceptable.</li>
+<li>Ask the model to implement PR1 with the approved constraints.</li>
+<li>Continue the stack with the fence as shared context.</li>
+</ol>
+<p>This does two useful things.</p>
+<p>First, it gives the model better instructions. The implementation is no longer based on a vague giant plan. It is based on a reviewed artifact that names the important constraints.</p>
+<p>Second, it gives reviewers a durable reference. When PR3 arrives, the reviewer can ask whether it still follows the agreed shape instead of reconstructing the entire design from scattered comments.</p>
+<p>That is the real leverage: not more planning, but better placement of review.</p>
+<h2 id="what-i-would-ask-the-model-to-produce">What I Would Ask The Model To Produce</h2>
+<p>For a large feature in an existing codebase, I would experiment with asking the model for something like this before implementation:</p>
+<blockquote>
+<p>Convert your implementation plan into a human-reviewable design artifact. Do not optimize for your own continuation. Optimize for a senior engineer deciding whether this should be implemented in this codebase. Identify the data model, code boundaries, local conventions, PR stack, dependencies between PRs, risks, and the earliest decisions that would be expensive to reverse. Keep it short enough to review.</p>
+</blockquote>
+<p>That prompt is not magic. The model can still produce something too long, too generic, or too confident.</p>
+<p>But it changes the target. The model is no longer being asked to create memory for itself. It is being asked to create alignment for humans.</p>
+<p>That distinction matters.</p>
+<h2 id="the-larger-pattern">The Larger Pattern</h2>
+<p>This connects to a broader problem with agents.</p>
+<p>Agents are increasingly good at producing internal working context. They can write plans, todos, ledgers, scratch files, and implementation notes. Those artifacts can be useful for task completion.</p>
+<p>But task-completion artifacts and review artifacts are not the same thing.</p>
+<p>The agent needs memory to keep moving.</p>
+<p>The team needs judgment surfaces to decide whether movement is good.</p>
+<p>If we confuse those two needs, we get generated process that feels productive but does not make the work easier to review.</p>
+<p>The missing fence between AI plans and PR stacks is one example of that mismatch.</p>
+<p>The model thinks it has planned. The author thinks the work is ready to slice. The reviewer sees a PR and has to infer the design backwards.</p>
+<p>That is backwards.</p>
+<p>The design should become reviewable before the stack begins.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>AI-assisted development should not jump directly from model plan to PR stack in an existing codebase.</p>
+<p>The plan needs to pass through a human-reviewable fence first. That fence might be a draft large PR, a one-page design note, a code sketch, a prototype, or some other artifact. The format is negotiable. The function is not.</p>
+<p>It must expose the expensive decisions before implementation makes them expensive to change.</p>
+<p>That is how we prevent PR2 from forcing a redesign of PR1. More importantly, it is how we make AI-generated work legible to the humans who still own the codebase.</p>
+<p>The future of AI coding in teams probably depends less on bigger plans and more on better review surfaces.</p> </main> <nav class="post-nav" aria-label="Post navigation"> <a class="prev" href="/writing/blogs/ai/code-is-cheap-show-me-the-idea/"> <span class="dir">← previous</span> <span class="title">Code Is Cheap, Show Me The Idea</span> </a> <a class="next" href="/writing/blogs/ai/agents-do-not-need-to-train-to-learn/"> <span class="dir">next →</span> <span class="title">Agents Do Not Need To Train To Learn</span> </a> </nav>  <footer> <div class="footer-inner"> <div>Zhenlin.Wang · CC BY 4.0 · <a href="/rss.xml">RSS</a></div> <nav aria-label="Footer navigation"> <a href="/about/">about</a> <a href="/writing/">writing</a> <a href="/publications/">research</a> <a href="/projects/">projects</a> <a href="/contact/">contact</a> </nav> </div> </footer> </body></html>
